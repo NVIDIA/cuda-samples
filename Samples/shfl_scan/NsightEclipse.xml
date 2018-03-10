@@ -1,37 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?> 
 <!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
 <entry>
-  <name>simpleCUBLAS</name>
-  <description><![CDATA[Example of using CUBLAS API interface to perform GEMM operations.]]></description>
+  <name>shfl_scan</name>
+  <cflags>
+    <flag>-O3</flag>
+  </cflags>
+  <description><![CDATA[This example demonstrates how to use the shuffle intrinsic __shfl_up_sync to perform a scan operation across a thread block. ]]></description>
   <devicecompilation>whole</devicecompilation>
-  <fallback_min_ptx>true</fallback_min_ptx>
   <includepaths>
     <path>./</path>
     <path>../</path>
     <path>../../common/inc</path>
   </includepaths>
   <keyconcepts>
-    <concept level="basic">Image Processing</concept>
-    <concept level="basic">CUBLAS Library</concept>
+    <concept level="advanced">Data-Parallel Algorithms</concept>
+    <concept level="advanced">Performance Strategies</concept>
   </keyconcepts>
   <keywords>
+    <keyword>GPGPU</keyword>
     <keyword>CUDA</keyword>
-    <keyword>CUBLAS</keyword>
-    <keyword>Linear Algebra</keyword>
+    <keyword>scan</keyword>
+    <keyword>parallel prefix sum</keyword>
+    <keyword>Data-Parallel Algorithms</keyword>
   </keywords>
   <libraries>
-    <library>cublas</library>
   </libraries>
   <librarypaths>
   </librarypaths>
   <nsight_eclipse>true</nsight_eclipse>
-  <primary_file>simpleCUBLAS.cpp</primary_file>
-  <required_dependencies>
-    <dependency>CUBLAS</dependency>
-  </required_dependencies>
+  <primary_file>shfl_scan.cu</primary_file>
   <scopes>
-    <scope>1:CUDA Basic Topics</scope>
-    <scope>3:Linear Algebra</scope>
+    <scope>1:CUDA Advanced Topics</scope>
+    <scope>1:Data-Parallel Algorithms</scope>
+    <scope>1:Performance Strategies</scope>
   </scopes>
   <sm-arch>sm30</sm-arch>
   <sm-arch>sm35</sm-arch>
@@ -65,7 +66,8 @@
     </env>
   </supported_envs>
   <supported_sm_architectures>
-    <include>all</include>
+    <from>3.0</from>
   </supported_sm_architectures>
-  <title>Simple CUBLAS</title>
+  <title>CUDA Parallel Prefix Sum with Shuffle Intrinsics (SHFL_Scan)</title>
+  <type>exe</type>
 </entry>

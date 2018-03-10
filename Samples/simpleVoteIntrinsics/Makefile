@@ -234,6 +234,8 @@ ALL_CCFLAGS += $(EXTRA_NVCCFLAGS)
 ALL_CCFLAGS += $(addprefix -Xcompiler ,$(CCFLAGS))
 ALL_CCFLAGS += $(addprefix -Xcompiler ,$(EXTRA_CCFLAGS))
 
+SAMPLE_ENABLED := 1
+
 ALL_LDFLAGS :=
 ALL_LDFLAGS += $(ALL_CCFLAGS)
 ALL_LDFLAGS += $(addprefix -Xlinker ,$(LDFLAGS))
@@ -246,16 +248,16 @@ LIBRARIES :=
 ################################################################################
 
 # Gencode arguments
-SMS ?=
+SMS ?= 30 35 37 50 52 60 61 70
+
+ifeq ($(SMS),)
+$(info >>> WARNING - no SM architectures have been specified - waiving sample <<<)
+SAMPLE_ENABLED := 0
+endif
 
 ifeq ($(GENCODE_FLAGS),)
 # Generate SASS code for each SM architecture listed in $(SMS)
 $(foreach sm,$(SMS),$(eval GENCODE_FLAGS += -gencode arch=compute_$(sm),code=sm_$(sm)))
-
-ifeq ($(SMS),)
-# Generate PTX code from SM 30
-GENCODE_FLAGS += -gencode arch=compute_30,code=compute_30
-endif
 
 # Generate PTX code from the highest SM architecture in $(SMS) to guarantee forward-compatibility
 HIGHEST_SM := $(lastword $(sort $(SMS)))
@@ -264,28 +266,37 @@ GENCODE_FLAGS += -gencode arch=compute_$(HIGHEST_SM),code=compute_$(HIGHEST_SM)
 endif
 endif
 
-LIBRARIES += -lcublas
+ifeq ($(SAMPLE_ENABLED),0)
+EXEC ?= @echo "[@]"
+endif
 
 ################################################################################
 
 # Target rules
 all: build
 
-build: simpleCUBLAS
+build: simpleVoteIntrinsics
 
-simpleCUBLAS.o:simpleCUBLAS.cpp
-	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
+check.deps:
+ifeq ($(SAMPLE_ENABLED),0)
+	@echo "Sample will be waived due to the above missing dependencies"
+else
+	@echo "Sample is ready - all dependencies have been met"
+endif
 
-simpleCUBLAS: simpleCUBLAS.o
-	$(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
-	mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
-	cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
+simpleVoteIntrinsics.o:simpleVoteIntrinsics.cu
+	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
+
+simpleVoteIntrinsics: simpleVoteIntrinsics.o
+	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
+	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
+	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
 run: build
-	./simpleCUBLAS
+	$(EXEC) ./simpleVoteIntrinsics
 
 clean:
-	rm -f simpleCUBLAS simpleCUBLAS.o
-	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/simpleCUBLAS
+	rm -f simpleVoteIntrinsics simpleVoteIntrinsics.o
+	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/simpleVoteIntrinsics
 
 clobber: clean

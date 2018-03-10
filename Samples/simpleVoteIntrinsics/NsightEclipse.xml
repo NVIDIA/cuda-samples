@@ -1,37 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?> 
 <!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
 <entry>
-  <name>simpleCUBLAS</name>
-  <description><![CDATA[Example of using CUBLAS API interface to perform GEMM operations.]]></description>
+  <name>simpleVoteIntrinsics</name>
+  <cuda_api_list>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaMemcpy</toolkit>
+    <toolkit>cudaFreeHost</toolkit>
+  </cuda_api_list>
+  <description><![CDATA[Simple program which demonstrates how to use the Vote (__any_sync, __all_sync) intrinsic instruction in a CUDA kernel.]]></description>
   <devicecompilation>whole</devicecompilation>
-  <fallback_min_ptx>true</fallback_min_ptx>
   <includepaths>
     <path>./</path>
     <path>../</path>
     <path>../../common/inc</path>
   </includepaths>
   <keyconcepts>
-    <concept level="basic">Image Processing</concept>
-    <concept level="basic">CUBLAS Library</concept>
+    <concept level="basic">Vote Intrinsics</concept>
   </keyconcepts>
   <keywords>
     <keyword>CUDA</keyword>
-    <keyword>CUBLAS</keyword>
-    <keyword>Linear Algebra</keyword>
+    <keyword>GPGPU</keyword>
+    <keyword>vote</keyword>
   </keywords>
   <libraries>
-    <library>cublas</library>
   </libraries>
   <librarypaths>
   </librarypaths>
   <nsight_eclipse>true</nsight_eclipse>
-  <primary_file>simpleCUBLAS.cpp</primary_file>
-  <required_dependencies>
-    <dependency>CUBLAS</dependency>
-  </required_dependencies>
+  <primary_file>simpleVoteIntrinsics.cu</primary_file>
   <scopes>
     <scope>1:CUDA Basic Topics</scope>
-    <scope>3:Linear Algebra</scope>
   </scopes>
   <sm-arch>sm30</sm-arch>
   <sm-arch>sm35</sm-arch>
@@ -67,5 +66,6 @@
   <supported_sm_architectures>
     <include>all</include>
   </supported_sm_architectures>
-  <title>Simple CUBLAS</title>
+  <title>Simple Vote Intrinsics</title>
+  <type>exe</type>
 </entry>

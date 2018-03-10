@@ -1,12 +1,12 @@
-# simpleCUBLAS - Simple CUBLAS
+# shfl_scan - CUDA Parallel Prefix Sum with Shuffle Intrinsics (SHFL_Scan)
 
 ## Description
 
-Example of using CUBLAS API interface to perform GEMM operations.
+This example demonstrates how to use the shuffle intrinsic __shfl_up_sync to perform a scan operation across a thread block.
 
 ## Key Concepts
 
-Image Processing, CUBLAS Library
+Data-Parallel Algorithms, Performance Strategies
 
 ## Supported SM Architectures
 
@@ -22,13 +22,9 @@ x86_64, ppc64le, armv7l, aarch64
 
 ## CUDA APIs involved
 
-## Dependencies needed to build/run
-[CUBLAS](../../README.md#cublas)
-
 ## Prerequisites
 
 Download and install the [CUDA Toolkit 9.2](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
-Make sure the dependencies mentioned in [Dependencies]() section above are installed.
 
 ## Build and Run
 

@@ -9,6 +9,7 @@ This section describes the release notes for the CUDA Samples on GitHub only.
 ### CUDA 9.2
 
 This is the first release of CUDA Samples on GitHub:
+*  Added `vectorAdd_nvrtc`. Demonstrates runtime compilation library using NVRTC of a simple vectorAdd kernel.
 *  Added `warpAggregatedAtomicsCG`. Demonstrates warp aggregated atomics using Cooperative Groups.
 *  Added `deviceQuery`. Enumerates the properties of the CUDA devices present in the system.
 *  Added `matrixMul`. Demonstrates a matrix multiplication using shared memory through tiled approach.
@@ -16,6 +17,10 @@ This is the first release of CUDA Samples on GitHub:
 *  Added `cudaTensorCoreGemm`. Demonstrates a GEMM computation using the Warp Matrix Multiply and Accumulate (WMMA) API introduced in CUDA 9, as well as the new Tensor Cores introduced in the Volta chip family.
 *  Added `simpleVoteIntrinsics` which uses *_sync equivalent of the vote intrinsics _any, _all added since CUDA 9.0.
 *  Added `shfl_scan` which uses *_sync equivalent of the shfl intrinsics added since CUDA 9.0.
+*  Added `conjugateGradientMultiBlockCG`. Demonstrates a conjugate gradient solver on GPU using Multi Block Cooperative Groups.
+*  Added `conjugateGradientMultiDeviceCG`. Demonstrates a conjugate gradient solver on multiple GPUs using Multi Device Cooperative Groups, also uses unified memory prefetching and usage hints APIs.
+*  Added `simpleCUBLAS`. Demonstrates how perform GEMM operations using CUBLAS library.
+*  Added `simpleCUFFT`. Demonstrates how perform FFT operations using CUFFT library.
 
 ## Getting Started
 
@@ -103,19 +108,22 @@ The samples makefiles can take advantage of certain options:
 ### Samples by OS
 
 #### Linux
-**[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[matrixMulDrv](./Samples/matrixMulDrv)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[simpleCUFFT](./Samples/simpleCUFFT)** |
+**[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[conjugateGradientMultiBlockCG](./Samples/conjugateGradientMultiBlockCG)** | **[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[matrixMulDrv](./Samples/matrixMulDrv)** |
 ---|---|---|---|
-**[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[matrixMul](./Samples/matrixMul)** | **[deviceQuery](./Samples/deviceQuery)** |
+**[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[simpleCUFFT](./Samples/simpleCUFFT)** | **[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** |
+**[matrixMul](./Samples/matrixMul)** | **[shfl_scan](./Samples/shfl_scan)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[deviceQuery](./Samples/deviceQuery)** |
 
 #### Windows
-**[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[matrixMulDrv](./Samples/matrixMulDrv)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[simpleCUFFT](./Samples/simpleCUFFT)** |
+**[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[conjugateGradientMultiBlockCG](./Samples/conjugateGradientMultiBlockCG)** | **[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[matrixMulDrv](./Samples/matrixMulDrv)** |
 ---|---|---|---|
-**[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[matrixMul](./Samples/matrixMul)** | **[deviceQuery](./Samples/deviceQuery)** |
+**[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[simpleCUFFT](./Samples/simpleCUFFT)** | **[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** |
+**[matrixMul](./Samples/matrixMul)** | **[shfl_scan](./Samples/shfl_scan)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[deviceQuery](./Samples/deviceQuery)** |
 
 #### Mac OSX
 **[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[matrixMulDrv](./Samples/matrixMulDrv)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[simpleCUFFT](./Samples/simpleCUFFT)** |
 ---|---|---|---|
-**[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[matrixMul](./Samples/matrixMul)** | **[deviceQuery](./Samples/deviceQuery)** |
+**[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[matrixMul](./Samples/matrixMul)** | **[shfl_scan](./Samples/shfl_scan)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** |
+**[deviceQuery](./Samples/deviceQuery)** |
 
 ## Dependencies
 

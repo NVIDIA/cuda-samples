@@ -1,12 +1,12 @@
-# simpleCUBLAS - Simple CUBLAS
+# simpleVoteIntrinsics - Simple Vote Intrinsics
 
 ## Description
 
-Example of using CUBLAS API interface to perform GEMM operations.
+Simple program which demonstrates how to use the Vote (__any_sync, __all_sync) intrinsic instruction in a CUDA kernel.
 
 ## Key Concepts
 
-Image Processing, CUBLAS Library
+Vote Intrinsics
 
 ## Supported SM Architectures
 
@@ -22,13 +22,12 @@ x86_64, ppc64le, armv7l, aarch64
 
 ## CUDA APIs involved
 
-## Dependencies needed to build/run
-[CUBLAS](../../README.md#cublas)
+### [CUDA Runtime API](http://docs.nvidia.com/cuda/cuda-runtime-api/index.html)
+cudaMalloc, cudaFree, cudaMemcpy, cudaFreeHost
 
 ## Prerequisites
 
 Download and install the [CUDA Toolkit 9.2](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
-Make sure the dependencies mentioned in [Dependencies]() section above are installed.
 
 ## Build and Run
 

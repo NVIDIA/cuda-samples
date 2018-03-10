@@ -234,6 +234,26 @@ ALL_CCFLAGS += $(EXTRA_NVCCFLAGS)
 ALL_CCFLAGS += $(addprefix -Xcompiler ,$(CCFLAGS))
 ALL_CCFLAGS += $(addprefix -Xcompiler ,$(EXTRA_CCFLAGS))
 
+SAMPLE_ENABLED := 1
+
+# This sample is not supported on Mac OSX
+ifeq ($(TARGET_OS),darwin)
+  $(info >>> WARNING - conjugateGradientMultiDeviceCG is not supported on Mac OSX - waiving sample <<<)
+  SAMPLE_ENABLED := 0
+endif
+
+# This sample is not supported on ARMv7
+ifeq ($(TARGET_ARCH),armv7l)
+  $(info >>> WARNING - conjugateGradientMultiDeviceCG is not supported on ARMv7 - waiving sample <<<)
+  SAMPLE_ENABLED := 0
+endif
+
+# This sample is not supported on aarch64
+ifeq ($(TARGET_ARCH),aarch64)
+  $(info >>> WARNING - conjugateGradientMultiDeviceCG is not supported on aarch64 - waiving sample <<<)
+  SAMPLE_ENABLED := 0
+endif
+
 ALL_LDFLAGS :=
 ALL_LDFLAGS += $(ALL_CCFLAGS)
 ALL_LDFLAGS += $(addprefix -Xlinker ,$(LDFLAGS))
@@ -246,16 +266,16 @@ LIBRARIES :=
 ################################################################################
 
 # Gencode arguments
-SMS ?=
+SMS ?= 60 61 70
+
+ifeq ($(SMS),)
+$(info >>> WARNING - no SM architectures have been specified - waiving sample <<<)
+SAMPLE_ENABLED := 0
+endif
 
 ifeq ($(GENCODE_FLAGS),)
 # Generate SASS code for each SM architecture listed in $(SMS)
 $(foreach sm,$(SMS),$(eval GENCODE_FLAGS += -gencode arch=compute_$(sm),code=sm_$(sm)))
-
-ifeq ($(SMS),)
-# Generate PTX code from SM 30
-GENCODE_FLAGS += -gencode arch=compute_30,code=compute_30
-endif
 
 # Generate PTX code from the highest SM architecture in $(SMS) to guarantee forward-compatibility
 HIGHEST_SM := $(lastword $(sort $(SMS)))
@@ -264,28 +284,41 @@ GENCODE_FLAGS += -gencode arch=compute_$(HIGHEST_SM),code=compute_$(HIGHEST_SM)
 endif
 endif
 
-LIBRARIES += -lcublas
+ALL_CCFLAGS += -dc
+
+LIBRARIES += -lcudadevrt
+
+ifeq ($(SAMPLE_ENABLED),0)
+EXEC ?= @echo "[@]"
+endif
 
 ################################################################################
 
 # Target rules
 all: build
 
-build: simpleCUBLAS
+build: conjugateGradientMultiDeviceCG
 
-simpleCUBLAS.o:simpleCUBLAS.cpp
-	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
+check.deps:
+ifeq ($(SAMPLE_ENABLED),0)
+	@echo "Sample will be waived due to the above missing dependencies"
+else
+	@echo "Sample is ready - all dependencies have been met"
+endif
 
-simpleCUBLAS: simpleCUBLAS.o
-	$(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
-	mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
-	cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
+conjugateGradientMultiDeviceCG.o:conjugateGradientMultiDeviceCG.cu
+	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
+
+conjugateGradientMultiDeviceCG: conjugateGradientMultiDeviceCG.o
+	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
+	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
+	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
 run: build
-	./simpleCUBLAS
+	$(EXEC) ./conjugateGradientMultiDeviceCG
 
 clean:
-	rm -f simpleCUBLAS simpleCUBLAS.o
-	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/simpleCUBLAS
+	rm -f conjugateGradientMultiDeviceCG conjugateGradientMultiDeviceCG.o
+	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/conjugateGradientMultiDeviceCG
 
 clobber: clean

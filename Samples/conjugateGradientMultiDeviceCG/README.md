@@ -1,29 +1,32 @@
-# simpleCUBLAS - Simple CUBLAS
+# conjugateGradientMultiDeviceCG - conjugateGradient using MultiDevice Cooperative Groups
 
 ## Description
 
-Example of using CUBLAS API interface to perform GEMM operations.
+This sample implements a conjugate gradient solver on multiple GPUs using Multi Device Cooperative Groups, also uses Unified Memory optimized using prefetching and usage hints.
 
 ## Key Concepts
 
-Image Processing, CUBLAS Library
+Unified Memory, Linear Algebra, Cooperative Groups, MultiDevice Cooperative Groups
 
 ## Supported SM Architectures
 
-[SM 3.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 3.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 3.7 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.1 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.0 ](https://developer.nvidia.com/cuda-gpus)
+[SM 6.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.1 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.0 ](https://developer.nvidia.com/cuda-gpus)
 
 ## Supported OSes
 
-Linux, Windows, MacOSX
+Linux, Windows
 
 ## Supported CPU Architecture
 
-x86_64, ppc64le, armv7l, aarch64
+x86_64, ppc64le
 
 ## CUDA APIs involved
 
+### [CUDA Runtime API](http://docs.nvidia.com/cuda/cuda-runtime-api/index.html)
+cudaMemAdvise, cudaMemPrefetchAsync, cudaLaunchCooperativeKernelMultiDevice, cudaStreamSynchronize, cudaOccupancyMaxActiveBlocksPerMultiprocessor
+
 ## Dependencies needed to build/run
-[CUBLAS](../../README.md#cublas)
+[UVM](../../README.md#uvm), [MDCG](../../README.md#mdcg)
 
 ## Prerequisites
 
@@ -49,9 +52,9 @@ $ cd <sample_dir>
 $ make
 ```
 The samples makefiles can take advantage of certain options:
-*  **TARGET_ARCH=<arch>** - cross-compile targeting a specific architecture. Allowed architectures are x86_64, ppc64le, armv7l, aarch64.
+*  **TARGET_ARCH=<arch>** - cross-compile targeting a specific architecture. Allowed architectures are x86_64, ppc64le.
     By default, TARGET_ARCH is set to HOST_ARCH. On a x86_64 machine, not setting TARGET_ARCH is the equivalent of setting TARGET_ARCH=x86_64.<br/>
-`$ make TARGET_ARCH=x86_64` <br/> `$ make TARGET_ARCH=ppc64le` <br/> `$ make TARGET_ARCH=armv7l` <br/> `$ make TARGET_ARCH=aarch64` <br/>
+`$ make TARGET_ARCH=x86_64` <br/> `$ make TARGET_ARCH=ppc64le` <br/>
     See [here](http://docs.nvidia.com/cuda/cuda-samples/index.html#cross-samples) for more details.
 *   **dbg=1** - build with debug symbols
     ```
@@ -66,30 +69,6 @@ The samples makefiles can take advantage of certain options:
 ```
     $ make HOST_COMPILER=g++
 ```
-
-### Mac
-The Mac samples are built using makefiles. To use the makefiles, change directory into the sample directory you wish to build, and run make:
-```
-$ cd <sample_dir>
-$ make
-```
-
-The samples makefiles can take advantage of certain options:
-
-*  **dbg=1** - build with debug symbols
-    ```
-    $ make dbg=1
-    ```
-
-*  **SMS="A B ..."** - override the SM architectures for which the sample will be built, where "A B ..." is a space-delimited list of SM architectures. For example, to generate SASS for SM 50 and SM 60, use SMS="50 60".
-    ```
-    $ make SMS="A B ..."
-    ```
-
-*  **HOST_COMPILER=<host_compiler>** - override the default clang host compiler. See the [Mac Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-mac-os-x/index.html#system-requirements) for a list of supported host compilers.
-    ```
-    $ make HOST_COMPILER=clang
-    ```
 
 ## References (for more details)
 

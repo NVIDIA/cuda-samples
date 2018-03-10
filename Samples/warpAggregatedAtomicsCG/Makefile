@@ -180,6 +180,21 @@ ifneq ($(TARGET_ARCH),$(HOST_ARCH))
             LDFLAGS += -rpath-link=$(TARGET_FS)/usr/lib/arm-linux-gnueabihf
         endif
     endif
+    ifeq ($(TARGET_ARCH)-$(TARGET_OS),aarch64-linux)
+        ifneq ($(TARGET_FS),)
+            GCCVERSIONLTEQ46 := $(shell expr `$(HOST_COMPILER) -dumpversion` \<= 4.6)
+            ifeq ($(GCCVERSIONLTEQ46),1)
+                CCFLAGS += --sysroot=$(TARGET_FS)
+            endif
+            LDFLAGS += --sysroot=$(TARGET_FS)
+            LDFLAGS += -rpath-link=$(TARGET_FS)/lib -L $(TARGET_FS)/lib
+            LDFLAGS += -rpath-link=$(TARGET_FS)/usr/lib -L $(TARGET_FS)/usr/lib
+            LDFLAGS += -rpath-link=$(TARGET_FS)/usr/lib/aarch64-linux-gnu -L $(TARGET_FS)/usr/lib/aarch64-linux-gnu
+            LDFLAGS += --unresolved-symbols=ignore-in-shared-libs
+            CCFLAGS += -isystem=$(TARGET_FS)/usr/include
+            CCFLAGS += -isystem=$(TARGET_FS)/usr/include/aarch64-linux-gnu
+        endif
+    endif
 endif
 
 ifeq ($(TARGET_OS),qnx)

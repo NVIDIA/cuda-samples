@@ -1,34 +1,37 @@
-# simpleCUBLAS - Simple CUBLAS
+# cudaTensorCoreGemm - CUDA Tensor Core GEMM
 
 ## Description
 
-Example of using CUBLAS API interface to perform GEMM operations.
+CUDA sample demonstrating a GEMM computation using the Warp Matrix Multiply and Accumulate (WMMA) API introduced in CUDA 9.
+
+This sample demonstrates the use of the new CUDA WMMA API employing the Tensor Cores introduced in the Volta chip family for faster matrix operations.
+
+In addition to that, it demonstrates the use of the new CUDA function attribute cudaFuncAttributeMaxDynamicSharedMemorySize that allows the application to reserve an extended amount of shared memory than it is available by default.
 
 ## Key Concepts
 
-Image Processing, CUBLAS Library
+Matrix Multiply, WMMA, Tensor Cores
 
 ## Supported SM Architectures
 
-[SM 3.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 3.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 3.7 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.1 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.0 ](https://developer.nvidia.com/cuda-gpus)
+[SM 7.0 ](https://developer.nvidia.com/cuda-gpus)
 
 ## Supported OSes
 
-Linux, Windows, MacOSX
+Linux, Windows
 
 ## Supported CPU Architecture
 
-x86_64, ppc64le, armv7l, aarch64
+x86_64, ppc64le
 
 ## CUDA APIs involved
 
-## Dependencies needed to build/run
-[CUBLAS](../../README.md#cublas)
+### [CUDA Runtime API](http://docs.nvidia.com/cuda/cuda-runtime-api/index.html)
+cudaMallocManaged, cudaDeviceSynchronize, cudaFuncSetAttribute, cudaEventCreate, cudaEventRecord, cudaEventSynchronize, cudaEventElapsedTime, cudaFree
 
 ## Prerequisites
 
 Download and install the [CUDA Toolkit 9.2](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
-Make sure the dependencies mentioned in [Dependencies]() section above are installed.
 
 ## Build and Run
 
@@ -49,9 +52,9 @@ $ cd <sample_dir>
 $ make
 ```
 The samples makefiles can take advantage of certain options:
-*  **TARGET_ARCH=<arch>** - cross-compile targeting a specific architecture. Allowed architectures are x86_64, ppc64le, armv7l, aarch64.
+*  **TARGET_ARCH=<arch>** - cross-compile targeting a specific architecture. Allowed architectures are x86_64, ppc64le.
     By default, TARGET_ARCH is set to HOST_ARCH. On a x86_64 machine, not setting TARGET_ARCH is the equivalent of setting TARGET_ARCH=x86_64.<br/>
-`$ make TARGET_ARCH=x86_64` <br/> `$ make TARGET_ARCH=ppc64le` <br/> `$ make TARGET_ARCH=armv7l` <br/> `$ make TARGET_ARCH=aarch64` <br/>
+`$ make TARGET_ARCH=x86_64` <br/> `$ make TARGET_ARCH=ppc64le` <br/>
     See [here](http://docs.nvidia.com/cuda/cuda-samples/index.html#cross-samples) for more details.
 *   **dbg=1** - build with debug symbols
     ```
@@ -66,30 +69,6 @@ The samples makefiles can take advantage of certain options:
 ```
     $ make HOST_COMPILER=g++
 ```
-
-### Mac
-The Mac samples are built using makefiles. To use the makefiles, change directory into the sample directory you wish to build, and run make:
-```
-$ cd <sample_dir>
-$ make
-```
-
-The samples makefiles can take advantage of certain options:
-
-*  **dbg=1** - build with debug symbols
-    ```
-    $ make dbg=1
-    ```
-
-*  **SMS="A B ..."** - override the SM architectures for which the sample will be built, where "A B ..." is a space-delimited list of SM architectures. For example, to generate SASS for SM 50 and SM 60, use SMS="50 60".
-    ```
-    $ make SMS="A B ..."
-    ```
-
-*  **HOST_COMPILER=<host_compiler>** - override the default clang host compiler. See the [Mac Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-mac-os-x/index.html#system-requirements) for a list of supported host compilers.
-    ```
-    $ make HOST_COMPILER=clang
-    ```
 
 ## References (for more details)
 
