@@ -257,11 +257,7 @@ LIBRARIES :=
 
 # libNVRTC specific libraries
 ifeq ($(TARGET_OS),darwin)
- LDFLAGS += -L$(CUDA_PATH)/lib -framework CUDA
-else ifeq ($(TARGET_ARCH),x86_64)
- LDFLAGS += -L$(CUDA_PATH)/lib64/stubs -L$(CUDA_PATH)/lib64
-else ifeq ($(TARGET_ARCH),ppc64le)
- LDFLAGS += -L$(CUDA_PATH)/targets/ppc64le-linux/lib/stubs -L$(CUDA_PATH)/targets/ppc64le-linux/lib
+ LDFLAGS += -L$(CUDA_PATH)/lib -F/Library/Frameworks -framework CUDA
 endif
 
 ifeq ($(TARGET_OS),darwin)
@@ -304,9 +300,10 @@ else
   ifeq ("$(CUDALIB)","")
     $(info >>> WARNING - libcuda.so not found, CUDA Driver is not installed.  Please re-install the driver. <<<)
     SAMPLE_ENABLED := 0
+  else
+    CUDALIB := $(shell echo $(CUDALIB) | sed "s/ .*//" | sed "s/\/libcuda.so//" )
+    LIBRARIES += -L$(CUDALIB) -lcuda
   endif
-
-  LIBRARIES += -lcuda
 endif
 
 INCLUDES += -I$(CUDA_PATH)/include

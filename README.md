@@ -33,7 +33,7 @@ For system requirements and installation instructions of cuda toolkit, please re
 
 Using git clone the repository of CUDA Samples using the command below.
 ```
-git clone <GIT_REPO_CLONE_LINK>
+git clone https://github.com/NVIDIA/cuda-samples.git
 ```
 
 Without using git the easiest way to use these samples is to download the zip file containing the current version by clicking the "Download ZIP" button on the repo page. You can then unzip the entire archive and use the samples.
@@ -108,22 +108,22 @@ The samples makefiles can take advantage of certain options:
 ### Samples by OS
 
 #### Linux
-**[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[conjugateGradientMultiBlockCG](./Samples/conjugateGradientMultiBlockCG)** | **[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[matrixMulDrv](./Samples/matrixMulDrv)** |
+**[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[conjugateGradientMultiBlockCG](./Samples/conjugateGradientMultiBlockCG)** | **[shfl_scan](./Samples/shfl_scan)** | **[deviceQuery](./Samples/deviceQuery)** |
 ---|---|---|---|
-**[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[simpleCUFFT](./Samples/simpleCUFFT)** | **[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** |
-**[matrixMul](./Samples/matrixMul)** | **[shfl_scan](./Samples/shfl_scan)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[deviceQuery](./Samples/deviceQuery)** |
+**[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** | **[matrixMulDrv](./Samples/matrixMulDrv)** | **[simpleCUFFT](./Samples/simpleCUFFT)** |
+**[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[matrixMul](./Samples/matrixMul)** |
 
 #### Windows
-**[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[conjugateGradientMultiBlockCG](./Samples/conjugateGradientMultiBlockCG)** | **[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[matrixMulDrv](./Samples/matrixMulDrv)** |
+**[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[conjugateGradientMultiBlockCG](./Samples/conjugateGradientMultiBlockCG)** | **[shfl_scan](./Samples/shfl_scan)** | **[deviceQuery](./Samples/deviceQuery)** |
 ---|---|---|---|
-**[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[simpleCUFFT](./Samples/simpleCUFFT)** | **[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** |
-**[matrixMul](./Samples/matrixMul)** | **[shfl_scan](./Samples/shfl_scan)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[deviceQuery](./Samples/deviceQuery)** |
+**[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[matrixMulDrv](./Samples/matrixMulDrv)** | **[simpleCUFFT](./Samples/simpleCUFFT)** | **[simpleCUBLAS](./Samples/simpleCUBLAS)** |
+**[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[matrixMul](./Samples/matrixMul)** |
 
 #### Mac OSX
-**[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[matrixMulDrv](./Samples/matrixMulDrv)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[simpleCUFFT](./Samples/simpleCUFFT)** |
+**[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[shfl_scan](./Samples/shfl_scan)** | **[deviceQuery](./Samples/deviceQuery)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** |
 ---|---|---|---|
-**[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[matrixMul](./Samples/matrixMul)** | **[shfl_scan](./Samples/shfl_scan)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** |
-**[deviceQuery](./Samples/deviceQuery)** |
+**[matrixMulDrv](./Samples/matrixMulDrv)** | **[simpleCUFFT](./Samples/simpleCUFFT)** | **[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** |
+**[matrixMul](./Samples/matrixMul)** |
 
 ## Dependencies
 
@@ -193,13 +193,17 @@ These CUDA features are needed by some CUDA samples. They are provided by either
 
 CUFFT Callback Routines are user-supplied kernel routines that CUFFT will call when loading or storing data. These callback routines are only available on Linux x86_64 and ppc64le systems.
 
-#### CUDA Dynamic Paralellism
+#### CUDA Dynamic Parallellism
 
-CDP (CUDA Dynamic Paralellism) allows kernels to be launched from threads running on the GPU. CDP is only available on GPUs with SM architecture of 3.5 or above.
+CDP (CUDA Dynamic Parallellism) allows kernels to be launched from threads running on the GPU. CDP is only available on GPUs with SM architecture of 3.5 or above.
 
 #### Multi-block Cooperative Groups
 
-Multi Block Cooperative Groups(MBCG) extends Cooperative Groups and the CUDA programming model to express inter-thread-block synchronization. MBCG is available on GPUs with Pascal and higher architecture on Linux systems.
+Multi Block Cooperative Groups(MBCG) extends Cooperative Groups and the CUDA programming model to express inter-thread-block synchronization. MBCG is available on GPUs with Pascal and higher architecture.
+
+#### Multi-Device Cooperative Groups
+
+ Multi Device Cooperative Groups extends Cooperative Groups and the CUDA programming model enabling thread blocks executing on multiple GPUs to cooperate and synchronize as they execute. This feature is available on GPUs with Pascal and higher architecture.
 
 #### CUBLAS
 
@@ -231,15 +235,11 @@ NPP (NVIDIA Performance Primitives) provides GPU-accelerated image, video, and s
 
 #### NVGRAPH
 
-NVGRAPH is a GPU-accelerated graph analytics library..
+NVGRAPH is a GPU-accelerated graph analytics library.
 
 #### NVRTC
 
 NVRTC (CUDA RunTime Compilation) is a runtime compilation library for CUDA C++.
-
-#### NVCUVID
-
-NVCUVID (NVIDIA CUDA Video Decoder) provides GPU-accelerated video decoding capabilities.
 
 #### Stream Priorities
 
@@ -259,11 +259,16 @@ NVCC support of [C++11 features](https://en.wikipedia.org/wiki/C++11).
 
 ## Contributors Guide
 
-We welcome your input on issues and suggestions for new samples. At this time we are not accepting contributions from the public, check back here as we evolve our contribution model.
+We welcome your input on issues and suggestions for samples. At this time we are not accepting contributions from the public, check back here as we evolve our contribution model.
 
 We use Google C++ Style Guide for all the sources https://google.github.io/styleguide/cppguide.html
 
 ## Frequently Asked Questions
 
 Answers to frequently asked questions about CUDA can be found at http://developer.nvidia.com/cuda-faq and in the [CUDA Toolkit Release Notes](http://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html).
+
+## References
+
+*   [CUDA Programming Guide](http://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html)
+*   [Accelerated Computing Blog](https://devblogs.nvidia.com/category/accelerated-computing/)
 

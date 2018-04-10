@@ -58,9 +58,6 @@
       <arch>ppc64le</arch>
       <platform>linux</platform>
     </env>
-    <env>
-      <platform>windows</platform>
-    </env>
   </supported_envs>
   <supported_sm_architectures>
     <from>6.0</from>

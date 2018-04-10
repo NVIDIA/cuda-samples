@@ -310,9 +310,10 @@ else
   ifeq ("$(CUDALIB)","")
     $(info >>> WARNING - libcuda.so not found, CUDA Driver is not installed.  Please re-install the driver. <<<)
     SAMPLE_ENABLED := 0
+  else
+    CUDALIB := $(shell echo $(CUDALIB) | sed "s/ .*//" | sed "s/\/libcuda.so//" )
+    LIBRARIES += -L$(CUDALIB) -lcuda
   endif
-
-  LIBRARIES += -lcuda
 endif
 
 ifeq ($(SAMPLE_ENABLED),0)
