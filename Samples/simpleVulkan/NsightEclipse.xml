@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
+<entry>
+  <name>simpleVulkan</name>
+  <cflags>
+    <flag>--std=c++11</flag>
+  </cflags>
+  <cuda_api_list>
+    <toolkit>cudaImportExternalMemory</toolkit>
+    <toolkit>cudaExternalMemoryGetMappedBuffer</toolkit>
+    <toolkit>cudaImportExternalSemaphore</toolkit>
+    <toolkit>cudaImportExternalSemaphore</toolkit>
+    <toolkit>cudaSignalExternalSemaphoresAsync</toolkit>
+    <toolkit>cudaWaitExternalSemaphoresAsync</toolkit>
+    <toolkit>cudaDestroyExternalSemaphore</toolkit>
+    <toolkit>cudaDestroyExternalMemory</toolkit>
+  </cuda_api_list>
+  <description><![CDATA[This sample demonstrates Vulkan CUDA Interop. CUDA imports the Vulkan vertex buffer and operates on it to create sinewave, and synchronizes with Vulkan through vulkan semaphores imported by CUDA. This sample depends on Vulkan SDK, GLFW3 libraries, for building this sample please refer to "Build_instructions.txt" provided in this sample's directory]]></description>
+  <devicecompilation>whole</devicecompilation>
+  <includepaths>
+    <path>./</path>
+    <path>../</path>
+    <path>../../common/inc</path>
+  </includepaths>
+  <keyconcepts>
+    <concept level="advanced">Graphics Interop</concept>
+    <concept level="advanced">CUDA Vulkan Interop</concept>
+    <concept level="advanced">Data Parallel Algorithms</concept>
+  </keyconcepts>
+  <keywords>
+    <keyword>CUDA</keyword>
+    <keyword>CPP11</keyword>
+    <keyword>sine-wave</keyword>
+    <keyword>Vulkan</keyword>
+  </keywords>
+  <libraries>
+  </libraries>
+  <librarypaths>
+  </librarypaths>
+  <nsight_eclipse>true</nsight_eclipse>
+  <postbuildevent>
+    <event os="Windows">$(VULKAN_SDK)/Bin/glslangValidator.exe -V shader_sine.vert</event>
+    <event os="Windows">$(VULKAN_SDK)/Bin/glslangValidator.exe -V shader_sine.frag</event>
+    <event os="Linux">$(VULKAN_SDK_PATH)/bin/glslangValidator -V shader_sine.vert</event>
+    <event os="Linux">$(VULKAN_SDK_PATH)/bin/glslangValidator -V shader_sine.frag</event>
+    <eventclean os="Linux">rm -rf vert.spv</eventclean>
+    <eventclean os="Linux">rm -rf frag.spv</eventclean>
+  </postbuildevent>
+  <primary_file>vulkanCUDASinewave.cu</primary_file>
+  <required_dependencies>
+    <dependency>X11</dependency>
+    <dependency>VULKAN</dependency>
+  </required_dependencies>
+  <scopes>
+    <scope>2:Graphics Interop</scope>
+    <scope>1:CUDA Advanced Topics</scope>
+    <scope>1:CUDA Vulkan Interop</scope>
+  </scopes>
+  <sm-arch>sm30</sm-arch>
+  <sm-arch>sm35</sm-arch>
+  <sm-arch>sm37</sm-arch>
+  <sm-arch>sm50</sm-arch>
+  <sm-arch>sm52</sm-arch>
+  <sm-arch>sm60</sm-arch>
+  <sm-arch>sm61</sm-arch>
+  <sm-arch>sm70</sm-arch>
+  <sm-arch>sm75</sm-arch>
+  <supported_envs>
+    <env>
+      <arch>x86_64</arch>
+      <platform>linux</platform>
+    </env>
+    <env>
+      <platform>windows7</platform>
+    </env>
+  </supported_envs>
+  <supported_sm_architectures>
+    <include>all</include>
+  </supported_sm_architectures>
+  <title>Vulkan CUDA Interop Sinewave</title>
+  <type>exe</type>
+</entry>

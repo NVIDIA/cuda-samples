@@ -43,6 +43,7 @@ In addition to that, it demonstrates the use of the new CUDA function attribute 
     <scope>1:CUDA Basic Topics</scope>
   </scopes>
   <sm-arch>sm70</sm-arch>
+  <sm-arch>sm75</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

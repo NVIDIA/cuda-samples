@@ -14,7 +14,7 @@ Matrix Multiply, WMMA, Tensor Cores
 
 ## Supported SM Architectures
 
-[SM 7.0 ](https://developer.nvidia.com/cuda-gpus)
+[SM 7.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.5 ](https://developer.nvidia.com/cuda-gpus)
 
 ## Supported OSes
 
@@ -31,7 +31,7 @@ cudaMallocManaged, cudaDeviceSynchronize, cudaFuncSetAttribute, cudaEventCreate,
 
 ## Prerequisites
 
-Download and install the [CUDA Toolkit 9.2](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit 10.0](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 
 ## Build and Run
 

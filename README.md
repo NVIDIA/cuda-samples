@@ -1,10 +1,21 @@
 # CUDA Samples
 
-Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This version supports [CUDA Toolkit 9.2](https://developer.nvidia.com/cuda-downloads).
+Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This version supports [CUDA Toolkit 10.0](https://developer.nvidia.com/cuda-downloads).
 
 ## Release Notes
 
 This section describes the release notes for the CUDA Samples on GitHub only.
+
+### CUDA 10.0
+*  Added `simpleCudaGraphs`. Demonstrates CUDA Graphs creation, instantiation and launch using Graphs APIs and Stream Capture APIs.
+*  Added `conjugateGradientCudaGraphs`. Demonstrates conjugate gradient solver on GPU using CUBLAS and CUSPARSE library calls captured and called using CUDA Graph APIs.
+*  Added `simpleVulkan`. Demonstrates Vulkan - CUDA Interop.
+*  Added `UnifiedMemoryPerf`. Demonstrates performance comparision of various memory types involved in system.
+*  Added `p2pBandwidthLatencyTest`. Demonstrates Peer-To-Peer (P2P) data transfers between pairs of GPUs and computes latency and bandwidth.
+*  Added `systemWideAtomics`. Demonstrates system wide atomic instructions.
+*  Added `simpleCUBLASXT`. Demonstrates CUBLAS-XT library which performs GEMM operations over multiple GPUs.
+*  Added Windows OS support to `conjugateGradientMultiDeviceCG` sample.
+*  Removed support of Visual Studio 2010 from all samples.
 
 ### CUDA 9.2
 
@@ -26,7 +37,7 @@ This is the first release of CUDA Samples on GitHub:
 
 ### Prerequisites
 
-Download and install the [CUDA Toolkit 9.2](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit 10.0](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 For system requirements and installation instructions of cuda toolkit, please refer to the [Linux Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/), the [Windows Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html), and the [Mac Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-mac-os-x/index.html).
 
 ### Getting the CUDA Samples
@@ -108,22 +119,27 @@ The samples makefiles can take advantage of certain options:
 ### Samples by OS
 
 #### Linux
-**[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[conjugateGradientMultiBlockCG](./Samples/conjugateGradientMultiBlockCG)** | **[shfl_scan](./Samples/shfl_scan)** | **[deviceQuery](./Samples/deviceQuery)** |
+**[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[conjugateGradientMultiBlockCG](./Samples/conjugateGradientMultiBlockCG)** | **[shfl_scan](./Samples/shfl_scan)** | **[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** |
 ---|---|---|---|
-**[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** | **[matrixMulDrv](./Samples/matrixMulDrv)** | **[simpleCUFFT](./Samples/simpleCUFFT)** |
-**[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[matrixMul](./Samples/matrixMul)** |
+**[simpleCudaGraphs](./Samples/simpleCudaGraphs)** | **[deviceQuery](./Samples/deviceQuery)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[simpleCUBLASXT](./Samples/simpleCUBLASXT)** |
+**[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** | **[matrixMulDrv](./Samples/matrixMulDrv)** | **[simpleCUFFT](./Samples/simpleCUFFT)** |
+**[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[simpleVulkan](./Samples/simpleVulkan)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** |
+**[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** | **[matrixMul](./Samples/matrixMul)** | **[systemWideAtomics](./Samples/systemWideAtomics)** |
 
 #### Windows
-**[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[conjugateGradientMultiBlockCG](./Samples/conjugateGradientMultiBlockCG)** | **[shfl_scan](./Samples/shfl_scan)** | **[deviceQuery](./Samples/deviceQuery)** |
+**[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[conjugateGradientMultiBlockCG](./Samples/conjugateGradientMultiBlockCG)** | **[shfl_scan](./Samples/shfl_scan)** | **[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** |
 ---|---|---|---|
-**[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[matrixMulDrv](./Samples/matrixMulDrv)** | **[simpleCUFFT](./Samples/simpleCUFFT)** | **[simpleCUBLAS](./Samples/simpleCUBLAS)** |
-**[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[matrixMul](./Samples/matrixMul)** |
+**[simpleCudaGraphs](./Samples/simpleCudaGraphs)** | **[deviceQuery](./Samples/deviceQuery)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[simpleCUBLASXT](./Samples/simpleCUBLASXT)** |
+**[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** | **[matrixMulDrv](./Samples/matrixMulDrv)** | **[simpleCUFFT](./Samples/simpleCUFFT)** |
+**[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[simpleVulkan](./Samples/simpleVulkan)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** |
+**[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** | **[matrixMul](./Samples/matrixMul)** |
 
 #### Mac OSX
-**[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[shfl_scan](./Samples/shfl_scan)** | **[deviceQuery](./Samples/deviceQuery)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** |
+**[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[shfl_scan](./Samples/shfl_scan)** | **[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** | **[simpleCudaGraphs](./Samples/simpleCudaGraphs)** |
 ---|---|---|---|
+**[deviceQuery](./Samples/deviceQuery)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[simpleCUBLASXT](./Samples/simpleCUBLASXT)** | **[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** |
 **[matrixMulDrv](./Samples/matrixMulDrv)** | **[simpleCUFFT](./Samples/simpleCUFFT)** | **[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** |
-**[matrixMul](./Samples/matrixMul)** |
+**[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** | **[matrixMul](./Samples/matrixMul)** |
 
 ## Dependencies
 
@@ -160,6 +176,10 @@ OpenGL is a graphics library used for 2D and 3D rendering. On systems which supp
 #### OpenGL ES
 
 OpenGL ES is an embedded systems graphics library used for 2D and 3D rendering. On systems which support OpenGL ES, NVIDIA's OpenGL ES implementation is provided with the CUDA Driver.
+
+#### Vulkan
+
+Vulkan is a low-overhead, cross-platform 3D graphics and compute API. Vulkan targets high-performance realtime 3D graphics applications such as video games and interactive media across all platforms. On systems which support Vulkan, NVIDIA's Vulkan implementation is provided with the CUDA Driver. For building and running Vulkan applications one needs to install the [Vulkan SDK](https://www.lunarg.com/vulkan-sdk/).
 
 #### OpenMP
 

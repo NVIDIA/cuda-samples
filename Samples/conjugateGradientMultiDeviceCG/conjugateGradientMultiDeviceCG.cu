@@ -414,7 +414,8 @@ void getIdenticalGPUs(int num_of_gpus, std::set<int> &identicalGPUs) {
         deviceProp.minor != maxMajorMinor[1]) {
       identicalGPUs.erase(it);
     }
-    if (!deviceProp.cooperativeMultiDeviceLaunch) {
+    if (!deviceProp.cooperativeMultiDeviceLaunch ||
+        !deviceProp.concurrentManagedAccess) {
       identicalGPUs.erase(it);
     }
     it++;
@@ -449,7 +450,8 @@ int main(int argc, char **argv) {
   if (identicalGPUs.size() <= 1) {
     printf(
         "No Two or more GPUs with same architecture capable of "
-        "cooperativeMultiDeviceLaunch found. \nWaiving the sample\n");
+        "cooperativeMultiDeviceLaunch & concurrentManagedAccess found. "
+        "\nWaiving the sample\n");
     exit(EXIT_WAIVED);
   }
 
@@ -617,9 +619,12 @@ int main(int argc, char **argv) {
       cudaCooperativeLaunchMultiDeviceNoPreSync |
           cudaCooperativeLaunchMultiDeviceNoPostSync));
 
-  checkCudaErrors(cudaMemPrefetchAsync(x, sizeof(float) * N, cudaCpuDeviceId));
-  checkCudaErrors(
-      cudaMemPrefetchAsync(dot_result, sizeof(double), cudaCpuDeviceId));
+  if (deviceProp.concurrentManagedAccess) {
+    checkCudaErrors(
+        cudaMemPrefetchAsync(x, sizeof(float) * N, cudaCpuDeviceId));
+    checkCudaErrors(
+        cudaMemPrefetchAsync(dot_result, sizeof(double), cudaCpuDeviceId));
+  }
 
   deviceId = identicalGPUs.begin();
   device_count = 0;

@@ -1,0 +1,18 @@
+For Windows:
+Follow these steps once you have installed Vulkan SDK for Windows from https://www.lunarg.com/vulkan-sdk/
+-- Install GLFW3 library at suitable location
+-- Open the simpleVulkan VS project file.
+To add the GLFW3 library path
+-- Right click on Project name "simpleVulkan" click on "Properties"
+-- In Property pages window go to Linker -> General. Here in "Additional Libraries Directories" edit and add path to glfw3dll.lib
+To add the GLFW3 headers path
+-- Right click on Project name "simpleVulkan" click on "Properties"
+-- In Property pages window go to "VC++ Directories" section. Here in "Include Directories" edit and add path to GLFW3 headers include directory location.
+** Make sure to add path to glfw3.dll in your PATH environment variable**
+
+
+For Linux:
+-- Install the Vulkan SDK from https://www.lunarg.com/vulkan-sdk/  and follow environment setup instructions.
+-- Install GLFW3 library through your OS package repository. For example: apt-get for Ubuntu and dnf for RHEL/CentOS
+-- Install "libxcb1-dev" and "xorg-dev" as GLFW3 is depended on it
+-- Add Vulkan and GLFW3 libraries directories to LD_LIBRARY_PATH

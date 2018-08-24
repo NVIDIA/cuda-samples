@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
+<entry>
+  <name>systemWideAtomics</name>
+  <cuda_api_list>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaMemcpy</toolkit>
+    <toolkit>cudaFreeHost</toolkit>
+  </cuda_api_list>
+  <description><![CDATA[A simple demonstration of system wide atomic instructions.]]></description>
+  <devicecompilation>whole</devicecompilation>
+  <includepaths>
+    <path>./</path>
+    <path>../</path>
+    <path>../../common/inc</path>
+  </includepaths>
+  <keyconcepts>
+    <concept level="basic">Atomic Intrinsics</concept>
+    <concept level="basic">Unified Memory</concept>
+  </keyconcepts>
+  <keywords>
+    <keyword>CUDA</keyword>
+    <keyword>GPGPU</keyword>
+    <keyword>system-wide atomic</keyword>
+  </keywords>
+  <libraries>
+  </libraries>
+  <librarypaths>
+  </librarypaths>
+  <nsight_eclipse>true</nsight_eclipse>
+  <primary_file>systemWideAtomics.cu</primary_file>
+  <required_dependencies>
+    <dependency>UVM</dependency>
+  </required_dependencies>
+  <scopes>
+    <scope>1:CUDA Basic Topics</scope>
+  </scopes>
+  <sm-arch>sm60</sm-arch>
+  <sm-arch>sm61</sm-arch>
+  <sm-arch>sm70</sm-arch>
+  <sm-arch>sm75</sm-arch>
+  <supported_envs>
+    <env>
+      <arch>x86_64</arch>
+      <platform>linux</platform>
+    </env>
+    <env>
+      <arch>ppc64le</arch>
+      <platform>linux</platform>
+    </env>
+  </supported_envs>
+  <supported_sm_architectures>
+    <from>6.0</from>
+  </supported_sm_architectures>
+  <title>System wide Atomics</title>
+  <type>exe</type>
+</entry>
