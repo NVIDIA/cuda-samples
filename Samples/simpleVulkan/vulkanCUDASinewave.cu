@@ -43,11 +43,11 @@
 #include <vector>
 
 #ifdef _WIN64
-#include <VersionHelpers.h>
 #include <aclapi.h>
 #include <dxgi1_2.h>
 #include <vulkan/vulkan_win32.h>
 #include <windows.h>
+#include <VersionHelpers.h>
 #define _USE_MATH_DEFINES
 #endif
 
