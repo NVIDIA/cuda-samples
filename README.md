@@ -10,6 +10,7 @@ This section describes the release notes for the CUDA Samples on GitHub only.
 *  Added `simpleCudaGraphs`. Demonstrates CUDA Graphs creation, instantiation and launch using Graphs APIs and Stream Capture APIs.
 *  Added `conjugateGradientCudaGraphs`. Demonstrates conjugate gradient solver on GPU using CUBLAS and CUSPARSE library calls captured and called using CUDA Graph APIs.
 *  Added `simpleVulkan`. Demonstrates Vulkan - CUDA Interop.
+*  Added `simpleD3D12`. Demonstrates DX12 - CUDA Interop.
 *  Added `UnifiedMemoryPerf`. Demonstrates performance comparision of various memory types involved in system.
 *  Added `p2pBandwidthLatencyTest`. Demonstrates Peer-To-Peer (P2P) data transfers between pairs of GPUs and computes latency and bandwidth.
 *  Added `systemWideAtomics`. Demonstrates system wide atomic instructions.
@@ -129,10 +130,10 @@ The samples makefiles can take advantage of certain options:
 #### Windows
 **[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[conjugateGradientMultiBlockCG](./Samples/conjugateGradientMultiBlockCG)** | **[shfl_scan](./Samples/shfl_scan)** | **[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** |
 ---|---|---|---|
-**[simpleCudaGraphs](./Samples/simpleCudaGraphs)** | **[deviceQuery](./Samples/deviceQuery)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[simpleCUBLASXT](./Samples/simpleCUBLASXT)** |
-**[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** | **[matrixMulDrv](./Samples/matrixMulDrv)** | **[simpleCUFFT](./Samples/simpleCUFFT)** |
-**[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[simpleVulkan](./Samples/simpleVulkan)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** |
-**[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** | **[matrixMul](./Samples/matrixMul)** |
+**[simpleD3D12](./Samples/simpleD3D12)** | **[simpleCudaGraphs](./Samples/simpleCudaGraphs)** | **[deviceQuery](./Samples/deviceQuery)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** |
+**[simpleCUBLASXT](./Samples/simpleCUBLASXT)** | **[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** | **[matrixMulDrv](./Samples/matrixMulDrv)** |
+**[simpleCUFFT](./Samples/simpleCUFFT)** | **[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[simpleVulkan](./Samples/simpleVulkan)** |
+**[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** | **[matrixMul](./Samples/matrixMul)** |
 
 #### Mac OSX
 **[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[shfl_scan](./Samples/shfl_scan)** | **[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** | **[simpleCudaGraphs](./Samples/simpleCudaGraphs)** |
@@ -168,6 +169,10 @@ Some samples can only be run on a 64-bit operating system.
 #### DirectX
 
 DirectX is a collection of APIs designed to allow development of multimedia applications on Microsoft platforms. For Microsoft platforms, NVIDIA's CUDA Driver supports DirectX. Several CUDA Samples for Windows demonstrates CUDA-DirectX Interoperability, for building such samples one needs to install [Direct X SDK (June 2010 or newer)](http://www.microsoft.com/en-us/download/details.aspx?id=6812) , this is required to be installed on Windows 7, Windows 10 and Windows Server 2008, Other Windows OSes do not need to explicitly install the DirectX SDK.
+
+#### DirectX12
+
+DirectX 12 is a collection of advanced low-level programming APIs which can reduce driver overhead, designed to allow development of multimedia applications on Microsoft platforms starting with Windows 10 OS onwards. For Microsoft platforms, NVIDIA's CUDA Driver supports DirectX. Few CUDA Samples for Windows demonstrates CUDA-DirectX12 Interoperability, for building such samples one needs to install [Windows 10 SDK or higher](https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk), with VS 2015 or VS 2017.
 
 #### OpenGL
 
