@@ -236,7 +236,7 @@ CUBLAS (CUDA Basic Linear Algebra Subroutines) is a GPU-accelerated version of t
 
 #### CUDA Interprocess Communication
 
-IPC (Interprocess Communication) allows processes to share device pointers. IPC is only available on Linux x86_64 and ppc64le systems.
+IPC (Interprocess Communication) allows processes to share device pointers.
 
 #### CUFFT
 
