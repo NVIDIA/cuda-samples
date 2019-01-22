@@ -323,7 +323,7 @@ int main(int argc, char **argv) {
   checkCudaErrors(cudaStreamCreate(&streamForGraph));
   checkCudaErrors(cublasSetStream(cublasHandle, stream1));
   checkCudaErrors(cusparseSetStream(cusparseHandle, stream1));
-  checkCudaErrors(cudaStreamBeginCapture(stream1));
+  checkCudaErrors(cudaStreamBeginCapture(stream1, cudaStreamCaptureModeGlobal));
 
   r1_div_x<<<1, 1, 0, stream1>>>(d_r1, d_r0, d_b);
   cublasSetPointerMode(cublasHandle, CUBLAS_POINTER_MODE_DEVICE);

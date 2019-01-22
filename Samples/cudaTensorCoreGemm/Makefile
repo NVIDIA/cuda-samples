@@ -246,12 +246,6 @@ ifeq ($(TARGET_ARCH),armv7l)
   SAMPLE_ENABLED := 0
 endif
 
-# This sample is not supported on aarch64
-ifeq ($(TARGET_ARCH),aarch64)
-  $(info >>> WARNING - cudaTensorCoreGemm is not supported on aarch64 - waiving sample <<<)
-  SAMPLE_ENABLED := 0
-endif
-
 ALL_LDFLAGS :=
 ALL_LDFLAGS += $(ALL_CCFLAGS)
 ALL_LDFLAGS += $(addprefix -Xlinker ,$(LDFLAGS))
@@ -264,7 +258,11 @@ LIBRARIES :=
 ################################################################################
 
 # Gencode arguments
+ifeq ($(TARGET_ARCH),$(filter $(TARGET_ARCH),armv7l aarch64))
+SMS ?= 70 72 75
+else
 SMS ?= 70 75
+endif
 
 ifeq ($(SMS),)
 $(info >>> WARNING - no SM architectures have been specified - waiving sample <<<)

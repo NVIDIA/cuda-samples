@@ -180,42 +180,22 @@
 
 using namespace nvcuda;
 
-__host__ void init_host_matrices(float *a, float *b, float *c) {
+__host__ void init_host_matrices(half *a, half *b, float *c) {
   for (int i = 0; i < M_GLOBAL; i++) {
     for (int j = 0; j < K_GLOBAL; j++) {
-      a[i * K_GLOBAL + j] = static_cast<float>(rand() % 3);
+      a[i * K_GLOBAL + j] = (half)(rand() % 3);
     }
   }
 
   for (int i = 0; i < N_GLOBAL; i++) {
     for (int j = 0; j < K_GLOBAL; j++) {
-      b[i * K_GLOBAL + j] = static_cast<float>(rand() % 3);
+      b[i * K_GLOBAL + j] = (half)(rand() % 3);
     }
   }
 
   for (int t = 0; t < M_GLOBAL * N_GLOBAL; t++) {
     c[t] = static_cast<float>(rand() % 3);
   }
-}
-
-__global__ void init_device_matrices(const float *A_h, const float *B_h,
-                                     const float *C_h, half *A, half *B,
-                                     float *C, float *D) {
-  for (int i = blockDim.x * blockIdx.x + threadIdx.x; i < M_GLOBAL * K_GLOBAL;
-       i += gridDim.x * blockDim.x)
-    A[i] = __float2half(A_h[i]);
-
-  for (int i = blockDim.x * blockIdx.x + threadIdx.x; i < N_GLOBAL * K_GLOBAL;
-       i += gridDim.x * blockDim.x)
-    B[i] = __float2half(B_h[i]);
-
-  for (int i = blockDim.x * blockIdx.x + threadIdx.x; i < M_GLOBAL * N_GLOBAL;
-       i += gridDim.x * blockDim.x)
-    C[i] = C_h[i];
-
-  for (int i = blockDim.x * blockIdx.x + threadIdx.x; i < M_GLOBAL * N_GLOBAL;
-       i += gridDim.x * blockDim.x)
-    D[i] = 0;
 }
 
 __global__ void compute_gemm(const half *A, const half *B, const float *C,
@@ -486,7 +466,7 @@ __global__ void simple_wmma_gemm(half *a, half *b, float *c, float *d, int m_ld,
   }
 }
 
-__host__ void matMultiplyOnHost(float *A, float *B, float *C, float alpha,
+__host__ void matMultiplyOnHost(half *A, half *B, float *C, float alpha,
                                 float beta, int numARows, int numAColumns,
                                 int numBRows, int numBColumns, int numCRows,
                                 int numCColumns) {
@@ -495,7 +475,7 @@ __host__ void matMultiplyOnHost(float *A, float *B, float *C, float alpha,
       float temp = 0.0;
 
       for (int k = 0; k < numAColumns; k++) {
-        temp += A[i * numAColumns + k] * B[j * numBRows + k];
+        temp += (float)A[i * numAColumns + k] * (float)B[j * numBRows + k];
       }
 
       C[i * numCColumns + j] = temp * alpha + beta * C[i * numCColumns + j];
@@ -514,7 +494,7 @@ int main(int argc, char **argv) {
   // Tensor cores require a GPU of Volta (SM7X) architecture or higher.
   if (deviceProp.major < 7) {
     printf(
-        "cudaTensorCoreGemm requires requires SM 7.0 or higher to use Tensor "
+        "cudaTensorCoreGemm requires SM 7.0 or higher to use Tensor "
         "Cores.  Exiting...\n");
     exit(EXIT_WAIVED);
   }
@@ -523,25 +503,20 @@ int main(int argc, char **argv) {
   printf("N: %d (%d x %d)\n", N_GLOBAL, N, N_TILES);
   printf("K: %d (%d x %d)\n", K_GLOBAL, K, K_TILES);
 
-  float *A_h = NULL;
-  float *B_h = NULL;
+  half *A_h = NULL;
+  half *B_h = NULL;
   float *C_h = NULL;
 #if CPU_DEBUG
   float *result_hD = NULL;
   float *result_host = NULL;
 #endif
 
-  checkCudaErrors(cudaMallocManaged(reinterpret_cast<void **>(&A_h),
-                                    sizeof(float) * M_GLOBAL * K_GLOBAL));
-  checkCudaErrors(cudaMallocManaged(reinterpret_cast<void **>(&B_h),
-                                    sizeof(float) * K_GLOBAL * N_GLOBAL));
-  checkCudaErrors(cudaMallocManaged(reinterpret_cast<void **>(&C_h),
-                                    sizeof(float) * M_GLOBAL * N_GLOBAL));
+  A_h = (half *)malloc(sizeof(half) * M_GLOBAL * K_GLOBAL);
+  B_h = (half *)malloc(sizeof(half) * K_GLOBAL * N_GLOBAL);
+  C_h = (float *)malloc(sizeof(float) * M_GLOBAL * N_GLOBAL);
 #if CPU_DEBUG
-  checkCudaErrors(cudaMallocManaged((void **)&result_hD,
-                                    sizeof(float) * M_GLOBAL * N_GLOBAL));
-  checkCudaErrors(cudaMallocManaged((void **)&result_host,
-                                    sizeof(float) * M_GLOBAL * N_GLOBAL));
+  result_hD = (float *)malloc(sizeof(float) * M_GLOBAL * N_GLOBAL);
+  result_host = (float *)malloc(sizeof(float) * M_GLOBAL * N_GLOBAL);
 #endif
 
   half *A = NULL;
@@ -567,11 +542,13 @@ int main(int argc, char **argv) {
 
   printf("Preparing data for GPU...\n");
 
-  checkKernelErrors(
-      (init_device_matrices<<<deviceProp.multiProcessorCount,
-                              THREADS_PER_BLOCK>>>(A_h, B_h, C_h, A, B, C, D)));
-
-  checkCudaErrors(cudaDeviceSynchronize());
+  checkCudaErrors(cudaMemcpy(A, A_h, sizeof(half) * M_GLOBAL * K_GLOBAL,
+                             cudaMemcpyHostToDevice));
+  checkCudaErrors(cudaMemcpy(B, B_h, sizeof(half) * N_GLOBAL * K_GLOBAL,
+                             cudaMemcpyHostToDevice));
+  checkCudaErrors(cudaMemcpy(C, C_h, sizeof(float) * M_GLOBAL * N_GLOBAL,
+                             cudaMemcpyHostToDevice));
+  checkCudaErrors(cudaMemset(D, 0, sizeof(float) * M_GLOBAL * N_GLOBAL));
 
   enum {
     // Compute the right amount of shared memory to request.
@@ -650,6 +627,8 @@ int main(int argc, char **argv) {
       printf("mismatch i=%d result_hD=%f result_host=%f\n", i, result_hD[i],
              result_host[i]);
   }
+  free(result_hD);
+  free(result_host);
 #endif
 
   float milliseconds = 0;
@@ -662,9 +641,9 @@ int main(int argc, char **argv) {
                                                (milliseconds / 1000.)) /
                                1e12);
 
-  checkCudaErrors(cudaFree(reinterpret_cast<void *>(A_h)));
-  checkCudaErrors(cudaFree(reinterpret_cast<void *>(B_h)));
-  checkCudaErrors(cudaFree(reinterpret_cast<void *>(C_h)));
+  free(A_h);
+  free(B_h);
+  free(C_h);
   checkCudaErrors(cudaFree(reinterpret_cast<void *>(A)));
   checkCudaErrors(cudaFree(reinterpret_cast<void *>(B)));
   checkCudaErrors(cudaFree(reinterpret_cast<void *>(C)));

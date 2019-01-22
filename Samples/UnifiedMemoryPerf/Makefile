@@ -234,6 +234,12 @@ ALL_CCFLAGS += $(addprefix -Xcompiler ,$(EXTRA_CCFLAGS))
 
 SAMPLE_ENABLED := 1
 
+# This sample is not supported on QNX
+ifeq ($(TARGET_OS),qnx)
+  $(info >>> WARNING - UnifiedMemoryPerf is not supported on QNX - waiving sample <<<)
+  SAMPLE_ENABLED := 0
+endif
+
 ALL_LDFLAGS :=
 ALL_LDFLAGS += $(ALL_CCFLAGS)
 ALL_LDFLAGS += $(addprefix -Xlinker ,$(LDFLAGS))
@@ -246,7 +252,11 @@ LIBRARIES :=
 ################################################################################
 
 # Gencode arguments
+ifeq ($(TARGET_ARCH),$(filter $(TARGET_ARCH),armv7l aarch64))
+SMS ?= 30 35 37 50 52 60 61 70 72 75
+else
 SMS ?= 30 35 37 50 52 60 61 70 75
+endif
 
 ifeq ($(SMS),)
 $(info >>> WARNING - no SM architectures have been specified - waiving sample <<<)

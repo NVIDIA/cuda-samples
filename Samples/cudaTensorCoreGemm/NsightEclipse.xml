@@ -43,11 +43,15 @@ In addition to that, it demonstrates the use of the new CUDA function attribute 
     <scope>1:CUDA Basic Topics</scope>
   </scopes>
   <sm-arch>sm70</sm-arch>
+  <sm-arch>sm72</sm-arch>
   <sm-arch>sm75</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>
       <platform>linux</platform>
+    </env>
+    <env>
+      <arch>aarch64</arch>
     </env>
     <env>
       <platform>windows7</platform>

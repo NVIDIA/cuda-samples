@@ -415,7 +415,7 @@ void getIdenticalGPUs(int num_of_gpus, std::set<int> &identicalGPUs) {
       identicalGPUs.erase(it);
     }
     if (!deviceProp.cooperativeMultiDeviceLaunch ||
-        !deviceProp.concurrentManagedAccess) {
+        !deviceProp.managedMemory) {
       identicalGPUs.erase(it);
     }
     it++;
@@ -450,8 +450,7 @@ int main(int argc, char **argv) {
   if (identicalGPUs.size() <= 1) {
     printf(
         "No Two or more GPUs with same architecture capable of "
-        "cooperativeMultiDeviceLaunch & concurrentManagedAccess found. "
-        "\nWaiving the sample\n");
+        "cooperativeMultiDeviceLaunch & managedMemory found. \nWaiving the sample\n");
     exit(EXIT_WAIVED);
   }
 

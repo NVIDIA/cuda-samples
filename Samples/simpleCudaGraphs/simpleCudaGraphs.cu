@@ -302,7 +302,7 @@ void cudaGraphsUsingStreamCapture(float *inputVec_h, float *inputVec_d,
   checkCudaErrors(cudaStreamCreate(&streamForGraph));
   checkCudaErrors(cudaEventCreate(&reduceKernelEvent));
 
-  checkCudaErrors(cudaStreamBeginCapture(stream1));
+  checkCudaErrors(cudaStreamBeginCapture(stream1, cudaStreamCaptureModeGlobal));
 
   checkCudaErrors(cudaMemcpyAsync(inputVec_d, inputVec_h,
                                   sizeof(float) * inputSize, cudaMemcpyDefault,

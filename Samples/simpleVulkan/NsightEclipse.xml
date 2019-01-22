@@ -38,14 +38,6 @@
   <librarypaths>
   </librarypaths>
   <nsight_eclipse>true</nsight_eclipse>
-  <postbuildevent>
-    <event os="Windows">$(VULKAN_SDK)/Bin/glslangValidator.exe -V shader_sine.vert</event>
-    <event os="Windows">$(VULKAN_SDK)/Bin/glslangValidator.exe -V shader_sine.frag</event>
-    <event os="Linux">$(VULKAN_SDK_PATH)/bin/glslangValidator -V shader_sine.vert</event>
-    <event os="Linux">$(VULKAN_SDK_PATH)/bin/glslangValidator -V shader_sine.frag</event>
-    <eventclean os="Linux">rm -rf vert.spv</eventclean>
-    <eventclean os="Linux">rm -rf frag.spv</eventclean>
-  </postbuildevent>
   <primary_file>vulkanCUDASinewave.cu</primary_file>
   <required_dependencies>
     <dependency>X11</dependency>
@@ -64,6 +56,7 @@
   <sm-arch>sm60</sm-arch>
   <sm-arch>sm61</sm-arch>
   <sm-arch>sm70</sm-arch>
+  <sm-arch>sm72</sm-arch>
   <sm-arch>sm75</sm-arch>
   <supported_envs>
     <env>
@@ -72,6 +65,9 @@
     </env>
     <env>
       <platform>windows7</platform>
+    </env>
+    <env>
+      <platform>aarch64</platform>
     </env>
   </supported_envs>
   <supported_sm_architectures>

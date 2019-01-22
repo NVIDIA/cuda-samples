@@ -246,9 +246,9 @@ ifeq ($(TARGET_ARCH),armv7l)
   SAMPLE_ENABLED := 0
 endif
 
-# This sample is not supported on aarch64
-ifeq ($(TARGET_ARCH),aarch64)
-  $(info >>> WARNING - simpleVulkan is not supported on aarch64 - waiving sample <<<)
+# This sample is not supported on QNX
+ifeq ($(TARGET_OS),qnx)
+  $(info >>> WARNING - simpleVulkan is not supported on QNX - waiving sample <<<)
   SAMPLE_ENABLED := 0
 endif
 
@@ -301,7 +301,11 @@ ifeq ($(TARGET_OS),linux)
 endif
 
 # Gencode arguments
+ifeq ($(TARGET_ARCH),$(filter $(TARGET_ARCH),armv7l aarch64))
+SMS ?= 30 35 37 50 52 60 61 70 72 75
+else
 SMS ?= 30 35 37 50 52 60 61 70 75
+endif
 
 ifeq ($(SMS),)
 $(info >>> WARNING - no SM architectures have been specified - waiving sample <<<)
@@ -331,8 +335,6 @@ endif
 all: build
 
 build: simpleVulkan
-	$(EXEC) $(VULKAN_SDK_PATH)/bin/glslangValidator -V shader_sine.vert
-	$(EXEC) $(VULKAN_SDK_PATH)/bin/glslangValidator -V shader_sine.frag
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -355,7 +357,5 @@ run: build
 clean:
 	rm -f simpleVulkan vulkanCUDASinewave.o
 	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/simpleVulkan
-	rm -rf vert.spv
-	rm -rf frag.spv
 
 clobber: clean

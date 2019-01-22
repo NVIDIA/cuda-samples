@@ -883,8 +883,8 @@ class vulkanCudaApp {
   }
 
   void createGraphicsPipeline() {
-    auto vertShaderCode = readFile("vert.spv");
-    auto fragShaderCode = readFile("frag.spv");
+    auto vertShaderCode = readFile("shader_sine.vert");
+    auto fragShaderCode = readFile("shader_sine.frag");
 
     VkShaderModule vertShaderModule;
     VkShaderModule fragShaderModule;

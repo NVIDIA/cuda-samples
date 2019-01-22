@@ -246,7 +246,11 @@ LIBRARIES :=
 ################################################################################
 
 # Gencode arguments
+ifeq ($(TARGET_ARCH),$(filter $(TARGET_ARCH),armv7l aarch64))
+SMS ?= 30 35 37 50 52 60 61 70 72 75
+else
 SMS ?= 30 35 37 50 52 60 61 70 75
+endif
 
 ifeq ($(SMS),)
 $(info >>> WARNING - no SM architectures have been specified - waiving sample <<<)
