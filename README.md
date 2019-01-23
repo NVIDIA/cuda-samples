@@ -1,10 +1,18 @@
 # CUDA Samples
 
-Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This version supports [CUDA Toolkit 10.0](https://developer.nvidia.com/cuda-downloads).
+Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This version supports [CUDA Toolkit 10.1](https://developer.nvidia.com/cuda-downloads).
 
 ## Release Notes
 
 This section describes the release notes for the CUDA Samples on GitHub only.
+
+### CUDA 10.1
+*  Added `immaTensorCoreGemm`. Demonstrates integer GEMM computation using the Warp Matrix Multiply and Accumulate (WMMA) API for integers employing the Tensor Cores.
+*  Added `simpleIPC`. Demonstrates Inter Process Communication with one process per GPU for computation.
+*  Added `nvJPEG`. Demonstrates single and batched decoding of jpeg images using NVJPEG Library.
+*  Added `bandwidthTest`. It measures the memcopy bandwidth of the GPU and memcpy bandwidth across PCI-e.
+*  Added `reduction`. Demonstrates several important optimization strategies for Data-Parallel Algorithms like reduction.
+*  Update all the samples to support CUDA 10.1.
 
 ### CUDA 10.0
 *  Added `simpleCudaGraphs`. Demonstrates CUDA Graphs creation, instantiation and launch using Graphs APIs and Stream Capture APIs.
@@ -38,7 +46,7 @@ This is the first release of CUDA Samples on GitHub:
 
 ### Prerequisites
 
-Download and install the [CUDA Toolkit 10.0](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit 10.1](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 For system requirements and installation instructions of cuda toolkit, please refer to the [Linux Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/), the [Windows Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html), and the [Mac Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-mac-os-x/index.html).
 
 ### Getting the CUDA Samples
@@ -120,27 +128,29 @@ The samples makefiles can take advantage of certain options:
 ### Samples by OS
 
 #### Linux
-**[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[conjugateGradientMultiBlockCG](./Samples/conjugateGradientMultiBlockCG)** | **[shfl_scan](./Samples/shfl_scan)** | **[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** |
+**[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[conjugateGradientMultiBlockCG](./Samples/conjugateGradientMultiBlockCG)** | **[simpleIPC](./Samples/simpleIPC)** | **[shfl_scan](./Samples/shfl_scan)** |
 ---|---|---|---|
-**[simpleCudaGraphs](./Samples/simpleCudaGraphs)** | **[deviceQuery](./Samples/deviceQuery)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[simpleCUBLASXT](./Samples/simpleCUBLASXT)** |
-**[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** | **[matrixMulDrv](./Samples/matrixMulDrv)** | **[simpleCUFFT](./Samples/simpleCUFFT)** |
-**[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[simpleVulkan](./Samples/simpleVulkan)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** |
-**[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** | **[matrixMul](./Samples/matrixMul)** | **[systemWideAtomics](./Samples/systemWideAtomics)** |
+**[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** | **[nvJPEG](./Samples/nvJPEG)** | **[simpleCudaGraphs](./Samples/simpleCudaGraphs)** | **[deviceQuery](./Samples/deviceQuery)** |
+**[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[simpleCUBLASXT](./Samples/simpleCUBLASXT)** | **[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** |
+**[matrixMulDrv](./Samples/matrixMulDrv)** | **[simpleCUFFT](./Samples/simpleCUFFT)** | **[reduction](./Samples/reduction)** | **[immaTensorCoreGemm](./Samples/immaTensorCoreGemm)** |
+**[bandwidthTest](./Samples/bandwidthTest)** | **[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[simpleVulkan](./Samples/simpleVulkan)** |
+**[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** | **[matrixMul](./Samples/matrixMul)** | **[systemWideAtomics](./Samples/systemWideAtomics)** |
 
 #### Windows
-**[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[conjugateGradientMultiBlockCG](./Samples/conjugateGradientMultiBlockCG)** | **[shfl_scan](./Samples/shfl_scan)** | **[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** |
+**[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[conjugateGradientMultiBlockCG](./Samples/conjugateGradientMultiBlockCG)** | **[simpleIPC](./Samples/simpleIPC)** | **[shfl_scan](./Samples/shfl_scan)** |
 ---|---|---|---|
-**[simpleD3D12](./Samples/simpleD3D12)** | **[simpleCudaGraphs](./Samples/simpleCudaGraphs)** | **[deviceQuery](./Samples/deviceQuery)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** |
-**[simpleCUBLASXT](./Samples/simpleCUBLASXT)** | **[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** | **[matrixMulDrv](./Samples/matrixMulDrv)** |
-**[simpleCUFFT](./Samples/simpleCUFFT)** | **[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[simpleVulkan](./Samples/simpleVulkan)** |
+**[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** | **[simpleD3D12](./Samples/simpleD3D12)** | **[simpleCudaGraphs](./Samples/simpleCudaGraphs)** | **[deviceQuery](./Samples/deviceQuery)** |
+**[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[simpleCUBLASXT](./Samples/simpleCUBLASXT)** | **[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** |
+**[matrixMulDrv](./Samples/matrixMulDrv)** | **[simpleCUFFT](./Samples/simpleCUFFT)** | **[reduction](./Samples/reduction)** | **[immaTensorCoreGemm](./Samples/immaTensorCoreGemm)** |
+**[bandwidthTest](./Samples/bandwidthTest)** | **[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[simpleVulkan](./Samples/simpleVulkan)** |
 **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** | **[matrixMul](./Samples/matrixMul)** |
 
 #### Mac OSX
 **[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[shfl_scan](./Samples/shfl_scan)** | **[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** | **[simpleCudaGraphs](./Samples/simpleCudaGraphs)** |
 ---|---|---|---|
 **[deviceQuery](./Samples/deviceQuery)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[simpleCUBLASXT](./Samples/simpleCUBLASXT)** | **[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** |
-**[matrixMulDrv](./Samples/matrixMulDrv)** | **[simpleCUFFT](./Samples/simpleCUFFT)** | **[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** |
-**[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** | **[matrixMul](./Samples/matrixMul)** |
+**[matrixMulDrv](./Samples/matrixMulDrv)** | **[simpleCUFFT](./Samples/simpleCUFFT)** | **[reduction](./Samples/reduction)** | **[bandwidthTest](./Samples/bandwidthTest)** |
+**[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** | **[matrixMul](./Samples/matrixMul)** |
 
 ## Dependencies
 
@@ -261,6 +271,10 @@ NPP (NVIDIA Performance Primitives) provides GPU-accelerated image, video, and s
 #### NVGRAPH
 
 NVGRAPH is a GPU-accelerated graph analytics library.
+
+#### NVJPEG
+
+NVJPEG library provides high-performance, GPU accelerated JPEG decoding functionality for image formats commonly used in deep learning and hyperscale multimedia applications.
 
 #### NVRTC
 
