@@ -364,6 +364,7 @@ void cudaGraphsUsingStreamCapture(float *inputVec_h, float *inputVec_d,
   checkCudaErrors(cudaStreamDestroy(stream1));
   checkCudaErrors(cudaStreamDestroy(stream2));
   checkCudaErrors(cudaStreamDestroy(streamForGraph));
+  checkCudaErrors(cudaEventDestroy(reduceKernelEvent));
 }
 
 int main(int argc, char **argv) {
