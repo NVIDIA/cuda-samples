@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2018, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -286,7 +286,7 @@ GENCODE_FLAGS += -gencode arch=compute_$(HIGHEST_SM),code=compute_$(HIGHEST_SM)
 endif
 endif
 
-ALL_CCFLAGS += -dc
+ALL_CCFLAGS += -dc -maxrregcount=64
 
 LIBRARIES += -lcudadevrt
 

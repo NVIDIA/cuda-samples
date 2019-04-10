@@ -4,6 +4,7 @@
   <name>conjugateGradientMultiDeviceCG</name>
   <cflags>
     <flag>-dc</flag>
+    <flag>-maxrregcount=64</flag>
   </cflags>
   <cuda_api_list>
     <toolkit>cudaMemAdvise</toolkit>

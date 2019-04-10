@@ -19,12 +19,16 @@
     <ProjectName>vectorAdd_nvrtc</ProjectName>
     <CudaToolkitCustomDir />
   </PropertyGroup>
+  <PropertyGroup Condition="'$(WindowsTargetPlatformVersion)'==''">
+    <LatestTargetPlatformVersion>$([Microsoft.Build.Utilities.ToolLocationHelper]::GetLatestSDKTargetPlatformVersion('Windows', '10.0'))</LatestTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(WindowsTargetPlatformVersion)' == ''">$(LatestTargetPlatformVersion)</WindowsTargetPlatformVersion>
+    <TargetPlatformVersion>$(WindowsTargetPlatformVersion)</TargetPlatformVersion>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup>
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v141</PlatformToolset>
-	<WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <UseDebugLibraries>true</UseDebugLibraries>
