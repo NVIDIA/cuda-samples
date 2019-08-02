@@ -99,7 +99,7 @@ void printHelp(void) {
   printf(
       "--p2p_read\tUse P2P reads for data transfers between GPU pairs and show "
       "corresponding results.\n \t\tDefault used is P2P write operation.\n");
-  printf("--sm_copy\tUse SM intiated p2p transfers instead of Copy Engine\n");
+  printf("--sm_copy\t\tUse SM intiated p2p transfers instead of Copy Engine\n");
 }
 
 void checkP2Paccess(int numGPUs) {
@@ -441,6 +441,7 @@ void outputBidirectionalBandwidthMatrix(int numGPUs, bool p2p) {
 
 void outputLatencyMatrix(int numGPUs, bool p2p, P2PDataTransfer p2p_method) {
   int repeat = 100;
+  int numElems = 4;  // perform 1-int4 transfer.
   volatile int *flag = NULL;
   StopWatchInterface *stopWatch = NULL;
   vector<int *> buffers(numGPUs);
@@ -461,8 +462,8 @@ void outputLatencyMatrix(int numGPUs, bool p2p, P2PDataTransfer p2p_method) {
   for (int d = 0; d < numGPUs; d++) {
     cudaSetDevice(d);
     cudaStreamCreateWithFlags(&stream[d], cudaStreamNonBlocking);
-    cudaMalloc(&buffers[d], sizeof(int));
-    cudaMalloc(&buffersD2D[d], sizeof(int));
+    cudaMalloc(&buffers[d], sizeof(int) * numElems);
+    cudaMalloc(&buffersD2D[d], sizeof(int) * numElems);
     cudaCheckError();
     cudaEventCreate(&start[d]);
     cudaCheckError();
@@ -505,14 +506,14 @@ void outputLatencyMatrix(int numGPUs, bool p2p, P2PDataTransfer p2p_method) {
       sdkResetTimer(&stopWatch);
       if (i == j) {
         // Perform intra-GPU, D2D copies
-        performP2PCopy(buffers[i], i, buffersD2D[i], i, 1, repeat, access,
-                       stream[i]);
+        performP2PCopy(buffers[i], i, buffersD2D[i], i, numElems, repeat,
+                       access, stream[i]);
       } else {
         if (p2p_method == P2P_WRITE) {
-          performP2PCopy(buffers[j], j, buffers[i], i, 1, repeat, access,
+          performP2PCopy(buffers[j], j, buffers[i], i, numElems, repeat, access,
                          stream[i]);
         } else {
-          performP2PCopy(buffers[i], i, buffers[j], j, 1, repeat, access,
+          performP2PCopy(buffers[i], i, buffers[j], j, numElems, repeat, access,
                          stream[i]);
         }
       }

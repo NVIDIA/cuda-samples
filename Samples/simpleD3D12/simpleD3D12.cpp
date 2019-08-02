@@ -25,9 +25,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+
+#include "stdafx.h"
 #include "simpleD3D12.h"
 #include <aclapi.h>
-#include "stdafx.h"
 
 //////////////////////////////////////////////
 // WindowsSecurityAttributes implementation //

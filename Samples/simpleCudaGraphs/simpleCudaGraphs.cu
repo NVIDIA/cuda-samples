@@ -25,7 +25,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #include <cooperative_groups.h>
 #include <cuda_runtime.h>
 #include <helper_cuda.h>
@@ -292,35 +291,49 @@ void cudaGraphsManual(float *inputVec_h, float *inputVec_d, double *outputVec_d,
 void cudaGraphsUsingStreamCapture(float *inputVec_h, float *inputVec_d,
                                   double *outputVec_d, double *result_d,
                                   size_t inputSize, size_t numOfBlocks) {
-  cudaStream_t stream1, stream2, streamForGraph;
-  cudaEvent_t reduceKernelEvent;
+  cudaStream_t stream1, stream2, stream3, streamForGraph;
+  cudaEvent_t forkStreamEvent, memsetEvent1, memsetEvent2;
   cudaGraph_t graph;
   double result_h = 0.0;
 
   checkCudaErrors(cudaStreamCreate(&stream1));
   checkCudaErrors(cudaStreamCreate(&stream2));
+  checkCudaErrors(cudaStreamCreate(&stream3));
   checkCudaErrors(cudaStreamCreate(&streamForGraph));
-  checkCudaErrors(cudaEventCreate(&reduceKernelEvent));
+
+  checkCudaErrors(cudaEventCreate(&forkStreamEvent));
+  checkCudaErrors(cudaEventCreate(&memsetEvent1));
+  checkCudaErrors(cudaEventCreate(&memsetEvent2));
 
   checkCudaErrors(cudaStreamBeginCapture(stream1, cudaStreamCaptureModeGlobal));
+
+  checkCudaErrors(cudaEventRecord(forkStreamEvent, stream1));
+  checkCudaErrors(cudaStreamWaitEvent(stream2, forkStreamEvent, 0));
+  checkCudaErrors(cudaStreamWaitEvent(stream3, forkStreamEvent, 0));
 
   checkCudaErrors(cudaMemcpyAsync(inputVec_d, inputVec_h,
                                   sizeof(float) * inputSize, cudaMemcpyDefault,
                                   stream1));
+
   checkCudaErrors(
-      cudaMemsetAsync(outputVec_d, 0, sizeof(double) * numOfBlocks, stream1));
+      cudaMemsetAsync(outputVec_d, 0, sizeof(double) * numOfBlocks, stream2));
+
+  checkCudaErrors(cudaEventRecord(memsetEvent1, stream2));
+
+  checkCudaErrors(cudaMemsetAsync(result_d, 0, sizeof(double), stream3));
+  checkCudaErrors(cudaEventRecord(memsetEvent2, stream3));
+
+  checkCudaErrors(cudaStreamWaitEvent(stream1, memsetEvent1, 0));
+
   reduce<<<numOfBlocks, THREADS_PER_BLOCK, 0, stream1>>>(
       inputVec_d, outputVec_d, inputSize, numOfBlocks);
-  checkCudaErrors(cudaEventRecord(reduceKernelEvent, stream1));
 
-  checkCudaErrors(cudaStreamWaitEvent(stream2, reduceKernelEvent, 0));
-  checkCudaErrors(cudaMemsetAsync(result_d, 0, sizeof(double), stream2));
-  reduceFinal<<<1, THREADS_PER_BLOCK, 0, stream2>>>(outputVec_d, result_d,
+  checkCudaErrors(cudaStreamWaitEvent(stream1, memsetEvent2, 0));
+
+  reduceFinal<<<1, THREADS_PER_BLOCK, 0, stream1>>>(outputVec_d, result_d,
                                                     numOfBlocks);
   checkCudaErrors(cudaMemcpyAsync(&result_h, result_d, sizeof(double),
-                                  cudaMemcpyDefault, stream2));
-  checkCudaErrors(cudaEventRecord(reduceKernelEvent, stream2));
-  checkCudaErrors(cudaStreamWaitEvent(stream1, reduceKernelEvent, 0));
+                                  cudaMemcpyDefault, stream1));
 
   callBackData_t hostFnData = {0};
   hostFnData.data = &result_h;

@@ -30,7 +30,7 @@
 // images can be decoded using the API for batch mode
 
 #include <cuda_runtime_api.h>
-#include "nvJPEG_helper.hxx"
+#include "helper_nvJPEG.hxx"
 
 int dev_malloc(void **p, size_t s) { return (int)cudaMalloc(p, s); }
 
@@ -436,9 +436,13 @@ int main(int argc, const char *argv[]) {
   if ((pidx = findParamIndex(argv, argc, "-i")) != -1) {
     params.input_dir = argv[pidx + 1];
   } else {
-    std::cerr << "Please specify input directory with encoded images"
-              << std::endl;
-    return EXIT_WAIVED;
+    // Search in default paths for input images.
+     int found = getInputDir(params.input_dir, argv[0]);
+    if (!found)
+    {
+      std::cout << "Please specify input directory with encoded images"<< std::endl;
+      return EXIT_WAIVED;
+    }
   }
 
   params.batch_size = 1;

@@ -246,9 +246,9 @@ ifeq ($(TARGET_ARCH),armv7l)
   SAMPLE_ENABLED := 0
 endif
 
-# This sample is not supported on aarch64
-ifeq ($(TARGET_ARCH),aarch64)
-  $(info >>> WARNING - nvJPEG is not supported on aarch64 - waiving sample <<<)
+# This sample is not supported on QNX
+ifeq ($(TARGET_OS),qnx)
+  $(info >>> WARNING - nvJPEG is not supported on QNX - waiving sample <<<)
   SAMPLE_ENABLED := 0
 endif
 

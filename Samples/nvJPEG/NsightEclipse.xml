@@ -24,9 +24,6 @@
   </librarypaths>
   <nsight_eclipse>true</nsight_eclipse>
   <primary_file>nvJPEG.cpp</primary_file>
-  <qatests>
-    <qatest>-i ../../../../Samples/nvJPEG/images/</qatest>
-  </qatests>
   <required_dependencies>
     <dependency>NVJPEG</dependency>
   </required_dependencies>
@@ -48,6 +45,16 @@
     <env>
       <arch>x86_64</arch>
       <platform>linux</platform>
+    </env>
+    <env>
+      <platform>windows</platform>
+    </env>
+    <env>
+      <arch>ppc64le</arch>
+      <platform>linux</platform>
+    </env>
+    <env>
+      <arch>aarch64</arch>
     </env>
   </supported_envs>
   <supported_sm_architectures>
