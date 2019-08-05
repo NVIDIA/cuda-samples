@@ -1,10 +1,17 @@
 # CUDA Samples
 
-Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This version supports [CUDA Toolkit 10.1](https://developer.nvidia.com/cuda-downloads).
+Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This version supports [CUDA Toolkit 10.1 Update 2](https://developer.nvidia.com/cuda-downloads).
 
 ## Release Notes
 
 This section describes the release notes for the CUDA Samples on GitHub only.
+
+### CUDA 10.1 Update 2
+*  Added `vulkanImageCUDA`. Demonstrates how to perform Vulkan image - CUDA Interop.
+*  Added `nvJPEG_encoder`. Demonstrates encoding of jpeg images using NVJPEG Library.
+*  Added Windows OS support to `nvJPEG` sample.
+*  Added `boxFilterNPP`. Demonstrates how to use NPP FilterBox function to perform a box filter.
+*  Added `cannyEdgeDetectorNPP`. Demonstrates the nppiFilterCannyBorder_8u_C1R Canny Edge Detection image filter function.
 
 ### CUDA 10.1 Update 1
 *  Added `NV12toBGRandResize`. Demonstrates how to convert and resize NV12 frames to BGR planars frames using CUDA in batch.
