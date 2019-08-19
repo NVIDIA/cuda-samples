@@ -98,62 +98,6 @@ __global__ void initVectors(float *rhs, float *x, int N) {
   }
 }
 
-__global__ void gpuDotProduct(float *vecA, float *vecB, float *result,
-                              int size) {
-  cg::thread_block cta = cg::this_thread_block();
-
-  int gid = blockIdx.x * blockDim.x + threadIdx.x;
-  extern __shared__ double tmp[];
-
-  double temp_sum = 0.0;
-  for (int i = gid; i < size; i += gridDim.x * blockDim.x) {
-    temp_sum += (double)(vecA[i] * vecB[i]);
-  }
-  tmp[cta.thread_rank()] = temp_sum;
-
-  cg::sync(cta);
-
-  cg::thread_block_tile<32> tile32 = cg::tiled_partition<32>(cta);
-
-  double beta = temp_sum;
-  double temp;
-
-  for (int i = tile32.size() / 2; i > 0; i >>= 1) {
-    if (tile32.thread_rank() < i) {
-      temp = tmp[cta.thread_rank() + i];
-      beta += temp;
-      tmp[cta.thread_rank()] = beta;
-    }
-    cg::sync(tile32);
-  }
-  cg::sync(cta);
-
-  if (cta.thread_rank() == 0) {
-    beta = 0.0;
-    for (int i = 0; i < cta.size(); i += tile32.size()) {
-      beta += tmp[i];
-    }
-    atomicAdd(result, (float)beta);
-  }
-}
-
-__global__ void gpuSpMV(int *I, int *J, float *val, int nnz, int num_rows,
-                        float alpha, float *inputVecX, float *outputVecY) {
-  size_t gid = blockIdx.x * blockDim.x + threadIdx.x;
-  for (size_t i = gid; i < num_rows; i += blockDim.x * gridDim.x) {
-    int row_elem = I[i];
-    int next_row_elem = I[i + 1];
-    int num_elems_this_row = next_row_elem - row_elem;
-
-    float output = 0.0;
-    for (int j = 0; j < num_elems_this_row; j++) {
-      output += alpha * val[row_elem + j] * inputVecX[J[row_elem + j]];
-    }
-
-    outputVecY[i] = output;
-  }
-}
-
 __global__ void r1_div_x(float *r1, float *r0, float *b) {
   int gid = blockIdx.x * blockDim.x + threadIdx.x;
   if (gid == 0) {
@@ -255,7 +199,7 @@ int main(int argc, char **argv) {
   checkCudaErrors(cusparseSetMatType(descr, CUSPARSE_MATRIX_TYPE_GENERAL));
   checkCudaErrors(cusparseSetMatIndexBase(descr, CUSPARSE_INDEX_BASE_ZERO));
 
-  int numBlocks = 0, blockSize = 0, numBlocks2 = 0, blockSize2 = 0;
+  int numBlocks = 0, blockSize = 0;
   checkCudaErrors(
       cudaOccupancyMaxPotentialBlockSize(&numBlocks, &blockSize, initVectors));
 
@@ -267,11 +211,6 @@ int main(int argc, char **argv) {
                                   cudaMemcpyHostToDevice, stream1));
 
   initVectors<<<numBlocks, blockSize, 0, stream1>>>(d_r, d_x, N);
-
-  checkCudaErrors(cudaOccupancyMaxPotentialBlockSize(&numBlocks2, &blockSize2,
-                                                     gpuSpMV));
-  checkCudaErrors(cudaOccupancyMaxPotentialBlockSize(&numBlocks, &blockSize,
-                                                     gpuDotProduct));
 
   alpha = 1.0;
   alpham1 = -1.0;
@@ -332,22 +271,14 @@ int main(int argc, char **argv) {
   checkCudaErrors(cublasSaxpy(cublasHandle, N, &alpha, d_r, 1, d_p, 1));
   cublasSetPointerMode(cublasHandle, CUBLAS_POINTER_MODE_DEVICE);
 
-#if 0 // Use cusparseScsrmv API when it is cuda graph compliant
   checkCudaErrors(
       cusparseSetPointerMode(cusparseHandle, CUSPARSE_POINTER_MODE_HOST));
   checkCudaErrors(
       cusparseScsrmv(cusparseHandle, CUSPARSE_OPERATION_NON_TRANSPOSE, N, N, nz,
                      &alpha, descr, d_val, d_row, d_col, d_p, &beta, d_Ax));
-#else
-  gpuSpMV<<<numBlocks2, blockSize2, 0, stream1>>>(d_row, d_col, d_val, nz,
-                                                        N, alpha, d_p, d_Ax);
-#endif
 
   checkCudaErrors(cudaMemsetAsync(d_dot, 0, sizeof(float), stream1));
-  // Use cublasSdot API when it is cuda graph compliant.
-  // checkCudaErrors(cublasSdot(cublasHandle, N, d_p, 1, d_Ax, 1, d_dot));
-  gpuDotProduct<<<numBlocks, blockSize, blockSize * sizeof(double), stream1>>>(
-      d_p, d_Ax, d_dot, N);
+  checkCudaErrors(cublasSdot(cublasHandle, N, d_p, 1, d_Ax, 1, d_dot));
 
   r1_div_x<<<1, 1, 0, stream1>>>(d_r1, d_dot, d_a);
 
@@ -360,10 +291,9 @@ int main(int argc, char **argv) {
   checkCudaErrors(cudaMemcpyAsync(d_r0, d_r1, sizeof(float),
                                   cudaMemcpyDeviceToDevice, stream1));
   checkCudaErrors(cudaMemsetAsync(d_r1, 0, sizeof(float), stream1));
-  // Use cublasSdot API when it is cuda graph compliant.
-  // checkCudaErrors(cublasSdot(cublasHandle, N, d_r, 1, d_r, 1, d_r1));
-  gpuDotProduct<<<numBlocks, blockSize, blockSize * sizeof(double), stream1>>>(
-      d_r, d_r, d_r1, N);
+
+  checkCudaErrors(cublasSdot(cublasHandle, N, d_r, 1, d_r, 1, d_r1));
+
   checkCudaErrors(cudaMemcpyAsync((float *)&r1, d_r1, sizeof(float),
                                   cudaMemcpyDeviceToHost, stream1));
 
