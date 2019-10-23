@@ -1,10 +1,20 @@
 # CUDA Samples
 
-Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This version supports [CUDA Toolkit 10.1 Update 2](https://developer.nvidia.com/cuda-downloads).
+Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This version supports [CUDA Toolkit 10.2](https://developer.nvidia.com/cuda-downloads).
 
 ## Release Notes
 
 This section describes the release notes for the CUDA Samples on GitHub only.
+
+### CUDA 10.2
+*  Added `simpleD3D11`. Demonstrates CUDA-D3D11 External Resource Interoperability APIs for updating D3D11 buffers from CUDA and synchronization between D3D11 and CUDA with Keyed Mutexes.
+*  Added `simpleDrvRuntime`. Demonstrates CUDA Driver and Runtime APIs working together to load fatbinary of a CUDA kernel.
+*  Added `vectorAddMMAP`. Demonstrates how cuMemMap API allows the user to specify the physical properties of their memory while retaining the contiguous nature of their access.
+*  Added `memMapIPCDrv`. Demonstrates Inter Process Communication using cuMemMap APIs.
+*  Added `cudaNvSci`. Demonstrates CUDA-NvSciBuf/NvSciSync Interop.
+*  Added `jacobiCudaGraphs`. Demonstrates Instantiated CUDA Graph Update with Jacobi Iterative Method using different approaches.
+*  Added `cuSolverSp_LinearSolver`. Demonstrates cuSolverSP's LU, QR and Cholesky factorization.
+*  Added `MersenneTwisterGP11213`. Demonstrates the Mersenne Twister random number generator GP11213 in cuRAND.
 
 ### CUDA 10.1 Update 2
 *  Added `vulkanImageCUDA`. Demonstrates how to perform Vulkan image - CUDA Interop.
@@ -59,7 +69,7 @@ This is the first release of CUDA Samples on GitHub:
 
 ### Prerequisites
 
-Download and install the [CUDA Toolkit 10.1](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit 10.2](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 For system requirements and installation instructions of cuda toolkit, please refer to the [Linux Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/), the [Windows Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html), and the [Mac Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-mac-os-x/index.html).
 
 ### Getting the CUDA Samples
@@ -85,7 +95,6 @@ Each individual sample has its own set of solution files at:
 `<CUDA_SAMPLES_REPO>\Samples\<sample_dir>\`
 
 To build/examine all the samples at once, the complete solution files should be used. To build/examine a single sample, the individual sample solution files should be used.
-> **Note:** Some samples require that the Microsoft DirectX SDK (June 2010 or newer) be installed and that the VC++ directory paths are properly set up (**Tools > Options...**). Check [DirectX Dependencies](#directx) section for details."
 
 ### Linux
 The Linux samples are built using makefiles. To use the makefiles, change the current directory to the sample directory you wish to build, and run make:
@@ -143,31 +152,36 @@ The samples makefiles can take advantage of certain options:
 #### Linux
 **[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[boxFilterNPP](./Samples/boxFilterNPP)** | **[EGLStream_CUDA_Interop](./Samples/EGLStream_CUDA_Interop)** | **[conjugateGradientMultiBlockCG](./Samples/conjugateGradientMultiBlockCG)** |
 ---|---|---|---|
-**[simpleIPC](./Samples/simpleIPC)** | **[shfl_scan](./Samples/shfl_scan)** | **[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** | **[nvJPEG](./Samples/nvJPEG)** |
-**[simpleCudaGraphs](./Samples/simpleCudaGraphs)** | **[deviceQuery](./Samples/deviceQuery)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[simpleCUBLASXT](./Samples/simpleCUBLASXT)** |
-**[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** | **[cuSolverDn_LinearSolver](./Samples/cuSolverDn_LinearSolver)** | **[vulkanImageCUDA](./Samples/vulkanImageCUDA)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** |
-**[matrixMulDrv](./Samples/matrixMulDrv)** | **[simpleCUFFT](./Samples/simpleCUFFT)** | **[reduction](./Samples/reduction)** | **[nvJPEG_encoder](./Samples/nvJPEG_encoder)** |
-**[immaTensorCoreGemm](./Samples/immaTensorCoreGemm)** | **[bandwidthTest](./Samples/bandwidthTest)** | **[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[NV12toBGRandResize](./Samples/NV12toBGRandResize)** |
-**[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[simpleVulkan](./Samples/simpleVulkan)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[cannyEdgeDetectorNPP](./Samples/cannyEdgeDetectorNPP)** |
-**[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** | **[matrixMul](./Samples/matrixMul)** | **[systemWideAtomics](./Samples/systemWideAtomics)** |
+**[simpleIPC](./Samples/simpleIPC)** | **[memMapIPCDrv](./Samples/memMapIPCDrv)** | **[vectorAddMMAP](./Samples/vectorAddMMAP)** | **[shfl_scan](./Samples/shfl_scan)** |
+**[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** | **[nvJPEG](./Samples/nvJPEG)** | **[simpleCudaGraphs](./Samples/simpleCudaGraphs)** | **[deviceQuery](./Samples/deviceQuery)** |
+**[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[simpleCUBLASXT](./Samples/simpleCUBLASXT)** | **[cudaNvSci](./Samples/cudaNvSci)** | **[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** |
+**[cuSolverDn_LinearSolver](./Samples/cuSolverDn_LinearSolver)** | **[vulkanImageCUDA](./Samples/vulkanImageCUDA)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** | **[matrixMulDrv](./Samples/matrixMulDrv)** |
+**[cuSolverSp_LinearSolver](./Samples/cuSolverSp_LinearSolver)** | **[simpleCUFFT](./Samples/simpleCUFFT)** | **[reduction](./Samples/reduction)** | **[nvJPEG_encoder](./Samples/nvJPEG_encoder)** |
+**[simpleDrvRuntime](./Samples/simpleDrvRuntime)** | **[MersenneTwisterGP11213](./Samples/MersenneTwisterGP11213)** | **[immaTensorCoreGemm](./Samples/immaTensorCoreGemm)** | **[bandwidthTest](./Samples/bandwidthTest)** |
+**[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[NV12toBGRandResize](./Samples/NV12toBGRandResize)** | **[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[jacobiCudaGraphs](./Samples/jacobiCudaGraphs)** |
+**[simpleVulkan](./Samples/simpleVulkan)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[cannyEdgeDetectorNPP](./Samples/cannyEdgeDetectorNPP)** | **[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** |
+**[matrixMul](./Samples/matrixMul)** | **[systemWideAtomics](./Samples/systemWideAtomics)** |
 
 #### Windows
 **[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[boxFilterNPP](./Samples/boxFilterNPP)** | **[conjugateGradientMultiBlockCG](./Samples/conjugateGradientMultiBlockCG)** | **[simpleIPC](./Samples/simpleIPC)** |
 ---|---|---|---|
-**[shfl_scan](./Samples/shfl_scan)** | **[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** | **[nvJPEG](./Samples/nvJPEG)** | **[simpleD3D12](./Samples/simpleD3D12)** |
-**[simpleCudaGraphs](./Samples/simpleCudaGraphs)** | **[deviceQuery](./Samples/deviceQuery)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[simpleCUBLASXT](./Samples/simpleCUBLASXT)** |
-**[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** | **[cuSolverDn_LinearSolver](./Samples/cuSolverDn_LinearSolver)** | **[vulkanImageCUDA](./Samples/vulkanImageCUDA)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** |
-**[matrixMulDrv](./Samples/matrixMulDrv)** | **[simpleCUFFT](./Samples/simpleCUFFT)** | **[reduction](./Samples/reduction)** | **[nvJPEG_encoder](./Samples/nvJPEG_encoder)** |
-**[immaTensorCoreGemm](./Samples/immaTensorCoreGemm)** | **[bandwidthTest](./Samples/bandwidthTest)** | **[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[NV12toBGRandResize](./Samples/NV12toBGRandResize)** |
-**[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[simpleVulkan](./Samples/simpleVulkan)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[cannyEdgeDetectorNPP](./Samples/cannyEdgeDetectorNPP)** |
-**[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** | **[matrixMul](./Samples/matrixMul)** |
+**[memMapIPCDrv](./Samples/memMapIPCDrv)** | **[vectorAddMMAP](./Samples/vectorAddMMAP)** | **[shfl_scan](./Samples/shfl_scan)** | **[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** |
+**[nvJPEG](./Samples/nvJPEG)** | **[simpleD3D12](./Samples/simpleD3D12)** | **[simpleCudaGraphs](./Samples/simpleCudaGraphs)** | **[deviceQuery](./Samples/deviceQuery)** |
+**[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[simpleCUBLASXT](./Samples/simpleCUBLASXT)** | **[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** | **[cuSolverDn_LinearSolver](./Samples/cuSolverDn_LinearSolver)** |
+**[vulkanImageCUDA](./Samples/vulkanImageCUDA)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** | **[matrixMulDrv](./Samples/matrixMulDrv)** | **[cuSolverSp_LinearSolver](./Samples/cuSolverSp_LinearSolver)** |
+**[simpleCUFFT](./Samples/simpleCUFFT)** | **[reduction](./Samples/reduction)** | **[nvJPEG_encoder](./Samples/nvJPEG_encoder)** | **[simpleDrvRuntime](./Samples/simpleDrvRuntime)** |
+**[simpleD3D11](./Samples/simpleD3D11)** | **[MersenneTwisterGP11213](./Samples/MersenneTwisterGP11213)** | **[immaTensorCoreGemm](./Samples/immaTensorCoreGemm)** | **[bandwidthTest](./Samples/bandwidthTest)** |
+**[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[NV12toBGRandResize](./Samples/NV12toBGRandResize)** | **[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[jacobiCudaGraphs](./Samples/jacobiCudaGraphs)** |
+**[simpleVulkan](./Samples/simpleVulkan)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[cannyEdgeDetectorNPP](./Samples/cannyEdgeDetectorNPP)** | **[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** |
+**[matrixMul](./Samples/matrixMul)** |
 
 #### Mac OSX
 **[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[boxFilterNPP](./Samples/boxFilterNPP)** | **[shfl_scan](./Samples/shfl_scan)** | **[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** |
 ---|---|---|---|
 **[simpleCudaGraphs](./Samples/simpleCudaGraphs)** | **[deviceQuery](./Samples/deviceQuery)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[simpleCUBLASXT](./Samples/simpleCUBLASXT)** |
-**[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** | **[cuSolverDn_LinearSolver](./Samples/cuSolverDn_LinearSolver)** | **[matrixMulDrv](./Samples/matrixMulDrv)** | **[simpleCUFFT](./Samples/simpleCUFFT)** |
-**[reduction](./Samples/reduction)** | **[bandwidthTest](./Samples/bandwidthTest)** | **[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[NV12toBGRandResize](./Samples/NV12toBGRandResize)** |
+**[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** | **[cuSolverDn_LinearSolver](./Samples/cuSolverDn_LinearSolver)** | **[matrixMulDrv](./Samples/matrixMulDrv)** | **[cuSolverSp_LinearSolver](./Samples/cuSolverSp_LinearSolver)** |
+**[simpleCUFFT](./Samples/simpleCUFFT)** | **[reduction](./Samples/reduction)** | **[simpleDrvRuntime](./Samples/simpleDrvRuntime)** | **[MersenneTwisterGP11213](./Samples/MersenneTwisterGP11213)** |
+**[bandwidthTest](./Samples/bandwidthTest)** | **[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[NV12toBGRandResize](./Samples/NV12toBGRandResize)** | **[jacobiCudaGraphs](./Samples/jacobiCudaGraphs)** |
 **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[cannyEdgeDetectorNPP](./Samples/cannyEdgeDetectorNPP)** | **[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** | **[matrixMul](./Samples/matrixMul)** |
 
 ## Dependencies
@@ -196,7 +210,7 @@ Some samples can only be run on a 64-bit operating system.
 
 #### DirectX
 
-DirectX is a collection of APIs designed to allow development of multimedia applications on Microsoft platforms. For Microsoft platforms, NVIDIA's CUDA Driver supports DirectX. Several CUDA Samples for Windows demonstrates CUDA-DirectX Interoperability, for building such samples one needs to install [Direct X SDK (June 2010 or newer)](http://www.microsoft.com/en-us/download/details.aspx?id=6812) , this is required to be installed on Windows 7, Windows 10 and Windows Server 2008, Other Windows OSes do not need to explicitly install the DirectX SDK.
+DirectX is a collection of APIs designed to allow development of multimedia applications on Microsoft platforms. For Microsoft platforms, NVIDIA's CUDA Driver supports DirectX. Several CUDA Samples for Windows demonstrates CUDA-DirectX Interoperability, for building such samples one needs to install Microsoft Visual Studio 2012 or higher which provides Microsoft Windows SDK for Windows 8.
 
 #### DirectX12
 
@@ -237,6 +251,9 @@ EGLOutput is a set of EGL extensions which allow EGL to render directly to the d
 #### EGLSync
 
 EGLSync is a set of EGL extensions which provides sync objects that are synchronization primitive, representing events whose completion can be tested or waited upon.
+
+#### NVSCI
+NvSci is a set of communication interface libraries out of which CUDA interops with NvSciBuf and NvSciSync. NvSciBuf allows applications to allocate and exchange buffers in memory. NvSciSync allows applications to manage synchronization objects which coordinate when sequences of operations begin and end.
 
 ### CUDA Features
 

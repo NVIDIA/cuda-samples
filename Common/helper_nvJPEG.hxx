@@ -297,6 +297,19 @@ int writeBMPi(const char *filename, const unsigned char *d_RGB, int pitch,
   return 0;
 }
 
+int inputDirExists(const char *pathname) {
+  struct stat info;
+  if (stat(pathname, &info) != 0) {
+    return 0;  // Directory does not exists
+  } else if (info.st_mode & S_IFDIR) {
+    // is a directory
+    return 1;
+  } else {
+    // is not a directory
+    return 0;
+  }
+}
+
 int readInput(const std::string &sInputPath,
               std::vector<std::string> &filelist) {
   int error_code = 1;
@@ -315,14 +328,17 @@ int readInput(const std::string &sInputPath,
       if (dir_handle) {
         error_code = 0;
         while ((dir = readdir(dir_handle)) != NULL) {
-          if (dir->d_type == DT_REG) {
-            std::string sFileName = sInputPath + dir->d_name;
-            filelist.push_back(sFileName);
-          } else if (dir->d_type == DT_DIR) {
+          std::string sFileName = sInputPath + dir->d_name;
+          if (inputDirExists(sFileName.c_str()))
+          {
             std::string sname = dir->d_name;
             if (sname != "." && sname != "..") {
               readInput(sInputPath + sname + "/", filelist);
             }
+          }
+          else
+          {
+            filelist.push_back(sFileName);
           }
         }
         closedir(dir_handle);
@@ -360,18 +376,6 @@ int readInput(const std::string &sInputPath,
   return 0;
 }
 
-int inputDirExists(const char *pathname) {
-  struct stat info;
-  if (stat(pathname, &info) != 0) {
-    return 0;  // Directory does not exists
-  } else if (info.st_mode & S_IFDIR) {
-    // is a directory
-    return 1;
-  } else {
-    // is not a directory
-    return 0;
-  }
-}
 
 int getInputDir(std::string &input_dir, const char *executable_path) {
   int found = 0;
@@ -398,6 +402,7 @@ int getInputDir(std::string &input_dir, const char *executable_path) {
         "./images", "../../../../Samples/<executable_name>/images",
         "../../../Samples/<executable_name>/images",
         "../../Samples/<executable_name>/images"};
+
 
     for (unsigned int i = 0; i < sizeof(searchPath) / sizeof(char *); ++i) {
       std::string pathname(searchPath[i]);

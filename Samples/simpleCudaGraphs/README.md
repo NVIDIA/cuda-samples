@@ -27,7 +27,7 @@ cudaStreamBeginCapture, cudaStreamEndCapture, cudaLaunchHostFunc, cudaGraphCreat
 
 ## Prerequisites
 
-Download and install the [CUDA Toolkit 10.1](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit 10.2](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 
 ## Build and Run
 
