@@ -129,7 +129,7 @@ namespace npp
     /// \param rOutputStream The stream the exception information is written to.
     /// \param rException The exception that's being written.
     /// \return Reference to the output stream being used.
-    std::ostream &
+    inline std::ostream &
     operator << (std::ostream &rOutputStream, const Exception &rException)
     {
         rOutputStream << rException.toString();
