@@ -277,7 +277,7 @@ int MatrixMultiply(int argc, char **argv,
   checkCudaErrors(cudaFree(d_C));
 
   printf("\nNOTE: The CUDA Samples are not meant for performance"\
-         "measurements. Results may vary when GPU Boost is enabled.\n");
+         " measurements. Results may vary when GPU Boost is enabled.\n");
 
   if (correct) {
     return EXIT_SUCCESS;
