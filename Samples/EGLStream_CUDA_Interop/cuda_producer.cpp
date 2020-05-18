@@ -245,12 +245,30 @@ CUresult cudaProducerTest(test_cuda_producer_s *cudaProducer, char *file) {
   cudaEgl.eglColorFormat = eglColorFormat;
   cudaEgl.cuFormat = CU_AD_FORMAT_UNSIGNED_INT8;
 
+  static int numFramesPresented = 0;
+  // If there is a frame presented before we check if consumer
+  // is done with it using cuEGLStreamProducerReturnFrame.
+  while (numFramesPresented) {
+    CUeglFrame returnedCudaEgl;
+    cuStatus = cuEGLStreamProducerReturnFrame(&cudaProducer->cudaConn,
+                                              &returnedCudaEgl, NULL);
+    if (cuStatus == CUDA_ERROR_LAUNCH_TIMEOUT) {
+      continue;
+    } else if (cuStatus != CUDA_SUCCESS) {
+      printf("cuda Producer return frame FAILED with custatus= %d\n", cuStatus);
+      return cuStatus;
+    } else {
+      numFramesPresented--;
+    }
+  }
+
   cuStatus =
       cuEGLStreamProducerPresentFrame(&cudaProducer->cudaConn, cudaEgl, NULL);
   if (cuStatus != CUDA_SUCCESS) {
     printf("cuda Producer present frame FAILED with custatus= %d\n", cuStatus);
     goto done;
   }
+  numFramesPresented++;
 
 done:
   if (file_p) {
@@ -280,6 +298,13 @@ CUresult cudaDeviceCreateProducer(test_cuda_producer_s *cudaProducer,
       "CUDA Producer on GPU Device %d: \"%s\" with compute capability "
       "%d.%d\n\n",
       device, deviceName, major, minor);
+
+  if (major < 6) {
+    printf(
+        "EGLStreams_CUDA_Interop requires SM 6.0 or higher arch GPU.  "
+        "Exiting...\n");
+    exit(2);  // EXIT_WAIVED
+  }
 
   if (CUDA_SUCCESS !=
       (status = cuCtxCreate(&cudaProducer->context, 0, device))) {

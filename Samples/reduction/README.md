@@ -2,7 +2,7 @@
 
 ## Description
 
-A parallel sum reduction that computes the sum of a large arrays of values.  This sample demonstrates several important optimization strategies for Data-Parallel Algorithms like reduction.
+A parallel sum reduction that computes the sum of a large arrays of values. This sample demonstrates several important optimization strategies for Data-Parallel Algorithms like reduction using shared memory, __shfl_down_sync, __reduce_add_sync and cooperative_groups reduce.
 
 ## Key Concepts
 
@@ -10,11 +10,11 @@ Data-Parallel Algorithms, Performance Strategies
 
 ## Supported SM Architectures
 
-[SM 3.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 3.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 3.7 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.1 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.5 ](https://developer.nvidia.com/cuda-gpus)
+[SM 3.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 3.7 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.1 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.0 ](https://developer.nvidia.com/cuda-gpus)
 
 ## Supported OSes
 
-Linux, Windows, MacOSX
+Linux, Windows
 
 ## Supported CPU Architecture
 
@@ -22,9 +22,13 @@ x86_64, ppc64le, armv7l
 
 ## CUDA APIs involved
 
+## Dependencies needed to build/run
+[CPP11](../../README.md#cpp11)
+
 ## Prerequisites
 
-Download and install the [CUDA Toolkit 10.2](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit 11.0](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Make sure the dependencies mentioned in [Dependencies]() section above are installed.
 
 ## Build and Run
 
@@ -62,30 +66,6 @@ The samples makefiles can take advantage of certain options:
 ```
     $ make HOST_COMPILER=g++
 ```
-
-### Mac
-The Mac samples are built using makefiles. To use the makefiles, change directory into the sample directory you wish to build, and run make:
-```
-$ cd <sample_dir>
-$ make
-```
-
-The samples makefiles can take advantage of certain options:
-
-*  **dbg=1** - build with debug symbols
-    ```
-    $ make dbg=1
-    ```
-
-*  **SMS="A B ..."** - override the SM architectures for which the sample will be built, where "A B ..." is a space-delimited list of SM architectures. For example, to generate SASS for SM 50 and SM 60, use SMS="50 60".
-    ```
-    $ make SMS="A B ..."
-    ```
-
-*  **HOST_COMPILER=<host_compiler>** - override the default clang host compiler. See the [Mac Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-mac-os-x/index.html#system-requirements) for a list of supported host compilers.
-    ```
-    $ make HOST_COMPILER=clang
-    ```
 
 ## References (for more details)
 

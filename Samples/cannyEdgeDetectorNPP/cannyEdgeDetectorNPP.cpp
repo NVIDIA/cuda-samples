@@ -47,6 +47,27 @@
 #include <helper_cuda.h>
 #include <helper_string.h>
 
+inline int cudaDeviceInit(int argc, const char **argv) {
+  int deviceCount;
+  checkCudaErrors(cudaGetDeviceCount(&deviceCount));
+
+  if (deviceCount == 0) {
+    std::cerr << "CUDA error: no devices supporting CUDA." << std::endl;
+    exit(EXIT_FAILURE);
+  }
+
+  int dev = findCudaDevice(argc, argv);
+
+  cudaDeviceProp deviceProp;
+  cudaGetDeviceProperties(&deviceProp, dev);
+  std::cerr << "cudaSetDevice GPU" << dev << " = " << deviceProp.name
+            << std::endl;
+
+  checkCudaErrors(cudaSetDevice(dev));
+
+  return dev;
+}
+
 bool printfNPPinfo(int argc, char *argv[]) {
   const NppLibraryVersion *libVer = nppGetLibVersion();
 
@@ -74,7 +95,7 @@ int main(int argc, char *argv[]) {
     std::string sFilename;
     char *filePath;
 
-    int dev = findCudaDevice(argc, (const char **)argv);
+    cudaDeviceInit(argc, (const char **)argv);
 
     if (printfNPPinfo(argc, argv) == false) {
       exit(EXIT_SUCCESS);

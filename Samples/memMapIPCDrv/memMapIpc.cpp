@@ -302,7 +302,7 @@ static void memMapGetDeviceFunction(char **argv) {
       cuModuleGetFunction(&_memMapIpc_kernel, cuModule, "memMapIpc_kernel"));
 }
 
-static void childProcess(int id, char **argv) {
+static void childProcess(int devId, int id, char **argv) {
   volatile shmStruct *shm = NULL;
   sharedMemoryInfo info;
   ipcHandle *ipcChildHandle = NULL;
@@ -329,7 +329,7 @@ static void childProcess(int id, char **argv) {
   CUstream stream;
   int multiProcessorCount;
 
-  checkCudaErrors(cuDeviceGet(&device, id));
+  checkCudaErrors(cuDeviceGet(&device, devId));
   checkCudaErrors(cuCtxCreate(&ctx, 0, device));
   checkCudaErrors(cuStreamCreate(&stream, CU_STREAM_NON_BLOCKING));
 
@@ -350,7 +350,7 @@ static void childProcess(int id, char **argv) {
 
   // Import the memory allocations shared by the parent with us and map them in
   // our address space.
-  memMapImportAndMapMemory(d_ptr, DATA_BUF_SIZE, shHandle, id);
+  memMapImportAndMapMemory(d_ptr, DATA_BUF_SIZE, shHandle, devId);
 
   // Since we have imported allocations shared by the parent with us, we can
   // close all the ShareableHandles.
@@ -424,7 +424,6 @@ static void parentProcess(char *app) {
 
   checkCudaErrors(cuDeviceGetCount(&devCount));
   std::vector<CUdevice> devices(devCount);
-  std::vector<CUcontext> ctxs(devCount);
 
   if (sharedMemoryCreate(shmName, sizeof(*shm), &info) != 0) {
     printf("Failed to create shared memory slab\n");
@@ -436,8 +435,10 @@ static void parentProcess(char *app) {
 
   for (i = 0; i < devCount; i++) {
     checkCudaErrors(cuDeviceGet(&devices[i], i));
-    checkCudaErrors(cuCtxCreate(&ctxs[i], 0, devices[i]));
   }
+
+  std::vector<CUcontext> ctxs;
+  std::vector<unsigned char> selectedDevices;
 
   // Pick all the devices that can access each other's memory for this test
   // Keep in mind that CUDA has minimal support for fork() without a
@@ -500,6 +501,10 @@ static void parentProcess(char *app) {
       }
     }
     if (allPeers) {
+      CUcontext ctx;
+      checkCudaErrors(cuCtxCreate(&ctx, 0, devices[i]));
+      ctxs.push_back(ctx);
+
       // Enable peers here.  This isn't necessary for IPC, but it will
       // setup the peers for the device.  For systems that only allow 8
       // peers per GPU at a time, this acts to remove devices from CanAccessPeer
@@ -509,6 +514,7 @@ static void parentProcess(char *app) {
         checkCudaErrors(cuCtxSetCurrent(ctxs[j]));
         checkCudaErrors(cuCtxEnablePeerAccess(ctxs[i], 0));
       }
+      selectedDevices.push_back(i);
       nprocesses++;
       if (nprocesses >= MAX_DEVICES) {
         break;
@@ -521,13 +527,17 @@ static void parentProcess(char *app) {
     }
   }
 
+  for (int i = 0; i < ctxs.size(); ++i) {
+    checkCudaErrors(cuCtxDestroy(ctxs[i]));
+  };
+
   if (nprocesses == 0) {
     printf("No CUDA devices support IPC\n");
     exit(EXIT_WAIVED);
   }
   shm->nprocesses = nprocesses;
 
-  unsigned char firstSelectedDevice = 0;
+  unsigned char firstSelectedDevice = selectedDevices[0];
 
   std::vector<ShareableHandle> shHandles(nprocesses);
   std::vector<CUmemGenericAllocationHandle> allocationHandles(nprocesses);
@@ -540,10 +550,12 @@ static void parentProcess(char *app) {
   // Launch the child processes!
   for (i = 0; i < nprocesses; i++) {
     char devIdx[10];
-    char *const args[] = {app, devIdx, NULL};
+    char procIdx[10];
+    char *const args[] = {app, devIdx, procIdx, NULL};
     Process process;
 
-    SPRINTF(devIdx, "%d", i);
+    SPRINTF(devIdx, "%d", selectedDevices[i]);
+    SPRINTF(procIdx, "%d", i);
 
     if (spawnProcess(&process, app, args)) {
       printf("Failed to create process\n");
@@ -593,7 +605,7 @@ int main(int argc, char **argv) {
   if (argc == 1) {
     parentProcess(argv[0]);
   } else {
-    childProcess(atoi(argv[1]), argv);
+    childProcess(atoi(argv[1]), atoi(argv[2]), argv);
   }
   return EXIT_SUCCESS;
 #endif

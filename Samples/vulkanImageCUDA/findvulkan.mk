@@ -51,7 +51,7 @@ ifeq ("$(TARGET_OS)","linux")
 endif
 
 ifeq ("$(TARGET_OS)","linux")
-    # Each set of Linux Distros have different paths for where to find their GLM/GLFW3 libraries reside
+    # Each set of Linux Distros have different paths for where to find libraries
     UBUNTU = $(shell echo $(DISTRO) | grep -i ubuntu      >/dev/null 2>&1; echo $$?)
     FEDORA = $(shell echo $(DISTRO) | grep -i fedora      >/dev/null 2>&1; echo $$?)
     RHEL   = $(shell echo $(DISTRO) | grep -i 'red\|rhel' >/dev/null 2>&1; echo $$?)
@@ -107,16 +107,17 @@ ifeq ("$(TARGET_OS)","linux")
   VULKAN_SDK_PATH ?= ${VULKAN_SDK}
 
   ifeq ("$(VULKAN_SDK_PATH)","")
-      $(info >>> WARNING - Vulkan SDK not found, please install Vulkan SDK <<<)
-      SAMPLE_ENABLED := 0
+      VULKAN_SDK_PATH := $(DFLT_PATH)
   endif
 
-  VULKAN_SDK_LIB  := $(shell find -L $(VULKAN_SDK_PATH)/lib -name libvulkan.so    -print 2>/dev/null)
+  VULKAN_SDK_LIB  := $(shell find -L $(VULKAN_SDK_PATH) -name libvulkan.so    -print 2>/dev/null)
   X11LIB          := $(shell find -L $(GLPATH) $(DFLT_PATH) -name libX11.so    -print 2>/dev/null)
 
   ifeq ("$(VULKAN_SDK_LIB)","")
-      $(info >>> WARNING - libvulkan.so not found, please install libvulkan.so <<<)
+      $(info >>> WARNING - libvulkan.so not found, please install Vulkan SDK and pass VULKAN_SDK_PATH=<PATH_TO_VULKAN_SDK> <<<)
       SAMPLE_ENABLED := 0
+  else
+      VULKAN_SDK_LIB := $(shell echo $(VULKAN_SDK_LIB) | sed "s/ .*//" | sed "s/\/libvulkan.so//" )
   endif
 
   ifeq ("$(X11LIB)","")
@@ -132,11 +133,13 @@ ifeq ("$(TARGET_OS)","linux")
       HEADER_SEARCH_PATH += /usr/aarch64-linux-gnu/include
   endif
 
-  VULKANHEADER  := $(shell find -L $(VULKAN_SDK_PATH)/include -name vulkan.h -print 2>/dev/null)
+  VULKAN_HEADER  := $(shell find -L $(VULKAN_SDK_PATH) $(HEADER_SEARCH_PATH) -name vulkan.h -print 2>/dev/null)
 
-  ifeq ("$(VULKANHEADER)","")
+  ifeq ("$(VULKAN_HEADER)","")
       $(info >>> WARNING - vulkan.h not found, please install vulkan.h <<<)
       SAMPLE_ENABLED := 0
+  else
+      VULKAN_HEADER := $(shell echo $(VULKAN_HEADER) | sed "s/ .*//" | sed "s/\/vulkan\/vulkan.h//" )
   endif
 else
 endif

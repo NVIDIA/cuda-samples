@@ -24,53 +24,63 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 /*
  *  Test three linear solvers, including Cholesky, LU and QR.
- *  The user has to prepare a sparse matrix of "matrix market format" (with extension .mtx).
- *  For example, the user can download matrices in Florida Sparse Matrix Collection.
+ *  The user has to prepare a sparse matrix of "matrix market format" (with
+ extension .mtx).
+ *  For example, the user can download matrices in Florida Sparse Matrix
+ Collection.
  *  (http://www.cise.ufl.edu/research/sparse/matrices/)
  *
  *  The user needs to choose a solver by the switch -R<solver> and
  *  to provide the path of the matrix by the switch -F<file>, then
  *  the program solves
- *          A*x = b  
+ *          A*x = b
  *  and reports relative error
  *          |b-A*x|/(|A|*|x|+|b|)
  *
  *  How does it work?
  *     The example solves A*x = b by the following steps
- *  step 1: B = A(Q,Q) 
+ *  step 1: B = A(Q,Q)
  *     Q is the ordering to minimize zero fill-in.
  *     The user can choose symrcm or symamd.
  *  step 2: solve B*z = Q*b
  *  step 3: x = inv(Q)*z
- * 
+ *
  *  Above three steps can be combined by the formula
  *        (Q*A*Q')*(Q*x) = (Q*b)
  *
- *  The elapsed time is also reported so the user can compare efficiency of different solvers.
+ *  The elapsed time is also reported so the user can compare efficiency of
+ different solvers.
  *
  *  How to use
-        /cuSolverSp_LinearSolver            // Default: Cholesky, symrcm & file=lap2D_5pt_n100.mtx
- *     ./cuSolverSp_LinearSolver -R=chol  -file=<file>   // cholesky factorization
- *     ./cuSolverSp_LinearSolver -R=lu -P=symrcm -file=<file>     // symrcm + LU with partial pivoting
- *     ./cuSolverSp_LinearSolver -R=qr -P=symamd -file=<file>     // symamd + QR factorization
+        /cuSolverSp_LinearSolver            // Default: Cholesky, symrcm &
+ file=lap2D_5pt_n100.mtx
+ *     ./cuSolverSp_LinearSolver -R=chol  -file=<file>   // cholesky
+ factorization
+ *     ./cuSolverSp_LinearSolver -R=lu -P=symrcm -file=<file>     // symrcm + LU
+ with partial pivoting
+ *     ./cuSolverSp_LinearSolver -R=qr -P=symamd -file=<file>     // symamd + QR
+ factorization
  *
  *
- *  Remark: the absolute error on solution x is meaningless without knowing condition number of A.
- *     The relative error on residual should be close to machine zero, i.e. 1.e-15.
+ *  Remark: the absolute error on solution x is meaningless without knowing
+ condition number of A.
+ *     The relative error on residual should be close to machine zero,
+ i.e. 1.e-15.
  */
 
+#include <assert.h>
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
-#include <assert.h>
 
 #include <cuda_runtime.h>
 
-#include "cusparse.h"
 #include "cusolverSp.h"
+#include "cusparse.h"
 
 #include "helper_cuda.h"
 #include "helper_cusolver.h"
@@ -461,10 +471,38 @@ int main(int argc, char *argv[]) {
                                   cudaMemcpyDeviceToDevice, stream));
   checkCudaErrors(cudaMemcpyAsync(d_x, h_x, sizeof(double) * colsA,
                                   cudaMemcpyHostToDevice, stream));
-  checkCudaErrors(cusparseDcsrmv(cusparseHandle,
-                                 CUSPARSE_OPERATION_NON_TRANSPOSE, rowsA, colsA,
-                                 nnzA, &minus_one, descrA, d_csrValA,
-                                 d_csrRowPtrA, d_csrColIndA, d_x, &one, d_r));
+
+  /* Wrap raw data into cuSPARSE generic API objects */
+  cusparseSpMatDescr_t matA = NULL;
+  if (baseA) {
+    checkCudaErrors(cusparseCreateCsr(&matA, rowsA, colsA, nnzA, d_csrRowPtrA,
+                                      d_csrColIndA, d_csrValA,
+                                      CUSPARSE_INDEX_32I, CUSPARSE_INDEX_32I,
+                                      CUSPARSE_INDEX_BASE_ONE, CUDA_R_64F));
+  } else {
+    checkCudaErrors(cusparseCreateCsr(&matA, rowsA, colsA, nnzA, d_csrRowPtrA,
+                                      d_csrColIndA, d_csrValA,
+                                      CUSPARSE_INDEX_32I, CUSPARSE_INDEX_32I,
+                                      CUSPARSE_INDEX_BASE_ZERO, CUDA_R_64F));
+  }
+
+  cusparseDnVecDescr_t vecx = NULL;
+  checkCudaErrors(cusparseCreateDnVec(&vecx, colsA, d_x, CUDA_R_64F));
+  cusparseDnVecDescr_t vecAx = NULL;
+  checkCudaErrors(cusparseCreateDnVec(&vecAx, rowsA, d_r, CUDA_R_64F));
+
+  /* Allocate workspace for cuSPARSE */
+  size_t bufferSize = 0;
+  checkCudaErrors(cusparseSpMV_bufferSize(
+      cusparseHandle, CUSPARSE_OPERATION_NON_TRANSPOSE, &minus_one, matA, vecx,
+      &one, vecAx, CUDA_R_64F, CUSPARSE_MV_ALG_DEFAULT, &bufferSize));
+  void *buffer = NULL;
+  checkCudaErrors(cudaMalloc(&buffer, bufferSize));
+
+  checkCudaErrors(cusparseSpMV(cusparseHandle, CUSPARSE_OPERATION_NON_TRANSPOSE,
+                               &minus_one, matA, vecx, &one, vecAx, CUDA_R_64F,
+                               CUSPARSE_MV_ALG_DEFAULT, &buffer));
+
   checkCudaErrors(cudaMemcpyAsync(h_r, d_r, sizeof(double) * rowsA,
                                   cudaMemcpyDeviceToHost, stream));
   /* wait until h_r is ready */
@@ -518,10 +556,11 @@ int main(int argc, char *argv[]) {
   printf("step 8: evaluate residual r = b - A*x (result on GPU)\n");
   checkCudaErrors(cudaMemcpyAsync(d_r, d_b, sizeof(double) * rowsA,
                                   cudaMemcpyDeviceToDevice, stream));
-  checkCudaErrors(cusparseDcsrmv(cusparseHandle,
-                                 CUSPARSE_OPERATION_NON_TRANSPOSE, rowsA, colsA,
-                                 nnzA, &minus_one, descrA, d_csrValA,
-                                 d_csrRowPtrA, d_csrColIndA, d_x, &one, d_r));
+
+  checkCudaErrors(cusparseSpMV(cusparseHandle, CUSPARSE_OPERATION_NON_TRANSPOSE,
+                               &minus_one, matA, vecx, &one, vecAx, CUDA_R_64F,
+                               CUSPARSE_MV_ALG_DEFAULT, &buffer));
+
   checkCudaErrors(cudaMemcpyAsync(h_x, d_x, sizeof(double) * colsA,
                                   cudaMemcpyDeviceToHost, stream));
   checkCudaErrors(cudaMemcpyAsync(h_r, d_r, sizeof(double) * rowsA,
@@ -565,6 +604,15 @@ int main(int argc, char *argv[]) {
   }
   if (descrA) {
     checkCudaErrors(cusparseDestroyMatDescr(descrA));
+  }
+  if (matA) {
+    checkCudaErrors(cusparseDestroySpMat(matA));
+  }
+  if (vecx) {
+    checkCudaErrors(cusparseDestroyDnVec(vecx));
+  }
+  if (vecAx) {
+    checkCudaErrors(cusparseDestroyDnVec(vecAx));
   }
 
   if (h_csrValA) {

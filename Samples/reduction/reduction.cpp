@@ -229,7 +229,7 @@ void getNumBlocksAndThreads(int whichKernel, int n, int maxBlocks,
     threads *= 2;
   }
 
-  if (whichKernel == 6) {
+  if (whichKernel >= 6) {
     blocks = MIN(maxBlocks, blocks);
   }
 }
@@ -361,7 +361,7 @@ void shmoo(int minN, int maxN, int maxThreads, int maxBlocks,
                              cudaMemcpyHostToDevice));
 
   // warm-up
-  for (int kernel = 0; kernel < 7; kernel++) {
+  for (int kernel = 0; kernel < 8; kernel++) {
     reduce<T>(maxN, maxThreads, maxNumBlocks, kernel, d_idata, d_odata);
   }
 
@@ -380,7 +380,7 @@ void shmoo(int minN, int maxN, int maxThreads, int maxBlocks,
     printf(", %d", i);
   }
 
-  for (int kernel = 0; kernel < 7; kernel++) {
+  for (int kernel = 0; kernel < 8; kernel++) {
     printf("\n%d", kernel);
 
     for (int i = minN; i <= maxN; i *= 2) {
@@ -421,7 +421,7 @@ template <class T>
 bool runTest(int argc, char **argv, ReduceType datatype) {
   int size = 1 << 24;    // number of elements to reduce
   int maxThreads = 256;  // number of threads per block
-  int whichKernel = 6;
+  int whichKernel = 7;
   int maxBlocks = 64;
   bool cpuFinalReduction = false;
   int cpuFinalThreshold = 1;

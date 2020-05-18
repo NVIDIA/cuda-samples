@@ -67,7 +67,7 @@
       <OutputFile>$(OutDir)/conjugateGradientMultiBlockCG.exe</OutputFile>
     </Link>
     <CudaCompile>
-      <CodeGeneration>compute_60,sm_60;compute_61,sm_61;compute_70,sm_70;compute_75,sm_75;</CodeGeneration>
+      <CodeGeneration>compute_60,sm_60;compute_61,sm_61;compute_70,sm_70;compute_75,sm_75;compute_80,sm_80;</CodeGeneration>
       <AdditionalOptions>-Xcompiler "/wd 4819" %(AdditionalOptions)</AdditionalOptions>
       <Include>./;../../Common</Include>
       <Defines>WIN32</Defines>

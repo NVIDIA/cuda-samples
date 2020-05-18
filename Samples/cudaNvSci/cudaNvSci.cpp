@@ -88,7 +88,7 @@ class cudaNvSciSignal {
   }
 
   ~cudaNvSciSignal() {
-    checkCudaErrors(cudaFreeArray(d_mipLevelArray));
+    checkCudaErrors(cudaSetDevice(m_cudaDeviceId));
     checkCudaErrors(cudaFreeMipmappedArray(d_mipmapArray));
     checkCudaErrors(cudaFree(d_outputBuf));
     checkCudaErrors(cudaDestroyExternalSemaphore(signalSem));
@@ -189,6 +189,8 @@ class cudaNvSciSignal {
   NvSciBufAttrList getNvSciImageBufAttrList() { return m_imageBufAttrList; }
 
   void runRotateImageAndSignal(unsigned char *imageData) {
+    int numOfGPUs = 0;
+    checkCudaErrors(cudaGetDeviceCount(&numOfGPUs));  // For cuda init purpose
     checkCudaErrors(cudaSetDevice(m_cudaDeviceId));
 
     copyDataToImageArray(imageData);
@@ -431,6 +433,8 @@ class cudaNvSciWait {
 
   void runImageGrayscale(std::string image_filename, size_t imageWidth,
                          size_t imageHeight) {
+    int numOfGPUs = 0;
+    checkCudaErrors(cudaGetDeviceCount(&numOfGPUs));  // For cuda init purpose
     checkCudaErrors(cudaSetDevice(m_cudaDeviceId));
 
     waitExternalSemaphore();

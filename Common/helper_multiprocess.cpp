@@ -475,38 +475,19 @@ int ipcSendData(HANDLE mailslot, const void *data, size_t sz) {
 }
 
 int ipcRecvData(ipcHandle *handle, void *data, size_t sz) {
-  DWORD cbMessage, cMessage, cbRead;
-  BOOL fResult;
+  DWORD cbRead = 0;
 
-  cbMessage = cMessage = cbRead = 0;
-  HANDLE mailslot = handle->hMailslot[0];
-
-pollMailSlot:
-  fResult = GetMailslotInfo(mailslot, (LPDWORD)NULL, &cbMessage, &cMessage,
-                            (LPDWORD)NULL);
-  if (!fResult) {
-    printf("IPC failure: GetMailslotInfo failed with %d.\n", GetLastError());
+  if (!ReadFile(handle->hMailslot[0], data, (DWORD)sz, &cbRead, NULL)) {
+    printf("IPC failure: ReadFile failed with %d.\n", GetLastError());
     return -1;
   }
 
-  if (cbMessage == MAILSLOT_NO_MESSAGE) {
-    goto pollMailSlot;
+  if (sz != (size_t)cbRead) {
+    printf(
+        "IPC failure: ReadFile didn't receive the expected number of bytes\n");
+    return -1;
   }
 
-  while (cMessage != 0) {
-    fResult = ReadFile(mailslot, data, (DWORD)sz, &cbRead, NULL);
-    if (!fResult) {
-      printf("IPC failure: ReadFile failed with %d.\n", GetLastError());
-      return -1;
-    }
-
-    fResult = GetMailslotInfo(mailslot, (LPDWORD)NULL, &cbMessage, &cMessage,
-                              (LPDWORD)NULL);
-    if (!fResult) {
-      printf("IPC failure: GetMailslotInfo failed (%d)\n", GetLastError());
-      return -1;
-    }
-  }
   return 0;
 }
 
@@ -530,7 +511,7 @@ int ipcSendShareableHandles(
         printf("IPC failure: DuplicateHandle failed (%d)\n", GetLastError());
         return -1;
       }
-      checkIpcErrors(ipcSendData(handle->hMailslot[i], &hDup, sizeof(HANDLE)));
+      checkIpcErrors(ipcSendData(handle->hMailslot[i], &hDup, sizeof(hDup)));
     }
     CloseHandle(hProcess);
   }

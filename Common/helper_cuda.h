@@ -663,6 +663,7 @@ inline int _ConvertSMVer2Cores(int major, int minor) {
       {0x70,  64},
       {0x72,  64},
       {0x75,  64},
+      {0x80,  64},
       {-1, -1}};
 
   int index = 0;
@@ -707,6 +708,7 @@ inline const char* _ConvertSMVer2ArchName(int major, int minor) {
       {0x70, "Volta"},
       {0x72, "Xavier"},
       {0x75, "Turing"},
+      {0x80, "Ampere"},
       {-1, "Graphics Device"}};
 
   int index = 0;
@@ -817,7 +819,19 @@ inline int gpuGetMaxGflopsDeviceId() {
       }
       int multiProcessorCount = 0, clockRate = 0;
       checkCudaErrors(cudaDeviceGetAttribute(&multiProcessorCount, cudaDevAttrMultiProcessorCount, current_device));
-      checkCudaErrors(cudaDeviceGetAttribute(&clockRate, cudaDevAttrClockRate, current_device));
+      cudaError_t result = cudaDeviceGetAttribute(&clockRate, cudaDevAttrClockRate, current_device);
+      if (result != cudaSuccess) {
+        // If cudaDevAttrClockRate attribute is not supported we
+        // set clockRate as 1, to consider GPU with most SMs and CUDA Cores.
+        if(result == cudaErrorInvalidValue) {
+          clockRate = 1;
+        }
+        else {
+          fprintf(stderr, "CUDA error at %s:%d code=%d(%s) \n", __FILE__, __LINE__,
+            static_cast<unsigned int>(result), _cudaGetErrorEnum(result));
+          exit(EXIT_FAILURE);
+        }
+      }
       uint64_t compute_perf = (uint64_t)multiProcessorCount * sm_per_multiproc * clockRate;
 
       if (compute_perf > max_compute_perf) {

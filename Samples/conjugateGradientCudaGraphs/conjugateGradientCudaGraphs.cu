@@ -42,13 +42,10 @@
 #include <cuda_runtime.h>
 #include <cusparse.h>
 
-#include <cooperative_groups.h>
-
 // Utilities and system includes
 #include <helper_cuda.h>  // helper function CUDA error checking and initialization
 #include <helper_functions.h>  // helper for shared functions common to CUDA Samples
 
-namespace cg = cooperative_groups;
 
 const char *sSDKname = "conjugateGradientCudaGraphs";
 
@@ -193,6 +190,26 @@ int main(int argc, char **argv) {
   checkCudaErrors(cudaMalloc((void **)&d_na, sizeof(float)));
   checkCudaErrors(cudaMalloc((void **)&d_b, sizeof(float)));
 
+  /* Wrap raw data into cuSPARSE generic API objects */
+  cusparseSpMatDescr_t matA = NULL;
+  checkCudaErrors(cusparseCreateCsr(
+      &matA, N, N, nz, d_row, d_col, d_val, CUSPARSE_INDEX_32I,
+      CUSPARSE_INDEX_32I, CUSPARSE_INDEX_BASE_ZERO, CUDA_R_32F));
+  cusparseDnVecDescr_t vecx = NULL;
+  checkCudaErrors(cusparseCreateDnVec(&vecx, N, d_x, CUDA_R_32F));
+  cusparseDnVecDescr_t vecp = NULL;
+  checkCudaErrors(cusparseCreateDnVec(&vecp, N, d_p, CUDA_R_32F));
+  cusparseDnVecDescr_t vecAx = NULL;
+  checkCudaErrors(cusparseCreateDnVec(&vecAx, N, d_Ax, CUDA_R_32F));
+
+  /* Allocate workspace for cuSPARSE */
+  size_t bufferSize = 0;
+  checkCudaErrors(cusparseSpMV_bufferSize(
+      cusparseHandle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, matA, vecx,
+      &beta, vecAx, CUDA_R_32F, CUSPARSE_MV_ALG_DEFAULT, &bufferSize));
+  void *buffer = NULL;
+  checkCudaErrors(cudaMalloc(&buffer, bufferSize));
+
   cusparseMatDescr_t descr = 0;
   checkCudaErrors(cusparseCreateMatDescr(&descr));
 
@@ -217,9 +234,9 @@ int main(int argc, char **argv) {
   beta = 0.0;
 
   checkCudaErrors(cusparseSetStream(cusparseHandle, stream1));
-  checkCudaErrors(
-      cusparseScsrmv(cusparseHandle, CUSPARSE_OPERATION_NON_TRANSPOSE, N, N, nz,
-                     &alpha, descr, d_val, d_row, d_col, d_x, &beta, d_Ax));
+  checkCudaErrors(cusparseSpMV(
+    cusparseHandle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, matA, vecx,
+    &beta, vecAx, CUDA_R_32F, CUSPARSE_MV_ALG_DEFAULT, &buffer));
 
   checkCudaErrors(cublasSetStream(cublasHandle, stream1));
   checkCudaErrors(cublasSaxpy(cublasHandle, N, &alpham1, d_Ax, 1, d_r, 1));
@@ -231,9 +248,9 @@ int main(int argc, char **argv) {
   k = 1;
   // First Iteration when k=1 starts
   checkCudaErrors(cublasScopy(cublasHandle, N, d_r, 1, d_p, 1));
-  checkCudaErrors(
-      cusparseScsrmv(cusparseHandle, CUSPARSE_OPERATION_NON_TRANSPOSE, N, N, nz,
-                     &alpha, descr, d_val, d_row, d_col, d_p, &beta, d_Ax));
+  checkCudaErrors(cusparseSpMV(
+    cusparseHandle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, matA, vecp,
+    &beta, vecAx, CUDA_R_32F, CUSPARSE_MV_ALG_DEFAULT, &buffer));
 
   checkCudaErrors(cublasSdot(cublasHandle, N, d_p, 1, d_Ax, 1, d_dot));
 
@@ -273,9 +290,9 @@ int main(int argc, char **argv) {
 
   checkCudaErrors(
       cusparseSetPointerMode(cusparseHandle, CUSPARSE_POINTER_MODE_HOST));
-  checkCudaErrors(
-      cusparseScsrmv(cusparseHandle, CUSPARSE_OPERATION_NON_TRANSPOSE, N, N, nz,
-                     &alpha, descr, d_val, d_row, d_col, d_p, &beta, d_Ax));
+  checkCudaErrors(cusparseSpMV(
+    cusparseHandle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, matA, vecp,
+    &beta, vecAx, CUDA_R_32F, CUSPARSE_MV_ALG_DEFAULT, &buffer));
 
   checkCudaErrors(cudaMemsetAsync(d_dot, 0, sizeof(float), stream1));
   checkCudaErrors(cublasSdot(cublasHandle, N, d_p, 1, d_Ax, 1, d_dot));
@@ -317,9 +334,9 @@ int main(int argc, char **argv) {
     cublasSetPointerMode(cublasHandle, CUBLAS_POINTER_MODE_HOST);
     checkCudaErrors(cublasSaxpy(cublasHandle, N, &alpha, d_r, 1, d_p, 1));
 
-    checkCudaErrors(cusparseScsrmv(
-        cusparseHandle, CUSPARSE_OPERATION_NON_TRANSPOSE, N, N, nz, &alpha,
-        descr, d_val, d_row, d_col, d_p, &beta, d_Ax));
+    checkCudaErrors(cusparseSpMV(
+      cusparseHandle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, matA, vecp,
+      &beta, vecAx, CUDA_R_32F, CUSPARSE_MV_ALG_DEFAULT, &buffer));
 
     cublasSetPointerMode(cublasHandle, CUBLAS_POINTER_MODE_DEVICE);
     checkCudaErrors(cublasSdot(cublasHandle, N, d_p, 1, d_Ax, 1, d_dot));
@@ -377,6 +394,11 @@ int main(int argc, char **argv) {
   checkCudaErrors(cudaStreamDestroy(stream1));
   cusparseDestroy(cusparseHandle);
   cublasDestroy(cublasHandle);
+
+  if (matA       ) { checkCudaErrors(cusparseDestroySpMat(matA)); }
+  if (vecx       ) { checkCudaErrors(cusparseDestroyDnVec(vecx)); }
+  if (vecAx      ) { checkCudaErrors(cusparseDestroyDnVec(vecAx)); }
+  if (vecp       ) { checkCudaErrors(cusparseDestroyDnVec(vecp)); }
 
   free(I);
   free(J);

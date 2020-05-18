@@ -304,6 +304,7 @@ extern "C" __global__ void gpuConjugateGradient(int *I, int *J, float *val,
 
     r0 = r1;
 
+    cg::sync(grid);
     if (threadIdx.x == 0 && blockIdx.x == 0) *dot_result = 0.0;
 
     cg::sync(grid);

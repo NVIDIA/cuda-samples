@@ -68,7 +68,37 @@ void compileFileToPTX(char *filename, int argc, char **argv, char **ptxResult,
 
   int numCompileOptions = 0;
 
-  char *compileParams[1];
+  char *compileParams[2];
+
+  int major = 0, minor = 0;
+  char deviceName[256];
+
+  // Picks the best CUDA device available
+  CUdevice cuDevice = findCudaDeviceDRV(argc, (const char **)argv);
+
+  // get compute capabilities and the devicename
+  checkCudaErrors(cuDeviceGetAttribute(
+      &major, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, cuDevice));
+  checkCudaErrors(cuDeviceGetAttribute(
+      &minor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, cuDevice));
+  
+  {
+  // Compile for the GPU arch on which are going to run cuda kernel.
+  std::string compileOptions;
+  compileOptions = "--gpu-architecture=compute_";
+
+  compileParams[numCompileOptions] = reinterpret_cast<char *>(
+                  malloc(sizeof(char) * (compileOptions.length() + 10)));
+#if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
+  sprintf_s(compileParams[numCompileOptions], sizeof(char) * (compileOptions.length() + 10),
+            "%s%d%d", compileOptions.c_str(), major, minor);
+#else
+  snprintf(compileParams[numCompileOptions], compileOptions.size() + 10, "%s%d%d",
+           compileOptions.c_str(), major, minor);
+#endif
+  }
+
+  numCompileOptions++;
 
   if (requiresCGheaders) {
     std::string compileOptions;
@@ -92,13 +122,13 @@ void compileFileToPTX(char *filename, int argc, char **argv, char **ptxResult,
           argv[0]);
     }
     compileOptions += path.c_str();
-    compileParams[0] = reinterpret_cast<char *>(
+    compileParams[numCompileOptions] = reinterpret_cast<char *>(
         malloc(sizeof(char) * (compileOptions.length() + 1)));
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
-    sprintf_s(compileParams[0], sizeof(char) * (compileOptions.length() + 1),
+    sprintf_s(compileParams[numCompileOptions], sizeof(char) * (compileOptions.length() + 1),
               "%s", compileOptions.c_str());
 #else
-    snprintf(compileParams[0], compileOptions.size(), "%s",
+    snprintf(compileParams[numCompileOptions], compileOptions.size(), "%s",
              compileOptions.c_str());
 #endif
     numCompileOptions++;
@@ -137,7 +167,9 @@ void compileFileToPTX(char *filename, int argc, char **argv, char **ptxResult,
   *ptxResult = ptx;
   *ptxResultSize = ptxSize;
 
-  if (requiresCGheaders) free(compileParams[0]);
+  for (int i = 0; i < numCompileOptions; i++) {
+    free(compileParams[i]);
+  }
 }
 
 CUmodule loadPTX(char *ptx, int argc, char **argv) {

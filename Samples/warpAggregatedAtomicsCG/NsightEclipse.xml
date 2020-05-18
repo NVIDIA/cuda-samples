@@ -2,7 +2,10 @@
 <!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
 <entry>
   <name>warpAggregatedAtomicsCG</name>
-  <description><![CDATA[This sample demonstrates how using Cooperative Groups (CG) to perform warp aggregated atomics, a useful technique to improve performance when many threads atomically add to a single counter.]]></description>
+  <cflags>
+    <flag>--std=c++11</flag>
+  </cflags>
+  <description><![CDATA[This sample demonstrates how using Cooperative Groups (CG) to perform warp aggregated atomics to single and multiple counters, a useful technique to improve performance when many threads atomically add to a single or multiple counters.]]></description>
   <includepaths>
     <path>./</path>
     <path>../</path>
@@ -16,6 +19,7 @@
     <keyword>GPGPU</keyword>
     <keyword>Cooperative Groups</keyword>
     <keyword>Atomic</keyword>
+    <keyword>CPP11</keyword>
   </keywords>
   <libraries>
   </libraries>
@@ -26,16 +30,6 @@
   <scopes>
     <scope>1:CUDA Advanced Topics</scope>
   </scopes>
-  <sm-arch>sm30</sm-arch>
-  <sm-arch>sm35</sm-arch>
-  <sm-arch>sm37</sm-arch>
-  <sm-arch>sm50</sm-arch>
-  <sm-arch>sm52</sm-arch>
-  <sm-arch>sm60</sm-arch>
-  <sm-arch>sm61</sm-arch>
-  <sm-arch>sm70</sm-arch>
-  <sm-arch>sm72</sm-arch>
-  <sm-arch>sm75</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

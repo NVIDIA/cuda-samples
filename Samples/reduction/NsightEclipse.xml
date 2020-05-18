@@ -2,7 +2,10 @@
 <!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
 <entry>
   <name>reduction</name>
-  <description><![CDATA[A parallel sum reduction that computes the sum of a large arrays of values.  This sample demonstrates several important optimization strategies for Data-Parallel Algorithms like reduction.]]></description>
+  <cflags>
+    <flag>--std=c++11</flag>
+  </cflags>
+  <description><![CDATA[A parallel sum reduction that computes the sum of a large arrays of values. This sample demonstrates several important optimization strategies for Data-Parallel Algorithms like reduction using shared memory, __shfl_down_sync, __reduce_add_sync and cooperative_groups reduce.]]></description>
   <devicecompilation>whole</devicecompilation>
   <includepaths>
     <path>./</path>
@@ -17,6 +20,7 @@
     <keyword>CUDA</keyword>
     <keyword>GPGPU</keyword>
     <keyword>Parallel Reduction</keyword>
+    <keyword>CPP11</keyword>
   </keywords>
   <libraries>
   </libraries>
@@ -24,12 +28,23 @@
   </librarypaths>
   <nsight_eclipse>true</nsight_eclipse>
   <primary_file>reduction.cpp</primary_file>
+  <qatests>
+    <qatest>-kernel 0</qatest>
+    <qatest>-kernel 1</qatest>
+    <qatest>-kernel 2</qatest>
+    <qatest>-kernel 3</qatest>
+    <qatest>-kernel 4</qatest>
+    <qatest>-kernel 5</qatest>
+    <qatest>-kernel 6</qatest>
+  </qatests>
+  <required_dependencies>
+    <dependency>CPP11</dependency>
+  </required_dependencies>
   <scopes>
     <scope>1:CUDA Advanced Topics</scope>
     <scope>1:Data-Parallel Algorithms</scope>
     <scope>1:Performance Strategies</scope>
   </scopes>
-  <sm-arch>sm30</sm-arch>
   <sm-arch>sm35</sm-arch>
   <sm-arch>sm37</sm-arch>
   <sm-arch>sm50</sm-arch>
@@ -39,6 +54,7 @@
   <sm-arch>sm70</sm-arch>
   <sm-arch>sm72</sm-arch>
   <sm-arch>sm75</sm-arch>
+  <sm-arch>sm80</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

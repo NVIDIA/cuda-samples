@@ -72,9 +72,9 @@ endif
 # architecture
 HOST_ARCH   := $(shell uname -m)
 TARGET_ARCH ?= $(HOST_ARCH)
-ifneq (,$(filter $(TARGET_ARCH),x86_64 aarch64 ppc64le armv7l))
+ifneq (,$(filter $(TARGET_ARCH),x86_64 aarch64 sbsa ppc64le armv7l))
     ifneq ($(TARGET_ARCH),$(HOST_ARCH))
-        ifneq (,$(filter $(TARGET_ARCH),x86_64 aarch64 ppc64le))
+        ifneq (,$(filter $(TARGET_ARCH),x86_64 aarch64 sbsa ppc64le))
             TARGET_SIZE := 64
         else ifneq (,$(filter $(TARGET_ARCH),armv7l))
             TARGET_SIZE := 32
@@ -85,8 +85,17 @@ ifneq (,$(filter $(TARGET_ARCH),x86_64 aarch64 ppc64le armv7l))
 else
     $(error ERROR - unsupported value $(TARGET_ARCH) for TARGET_ARCH!)
 endif
+
+# sbsa and aarch64 systems look similar. Need to differentiate them at host level for now.
+ifeq ($(HOST_ARCH),aarch64)
+    ifeq ($(CUDA_PATH)/targets/sbsa-linux,$(shell ls -1d $(CUDA_PATH)/targets/sbsa-linux))
+        HOST_ARCH := sbsa
+        TARGET_ARCH := sbsa
+    endif
+endif
+
 ifneq ($(TARGET_ARCH),$(HOST_ARCH))
-    ifeq (,$(filter $(HOST_ARCH)-$(TARGET_ARCH),aarch64-armv7l x86_64-armv7l x86_64-aarch64 x86_64-ppc64le))
+    ifeq (,$(filter $(HOST_ARCH)-$(TARGET_ARCH),aarch64-armv7l x86_64-armv7l x86_64-aarch64 x86_64-sbsa x86_64-ppc64le))
         $(error ERROR - cross compiling from $(HOST_ARCH) to $(TARGET_ARCH) is not supported!)
     endif
 endif
@@ -141,6 +150,8 @@ else ifneq ($(TARGET_ARCH),$(HOST_ARCH))
         else ifeq ($(TARGET_OS), android)
             HOST_COMPILER ?= aarch64-linux-android-clang++
         endif
+    else ifeq ($(TARGET_ARCH),sbsa)
+        HOST_COMPILER ?= aarch64-linux-gnu-g++
     else ifeq ($(TARGET_ARCH),ppc64le)
         HOST_COMPILER ?= powerpc64le-linux-gnu-g++
     endif
@@ -185,19 +196,27 @@ ifneq ($(TARGET_ARCH),$(HOST_ARCH))
                 CCFLAGS += --sysroot=$(TARGET_FS)
             endif
             LDFLAGS += --sysroot=$(TARGET_FS)
-            LDFLAGS += -rpath-link=$(TARGET_FS)/lib -L $(TARGET_FS)/lib
-            LDFLAGS += -rpath-link=$(TARGET_FS)/usr/lib -L $(TARGET_FS)/usr/lib
-            LDFLAGS += -rpath-link=$(TARGET_FS)/usr/lib/aarch64-linux-gnu -L $(TARGET_FS)/usr/lib/aarch64-linux-gnu
+            LDFLAGS += -rpath-link=$(TARGET_FS)/lib -L$(TARGET_FS)/lib
+            LDFLAGS += -rpath-link=$(TARGET_FS)/lib/aarch64-linux-gnu -L$(TARGET_FS)/lib/aarch64-linux-gnu
+            LDFLAGS += -rpath-link=$(TARGET_FS)/usr/lib -L$(TARGET_FS)/usr/lib
+            LDFLAGS += -rpath-link=$(TARGET_FS)/usr/lib/aarch64-linux-gnu -L$(TARGET_FS)/usr/lib/aarch64-linux-gnu
             LDFLAGS += --unresolved-symbols=ignore-in-shared-libs
-            CCFLAGS += -isystem=$(TARGET_FS)/usr/include
-            CCFLAGS += -isystem=$(TARGET_FS)/usr/include/aarch64-linux-gnu
+            CCFLAGS += -isystem=$(TARGET_FS)/usr/include  -I$(TARGET_FS)/usr/include
+            CCFLAGS += -isystem=$(TARGET_FS)/usr/include/aarch64-linux-gnu -I$(TARGET_FS)/usr/include/aarch64-linux-gnu
         endif
     endif
-endif
-
-ifeq ($(TARGET_OS),qnx)
-    CCFLAGS += -DWIN_INTERFACE_CUSTOM
-    LDFLAGS += -lsocket
+    ifeq ($(TARGET_ARCH)-$(TARGET_OS),aarch64-qnx)
+        CCFLAGS += -DWIN_INTERFACE_CUSTOM -I/usr/include/aarch64-qnx-gnu
+        LDFLAGS += -lsocket
+        LDFLAGS += -rpath=/usr/lib/aarch64-qnx-gnu -L/usr/lib/aarch64-qnx-gnu
+        ifneq ($(TARGET_FS),)
+            LDFLAGS += -rpath=$(TARGET_FS)/usr/lib -L $(TARGET_FS)/usr/lib
+            LDFLAGS += -rpath=$(TARGET_FS)/usr/libnvidia -L $(TARGET_FS)/usr/libnvidia
+        endif
+        ifdef TARGET_OVERRIDE # cuda toolkit targets override
+            NVCCFLAGS += -target-dir $(TARGET_OVERRIDE)
+        endif
+    endif
 endif
 
 # Install directory of different arch
@@ -206,6 +225,8 @@ ifeq ($(TARGET_ARCH)-$(TARGET_OS),armv7l-linux)
     CUDA_INSTALL_TARGET_DIR = targets/armv7-linux-gnueabihf/
 else ifeq ($(TARGET_ARCH)-$(TARGET_OS),aarch64-linux)
     CUDA_INSTALL_TARGET_DIR = targets/aarch64-linux/
+else ifeq ($(TARGET_ARCH)-$(TARGET_OS),sbsa-linux)
+    CUDA_INSTALL_TARGET_DIR = targets/sbsa-linux/
 else ifeq ($(TARGET_ARCH)-$(TARGET_OS),armv7l-android)
     CUDA_INSTALL_TARGET_DIR = targets/armv7-linux-androideabi/
 else ifeq ($(TARGET_ARCH)-$(TARGET_OS),aarch64-android)
@@ -251,9 +272,9 @@ FATBIN_FILE := vectorAdd_kernel${TARGET_SIZE}.fatbin
 
 # Gencode arguments
 ifeq ($(TARGET_ARCH),$(filter $(TARGET_ARCH),armv7l aarch64))
-SMS ?= 30 35 37 50 52 60 61 70 72 75
+SMS ?= 35 37 50 52 60 61 70 72 75 80
 else
-SMS ?= 30 35 37 50 52 60 61 70 75
+SMS ?= 35 37 50 52 60 61 70 75 80
 endif
 
 ifeq ($(SMS),)
@@ -288,6 +309,10 @@ else
     CUDA_SEARCH_PATH ?= $(CUDA_PATH)/targets/aarch64-linux/lib/stubs
   endif
 
+  ifeq ($(TARGET_ARCH)-$(TARGET_OS),sbsa-linux)
+    CUDA_SEARCH_PATH ?= $(CUDA_PATH)/targets/sbsa-linux/lib/stubs
+  endif
+
   ifeq ($(TARGET_ARCH)-$(TARGET_OS),armv7l-android)
     CUDA_SEARCH_PATH ?= $(CUDA_PATH)/targets/armv7-linux-androideabi/lib/stubs
   endif
@@ -302,10 +327,17 @@ else
 
   ifeq ($(TARGET_ARCH)-$(TARGET_OS),aarch64-qnx)
     CUDA_SEARCH_PATH ?= $(CUDA_PATH)/targets/aarch64-qnx/lib/stubs
+    ifdef TARGET_OVERRIDE
+        CUDA_SEARCH_PATH := $(CUDA_PATH)/targets/$(TARGET_OVERRIDE)/lib/stubs
+    endif
   endif
 
   ifeq ($(TARGET_ARCH),ppc64le)
     CUDA_SEARCH_PATH ?= $(CUDA_PATH)/targets/ppc64le-linux/lib/stubs
+  endif
+
+  ifeq ($(HOST_ARCH),ppc64le)
+    CUDA_SEARCH_PATH += $(CUDA_PATH)/lib64/stubs
   endif
 
   CUDALIB ?= $(shell find -L $(CUDA_SEARCH_PATH) -maxdepth 1 -name libcuda.so 2> /dev/null)

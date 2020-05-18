@@ -189,6 +189,8 @@ int main(int argc, char **argv) {
            deviceProp.totalConstMem);
     printf("  Total amount of shared memory per block:       %zu bytes\n",
            deviceProp.sharedMemPerBlock);
+    printf("  Total shared memory per multiprocessor:        %zu bytes\n",
+           deviceProp.sharedMemPerMultiprocessor);
     printf("  Total number of registers available per block: %d\n",
            deviceProp.regsPerBlock);
     printf("  Warp size:                                     %d\n",
@@ -228,6 +230,8 @@ int main(int argc, char **argv) {
 #endif
     printf("  Device supports Unified Addressing (UVA):      %s\n",
            deviceProp.unifiedAddressing ? "Yes" : "No");
+    printf("  Device supports Managed Memory:                %s\n",
+           deviceProp.managedMemory ? "Yes" : "No");
     printf("  Device supports Compute Preemption:            %s\n",
            deviceProp.computePreemptionSupported ? "Yes" : "No");
     printf("  Supports Cooperative Kernel Launch:            %s\n",

@@ -160,11 +160,11 @@
 // columns. For shared memory, such access can result in bank conflicts if
 // different rows / columns of the matrix map to the same bank. By shifting each
 // row and column by a few bytes, we make sure that they map to different banks,
-// thus reducing the number of possible bank conflicts. The number of 16
+// thus reducing the number of possible bank conflicts. The number of 32
 // one-byte "uint8_t" elements is chosen as the minimum possible shift because
-// we must keep each row and column 128-bit aligned, as required by
+// we must keep each row and column 256-bit aligned, as required by
 // nvcuda::wmma::load_matrix_sync.
-#define SKEW_UINT8 16
+#define SKEW_UINT8 32
 
 #define checkKernelErrors(expr)                             \
   do {                                                      \

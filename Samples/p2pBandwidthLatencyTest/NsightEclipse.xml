@@ -40,7 +40,6 @@
     <scope>1:CUDA Basic Topics</scope>
     <scope>1:Performance Strategies</scope>
   </scopes>
-  <sm-arch>sm30</sm-arch>
   <sm-arch>sm35</sm-arch>
   <sm-arch>sm37</sm-arch>
   <sm-arch>sm50</sm-arch>
@@ -50,6 +49,7 @@
   <sm-arch>sm70</sm-arch>
   <sm-arch>sm72</sm-arch>
   <sm-arch>sm75</sm-arch>
+  <sm-arch>sm80</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

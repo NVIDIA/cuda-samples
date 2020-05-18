@@ -915,7 +915,7 @@ void printResultsCSV(unsigned int *memSizes, double *bandwidths,
   double dSeconds = 0.0;
 
   for (i = 0; i < count; i++) {
-    dSeconds = (double)memSizes[i] / (bandwidths[i] * (double)(1 << 20));
+    dSeconds = (double)memSizes[i] / (bandwidths[i] * (double)(1e9));
     printf(
         "bandwidthTest-%s, Bandwidth = %.1f GB/s, Time = %.5f s, Size = %u "
         "bytes, NumDevsUsed = %d\n",

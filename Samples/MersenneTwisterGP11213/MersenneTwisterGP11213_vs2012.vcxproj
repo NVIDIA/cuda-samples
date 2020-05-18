@@ -62,7 +62,7 @@
       <OutputFile>$(OutDir)/MersenneTwisterGP11213.exe</OutputFile>
     </Link>
     <CudaCompile>
-      <CodeGeneration>compute_30,compute_30;</CodeGeneration>
+      <CodeGeneration>compute_35,compute_35;</CodeGeneration>
       <AdditionalOptions>-Xcompiler "/wd 4819" %(AdditionalOptions)</AdditionalOptions>
       <Include>./;../../Common</Include>
       <Defines>WIN32</Defines>

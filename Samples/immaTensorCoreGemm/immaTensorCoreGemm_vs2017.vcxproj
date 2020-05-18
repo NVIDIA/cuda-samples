@@ -67,7 +67,7 @@
       <OutputFile>$(OutDir)/immaTensorCoreGemm.exe</OutputFile>
     </Link>
     <CudaCompile>
-      <CodeGeneration>compute_75,sm_75;</CodeGeneration>
+      <CodeGeneration>compute_75,sm_75;compute_80,sm_80;</CodeGeneration>
       <AdditionalOptions>-Xcompiler "/wd 4819" %(AdditionalOptions)</AdditionalOptions>
       <Include>./;../../Common</Include>
       <Defines>WIN32</Defines>

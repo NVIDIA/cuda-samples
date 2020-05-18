@@ -36,6 +36,10 @@ int dev_malloc(void **p, size_t s) { return (int)cudaMalloc(p, s); }
 
 int dev_free(void *p) { return (int)cudaFree(p); }
 
+int host_malloc(void** p, size_t s, unsigned int f) { return (int)cudaHostAlloc(p, s, f); }
+
+int host_free(void* p) { return (int)cudaFreeHost(p); }
+
 typedef std::vector<std::string> FileNames;
 typedef std::vector<std::vector<char> > FileData;
 
@@ -49,6 +53,14 @@ struct decode_params_t {
   nvjpegJpegState_t nvjpeg_state;
   nvjpegHandle_t nvjpeg_handle;
   cudaStream_t stream;
+
+  // used with decoupled API
+  nvjpegJpegState_t nvjpeg_decoupled_state;
+  nvjpegBufferPinned_t pinned_buffers[2]; // 2 buffers for pipelining
+  nvjpegBufferDevice_t device_buffer;
+  nvjpegJpegStream_t  jpeg_streams[2]; //  2 streams for pipelining
+  nvjpegDecodeParams_t nvjpeg_decode_params;
+  nvjpegJpegDecoder_t nvjpeg_decoder;
 
   nvjpegOutputFormat_t fmt;
   bool write_decoded;
@@ -195,6 +207,33 @@ int prepare_buffers(FileData &file_data, std::vector<size_t> &file_len,
   return EXIT_SUCCESS;
 }
 
+void create_decoupled_api_handles(decode_params_t& params){
+
+  checkCudaErrors(nvjpegDecoderCreate(params.nvjpeg_handle, NVJPEG_BACKEND_DEFAULT, &params.nvjpeg_decoder));
+  checkCudaErrors(nvjpegDecoderStateCreate(params.nvjpeg_handle, params.nvjpeg_decoder, &params.nvjpeg_decoupled_state));   
+  
+  checkCudaErrors(nvjpegBufferPinnedCreate(params.nvjpeg_handle, NULL, &params.pinned_buffers[0]));
+  checkCudaErrors(nvjpegBufferPinnedCreate(params.nvjpeg_handle, NULL, &params.pinned_buffers[1]));
+  checkCudaErrors(nvjpegBufferDeviceCreate(params.nvjpeg_handle, NULL, &params.device_buffer));
+  
+  checkCudaErrors(nvjpegJpegStreamCreate(params.nvjpeg_handle, &params.jpeg_streams[0]));
+  checkCudaErrors(nvjpegJpegStreamCreate(params.nvjpeg_handle, &params.jpeg_streams[1]));
+
+  checkCudaErrors(nvjpegDecodeParamsCreate(params.nvjpeg_handle, &params.nvjpeg_decode_params));
+}
+
+void destroy_decoupled_api_handles(decode_params_t& params){  
+
+  checkCudaErrors(nvjpegDecodeParamsDestroy(params.nvjpeg_decode_params));
+  checkCudaErrors(nvjpegJpegStreamDestroy(params.jpeg_streams[0]));
+  checkCudaErrors(nvjpegJpegStreamDestroy(params.jpeg_streams[1]));
+  checkCudaErrors(nvjpegBufferPinnedDestroy(params.pinned_buffers[0]));
+  checkCudaErrors(nvjpegBufferPinnedDestroy(params.pinned_buffers[1]));
+  checkCudaErrors(nvjpegBufferDeviceDestroy(params.device_buffer));
+  checkCudaErrors(nvjpegJpegStateDestroy(params.nvjpeg_decoupled_state));  
+  checkCudaErrors(nvjpegDecoderDestroy(params.nvjpeg_decoder));
+}
+
 void release_buffers(std::vector<nvjpegImage_t> &ibuf) {
   for (int i = 0; i < ibuf.size(); i++) {
     for (int c = 0; c < NVJPEG_MAX_COMPONENT; c++)
@@ -206,37 +245,52 @@ int decode_images(const FileData &img_data, const std::vector<size_t> &img_len,
                   std::vector<nvjpegImage_t> &out, decode_params_t &params,
                   double &time) {
   checkCudaErrors(cudaStreamSynchronize(params.stream));
-  nvjpegStatus_t err;
-  StopWatchInterface *timer = NULL;
-  sdkCreateTimer(&timer);
+  cudaEvent_t startEvent = NULL, stopEvent = NULL;
+  float loopTime = 0; 
+  
+  checkCudaErrors(cudaEventCreate(&startEvent, cudaEventBlockingSync));
+  checkCudaErrors(cudaEventCreate(&stopEvent, cudaEventBlockingSync));
 
   if (!params.batched) {
     if (!params.pipelined)  // decode one image at a time
     {
-      int thread_idx = 0;
-      sdkStartTimer(&timer);
+      checkCudaErrors(cudaEventRecord(startEvent, params.stream));
       for (int i = 0; i < params.batch_size; i++) {
         checkCudaErrors(nvjpegDecode(params.nvjpeg_handle, params.nvjpeg_state,
                                      (const unsigned char *)img_data[i].data(),
                                      img_len[i], params.fmt, &out[i],
                                      params.stream));
-        checkCudaErrors(cudaStreamSynchronize(params.stream));
       }
+      checkCudaErrors(cudaEventRecord(stopEvent, params.stream));
     } else {
-      int thread_idx = 0;
-      sdkStartTimer(&timer);
+      // use de-coupled API in pipelined mode
+      checkCudaErrors(cudaEventRecord(startEvent, params.stream));
+      checkCudaErrors(nvjpegStateAttachDeviceBuffer(params.nvjpeg_decoupled_state, params.device_buffer));
+      int buffer_index = 0;
+      checkCudaErrors(nvjpegDecodeParamsSetOutputFormat(params.nvjpeg_decode_params, params.fmt));
       for (int i = 0; i < params.batch_size; i++) {
-        checkCudaErrors(
-            nvjpegDecodePhaseOne(params.nvjpeg_handle, params.nvjpeg_state,
-                                 (const unsigned char *)img_data[i].data(),
-                                 img_len[i], params.fmt, params.stream));
-        checkCudaErrors(cudaStreamSynchronize(params.stream));
-        checkCudaErrors(nvjpegDecodePhaseTwo(
-            params.nvjpeg_handle, params.nvjpeg_state, params.stream));
-        checkCudaErrors(nvjpegDecodePhaseThree(
-            params.nvjpeg_handle, params.nvjpeg_state, &out[i], params.stream));
-      }
+      checkCudaErrors(
+          nvjpegJpegStreamParse(params.nvjpeg_handle, (const unsigned char *)img_data[i].data(), img_len[i], 
+          0, 0, params.jpeg_streams[buffer_index]));
+                                
+      checkCudaErrors(nvjpegStateAttachPinnedBuffer(params.nvjpeg_decoupled_state,
+          params.pinned_buffers[buffer_index]));
+      
+      checkCudaErrors(nvjpegDecodeJpegHost(params.nvjpeg_handle, params.nvjpeg_decoder, params.nvjpeg_decoupled_state, 
+          params.nvjpeg_decode_params, params.jpeg_streams[buffer_index]));
+
       checkCudaErrors(cudaStreamSynchronize(params.stream));
+
+      checkCudaErrors(nvjpegDecodeJpegTransferToDevice(params.nvjpeg_handle, params.nvjpeg_decoder, params.nvjpeg_decoupled_state,
+          params.jpeg_streams[buffer_index], params.stream));
+
+      buffer_index = 1 - buffer_index; // switch pinned buffer in pipeline mode to avoid an extra sync
+
+      checkCudaErrors(nvjpegDecodeJpegDevice(params.nvjpeg_handle, params.nvjpeg_decoder, params.nvjpeg_decoupled_state,
+          &out[i], params.stream));
+
+      }
+      checkCudaErrors(cudaEventRecord(stopEvent, params.stream));
     }
   } else {
     std::vector<const unsigned char *> raw_inputs;
@@ -244,30 +298,16 @@ int decode_images(const FileData &img_data, const std::vector<size_t> &img_len,
       raw_inputs.push_back((const unsigned char *)img_data[i].data());
     }
 
-    if (!params.pipelined)  // decode multiple images in a single batch
-    {
-      sdkStartTimer(&timer);
-      checkCudaErrors(nvjpegDecodeBatched(
-          params.nvjpeg_handle, params.nvjpeg_state, raw_inputs.data(),
-          img_len.data(), out.data(), params.stream));
-      checkCudaErrors(cudaStreamSynchronize(params.stream));
-    } else {
-      int thread_idx = 0;
-      for (int i = 0; i < params.batch_size; i++) {
-        checkCudaErrors(nvjpegDecodeBatchedPhaseOne(
-            params.nvjpeg_handle, params.nvjpeg_state, raw_inputs[i],
-            img_len[i], i, thread_idx, params.stream));
-      }
-      checkCudaErrors(nvjpegDecodeBatchedPhaseTwo(
-          params.nvjpeg_handle, params.nvjpeg_state, params.stream));
-      checkCudaErrors(nvjpegDecodeBatchedPhaseThree(params.nvjpeg_handle,
-                                                    params.nvjpeg_state,
-                                                    out.data(), params.stream));
-      checkCudaErrors(cudaStreamSynchronize(params.stream));
-    }
+    checkCudaErrors(cudaEventRecord(startEvent, params.stream));
+    checkCudaErrors(nvjpegDecodeBatched(
+        params.nvjpeg_handle, params.nvjpeg_state, raw_inputs.data(),
+        img_len.data(), out.data(), params.stream));
+    checkCudaErrors(cudaEventRecord(stopEvent, params.stream));
+  
   }
-  sdkStopTimer(&timer);
-  time = sdkGetAverageTimerValue(&timer)/1000.0f;
+  checkCudaErrors(cudaEventSynchronize(stopEvent));
+  checkCudaErrors(cudaEventElapsedTime(&loopTime, startEvent, stopEvent));
+  time = static_cast<double>(loopTime);
 
   return EXIT_SUCCESS;
 }
@@ -518,14 +558,20 @@ int main(int argc, const char *argv[]) {
          props.ECCEnabled ? "on" : "off");
 
   nvjpegDevAllocator_t dev_allocator = {&dev_malloc, &dev_free};
-  checkCudaErrors(nvjpegCreate(NVJPEG_BACKEND_DEFAULT, &dev_allocator,
-                               &params.nvjpeg_handle));
+  nvjpegPinnedAllocator_t pinned_allocator ={&host_malloc, &host_free};
+  int flags = 0;
+  checkCudaErrors(nvjpegCreateEx(NVJPEG_BACKEND_DEFAULT, &dev_allocator,
+                                &pinned_allocator,flags,  &params.nvjpeg_handle));
+
   checkCudaErrors(
       nvjpegJpegStateCreate(params.nvjpeg_handle, &params.nvjpeg_state));
   checkCudaErrors(
       nvjpegDecodeBatchedInitialize(params.nvjpeg_handle, params.nvjpeg_state,
                                     params.batch_size, 1, params.fmt));
 
+  if(params.pipelined ){
+    create_decoupled_api_handles(params);
+  }
   // read source images
   FileNames image_names;
   readInput(params.input_dir, image_names);
@@ -555,6 +601,10 @@ int main(int argc, const char *argv[]) {
             << total / ((params.total_images + params.batch_size - 1) /
                         params.batch_size)
             << std::endl;
+
+  if(params.pipelined ){ 
+    destroy_decoupled_api_handles(params);
+  }
 
   checkCudaErrors(nvjpegJpegStateDestroy(params.nvjpeg_state));
   checkCudaErrors(nvjpegDestroy(params.nvjpeg_handle));

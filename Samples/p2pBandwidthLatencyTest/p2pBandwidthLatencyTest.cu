@@ -163,7 +163,11 @@ void outputBandwidthMatrix(int numGPUs, bool p2p, P2PDataTransfer p2p_method) {
     cudaStreamCreateWithFlags(&stream[d], cudaStreamNonBlocking);
     cudaMalloc(&buffers[d], numElems * sizeof(int));
     cudaCheckError();
+    cudaMemset(buffers[d], 0, numElems * sizeof(int));
+    cudaCheckError();
     cudaMalloc(&buffersD2D[d], numElems * sizeof(int));
+    cudaCheckError();
+    cudaMemset(buffersD2D[d], 0, numElems * sizeof(int));
     cudaCheckError();
     cudaEventCreate(&start[d]);
     cudaCheckError();
@@ -300,7 +304,9 @@ void outputBidirectionalBandwidthMatrix(int numGPUs, bool p2p) {
   for (int d = 0; d < numGPUs; d++) {
     cudaSetDevice(d);
     cudaMalloc(&buffers[d], numElems * sizeof(int));
+    cudaMemset(buffers[d], 0, numElems * sizeof(int));
     cudaMalloc(&buffersD2D[d], numElems * sizeof(int));
+    cudaMemset(buffersD2D[d], 0, numElems * sizeof(int));
     cudaCheckError();
     cudaEventCreate(&start[d]);
     cudaCheckError();
@@ -463,7 +469,9 @@ void outputLatencyMatrix(int numGPUs, bool p2p, P2PDataTransfer p2p_method) {
     cudaSetDevice(d);
     cudaStreamCreateWithFlags(&stream[d], cudaStreamNonBlocking);
     cudaMalloc(&buffers[d], sizeof(int) * numElems);
+    cudaMemset(buffers[d], 0, sizeof(int) * numElems);
     cudaMalloc(&buffersD2D[d], sizeof(int) * numElems);
+    cudaMemset(buffersD2D[d], 0, sizeof(int) * numElems);
     cudaCheckError();
     cudaEventCreate(&start[d]);
     cudaCheckError();

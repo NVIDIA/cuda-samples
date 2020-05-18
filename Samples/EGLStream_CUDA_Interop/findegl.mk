@@ -133,10 +133,14 @@ ifeq ("$(TARGET_OS)","linux")
 else
 endif
 
+ifeq ("$(TARGET_OS)","qnx")
+    HOST_CCFLAGS := -V5.4.0,gcc_ntoaarch64le
+endif
+
 # Attempt to compile a minimal EGL application and run to check if EGL_SUPPORT_REUSE_NV is supported in the EGL headers available.
 ifneq ($(SAMPLE_ENABLED), 0)
       $(shell printf "#include <EGL/egl.h>\n#include <EGL/eglext.h>\nint main() {\n#ifdef EGL_SUPPORT_REUSE_NV \n #error \"Compatible EGL header found\" \n  return 0;\n#endif \n return 1;\n}"  > test.c; )
-      EGL_DEFINES := $(shell $(HOST_COMPILER) $(CCFLAGS) $(EXTRA_CCFLAGS) -lEGL test.c -c 2>&1 | grep -ic "Compatible EGL header found";)
+      EGL_DEFINES := $(shell $(HOST_COMPILER) $(HOST_CCFLAGS) $(CCFLAGS) $(EXTRA_CCFLAGS) -lEGL test.c -c 2>&1 | grep -ic "Compatible EGL header found";)
       SHOULD_WAIVE := 0
       ifeq ($(EGL_DEFINES),0)
         SHOULD_WAIVE := 1

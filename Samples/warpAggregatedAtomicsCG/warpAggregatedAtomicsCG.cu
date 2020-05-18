@@ -43,21 +43,17 @@ namespace cg = cooperative_groups;
 __device__ int atomicAggInc(int *counter) {
   cg::coalesced_group active = cg::coalesced_threads();
 
-  int mask = active.ballot(1);
-  // select the leader
-  int leader = __ffs(mask) - 1;
-
   // leader does the update
   int res = 0;
-  if (active.thread_rank() == leader) {
-    res = atomicAdd(counter, __popc(mask));
+  if (active.thread_rank() == 0) {
+    res = atomicAdd(counter, active.size());
   }
 
   // broadcast result
-  res = active.shfl(res, leader);
+  res = active.shfl(res, 0);
 
   // each thread computes its own value
-  return res + __popc(mask & ((1 << active.thread_rank()) - 1));
+  return res + active.thread_rank();
 }
 
 __global__ void filter_arr(int *dst, int *nres, const int *src, int n) {
@@ -68,18 +64,108 @@ __global__ void filter_arr(int *dst, int *nres, const int *src, int n) {
   }
 }
 
+// warp-aggregated atomic multi bucket increment
+#if __CUDA_ARCH__ >= 700
+__device__ int atomicAggIncMulti(const int bucket, int *counter)
+{
+  cg::coalesced_group active = cg::coalesced_threads();
+  // group all threads with same bucket value.
+  auto labeledGroup = cg::labeled_partition(active, bucket);
+
+  int res = 0;
+  if (labeledGroup.thread_rank() == 0)
+  {
+    res = atomicAdd(&counter[bucket], labeledGroup.size());
+  }
+
+  // broadcast result
+  res = labeledGroup.shfl(res, 0);
+
+  // each thread computes its own value
+  return res + labeledGroup.thread_rank();
+}
+#endif
+
+// Places individual value indices into its corresponding buckets.
+__global__ void mapToBuckets(const int *srcArr, int *indicesBuckets, int *bucketCounters, const int srcSize, const int numOfBuckets)
+{
+#if __CUDA_ARCH__ >= 700
+  cg::grid_group grid = cg::this_grid();
+
+  for (int i=grid.thread_rank(); i < srcSize; i += grid.size())
+  {
+    const int bucket = srcArr[i];
+    if (bucket < numOfBuckets)
+    {
+      indicesBuckets[atomicAggIncMulti(bucket, bucketCounters)] = i;
+    }
+  }
+#endif
+}
+
+int mapIndicesToBuckets(int *h_srcArr, int *d_srcArr, int numOfBuckets)
+{
+  int *d_indicesBuckets, *d_bucketCounters;
+  int *cpuBucketCounters = new int[numOfBuckets];
+  int *h_bucketCounters = new int[numOfBuckets];
+
+  memset(cpuBucketCounters, 0, sizeof(int)*numOfBuckets);
+  // Initialize each bucket counters.
+  for (int i = 0; i < numOfBuckets; i++)
+  {
+    h_bucketCounters[i] = i*NUM_ELEMS;
+  }
+
+  checkCudaErrors(cudaMalloc(&d_indicesBuckets, sizeof(int) * NUM_ELEMS * numOfBuckets));
+  checkCudaErrors(cudaMalloc(&d_bucketCounters, sizeof(int) * numOfBuckets));
+
+  checkCudaErrors(cudaMemcpy(d_bucketCounters, h_bucketCounters, sizeof(int)*numOfBuckets, cudaMemcpyHostToDevice));
+
+  dim3 dimBlock(NUM_THREADS_PER_BLOCK, 1, 1);
+  dim3 dimGrid((NUM_ELEMS / NUM_THREADS_PER_BLOCK), 1, 1);
+
+  mapToBuckets<<<dimGrid, dimBlock>>>(d_srcArr, d_indicesBuckets, d_bucketCounters, NUM_ELEMS, numOfBuckets);
+
+  checkCudaErrors(cudaMemcpy(h_bucketCounters, d_bucketCounters, sizeof(int)*numOfBuckets, cudaMemcpyDeviceToHost));
+
+  for (int i=0; i < NUM_ELEMS; i++)
+  {
+    cpuBucketCounters[h_srcArr[i]]++;
+  }
+
+  bool allMatch = true;
+  int finalElems = 0;
+  for (int i=0; i < numOfBuckets; i++)
+  {
+    finalElems += (h_bucketCounters[i] - i*NUM_ELEMS);
+    if (cpuBucketCounters[i] != (h_bucketCounters[i] - i*NUM_ELEMS))
+    {
+      allMatch = false;
+      break;
+    }
+  }
+
+  if (!allMatch && finalElems != NUM_ELEMS)
+  {
+      return EXIT_FAILURE;
+  }
+  return EXIT_SUCCESS;
+}
+
 int main(int argc, char **argv) {
   int *data_to_filter, *filtered_data, nres = 0;
   int *d_data_to_filter, *d_filtered_data, *d_nres;
+
+  int numOfBuckets = 5;
 
   data_to_filter = reinterpret_cast<int *>(malloc(sizeof(int) * NUM_ELEMS));
 
   // Generate input data.
   for (int i = 0; i < NUM_ELEMS; i++) {
-    data_to_filter[i] = rand() % 20;
+    data_to_filter[i] = rand() % numOfBuckets;
   }
 
-  findCudaDevice(argc, (const char **)argv);
+  int devId = findCudaDevice(argc, (const char **)argv);
 
   checkCudaErrors(cudaMalloc(&d_data_to_filter, sizeof(int) * NUM_ELEMS));
   checkCudaErrors(cudaMalloc(&d_filtered_data, sizeof(int) * NUM_ELEMS));
@@ -114,8 +200,18 @@ int main(int argc, char **argv) {
     }
   }
 
+  int major = 0;
+  checkCudaErrors(cudaDeviceGetAttribute(&major, cudaDevAttrComputeCapabilityMajor, devId));
+
+  int mapIndicesToBucketsStatus = EXIT_SUCCESS;
+  // atomicAggIncMulti require a GPU of Volta (SM7X) architecture or higher,
+  // so that it can take advantage of the new MATCH capability of Volta hardware
+  if (major >= 7) {
+    mapIndicesToBucketsStatus = mapIndicesToBuckets(data_to_filter, d_data_to_filter, numOfBuckets);
+  }
+
   printf("\nWarp Aggregated Atomics %s \n",
-         host_flt_count == nres ? "PASSED" : "FAILED");
+         (host_flt_count == nres) && (mapIndicesToBucketsStatus == EXIT_SUCCESS) ? "PASSED" : "FAILED");
 
   checkCudaErrors(cudaFree(d_data_to_filter));
   checkCudaErrors(cudaFree(d_filtered_data));

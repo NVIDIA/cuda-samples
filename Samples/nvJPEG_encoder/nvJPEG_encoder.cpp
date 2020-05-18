@@ -35,8 +35,6 @@
 int dev_malloc(void **p, size_t s) { return (int)cudaMalloc(p, s); }
 int dev_free(void *p) { return (int)cudaFree(p); }
 
-StopWatchInterface *timer = NULL;
-
 bool is_interleaved(nvjpegOutputFormat_t format)
 {
     if (format == NVJPEG_OUTPUT_RGBI || format == NVJPEG_OUTPUT_BGRI)
@@ -51,6 +49,7 @@ struct encode_params_t {
   std::string format;
   std::string subsampling;
   int quality;
+  int huf;
   int dev;
 };
 
@@ -62,6 +61,11 @@ nvjpegEncoderState_t encoder_state;
 int decodeEncodeOneImage(std::string sImagePath, std::string sOutputPath, double &time, nvjpegOutputFormat_t output_format, nvjpegInputFormat_t input_format)
 {
     time = 0.;
+    cudaEvent_t startEvent = NULL, stopEvent = NULL;
+    float loopTime = 0;
+    checkCudaErrors(cudaEventCreate(&startEvent, cudaEventBlockingSync));
+    checkCudaErrors(cudaEventCreate(&stopEvent, cudaEventBlockingSync));
+
     // Get the file name, without extension.
     // This will be used to rename the output file.    
     size_t position = sImagePath.rfind("/");
@@ -87,7 +91,7 @@ int decodeEncodeOneImage(std::string sImagePath, std::string sOutputPath, double
 
     // Image buffers. 
     unsigned char * pBuffer = NULL; 
-    double decode_time = 0.;
+    double encoder_time = 0.;
     
     std::vector<char> vBuffer(nSize);
     
@@ -169,9 +173,7 @@ int decodeEncodeOneImage(std::string sImagePath, std::string sOutputPath, double
             int nReturnCode = 0;
 
             cudaDeviceSynchronize();
-            // Create the CUTIL timer
-            sdkCreateTimer(&timer);
-            sdkStartTimer(&timer);
+
             nReturnCode = nvjpegDecode(nvjpeg_handle, jpeg_state, dpImage, nSize, output_format, &imgdesc, NULL);
 
             // alternatively decode by stages
@@ -179,14 +181,14 @@ int decodeEncodeOneImage(std::string sImagePath, std::string sOutputPath, double
             nReturnCode = nvjpegDecodeMixed(nvjpeg_handle, NULL);
             nReturnCode = nvjpegDecodeGPU(nvjpeg_handle, NULL);*/
             cudaDeviceSynchronize();
-            sdkStopTimer(&timer);
-            decode_time =sdkGetTimerValue(&timer);
+
             if(nReturnCode != 0)
             {
                 std::cerr << "Error in nvjpegDecode." << std::endl;
                 return 1;
             }
 
+            checkCudaErrors(cudaEventRecord(startEvent, NULL));
             /////////////////////// encode ////////////////////
             if (NVJPEG_OUTPUT_YUV == output_format)
             {
@@ -226,6 +228,12 @@ int decodeEncodeOneImage(std::string sImagePath, std::string sOutputPath, double
                 obuffer.data(),
                 &length,
                 NULL));
+
+            checkCudaErrors(cudaEventRecord(stopEvent, NULL));
+            checkCudaErrors(cudaEventSynchronize(stopEvent));
+            checkCudaErrors(cudaEventElapsedTime(&loopTime, startEvent, stopEvent));
+            encoder_time = static_cast<double>(loopTime);
+
             std::string output_filename = sOutputPath + "/" + sFileName + ".jpg";
             char directory[120];
             char mkdir_cmd[256];
@@ -250,7 +258,7 @@ int decodeEncodeOneImage(std::string sImagePath, std::string sOutputPath, double
         }
     }
 
-    time = decode_time;
+    time = encoder_time;
 
     return 0;
 }
@@ -352,14 +360,14 @@ int processArgs(encode_params_t param)
         return error_code;
     }
     
-    double total_time = 0., decode_time = 0.;
+    double total_time = 0., encoder_time = 0.;
     int total_images = 0;
 
     for (unsigned int i = 0; i < inputFiles.size(); i++)
     {
         std::string &sFileName = inputFiles[i];
         std::cout << "Processing file: " << sFileName << std::endl;
-        int image_error_code = decodeEncodeOneImage(sFileName, sOutputPath, decode_time, oformat, iformat);
+        int image_error_code = decodeEncodeOneImage(sFileName, sOutputPath, encoder_time, oformat, iformat);
         if (image_error_code)
         {
             std::cerr << "Error processing file: " << sFileName << std::endl;
@@ -368,11 +376,11 @@ int processArgs(encode_params_t param)
         else
         {
             total_images++;
-            total_time += decode_time;
+            total_time += encoder_time;
         }                      
     }
     std::cout << "Total images processed: " << total_images << std::endl;
-    std::cout << "Total time spent on decoding: " << total_time << std::endl;
+    std::cout << "Total time spent on encoding: " << total_time << std::endl;
     std::cout << "Avg time/image: " << total_time/total_images << std::endl;
 
     return 0;
@@ -411,7 +419,7 @@ int main(int argc, const char *argv[])
       (pidx = findParamIndex(argv, argc, "--help")) != -1) {
     std::cout << "Usage: " << argv[0]
               << " -i images_dir  [-o output_dir] [-device=device_id]"                 
-                 "[-q quality][-s 420/444] [-fmt output_format]\n";
+                 "[-q quality][-s 420/444] [-fmt output_format] [-huf 0]\n";
     std::cout << "Parameters: " << std::endl;
     std::cout << "\timages_dir\t:\tPath to single image or directory of images" << std::endl;
     std::cout << "\toutput_dir\t:\tWrite encoded images as jpeg to this directory" << std::endl;
@@ -421,6 +429,7 @@ int main(int argc, const char *argv[])
     std::cout << "\toutput_format\t:\tnvJPEG output format for encoding. One "
                  "of [rgb, rgbi, bgr, bgri, yuv, y, unchanged]"
               << std::endl;
+    std::cout << "\tHuffman Optimization\t:\tUse Huffman optimization [default 0]" << std::endl;
     return EXIT_SUCCESS;
   }
 
@@ -465,6 +474,11 @@ int main(int argc, const char *argv[])
     params.format = "yuv";
   }
 
+  params.huf = 0;
+  if ((pidx = findParamIndex(argv, argc, "-huf")) != -1) {
+    params.huf = std::atoi(argv[pidx + 1]);
+  }
+
     cudaDeviceProp props;
     checkCudaErrors(cudaGetDeviceProperties(&props, params.dev));
 
@@ -481,7 +495,7 @@ int main(int argc, const char *argv[])
     
     // sample input parameters
     checkCudaErrors(nvjpegEncoderParamsSetQuality(encode_params, params.quality, NULL));
-    checkCudaErrors(nvjpegEncoderParamsSetOptimizedHuffman(encode_params, 1, NULL));
+    checkCudaErrors(nvjpegEncoderParamsSetOptimizedHuffman(encode_params, params.huf, NULL));
 
     pidx = processArgs(params);
 
