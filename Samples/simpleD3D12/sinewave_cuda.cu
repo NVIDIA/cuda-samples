@@ -25,9 +25,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdio.h>
 #include "ShaderStructs.h"
-#include "helper_cuda.h"
 
 __global__ void sinewave_gen_kernel(Vertex *vertices, unsigned int width,
                                     unsigned int height, float time) {

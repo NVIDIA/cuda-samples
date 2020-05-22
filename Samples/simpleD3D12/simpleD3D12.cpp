@@ -25,8 +25,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <windows.h>
 
-#include "stdafx.h"
+#include "d3dx12.h"
+
+#include <string>
+#include <wrl.h>
+#include <shellapi.h>
+
+#include <cuda_runtime.h>
+#include "ShaderStructs.h"
 #include "simpleD3D12.h"
 #include <aclapi.h>
 

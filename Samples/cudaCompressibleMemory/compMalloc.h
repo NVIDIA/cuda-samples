@@ -1,4 +1,4 @@
-/* Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+/* Copyright (c) 2020, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,23 +25,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef COMP_MALLOC_H
+#define COMP_MALLOC_H
 
-#include <d3d12.h>
-#include <dxgi1_4.h>
-#include <D3Dcompiler.h>
-#include <DirectXMath.h>
-#include <cuda_runtime.h>
-#include "helper_cuda.h"
+cudaError_t cudaMallocCompressible(void **adr, size_t size);
+cudaError_t cudaFreeCompressible(void *ptr, size_t size);
 
-using namespace DirectX;
-
-struct Vertex {
-  XMFLOAT3 position;
-  XMFLOAT4 color;
-};
-
-
-void RunSineWaveKernel(size_t mesh_width, size_t mesh_height,
-                       Vertex *cudaDevVertptr, cudaStream_t streamToRun,
-                       float AnimTime);
+#endif

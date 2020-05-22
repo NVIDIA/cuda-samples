@@ -53,6 +53,8 @@
 
 #define NUM_SIMULATION_POINTS 50000
 
+std::string execution_path;
+
 class VulkanCudaPi : public VulkanBaseApp
 {
     typedef struct UniformBufferObject_st {
@@ -86,8 +88,10 @@ public:
         m_lastFrame(0) {
 
         // Add our compiled vulkan shader files
-        m_shaderFiles.push_back(std::make_pair(VK_SHADER_STAGE_VERTEX_BIT, "montecarlo.vert"));
-        m_shaderFiles.push_back(std::make_pair(VK_SHADER_STAGE_FRAGMENT_BIT, "montecarlo.frag"));
+        char* vertex_shader_path = sdkFindFilePath("montecarlo.vert", execution_path.c_str());
+        char* fragment_shader_path = sdkFindFilePath("montecarlo.frag", execution_path.c_str());
+        m_shaderFiles.push_back(std::make_pair(VK_SHADER_STAGE_VERTEX_BIT, vertex_shader_path));
+        m_shaderFiles.push_back(std::make_pair(VK_SHADER_STAGE_FRAGMENT_BIT, fragment_shader_path));
     }
 
     ~VulkanCudaPi() {
@@ -303,8 +307,9 @@ public:
     }
 };
 
-int main()
+int main(int argc, char **argv)
 {
+    execution_path = argv[0];
     VulkanCudaPi app(NUM_SIMULATION_POINTS);
     app.init();
     app.mainLoop();

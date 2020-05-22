@@ -16,6 +16,7 @@ This section describes the release notes for the CUDA Samples on GitHub only.
 *  Added warp aggregated atomic multi bucket increments kernel using labeled_partition cooperative groups in `warpAggregatedAtomicsCG` which can be used on compute capability 7.0 and above GPU architectures.
 *  Added `binaryPartitionCG`. Demonstrates  binary partition cooperative groups and reduction within the thread block.
 *  Added two new reduction kernels in `reduction` one which demonstrates reduce_add_sync intrinstic supported on compute capability 8.0 and another which uses cooperative_groups::reduce function which does thread_block_tile level reduction introduced from CUDA 11.0.
+*  Added `cudaCompressibleMemory`. Demonstrates compressible memory allocation using cuMemMap API.
 *  Added `simpleVulkanMMAP`. Demonstrates Vulkan CUDA Interop via cuMemMap APIs.
 *  Added `concurrentKernels`. Demonstrates the use of CUDA streams for concurrent execution of several kernels on a GPU.
 *  Dropped Mac OSX support from all samples.
@@ -146,13 +147,13 @@ The samples makefiles can take advantage of certain options:
 **[vectorAddMMAP](./Samples/vectorAddMMAP)** | **[shfl_scan](./Samples/shfl_scan)** | **[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** | **[globalToShmemAsyncCopy](./Samples/globalToShmemAsyncCopy)** |
 **[nvJPEG](./Samples/nvJPEG)** | **[simpleCudaGraphs](./Samples/simpleCudaGraphs)** | **[deviceQuery](./Samples/deviceQuery)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** |
 **[simpleCUBLASXT](./Samples/simpleCUBLASXT)** | **[simpleAttributes](./Samples/simpleAttributes)** | **[cudaNvSci](./Samples/cudaNvSci)** | **[tf32TensorCoreGemm](./Samples/tf32TensorCoreGemm)** |
-**[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** | **[bf16TensorCoreGemm](./Samples/bf16TensorCoreGemm)** | **[cuSolverDn_LinearSolver](./Samples/cuSolverDn_LinearSolver)** | **[vulkanImageCUDA](./Samples/vulkanImageCUDA)** |
-**[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** | **[matrixMulDrv](./Samples/matrixMulDrv)** | **[cuSolverSp_LinearSolver](./Samples/cuSolverSp_LinearSolver)** | **[simpleCUFFT](./Samples/simpleCUFFT)** |
-**[reduction](./Samples/reduction)** | **[nvJPEG_encoder](./Samples/nvJPEG_encoder)** | **[simpleDrvRuntime](./Samples/simpleDrvRuntime)** | **[MersenneTwisterGP11213](./Samples/MersenneTwisterGP11213)** |
-**[simpleAWBarrier](./Samples/simpleAWBarrier)** | **[immaTensorCoreGemm](./Samples/immaTensorCoreGemm)** | **[bandwidthTest](./Samples/bandwidthTest)** | **[concurrentKernels](./Samples/concurrentKernels)** |
-**[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[NV12toBGRandResize](./Samples/NV12toBGRandResize)** | **[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[jacobiCudaGraphs](./Samples/jacobiCudaGraphs)** |
-**[simpleVulkan](./Samples/simpleVulkan)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[cannyEdgeDetectorNPP](./Samples/cannyEdgeDetectorNPP)** | **[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** |
-**[simpleVulkanMMAP](./Samples/simpleVulkanMMAP)** | **[matrixMul](./Samples/matrixMul)** | **[systemWideAtomics](./Samples/systemWideAtomics)** |
+**[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** | **[cudaCompressibleMemory](./Samples/cudaCompressibleMemory)** | **[bf16TensorCoreGemm](./Samples/bf16TensorCoreGemm)** | **[cuSolverDn_LinearSolver](./Samples/cuSolverDn_LinearSolver)** |
+**[vulkanImageCUDA](./Samples/vulkanImageCUDA)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** | **[matrixMulDrv](./Samples/matrixMulDrv)** | **[cuSolverSp_LinearSolver](./Samples/cuSolverSp_LinearSolver)** |
+**[simpleCUFFT](./Samples/simpleCUFFT)** | **[reduction](./Samples/reduction)** | **[nvJPEG_encoder](./Samples/nvJPEG_encoder)** | **[simpleDrvRuntime](./Samples/simpleDrvRuntime)** |
+**[MersenneTwisterGP11213](./Samples/MersenneTwisterGP11213)** | **[simpleAWBarrier](./Samples/simpleAWBarrier)** | **[immaTensorCoreGemm](./Samples/immaTensorCoreGemm)** | **[bandwidthTest](./Samples/bandwidthTest)** |
+**[concurrentKernels](./Samples/concurrentKernels)** | **[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[NV12toBGRandResize](./Samples/NV12toBGRandResize)** | **[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** |
+**[jacobiCudaGraphs](./Samples/jacobiCudaGraphs)** | **[simpleVulkan](./Samples/simpleVulkan)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[cannyEdgeDetectorNPP](./Samples/cannyEdgeDetectorNPP)** |
+**[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** | **[simpleVulkanMMAP](./Samples/simpleVulkanMMAP)** | **[matrixMul](./Samples/matrixMul)** | **[systemWideAtomics](./Samples/systemWideAtomics)** |
 
 #### Windows
 **[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[boxFilterNPP](./Samples/boxFilterNPP)** | **[binaryPartitionCG](./Samples/binaryPartitionCG)** | **[dmmaTensorCoreGemm](./Samples/dmmaTensorCoreGemm)** |
@@ -161,13 +162,13 @@ The samples makefiles can take advantage of certain options:
 **[shfl_scan](./Samples/shfl_scan)** | **[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** | **[globalToShmemAsyncCopy](./Samples/globalToShmemAsyncCopy)** | **[nvJPEG](./Samples/nvJPEG)** |
 **[simpleD3D12](./Samples/simpleD3D12)** | **[simpleCudaGraphs](./Samples/simpleCudaGraphs)** | **[deviceQuery](./Samples/deviceQuery)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** |
 **[simpleCUBLASXT](./Samples/simpleCUBLASXT)** | **[simpleAttributes](./Samples/simpleAttributes)** | **[tf32TensorCoreGemm](./Samples/tf32TensorCoreGemm)** | **[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** |
-**[bf16TensorCoreGemm](./Samples/bf16TensorCoreGemm)** | **[cuSolverDn_LinearSolver](./Samples/cuSolverDn_LinearSolver)** | **[vulkanImageCUDA](./Samples/vulkanImageCUDA)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** |
-**[matrixMulDrv](./Samples/matrixMulDrv)** | **[cuSolverSp_LinearSolver](./Samples/cuSolverSp_LinearSolver)** | **[simpleCUFFT](./Samples/simpleCUFFT)** | **[reduction](./Samples/reduction)** |
-**[nvJPEG_encoder](./Samples/nvJPEG_encoder)** | **[simpleDrvRuntime](./Samples/simpleDrvRuntime)** | **[simpleD3D11](./Samples/simpleD3D11)** | **[MersenneTwisterGP11213](./Samples/MersenneTwisterGP11213)** |
-**[simpleAWBarrier](./Samples/simpleAWBarrier)** | **[immaTensorCoreGemm](./Samples/immaTensorCoreGemm)** | **[bandwidthTest](./Samples/bandwidthTest)** | **[concurrentKernels](./Samples/concurrentKernels)** |
-**[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[NV12toBGRandResize](./Samples/NV12toBGRandResize)** | **[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[jacobiCudaGraphs](./Samples/jacobiCudaGraphs)** |
-**[simpleVulkan](./Samples/simpleVulkan)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[cannyEdgeDetectorNPP](./Samples/cannyEdgeDetectorNPP)** | **[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** |
-**[simpleVulkanMMAP](./Samples/simpleVulkanMMAP)** | **[matrixMul](./Samples/matrixMul)** |
+**[cudaCompressibleMemory](./Samples/cudaCompressibleMemory)** | **[bf16TensorCoreGemm](./Samples/bf16TensorCoreGemm)** | **[cuSolverDn_LinearSolver](./Samples/cuSolverDn_LinearSolver)** | **[vulkanImageCUDA](./Samples/vulkanImageCUDA)** |
+**[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** | **[matrixMulDrv](./Samples/matrixMulDrv)** | **[cuSolverSp_LinearSolver](./Samples/cuSolverSp_LinearSolver)** | **[simpleCUFFT](./Samples/simpleCUFFT)** |
+**[reduction](./Samples/reduction)** | **[nvJPEG_encoder](./Samples/nvJPEG_encoder)** | **[simpleDrvRuntime](./Samples/simpleDrvRuntime)** | **[simpleD3D11](./Samples/simpleD3D11)** |
+**[MersenneTwisterGP11213](./Samples/MersenneTwisterGP11213)** | **[simpleAWBarrier](./Samples/simpleAWBarrier)** | **[immaTensorCoreGemm](./Samples/immaTensorCoreGemm)** | **[bandwidthTest](./Samples/bandwidthTest)** |
+**[concurrentKernels](./Samples/concurrentKernels)** | **[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[NV12toBGRandResize](./Samples/NV12toBGRandResize)** | **[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** |
+**[jacobiCudaGraphs](./Samples/jacobiCudaGraphs)** | **[simpleVulkan](./Samples/simpleVulkan)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[cannyEdgeDetectorNPP](./Samples/cannyEdgeDetectorNPP)** |
+**[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** | **[simpleVulkanMMAP](./Samples/simpleVulkanMMAP)** | **[matrixMul](./Samples/matrixMul)** |
 
 ## Dependencies
 
