@@ -23,7 +23,9 @@ x86_64, aarch64
 ## CUDA APIs involved
 
 ### [CUDA Driver API](http://docs.nvidia.com/cuda/cuda-driver-api/index.html)
-cuDeviceGetAttribute, cuMemAddressReserve, cuMemCreate, cuMemRelease, cuCtxSetCurrent, cuMemExportToShareableHandle, cuMemImportFromShareableHandle, cuMemMap, cuMemSetAccess, cuMemUnmap, cuMemAddressFree### [CUDA Runtime API](http://docs.nvidia.com/cuda/cuda-runtime-api/index.html)
+cuDeviceGetAttribute, cuMemAddressReserve, cuMemCreate, cuMemRelease, cuCtxSetCurrent, cuMemExportToShareableHandle, cuMemImportFromShareableHandle, cuMemMap, cuMemSetAccess, cuMemUnmap, cuMemAddressFree
+
+### [CUDA Runtime API](http://docs.nvidia.com/cuda/cuda-runtime-api/index.html)
 cudaGetDeviceProperties, cudaImportExternalMemory, cudaExternalMemoryGetMappedBuffer, cudaImportExternalSemaphore, cudaImportExternalSemaphore, cudaSignalExternalSemaphoresAsync, cudaWaitExternalSemaphoresAsync, cudaDestroyExternalSemaphore, cudaDestroyExternalMemory
 
 ## Dependencies needed to build/run

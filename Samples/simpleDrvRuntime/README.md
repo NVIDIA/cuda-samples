@@ -23,7 +23,9 @@ x86_64, ppc64le, armv7l
 ## CUDA APIs involved
 
 ### [CUDA Driver API](http://docs.nvidia.com/cuda/cuda-driver-api/index.html)
-cuModuleLoadData, cuModuleGetFunction, cuLaunchKernel### [CUDA Runtime API](http://docs.nvidia.com/cuda/cuda-runtime-api/index.html)
+cuModuleLoadData, cuModuleGetFunction, cuLaunchKernel
+
+### [CUDA Runtime API](http://docs.nvidia.com/cuda/cuda-runtime-api/index.html)
 cudaMemcpy, cudaMalloc, cudaStreamCreateWithFlags
 
 ## Prerequisites

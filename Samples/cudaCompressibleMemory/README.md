@@ -23,7 +23,9 @@ x86_64, ppc64le
 ## CUDA APIs involved
 
 ### [CUDA Driver API](http://docs.nvidia.com/cuda/cuda-driver-api/index.html)
-cuMemAlloc, cuMemFree, cuDeviceGetAttribute, cuMemGetAllocationGranularity, cuMemAddressReserve, cuMemCreate, cuMemMap, cuMemSetAccess, cuMemUnmap, cuMemAddressFree### [CUDA Runtime API](http://docs.nvidia.com/cuda/cuda-runtime-api/index.html)
+cuMemAlloc, cuMemFree, cuDeviceGetAttribute, cuMemGetAllocationGranularity, cuMemAddressReserve, cuMemCreate, cuMemMap, cuMemSetAccess, cuMemUnmap, cuMemAddressFree
+
+### [CUDA Runtime API](http://docs.nvidia.com/cuda/cuda-runtime-api/index.html)
 cudaMalloc, cudaFree
 
 ## Prerequisites
