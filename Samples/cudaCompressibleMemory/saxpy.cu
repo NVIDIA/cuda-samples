@@ -37,112 +37,121 @@
 #include "helper_cuda.h"
 #include "compMalloc.h"
 
-__global__ void saxpy(float a, float4 *x, float4 *y, float4 *z, int64_t n)
+__global__ void saxpy(const float a, const float4 *x, const float4 *y, float4 *z, const size_t n)
 {
-    int64_t i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i >= n)
-        return;
-    z[i] = make_float4(a * x[i].x + y[i].x,
-                       a * x[i].y + y[i].y,
-                       a * x[i].z + y[i].z,
-                       a * x[i].w + y[i].w);
+    for (size_t i = blockIdx.x * blockDim.x + threadIdx.x; i < n; i += gridDim.x * blockDim.x)
+    {
+        const float4 x4 = x[i];
+        const float4 y4 = y[i];
+        z[i] = make_float4(a * x4.x + y4.x, a * x4.y + y4.y,
+                            a * x4.z + y4.z, a * x4.w + y4.w);
+    }
 }
 
-__global__ void init(float4 *x, float4 *y, float4 *z, float val, int64_t n)
+__global__ void init(float4 *x, float4 *y, float4 *z, const float val, const size_t n)
 {
-    int64_t i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i < n)
+    const float4 val4 = make_float4(val, val, val, val);
+    for (size_t i = blockIdx.x * blockDim.x + threadIdx.x; i < n; i += gridDim.x * blockDim.x)
     {
-        x[i] = make_float4(val, val, val, val);
-        y[i] = make_float4(val, val, val, val);
-        z[i] = make_float4(val, val, val, val);
+        z[i] = x[i] = y[i] = val4;
     }
+}
+
+void launchSaxpy(const float a, float4 *x, float4 *y, float4 *z, const size_t n, const float init_val)
+{
+    cudaEvent_t start, stop;
+    float ms;
+    int blockSize;
+    int minGridSize;
+
+    checkCudaErrors(cudaOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, (void*)init));
+    dim3 threads = dim3(blockSize, 1, 1);
+    dim3 blocks  = dim3(minGridSize, 1, 1);
+    init<<<blocks, threads>>>(x, y, z, init_val, n);
+
+    checkCudaErrors(cudaOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, (void*)saxpy));
+    threads = dim3(blockSize, 1, 1);
+    blocks  = dim3(minGridSize, 1, 1);
+
+    checkCudaErrors(cudaEventCreate(&start));
+    checkCudaErrors(cudaEventCreate(&stop));
+    checkCudaErrors(cudaEventRecord(start));
+    saxpy<<<blocks, threads>>>(a, x, y, z, n);
+    checkCudaErrors(cudaEventRecord(stop));
+    checkCudaErrors(cudaEventSynchronize(stop));
+    checkCudaErrors(cudaEventElapsedTime(&ms, start, stop));
+
+    const size_t size = n * sizeof(float4);
+    printf("Running saxpy with %d blocks x %d threads = %.3f ms %.3f TB/s\n", blocks.x, threads.x, ms, (size*3)/ms/1e9);
 }
 
 int main(int argc, char **argv)
 {
-    int devId, UseCompressibleMemory = 1;
-    int64_t n = 10485760;
+    const size_t n = 10485760;
 
     if (checkCmdLineFlag(argc, (const char **)argv, "help") ||
             checkCmdLineFlag(argc, (const char **)argv, "?")) {
         printf("Usage -device=n (n >= 0 for deviceID)\n");
-        printf("      -UseCompressibleMemory=0 or 1 (default is 1 : Use compressible memory)\n");
         exit(EXIT_SUCCESS);
     }
 
-    if (checkCmdLineFlag(argc, (const char **)argv, "UseCompressibleMemory")) {
-        UseCompressibleMemory = getCmdLineArgumentInt(argc, (const char **)argv, "UseCompressibleMemory");
-        if (UseCompressibleMemory > 1) {
-            printf("Permitted options for UseCompressibleMemory are 0 or 1, you have entered %d \n", UseCompressibleMemory);
-            exit(EXIT_WAIVED);
-        }
-    }
-
-    devId = findCudaDevice(argc, (const char**)argv);
+    findCudaDevice(argc, (const char**)argv);
     CUdevice currentDevice;
     checkCudaErrors(cuCtxGetDevice(&currentDevice));
 
-    // Check that the selected device supports virtual address management
-    int vam_supported = -1;
-    checkCudaErrors(cuDeviceGetAttribute(&vam_supported,
+    // Check that the selected device supports virtual memory management
+    int vmm_supported = -1;
+    checkCudaErrors(cuDeviceGetAttribute(&vmm_supported,
                           CU_DEVICE_ATTRIBUTE_VIRTUAL_ADDRESS_MANAGEMENT_SUPPORTED,
                           currentDevice));
-    printf("Device %d VIRTUAL ADDRESS MANAGEMENT SUPPORTED = %d.\n", currentDevice, vam_supported);
-    if (vam_supported == 0) {
-        printf("Device %d doesn't support VIRTUAL ADDRESS MANAGEMENT, so not using compressible memory.\n", currentDevice);
-        UseCompressibleMemory = 0;
+    if (vmm_supported == 0) {
+        printf("Device %d doesn't support Virtual Memory Management, waiving the execution.\n", currentDevice);
+        exit(EXIT_WAIVED);
     }
 
-    int nsm = 0;
-    checkCudaErrors(cudaDeviceGetAttribute(&nsm, cudaDevAttrMultiProcessorCount, devId)); 
-    printf("Found %d SMs on the device\n", nsm);
+    int isCompressionAvailable;
+    checkCudaErrors(cuDeviceGetAttribute(&isCompressionAvailable,
+                             CU_DEVICE_ATTRIBUTE_GENERIC_COMPRESSION_SUPPORTED,
+                             currentDevice));
+    if (isCompressionAvailable == 0)
+    {
+        printf("Device %d doesn't support Generic memory compression, waiving the execution.\n", currentDevice);
+        exit(EXIT_WAIVED);
+    }
+
+    printf("Generic memory compression support is available\n");
 
     float4 *x, *y, *z;
-    size_t size = n * sizeof(float4);
-    if (UseCompressibleMemory) {
-        checkCudaErrors(cudaMallocCompressible((void **)&x, size));
-        checkCudaErrors(cudaMallocCompressible((void **)&y, size));
-        checkCudaErrors(cudaMallocCompressible((void **)&z, size));
-    }
-    else {
-        printf("Using non compressible memory\n");
-        checkCudaErrors(cudaMalloc((void **)&x, size));
-        checkCudaErrors(cudaMalloc((void **)&y, size));
-        checkCudaErrors(cudaMalloc((void **)&z, size));
-    }
+    const size_t size = n * sizeof(float4);
 
-    printf("Running saxpy on %lu bytes\n", size);
+    // Allocating compressible memory
+    checkCudaErrors(allocateCompressible((void **)&x, size, true));
+    checkCudaErrors(allocateCompressible((void **)&y, size, true));
+    checkCudaErrors(allocateCompressible((void **)&z, size, true));
 
-    cudaEvent_t start, stop;
-    float ms;
-    checkCudaErrors(cudaEventCreate(&start));
-    checkCudaErrors(cudaEventCreate(&stop));
-    dim3 threads(1024, 1, 1);
-    dim3 blocks;
+    printf("Running saxpy on %zu bytes of Compressible memory\n", size);
 
-    init<<<n / 1024, 1024>>>(x, y, z, 1.0f, n);
-    checkCudaErrors(cudaDeviceSynchronize());
-
-    // Running with single element per thread, lots of blocks
-    blocks = dim3(n / threads.x, 1, 1);
-    checkCudaErrors(cudaEventRecord(start));
-    saxpy<<<blocks, threads>>>(1.0f, x, y, z, n);
-    checkCudaErrors(cudaEventRecord(stop));
-    checkCudaErrors(cudaEventSynchronize(stop));
-    checkCudaErrors(cudaEventElapsedTime(&ms, start, stop));
-    printf("Running saxpy with %d blocks x %d threads = %.3f ms %.3f TB/s\n", blocks.x, threads.x, ms, (size*3)/ms/1e9);
+    const float a = 1.0f;
+    const float init_val = 1.0f;
+    launchSaxpy(a, x, y, z, n, init_val);
  
-    if (UseCompressibleMemory) {
-        checkCudaErrors(cudaFreeCompressible(x, size));
-        checkCudaErrors(cudaFreeCompressible(y, size));
-        checkCudaErrors(cudaFreeCompressible(z, size));
-    }
-    else {
-        checkCudaErrors(cudaFree(x));
-        checkCudaErrors(cudaFree(y));
-        checkCudaErrors(cudaFree(z));
-    }
+    checkCudaErrors(freeCompressible(x, size, true));
+    checkCudaErrors(freeCompressible(y, size, true));
+    checkCudaErrors(freeCompressible(z, size, true));
 
+    printf("Running saxpy on %zu bytes of Non-Compressible memory\n", size);
+    // Allocating non-compressible memory
+    checkCudaErrors(allocateCompressible((void **)&x, size, false));
+    checkCudaErrors(allocateCompressible((void **)&y, size, false));
+    checkCudaErrors(allocateCompressible((void **)&z, size, false));
+
+    launchSaxpy(a, x, y, z, n, init_val);
+ 
+    checkCudaErrors(freeCompressible(x, size, false));
+    checkCudaErrors(freeCompressible(y, size, false));
+    checkCudaErrors(freeCompressible(z, size, false));
+
+    printf("\nNOTE: The CUDA Samples are not meant for performance measurements. "
+      "Results may vary when GPU Boost is enabled.\n");
     return EXIT_SUCCESS;
 }

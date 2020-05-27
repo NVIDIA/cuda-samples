@@ -30,42 +30,27 @@
 #include <cuda.h>
 #include <cuda_runtime_api.h>
 
-static int printOnce = 1;
-
-cudaError_t setProp(CUmemAllocationProp *prop)
+cudaError_t setProp(CUmemAllocationProp *prop, bool UseCompressibleMemory)
 {
     CUdevice currentDevice;
     if (cuCtxGetDevice(&currentDevice) != CUDA_SUCCESS)
         return cudaErrorMemoryAllocation;
-
-    int compressionAvailable = 0;
-    if (cuDeviceGetAttribute(&compressionAvailable,
-                             CU_DEVICE_ATTRIBUTE_GENERIC_COMPRESSION_SUPPORTED,
-                             currentDevice) != CUDA_SUCCESS)
-        return cudaErrorMemoryAllocation;
-
-    if (printOnce)
-    {
-        printf("Generic memory compression support %s\n",
-               compressionAvailable ? "is available" : "is not available");
-        printOnce = 0;
-    }
 
     memset(prop, 0, sizeof(CUmemAllocationProp));
     prop->type = CU_MEM_ALLOCATION_TYPE_PINNED;
     prop->location.type = CU_MEM_LOCATION_TYPE_DEVICE;
     prop->location.id = currentDevice;
 
-    if (compressionAvailable)
+    if (UseCompressibleMemory)
         prop->allocFlags.compressionType = CU_MEM_ALLOCATION_COMP_GENERIC;
 
     return cudaSuccess;
 }
 
-cudaError_t cudaMallocCompressible(void **adr, size_t size)
+cudaError_t allocateCompressible(void **adr, size_t size, bool UseCompressibleMemory)
 {
     CUmemAllocationProp prop = {};
-    cudaError_t err = setProp(&prop);
+    cudaError_t err = setProp(&prop, UseCompressibleMemory);
     if (err != cudaSuccess)
         return err;
 
@@ -100,10 +85,10 @@ cudaError_t cudaMallocCompressible(void **adr, size_t size)
     return cudaSuccess;
 }
 
-cudaError_t cudaFreeCompressible(void *ptr, size_t size)
+cudaError_t freeCompressible(void *ptr, size_t size, bool UseCompressibleMemory)
 {
     CUmemAllocationProp prop = {};
-    cudaError_t err = setProp(&prop);
+    cudaError_t err = setProp(&prop, UseCompressibleMemory);
     if (err != cudaSuccess)
         return err;
 
