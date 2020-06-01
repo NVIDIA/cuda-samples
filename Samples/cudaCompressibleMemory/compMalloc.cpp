@@ -27,6 +27,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <helper_cuda.h>
 #include <cuda.h>
 #include <cuda_runtime_api.h>
 
@@ -66,6 +67,16 @@ cudaError_t allocateCompressible(void **adr, size_t size, bool UseCompressibleMe
     CUmemGenericAllocationHandle allocationHandle;
     if (cuMemCreate(&allocationHandle, size, &prop, 0) != CUDA_SUCCESS)
         return cudaErrorMemoryAllocation;
+
+    // Check if cuMemCreate was able to allocate compressible memory.
+    if (UseCompressibleMemory) {
+        CUmemAllocationProp allocationProp = {};
+        cuMemGetAllocationPropertiesFromHandle(&allocationProp, allocationHandle);
+        if (allocationProp.allocFlags.compressionType != CU_MEM_ALLOCATION_COMP_GENERIC) {
+            printf("Could not allocate compressible memory... so waiving execution\n");
+            exit(EXIT_WAIVED);
+        }
+    }
 
     if (cuMemMap(dptr, size, 0, allocationHandle, 0) != CUDA_SUCCESS)
         return cudaErrorMemoryAllocation;
