@@ -99,7 +99,8 @@ void printHelp(void) {
   printf(
       "--p2p_read\tUse P2P reads for data transfers between GPU pairs and show "
       "corresponding results.\n \t\tDefault used is P2P write operation.\n");
-  printf("--sm_copy\t\tUse SM intiated p2p transfers instead of Copy Engine\n");
+  printf("--sm_copy                      Use SM intiated p2p transfers instead of Copy Engine\n");
+  printf("--numElems=<NUM_OF_INT_ELEMS>  Number of integer elements to be used in p2p copy.\n");
 }
 
 void checkP2Paccess(int numGPUs) {
@@ -145,8 +146,7 @@ void performP2PCopy(int *dest, int destDevice, int *src, int srcDevice,
   }
 }
 
-void outputBandwidthMatrix(int numGPUs, bool p2p, P2PDataTransfer p2p_method) {
-  int numElems = 10000000;
+void outputBandwidthMatrix(int numElems, int numGPUs, bool p2p, P2PDataTransfer p2p_method) {
   int repeat = 5;
   volatile int *flag = NULL;
   vector<int *> buffers(numGPUs);
@@ -287,8 +287,7 @@ void outputBandwidthMatrix(int numGPUs, bool p2p, P2PDataTransfer p2p_method) {
   cudaCheckError();
 }
 
-void outputBidirectionalBandwidthMatrix(int numGPUs, bool p2p) {
-  int numElems = 10000000;
+void outputBidirectionalBandwidthMatrix(int numElems, int numGPUs, bool p2p) {
   int repeat = 5;
   volatile int *flag = NULL;
   vector<int *> buffers(numGPUs);
@@ -604,7 +603,7 @@ void outputLatencyMatrix(int numGPUs, bool p2p, P2PDataTransfer p2p_method) {
 }
 
 int main(int argc, char **argv) {
-  int numGPUs;
+  int numGPUs, numElems = 40000000;
   P2PDataTransfer p2p_method = P2P_WRITE;
 
   cudaGetDeviceCount(&numGPUs);
@@ -622,6 +621,11 @@ int main(int argc, char **argv) {
 
   if (checkCmdLineFlag(argc, (const char **)argv, "sm_copy")) {
     p2p_mechanism = SM;
+  }
+
+  // number of elements of int to be used in copy.
+  if (checkCmdLineFlag(argc, (const char **)argv, "numElems")) {
+    numElems = getCmdLineArgumentInt(argc, (const char **)argv, "numElems");
   }
 
   printf("[%s]\n", sSampleName);
@@ -662,17 +666,17 @@ int main(int argc, char **argv) {
   }
 
   printf("Unidirectional P2P=Disabled Bandwidth Matrix (GB/s)\n");
-  outputBandwidthMatrix(numGPUs, false, P2P_WRITE);
+  outputBandwidthMatrix(numElems, numGPUs, false, P2P_WRITE);
   printf("Unidirectional P2P=Enabled Bandwidth (P2P Writes) Matrix (GB/s)\n");
-  outputBandwidthMatrix(numGPUs, true, P2P_WRITE);
+  outputBandwidthMatrix(numElems, numGPUs, true, P2P_WRITE);
   if (p2p_method == P2P_READ) {
     printf("Unidirectional P2P=Enabled Bandwidth (P2P Reads) Matrix (GB/s)\n");
-    outputBandwidthMatrix(numGPUs, true, p2p_method);
+    outputBandwidthMatrix(numElems, numGPUs, true, p2p_method);
   }
   printf("Bidirectional P2P=Disabled Bandwidth Matrix (GB/s)\n");
-  outputBidirectionalBandwidthMatrix(numGPUs, false);
+  outputBidirectionalBandwidthMatrix(numElems, numGPUs, false);
   printf("Bidirectional P2P=Enabled Bandwidth Matrix (GB/s)\n");
-  outputBidirectionalBandwidthMatrix(numGPUs, true);
+  outputBidirectionalBandwidthMatrix(numElems, numGPUs, true);
 
   printf("P2P=Disabled Latency Matrix (us)\n");
   outputLatencyMatrix(numGPUs, false, P2P_WRITE);
