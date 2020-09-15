@@ -267,15 +267,9 @@ ifeq ($(TARGET_ARCH),armv7l)
   SAMPLE_ENABLED := 0
 endif
 
-# This sample is not supported on aarch64
-ifeq ($(TARGET_ARCH),aarch64)
-  $(info >>> WARNING - conjugateGradientMultiDeviceCG is not supported on aarch64 - waiving sample <<<)
-  SAMPLE_ENABLED := 0
-endif
-
-# This sample is not supported on sbsa
-ifeq ($(TARGET_ARCH),sbsa)
-  $(info >>> WARNING - conjugateGradientMultiDeviceCG is not supported on sbsa - waiving sample <<<)
+# This sample is not supported on QNX
+ifeq ($(TARGET_OS),qnx)
+  $(info >>> WARNING - conjugateGradientMultiDeviceCG is not supported on QNX - waiving sample <<<)
   SAMPLE_ENABLED := 0
 endif
 
@@ -319,9 +313,9 @@ endif
 
 # Gencode arguments
 ifeq ($(TARGET_ARCH),$(filter $(TARGET_ARCH),armv7l aarch64))
-SMS ?= 60 61 70 72 75 80
+SMS ?= 60 61 70 72 75 80 86
 else
-SMS ?= 60 61 70 75 80
+SMS ?= 60 61 70 75 80 86
 endif
 
 ifeq ($(SMS),)
@@ -340,7 +334,7 @@ GENCODE_FLAGS += -gencode arch=compute_$(HIGHEST_SM),code=compute_$(HIGHEST_SM)
 endif
 endif
 
-ALL_CCFLAGS += -dc -maxrregcount=64 --std=c++11
+ALL_CCFLAGS += -ewp -maxrregcount=64 --std=c++11
 
 LIBRARIES += -lcudadevrt
 

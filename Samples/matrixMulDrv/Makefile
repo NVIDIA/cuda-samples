@@ -268,19 +268,23 @@ LIBRARIES :=
 
 ################################################################################
 
-PTX_FILE := matrixMul_kernel${TARGET_SIZE}.ptx
+FATBIN_FILE := matrixMul_kernel${TARGET_SIZE}.fatbin
 
 # Gencode arguments
-SMS ?=
+ifeq ($(TARGET_ARCH),$(filter $(TARGET_ARCH),armv7l aarch64))
+SMS ?= 35 37 50 52 60 61 70 72 75 80 86
+else
+SMS ?= 35 37 50 52 60 61 70 75 80 86
+endif
+
+ifeq ($(SMS),)
+$(info >>> WARNING - no SM architectures have been specified - waiving sample <<<)
+SAMPLE_ENABLED := 0
+endif
 
 ifeq ($(GENCODE_FLAGS),)
 # Generate SASS code for each SM architecture listed in $(SMS)
 $(foreach sm,$(SMS),$(eval GENCODE_FLAGS += -gencode arch=compute_$(sm),code=sm_$(sm)))
-
-ifeq ($(SMS),)
-# Generate PTX code from SM 35
-GENCODE_FLAGS += -gencode arch=compute_35,code=compute_35
-endif
 
 # Generate PTX code from the highest SM architecture in $(SMS) to guarantee forward-compatibility
 HIGHEST_SM := $(lastword $(sort $(SMS)))
@@ -355,7 +359,7 @@ endif
 # Target rules
 all: build
 
-build: matrixMulDrv $(PTX_FILE)
+build: matrixMulDrv $(FATBIN_FILE)
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -364,8 +368,8 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-$(PTX_FILE): matrixMul_kernel.cu
-	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -ptx $<
+$(FATBIN_FILE): matrixMul_kernel.cu
+	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -fatbin $<
 	$(EXEC) mkdir -p data
 	$(EXEC) cp -f $@ ./data
 	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
@@ -383,8 +387,9 @@ run: build
 	$(EXEC) ./matrixMulDrv
 
 clean:
-	rm -f matrixMulDrv matrixMulDrv.o  data/$(PTX_FILE) $(PTX_FILE)
+	rm -f matrixMulDrv matrixMulDrv.o  data/$(FATBIN_FILE) $(FATBIN_FILE)
 	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/matrixMulDrv
-	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/$(PTX_FILE)
+
+	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/$(FATBIN_FILE)
 
 clobber: clean

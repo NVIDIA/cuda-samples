@@ -568,7 +568,8 @@ void VulkanBaseApp::createDevice()
         std::vector<VkPhysicalDevice>::iterator it = std::find_if(phyDevs.begin(), phyDevs.end(),
             std::bind(&VulkanBaseApp::isSuitableDevice, this, std::placeholders::_1));
         if (it == phyDevs.end()) {
-            throw std::runtime_error("No suitable device found!");
+            printf("\nNo suitable device found! Waiving Execution\n");
+            exit(EXIT_WAIVED);
         }
         m_physicalDevice = *it;
     }

@@ -43,6 +43,7 @@
 #include <helper_functions.h>  // helper for shared functions common to CUDA Samples
 
 #include <cooperative_groups.h>
+#include <cooperative_groups/reduce.h>
 
 namespace cg = cooperative_groups;
 
@@ -197,37 +198,30 @@ __device__ void gpuSaxpy(float *x, float *y, float a, int size,
 __device__ void gpuDotProduct(float *vecA, float *vecB, double *result,
                               int size, const cg::thread_block &cta,
                               const cg::grid_group &grid) {
-  __shared__ double tmp[THREADS_PER_BLOCK];
+  extern __shared__ double tmp[];
 
   double temp_sum = 0.0;
   for (int i = grid.thread_rank(); i < size; i += grid.size()) {
     temp_sum += static_cast<double>(vecA[i] * vecB[i]);
   }
-  tmp[cta.thread_rank()] = temp_sum;
-
-  cg::sync(cta);
 
   cg::thread_block_tile<32> tile32 = cg::tiled_partition<32>(cta);
 
-  double beta = temp_sum;
-  double temp;
+  temp_sum = cg::reduce(tile32, temp_sum, cg::plus<double>());
 
-  for (int i = tile32.size() / 2; i > 0; i >>= 1) {
-    if (tile32.thread_rank() < i) {
-      temp = tmp[cta.thread_rank() + i];
-      beta += temp;
-      tmp[cta.thread_rank()] = beta;
-    }
-    cg::sync(tile32);
+  if (tile32.thread_rank() == 0) {
+    tmp[tile32.meta_group_rank()] = temp_sum;
   }
+
   cg::sync(cta);
 
-  if (cta.thread_rank() == 0) {
-    beta = 0.0;
-    for (int i = 0; i < cta.size(); i += tile32.size()) {
-      beta += tmp[i];
+  if (tile32.meta_group_rank() == 0) {
+     temp_sum = tile32.thread_rank() < tile32.meta_group_size() ? tmp[tile32.thread_rank()] : 0.0;
+     temp_sum = cg::reduce(tile32, temp_sum, cg::plus<double>());
+
+    if (tile32.thread_rank() == 0) {
+      atomicAdd(result, temp_sum);
     }
-    atomicAdd(result, beta);
   }
 }
 
@@ -238,10 +232,10 @@ __device__ void gpuCopyVector(float *srcA, float *destB, int size,
   }
 }
 
-__device__ void gpuScaleVector(float *vec, float alpha, int size,
-                               const cg::grid_group &grid) {
+__device__ void gpuScaleVectorAndSaxpy(const float *x, float *y, float a, float scale, int size,
+                         const cg::grid_group &grid) {
   for (int i = grid.thread_rank(); i < size; i += grid.size()) {
-    vec[i] = alpha * vec[i];
+    y[i] = a * x[i] + scale * y[i];
   }
 }
 
@@ -276,10 +270,7 @@ extern "C" __global__ void gpuConjugateGradient(int *I, int *J, float *val,
   while (r1 > tol * tol && k <= max_iter) {
     if (k > 1) {
       b = r1 / r0;
-      gpuScaleVector(p, b, N, grid);
-
-      cg::sync(grid);
-      gpuSaxpy(r, p, alpha, N, grid);
+      gpuScaleVectorAndSaxpy(r, p, alpha, b, N, grid);
     } else {
       gpuCopyVector(r, p, N, grid);
     }
@@ -430,7 +421,7 @@ int main(int argc, char **argv) {
       (void *)&nz, (void *)&N, (void *)&tol,
   };
 
-  int sMemSize = sizeof(double) * THREADS_PER_BLOCK;
+  int sMemSize = sizeof(double) * ((THREADS_PER_BLOCK/32) + 1);
   int numBlocksPerSm = 0;
   int numThreads = THREADS_PER_BLOCK;
 

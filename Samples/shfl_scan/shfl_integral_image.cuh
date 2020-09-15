@@ -24,76 +24,68 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include <cooperative_groups.h>
+
+namespace cg = cooperative_groups;
 
 // Utility function to extract unsigned chars from an
 // unsigned integer
-
-__device__ uchar4 int_to_uchar4(unsigned int in) {
-  uchar4 bytes;
-  bytes.x = in & 0x000000ff >> 0;
-  bytes.y = in & 0x0000ff00 >> 8;
-  bytes.z = in & 0x00ff0000 >> 16;
-  bytes.w = in & 0xff000000 >> 24;
-  return bytes;
+__device__ uchar4 uint_to_uchar4(const unsigned int in) {
+  return make_uchar4((in & 0x000000ff) >> 0, (in & 0x0000ff00) >> 8,
+                     (in & 0x00ff0000) >> 16, (in & 0xff000000) >> 24);
 }
 
-// This function demonstrates some uses of the shuffle instruction
-// in the generation of an integral image (also
-// called a summed area table)
-// The approach is two pass, a horizontal (scanline) then a vertical
-// (column) pass.
-// This is the horizontal pass kernel.
-__global__ void shfl_intimage_rows(uint4 *img, uint4 *integral_image) {
-  __shared__ int sums[128];
+// Utility for dealing with vector data at different levels.
+struct packed_result {
+  uint4 x, y, z, w;
+};
 
-  int id = threadIdx.x;
-  // pointer to head of current scanline
-  uint4 *scanline = &img[blockIdx.x * 120];
-  uint4 data;
-  data = scanline[id];
-  int result[16];
-  int sum;
-  unsigned int lane_id = id % warpSize;
-  int warp_id = threadIdx.x / warpSize;
+__device__ packed_result get_prefix_sum(const uint4 &data,
+                                        const cg::thread_block &cta) {
+  const auto tile = cg::tiled_partition<32>(cta);
 
-  uchar4 a = int_to_uchar4(data.x);
-  uchar4 b = int_to_uchar4(data.y);
-  uchar4 c = int_to_uchar4(data.z);
-  uchar4 d = int_to_uchar4(data.w);
+  __shared__ unsigned int sums[128];
+  const unsigned int lane_id = tile.thread_rank();
+  const unsigned int warp_id = tile.meta_group_rank();
 
-  result[0] = a.x;
-  result[1] = a.x + a.y;
-  result[2] = a.x + a.y + a.z;
-  result[3] = a.x + a.y + a.z + a.w;
+  unsigned int result[16] = {};
+  {
+    const uchar4 a = uint_to_uchar4(data.x);
+    const uchar4 b = uint_to_uchar4(data.y);
+    const uchar4 c = uint_to_uchar4(data.z);
+    const uchar4 d = uint_to_uchar4(data.w);
 
-  result[4] = b.x;
-  result[5] = b.x + b.y;
-  result[6] = b.x + b.y + b.z;
-  result[7] = b.x + b.y + b.z + b.w;
+    result[0] = a.x;
+    result[1] = a.x + a.y;
+    result[2] = a.x + a.y + a.z;
+    result[3] = a.x + a.y + a.z + a.w;
 
-  result[8] = c.x;
-  result[9] = c.x + c.y;
-  result[10] = c.x + c.y + c.z;
-  result[11] = c.x + c.y + c.z + c.w;
+    result[4] = b.x;
+    result[5] = b.x + b.y;
+    result[6] = b.x + b.y + b.z;
+    result[7] = b.x + b.y + b.z + b.w;
 
-  result[12] = d.x;
-  result[13] = d.x + d.y;
-  result[14] = d.x + d.y + d.z;
-  result[15] = d.x + d.y + d.z + d.w;
+    result[8] = c.x;
+    result[9] = c.x + c.y;
+    result[10] = c.x + c.y + c.z;
+    result[11] = c.x + c.y + c.z + c.w;
+
+    result[12] = d.x;
+    result[13] = d.x + d.y;
+    result[14] = d.x + d.y + d.z;
+    result[15] = d.x + d.y + d.z + d.w;
+  }
 
 #pragma unroll
-
-  for (int i = 4; i <= 7; i++) result[i] += result[3];
-
-#pragma unroll
-
-  for (int i = 8; i <= 11; i++) result[i] += result[7];
+  for (unsigned int i = 4; i <= 7; i++) result[i] += result[3];
 
 #pragma unroll
+  for (unsigned int i = 8; i <= 11; i++) result[i] += result[7];
 
-  for (int i = 12; i <= 15; i++) result[i] += result[11];
+#pragma unroll
+  for (unsigned int i = 12; i <= 15; i++) result[i] += result[11];
 
-  sum = result[15];
+  unsigned int sum = result[15];
 
   // the prefix sum for each thread's 16 value is computed,
   // now the final sums (result[15]) need to be shared
@@ -101,17 +93,15 @@ __global__ void shfl_intimage_rows(uint4 *img, uint4 *integral_image) {
   // the __shfl_up() instruction is used and a shuffle scan
   // operation is performed to distribute the sums to the correct
   // threads
-#pragma unroll
 
-  for (int i = 1; i < 32; i *= 2) {
-    unsigned int mask = 0xffffffff;
-    int n = __shfl_up_sync(mask, sum, i, 32);
+#pragma unroll
+  for (unsigned int i = 1; i < 32; i *= 2) {
+    const unsigned int n = tile.shfl_up(sum, i);
 
     if (lane_id >= i) {
 #pragma unroll
-
-      for (int i = 0; i < 16; i++) {
-        result[i] += n;
+      for (unsigned int j = 0; j < 16; j++) {
+        result[j] += n;
       }
 
       sum += n;
@@ -126,19 +116,18 @@ __global__ void shfl_intimage_rows(uint4 *img, uint4 *integral_image) {
   // The results are uniformly added back to the warps.
   // last thread in the warp holding sum of the warp
   // places that in shared
-  if (threadIdx.x % warpSize == warpSize - 1) {
+  if (tile.thread_rank() == (tile.size() - 1)) {
     sums[warp_id] = result[15];
   }
 
   __syncthreads();
 
   if (warp_id == 0) {
-    int warp_sum = sums[lane_id];
-#pragma unroll
+    unsigned int warp_sum = sums[lane_id];
 
-    for (int i = 1; i <= 32; i *= 2) {
-      unsigned int mask = 0xffffffff;
-      int n = __shfl_up_sync(mask, warp_sum, i, 32);
+#pragma unroll
+    for (unsigned int i = 1; i <= 16; i *= 2) {
+      const unsigned int n = tile.shfl_up(warp_sum, i);
 
       if (lane_id >= i) warp_sum += n;
     }
@@ -148,17 +137,51 @@ __global__ void shfl_intimage_rows(uint4 *img, uint4 *integral_image) {
 
   __syncthreads();
 
-  int blockSum = 0;
-
   // fold in unused warp
   if (warp_id > 0) {
-    blockSum = sums[warp_id - 1];
-#pragma unroll
+    const unsigned int blockSum = sums[warp_id - 1];
 
-    for (int i = 0; i < 16; i++) {
+#pragma unroll
+    for (unsigned int i = 0; i < 16; i++) {
       result[i] += blockSum;
     }
   }
+
+  packed_result out;
+  memcpy(&out, result, sizeof(out));
+  return out;
+}
+
+// This function demonstrates some uses of the shuffle instruction
+// in the generation of an integral image (also
+// called a summed area table)
+// The approach is two pass, a horizontal (scanline) then a vertical
+// (column) pass.
+// This is the horizontal pass kernel.
+__global__ void shfl_intimage_rows(const uint4 *img, uint4 *integral_image) {
+  const auto cta = cg::this_thread_block();
+  const auto tile = cg::tiled_partition<32>(cta);
+
+  const unsigned int id = threadIdx.x;
+  // pointer to head of current scanline
+  const uint4 *scanline = &img[blockIdx.x * 120];
+  packed_result result = get_prefix_sum(scanline[id], cta);
+
+  // This access helper allows packed_result to stay optimized as registers
+  // rather than spill to stack
+  auto idxToElem = [&result](unsigned int idx) -> const uint4 {
+    switch (idx) {
+      case 0:
+        return result.x;
+      case 1:
+        return result.y;
+      case 2:
+        return result.z;
+      case 3:
+        return result.w;
+    }
+    return {};
+  };
 
   // assemble result
   // Each thread has 16 values to write, which are
@@ -170,131 +193,58 @@ __global__ void shfl_intimage_rows(uint4 *img, uint4 *integral_image) {
   // consecutive data to be written so larger contiguous
   // segments can be assembled for writing.
   /*
-      For example data that needs to be written as
+    For example data that needs to be written as
 
-      GMEM[16] <- x0 x1 x2 x3 y0 y1 y2 y3 z0 z1 z2 z3 w0 w1 w2 w3
-      but is stored in registers (r0..r3), in four threads (0..3) as:
+    GMEM[16] <- x0 x1 x2 x3 y0 y1 y2 y3 z0 z1 z2 z3 w0 w1 w2 w3
+    but is stored in registers (r0..r3), in four threads (0..3) as:
 
-      threadId   0  1  2  3
-        r0      x0 y0 z0 w0
-        r1      x1 y1 z1 w1
-        r2      x2 y2 z2 w2
-        r3      x3 y3 z3 w3
+    threadId   0  1  2  3
+      r0      x0 y0 z0 w0
+      r1      x1 y1 z1 w1
+      r2      x2 y2 z2 w2
+      r3      x3 y3 z3 w3
 
-        after apply __shfl_xor operations to move data between registers r1..r3:
+      after apply __shfl_xor operations to move data between registers r1..r3:
 
-      threadId  00 01 10 11
-                x0 y0 z0 w0
-       xor(01)->y1 x1 w1 z1
-       xor(10)->z2 w2 x2 y2
-       xor(11)->w3 z3 y3 x3
+    threadId  00 01 10 11
+              x0 y0 z0 w0
+     xor(01)->y1 x1 w1 z1
+     xor(10)->z2 w2 x2 y2
+     xor(11)->w3 z3 y3 x3
 
-       and now x0..x3, and z0..z3 can be written out in order by all threads.
+     and now x0..x3, and z0..z3 can be written out in order by all threads.
 
-       In the current code, each register above is actually representing
-       four integers to be written as uint4's to GMEM.
+     In the current code, each register above is actually representing
+     four integers to be written as uint4's to GMEM.
   */
 
-  unsigned int mask = 0xffffffff;
-  uint4 output;
-  result[4] = __shfl_xor_sync(mask, result[4], 1, 32);
-  result[5] = __shfl_xor_sync(mask, result[5], 1, 32);
-  result[6] = __shfl_xor_sync(mask, result[6], 1, 32);
-  result[7] = __shfl_xor_sync(mask, result[7], 1, 32);
+  const unsigned int idMask = id & 3;
+  const unsigned int idSwizzle = (id + 2) & 3;
+  const unsigned int idShift = (id >> 2) << 4;
+  const unsigned int blockOffset = blockIdx.x * 480;
 
-  result[8] = __shfl_xor_sync(mask, result[8], 2, 32);
-  result[9] = __shfl_xor_sync(mask, result[9], 2, 32);
-  result[10] = __shfl_xor_sync(mask, result[10], 2, 32);
-  result[11] = __shfl_xor_sync(mask, result[11], 2, 32);
+  // Use CG tile to warp shuffle vector types
+  result.y = tile.shfl_xor(result.y, 1);
+  result.z = tile.shfl_xor(result.z, 2);
+  result.w = tile.shfl_xor(result.w, 3);
 
-  result[12] = __shfl_xor_sync(mask, result[12], 3, 32);
-  result[13] = __shfl_xor_sync(mask, result[13], 3, 32);
-  result[14] = __shfl_xor_sync(mask, result[14], 3, 32);
-  result[15] = __shfl_xor_sync(mask, result[15], 3, 32);
+  // First batch
+  integral_image[blockOffset + idMask + idShift] = idxToElem(idMask);
+  // Second batch offset by 2
+  integral_image[blockOffset + idSwizzle + idShift + 8] = idxToElem(idSwizzle);
 
-  if (threadIdx.x % 4 == 0) {
-    output = make_uint4(result[0], result[1], result[2], result[3]);
-  }
-
-  if (threadIdx.x % 4 == 1) {
-    output = make_uint4(result[4], result[5], result[6], result[7]);
-  }
-
-  if (threadIdx.x % 4 == 2) {
-    output = make_uint4(result[8], result[9], result[10], result[11]);
-  }
-
-  if (threadIdx.x % 4 == 3) {
-    output = make_uint4(result[12], result[13], result[14], result[15]);
-  }
-
-  integral_image[blockIdx.x * 480 + threadIdx.x % 4 + (threadIdx.x / 4) * 16] =
-      output;
-
-  if (threadIdx.x % 4 == 2) {
-    output = make_uint4(result[0], result[1], result[2], result[3]);
-  }
-
-  if (threadIdx.x % 4 == 3) {
-    output = make_uint4(result[4], result[5], result[6], result[7]);
-  }
-
-  if (threadIdx.x % 4 == 0) {
-    output = make_uint4(result[8], result[9], result[10], result[11]);
-  }
-
-  if (threadIdx.x % 4 == 1) {
-    output = make_uint4(result[12], result[13], result[14], result[15]);
-  }
-
-  integral_image[blockIdx.x * 480 + (threadIdx.x + 2) % 4 +
-                 (threadIdx.x / 4) * 16 + 8] = output;
   // continuing from the above example,
   // this use of __shfl_xor() places the y0..y3 and w0..w3 data
   // in order.
-#pragma unroll
+  result.x = tile.shfl_xor(result.x, 1);
+  result.y = tile.shfl_xor(result.y, 1);
+  result.z = tile.shfl_xor(result.z, 1);
+  result.w = tile.shfl_xor(result.w, 1);
 
-  for (int i = 0; i < 16; i++) {
-    result[i] = __shfl_xor_sync(mask, result[i], 1, 32);
-  }
-
-  if (threadIdx.x % 4 == 0) {
-    output = make_uint4(result[0], result[1], result[2], result[3]);
-  }
-
-  if (threadIdx.x % 4 == 1) {
-    output = make_uint4(result[4], result[5], result[6], result[7]);
-  }
-
-  if (threadIdx.x % 4 == 2) {
-    output = make_uint4(result[8], result[9], result[10], result[11]);
-  }
-
-  if (threadIdx.x % 4 == 3) {
-    output = make_uint4(result[12], result[13], result[14], result[15]);
-  }
-
-  integral_image[blockIdx.x * 480 + threadIdx.x % 4 + (threadIdx.x / 4) * 16 +
-                 4] = output;
-
-  if (threadIdx.x % 4 == 2) {
-    output = make_uint4(result[0], result[1], result[2], result[3]);
-  }
-
-  if (threadIdx.x % 4 == 3) {
-    output = make_uint4(result[4], result[5], result[6], result[7]);
-  }
-
-  if (threadIdx.x % 4 == 0) {
-    output = make_uint4(result[8], result[9], result[10], result[11]);
-  }
-
-  if (threadIdx.x % 4 == 1) {
-    output = make_uint4(result[12], result[13], result[14], result[15]);
-  }
-
-  integral_image[blockIdx.x * 480 + (threadIdx.x + 2) % 4 +
-                 (threadIdx.x / 4) * 16 + 12] = output;
+  // First batch
+  integral_image[blockOffset + idMask + idShift + 4] = idxToElem(idMask);
+  // Second batch offset by 2
+  integral_image[blockOffset + idSwizzle + idShift + 12] = idxToElem(idSwizzle);
 }
 
 // This kernel computes columnwise prefix sums.  When the data input is

@@ -92,8 +92,8 @@ void launchGrayScaleKernel(unsigned int *d_rgbaImage,
   rgbToGrayscaleKernel<<<numOfBlocks, numThreadsPerBlock, 0, stream>>>(
       d_rgbaImage, imageWidth, imageHeight);
 
-  unsigned int *outputData =
-      (unsigned int *)malloc(sizeof(unsigned int) * imageWidth * imageHeight);
+  unsigned int *outputData;
+  checkCudaErrors(cudaMallocHost(&outputData, sizeof(unsigned int) * imageWidth * imageHeight));
   checkCudaErrors(cudaMemcpyAsync(
       outputData, d_rgbaImage, sizeof(unsigned int) * imageWidth * imageHeight,
       cudaMemcpyDeviceToHost, stream));
@@ -106,7 +106,7 @@ void launchGrayScaleKernel(unsigned int *d_rgbaImage,
                 imageHeight);
   printf("Wrote '%s'\n", outputFilename);
 
-  free(outputData);
+  checkCudaErrors(cudaFreeHost(outputData));
 }
 
 void rotateKernel(cudaTextureObject_t &texObj, const float angle,

@@ -20,9 +20,13 @@ x86_64, ppc64le, armv7l, aarch64
 
 ## CUDA APIs involved
 
+## Dependencies needed to build/run
+[CPP11](../../README.md#cpp11)
+
 ## Prerequisites
 
-Download and install the [CUDA Toolkit 11.0](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit 11.1](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Make sure the dependencies mentioned in [Dependencies]() section above are installed.
 
 ## Build and Run
 

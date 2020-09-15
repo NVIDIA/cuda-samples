@@ -33,7 +33,7 @@
 #define VERIFY_GPU_CORRECTNESS 0
 
 size_t maxSampleSizeInMb = 64;
-int numKernelRuns = 100;
+int numKernelRuns = 20;
 int verboseResults = 0;
 
 const char *memAllocTypeStr[MEMALLOC_TYPE_COUNT] = {

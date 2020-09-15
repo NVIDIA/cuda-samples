@@ -78,6 +78,7 @@
   <sm-arch>sm72</sm-arch>
   <sm-arch>sm75</sm-arch>
   <sm-arch>sm80</sm-arch>
+  <sm-arch>sm86</sm-arch>
   <sources>
     <extracompilation>../../Common/helper_multiprocess.cpp</extracompilation>
     <extraheader>../../Common/helper_multiprocess.h</extraheader>

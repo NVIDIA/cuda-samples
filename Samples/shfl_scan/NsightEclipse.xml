@@ -3,6 +3,7 @@
 <entry>
   <name>shfl_scan</name>
   <cflags>
+    <flag>--std=c++11</flag>
     <flag>-O3</flag>
   </cflags>
   <description><![CDATA[This example demonstrates how to use the shuffle intrinsic __shfl_up_sync to perform a scan operation across a thread block. ]]></description>
@@ -18,6 +19,7 @@
   </keyconcepts>
   <keywords>
     <keyword>GPGPU</keyword>
+    <keyword>CPP11</keyword>
     <keyword>CUDA</keyword>
     <keyword>scan</keyword>
     <keyword>parallel prefix sum</keyword>
@@ -29,6 +31,9 @@
   </librarypaths>
   <nsight_eclipse>true</nsight_eclipse>
   <primary_file>shfl_scan.cu</primary_file>
+  <required_dependencies>
+    <dependency>CPP11</dependency>
+  </required_dependencies>
   <scopes>
     <scope>1:CUDA Advanced Topics</scope>
     <scope>1:Data-Parallel Algorithms</scope>

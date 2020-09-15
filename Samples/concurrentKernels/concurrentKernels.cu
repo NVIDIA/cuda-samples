@@ -163,7 +163,7 @@ int main(int argc, char **argv) {
 #if defined(__arm__) || defined(__aarch64__)
   // the kernel takes more time than the channel reset time on arm archs, so to
   // prevent hangs reduce time_clocks.
-  clock_t time_clocks = (clock_t)(kernel_time * (deviceProp.clockRate / 1000));
+  clock_t time_clocks = (clock_t)(kernel_time * (deviceProp.clockRate / 100));
 #else
   clock_t time_clocks = (clock_t)(kernel_time * deviceProp.clockRate);
 #endif

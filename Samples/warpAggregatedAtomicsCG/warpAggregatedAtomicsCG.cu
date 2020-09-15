@@ -33,6 +33,7 @@
 #include <cuda_runtime.h>
 
 #include <cooperative_groups.h>
+#include <cooperative_groups/reduce.h>
 
 namespace cg = cooperative_groups;
 
@@ -152,6 +153,107 @@ int mapIndicesToBuckets(int *h_srcArr, int *d_srcArr, int numOfBuckets)
   return EXIT_SUCCESS;
 }
 
+// Warp-aggregated atomic Max in multi bucket
+#if __CUDA_ARCH__ >= 700
+__device__ void atomicAggMaxMulti(const int bucket, int *counter, const int valueForMax)
+{
+  cg::coalesced_group active = cg::coalesced_threads();
+  // group all threads with same bucket value.
+  auto labeledGroup = cg::labeled_partition(active, bucket);
+
+  const int maxValueInGroup = cg::reduce(labeledGroup, valueForMax, cg::greater<int>());
+
+  if (labeledGroup.thread_rank() == 0)
+  {
+    atomicMax(&counter[bucket], maxValueInGroup);
+  }
+}
+#endif
+
+// Performs max calculation in each buckets.
+__global__ void calculateMaxInEachBuckets(const int *srcArr, const int *valueInBuckets, int *bucketsMax, const int srcSize, const int numOfBuckets)
+{
+#if __CUDA_ARCH__ >= 700
+  cg::grid_group grid = cg::this_grid();
+
+  for (int i=grid.thread_rank(); i < srcSize; i += grid.size())
+  {
+    const int bucket = srcArr[i];
+    if (bucket < numOfBuckets)
+    {
+      atomicAggMaxMulti(bucket, bucketsMax, valueInBuckets[i]);
+    }
+  }
+#endif
+}
+
+int calculateMaxInBuckets(int *h_srcArr, int *d_srcArr, int numOfBuckets)
+{
+  int *d_valueInBuckets, *d_bucketsMax;
+  int *h_valueInBuckets = new int[NUM_ELEMS];
+  int *cpuBucketsMax    = new int[numOfBuckets];
+  int *h_bucketsMax     = new int[numOfBuckets];
+
+  memset(cpuBucketsMax, 0, sizeof(int) * numOfBuckets);
+
+  // Here we create values which is assumed to correspond to each 
+  // buckets of srcArr at same array index.
+  for (int i=0; i < NUM_ELEMS; i++)
+  {
+    h_valueInBuckets[i] = rand();
+  }
+
+  checkCudaErrors(cudaMalloc(&d_valueInBuckets, sizeof(int) * NUM_ELEMS));
+  checkCudaErrors(cudaMalloc(&d_bucketsMax, sizeof(int) * numOfBuckets));
+
+  checkCudaErrors(cudaMemset(d_bucketsMax, 0, sizeof(int) * numOfBuckets));
+  checkCudaErrors(cudaMemcpy(d_valueInBuckets, h_valueInBuckets, sizeof(int) * NUM_ELEMS, cudaMemcpyHostToDevice));
+
+  dim3 dimBlock(NUM_THREADS_PER_BLOCK, 1, 1);
+  dim3 dimGrid((NUM_ELEMS / NUM_THREADS_PER_BLOCK), 1, 1);
+
+  calculateMaxInEachBuckets<<<dimGrid, dimBlock>>>(d_srcArr, d_valueInBuckets, d_bucketsMax, NUM_ELEMS, numOfBuckets);
+
+  checkCudaErrors(cudaMemcpy(h_bucketsMax, d_bucketsMax, sizeof(int) * numOfBuckets, cudaMemcpyDeviceToHost));
+
+  for (int i = 0; i < NUM_ELEMS; i++)
+  {
+    if (cpuBucketsMax[h_srcArr[i]] < h_valueInBuckets[i])
+    {
+      cpuBucketsMax[h_srcArr[i]] = h_valueInBuckets[i];
+    }
+  }
+
+  bool allMatch = true;
+  int finalElems = 0;
+  for (int i=0; i < numOfBuckets; i++)
+  {
+    if (cpuBucketsMax[i] != h_bucketsMax[i])
+    {
+      allMatch = false;
+      printf("CPU i=%d  max = %d mismatches GPU max = %d\n", i, cpuBucketsMax[i], h_bucketsMax[i]);
+      break;
+    }
+  }
+  if (allMatch)
+  {
+    printf("CPU max matches GPU max\n"); 
+  }
+
+  delete[] h_valueInBuckets;
+  delete[] cpuBucketsMax;
+  delete[] h_bucketsMax;
+  checkCudaErrors(cudaFree(d_valueInBuckets));
+  checkCudaErrors(cudaFree(d_bucketsMax));
+
+  if (!allMatch && finalElems != NUM_ELEMS)
+  {
+      return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
+}
+
 int main(int argc, char **argv) {
   int *data_to_filter, *filtered_data, nres = 0;
   int *d_data_to_filter, *d_filtered_data, *d_nres;
@@ -204,14 +306,17 @@ int main(int argc, char **argv) {
   checkCudaErrors(cudaDeviceGetAttribute(&major, cudaDevAttrComputeCapabilityMajor, devId));
 
   int mapIndicesToBucketsStatus = EXIT_SUCCESS;
-  // atomicAggIncMulti require a GPU of Volta (SM7X) architecture or higher,
+  int calculateMaxInBucketsStatus = EXIT_SUCCESS;
+  // atomicAggIncMulti & atomicAggMaxMulti require a GPU of Volta (SM7X) architecture or higher,
   // so that it can take advantage of the new MATCH capability of Volta hardware
   if (major >= 7) {
     mapIndicesToBucketsStatus = mapIndicesToBuckets(data_to_filter, d_data_to_filter, numOfBuckets);
+    calculateMaxInBucketsStatus = calculateMaxInBuckets(data_to_filter, d_data_to_filter, numOfBuckets);
   }
 
   printf("\nWarp Aggregated Atomics %s \n",
-         (host_flt_count == nres) && (mapIndicesToBucketsStatus == EXIT_SUCCESS) ? "PASSED" : "FAILED");
+         (host_flt_count == nres) && (mapIndicesToBucketsStatus == EXIT_SUCCESS) && 
+         (calculateMaxInBucketsStatus == EXIT_SUCCESS) ? "PASSED" : "FAILED");
 
   checkCudaErrors(cudaFree(d_data_to_filter));
   checkCudaErrors(cudaFree(d_filtered_data));

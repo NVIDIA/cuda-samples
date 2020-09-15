@@ -3,7 +3,7 @@
 <entry>
   <name>conjugateGradientMultiBlockCG</name>
   <cflags>
-    <flag>-dc</flag>
+    <flag>--std=c++11</flag>
   </cflags>
   <description><![CDATA[This sample implements a conjugate gradient solver on GPU using Multi Block Cooperative Groups, also uses Unified Memory.]]></description>
   <devicecompilation>whole</devicecompilation>
@@ -22,10 +22,9 @@
     <keyword>CUDA</keyword>
     <keyword>Sparse Matrix</keyword>
     <keyword>Unified Memory</keyword>
-    <keyword>GPGPU</keyword>
+    <keyword>CPP11</keyword>
   </keywords>
   <libraries>
-    <library>cudadevrt</library>
   </libraries>
   <librarypaths>
   </librarypaths>
@@ -45,6 +44,7 @@
   <sm-arch>sm72</sm-arch>
   <sm-arch>sm75</sm-arch>
   <sm-arch>sm80</sm-arch>
+  <sm-arch>sm86</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>
@@ -56,6 +56,9 @@
     </env>
     <env>
       <platform>windows7</platform>
+    </env>
+    <env>
+      <platform>aarch64</platform>
     </env>
   </supported_envs>
   <supported_sm_architectures>

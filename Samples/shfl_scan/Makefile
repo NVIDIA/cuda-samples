@@ -255,6 +255,12 @@ ALL_CCFLAGS += $(addprefix -Xcompiler ,$(EXTRA_CCFLAGS))
 
 SAMPLE_ENABLED := 1
 
+# This sample is not supported on QNX
+ifeq ($(TARGET_OS),qnx)
+  $(info >>> WARNING - shfl_scan is not supported on QNX - waiving sample <<<)
+  SAMPLE_ENABLED := 0
+endif
+
 ALL_LDFLAGS :=
 ALL_LDFLAGS += $(ALL_CCFLAGS)
 ALL_LDFLAGS += $(addprefix -Xlinker ,$(LDFLAGS))
@@ -266,11 +272,38 @@ LIBRARIES :=
 
 ################################################################################
 
+#Detect if installed version of GCC supports required C++11
+ifeq ($(TARGET_OS),linux)
+    empty :=
+    space := $(empty) $(empty)
+    GCCVERSIONSTRING := $(shell expr `$(HOST_COMPILER) -dumpversion`)
+#Create version number without "."
+    GCCVERSION := $(shell expr `echo $(GCCVERSIONSTRING)` | cut -f1 -d.)
+    GCCVERSION += $(shell expr `echo $(GCCVERSIONSTRING)` | cut -f2 -d.)
+    GCCVERSION += $(shell expr `echo $(GCCVERSIONSTRING)` | cut -f3 -d.)
+# Make sure the version number has at least 3 decimals
+    GCCVERSION += 00
+# Remove spaces from the version number
+    GCCVERSION := $(subst $(space),$(empty),$(GCCVERSION))
+# Crop the version number to 3 decimals.
+    GCCVERSION := $(shell expr `echo $(GCCVERSION)` | cut -b1-3)
+#$(warning $(GCCVERSION))
+
+    IS_MIN_VERSION := $(shell expr `echo $(GCCVERSION)` \>= 470)
+
+    ifeq ($(IS_MIN_VERSION), 1)
+        $(info >>> GCC Version is greater or equal to 4.7.0 <<<)
+    else
+        $(info >>> Waiving build. Minimum GCC version required is 4.7.0<<<)
+        SAMPLE_ENABLED := 0
+    endif
+endif
+
 # Gencode arguments
 ifeq ($(TARGET_ARCH),$(filter $(TARGET_ARCH),armv7l aarch64))
-SMS ?= 35 37 50 52 60 61 70 72 75 80
+SMS ?= 35 37 50 52 60 61 70 72 75 80 86
 else
-SMS ?= 35 37 50 52 60 61 70 75 80
+SMS ?= 35 37 50 52 60 61 70 75 80 86
 endif
 
 ifeq ($(SMS),)
@@ -289,7 +322,7 @@ GENCODE_FLAGS += -gencode arch=compute_$(HIGHEST_SM),code=compute_$(HIGHEST_SM)
 endif
 endif
 
-ALL_CCFLAGS += -O3
+ALL_CCFLAGS += --std=c++11 -O3
 
 ifeq ($(SAMPLE_ENABLED),0)
 EXEC ?= @echo "[@]"

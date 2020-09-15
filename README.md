@@ -1,10 +1,19 @@
 # CUDA Samples
 
-Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This version supports [CUDA Toolkit 11.0](https://developer.nvidia.com/cuda-downloads).
+Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This version supports [CUDA Toolkit 11.1](https://developer.nvidia.com/cuda-downloads).
 
 ## Release Notes
 
 This section describes the release notes for the CUDA Samples on GitHub only.
+
+### CUDA 11.1
+*  Added `watershedSegmentationNPP`. Demonstrates how to use the NPP watershed segmentation function.
+*  Added `batchedLabelMarkersAndLabelCompressionNPP`. Demonstrates how to use the NPP label markers generation and label compression functions based on a Union Find (UF) algorithm including both single image and batched image versions.
+*  Dropped Visual Studio 2012, 2013 support from all the windows supported samples.
+*  Added kernel performing warp aggregated atomic max in multi buckets using cg::labeled_partition & cg::reduce in `warpAggregatedAtomicsCG`.
+*  Added extended CG shuffle mechanics to `shfl_scan` sample.
+*  Added `cudaOpenMP`. Demonstrates how to use OpenMP API to write an application for multiple GPUs.
+*  Added `simpleZeroCopy`. Demonstrates how to use zero copy, kernels can read and write directly to pinned system memory.
 
 ### CUDA 11.0
 *  Added `dmmaTensorCoreGemm`. Demonstrates double precision GEMM computation using the Double precision Warp Matrix Multiply and Accumulate (WMMA) API introduced with CUDA 11 in Ampere chip family tensor cores.
@@ -84,7 +93,7 @@ This is the first release of CUDA Samples on GitHub:
 
 ### Prerequisites
 
-Download and install the [CUDA Toolkit 11.0](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit 11.1](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 For system requirements and installation instructions of cuda toolkit, please refer to the [Linux Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/), and the [Windows Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html).
 
 ### Getting the CUDA Samples
@@ -144,31 +153,33 @@ The samples makefiles can take advantage of certain options:
 **[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[boxFilterNPP](./Samples/boxFilterNPP)** | **[binaryPartitionCG](./Samples/binaryPartitionCG)** | **[dmmaTensorCoreGemm](./Samples/dmmaTensorCoreGemm)** |
 ---|---|---|---|
 **[EGLStream_CUDA_Interop](./Samples/EGLStream_CUDA_Interop)** | **[conjugateGradientMultiBlockCG](./Samples/conjugateGradientMultiBlockCG)** | **[simpleIPC](./Samples/simpleIPC)** | **[memMapIPCDrv](./Samples/memMapIPCDrv)** |
-**[vectorAddMMAP](./Samples/vectorAddMMAP)** | **[shfl_scan](./Samples/shfl_scan)** | **[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** | **[globalToShmemAsyncCopy](./Samples/globalToShmemAsyncCopy)** |
-**[nvJPEG](./Samples/nvJPEG)** | **[simpleCudaGraphs](./Samples/simpleCudaGraphs)** | **[deviceQuery](./Samples/deviceQuery)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** |
-**[simpleCUBLASXT](./Samples/simpleCUBLASXT)** | **[simpleAttributes](./Samples/simpleAttributes)** | **[cudaNvSci](./Samples/cudaNvSci)** | **[tf32TensorCoreGemm](./Samples/tf32TensorCoreGemm)** |
-**[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** | **[cudaCompressibleMemory](./Samples/cudaCompressibleMemory)** | **[bf16TensorCoreGemm](./Samples/bf16TensorCoreGemm)** | **[cuSolverDn_LinearSolver](./Samples/cuSolverDn_LinearSolver)** |
-**[vulkanImageCUDA](./Samples/vulkanImageCUDA)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** | **[matrixMulDrv](./Samples/matrixMulDrv)** | **[cuSolverSp_LinearSolver](./Samples/cuSolverSp_LinearSolver)** |
-**[simpleCUFFT](./Samples/simpleCUFFT)** | **[reduction](./Samples/reduction)** | **[nvJPEG_encoder](./Samples/nvJPEG_encoder)** | **[simpleDrvRuntime](./Samples/simpleDrvRuntime)** |
-**[MersenneTwisterGP11213](./Samples/MersenneTwisterGP11213)** | **[simpleAWBarrier](./Samples/simpleAWBarrier)** | **[immaTensorCoreGemm](./Samples/immaTensorCoreGemm)** | **[bandwidthTest](./Samples/bandwidthTest)** |
-**[concurrentKernels](./Samples/concurrentKernels)** | **[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[NV12toBGRandResize](./Samples/NV12toBGRandResize)** | **[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** |
-**[jacobiCudaGraphs](./Samples/jacobiCudaGraphs)** | **[simpleVulkan](./Samples/simpleVulkan)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[cannyEdgeDetectorNPP](./Samples/cannyEdgeDetectorNPP)** |
-**[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** | **[simpleVulkanMMAP](./Samples/simpleVulkanMMAP)** | **[matrixMul](./Samples/matrixMul)** | **[systemWideAtomics](./Samples/systemWideAtomics)** |
+**[vectorAddMMAP](./Samples/vectorAddMMAP)** | **[shfl_scan](./Samples/shfl_scan)** | **[simpleZeroCopy](./Samples/simpleZeroCopy)** | **[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** |
+**[globalToShmemAsyncCopy](./Samples/globalToShmemAsyncCopy)** | **[nvJPEG](./Samples/nvJPEG)** | **[batchedLabelMarkersAndLabelCompressionNPP](./Samples/batchedLabelMarkersAndLabelCompressionNPP)** | **[watershedSegmentationNPP](./Samples/watershedSegmentationNPP)** |
+**[simpleCudaGraphs](./Samples/simpleCudaGraphs)** | **[deviceQuery](./Samples/deviceQuery)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[simpleCUBLASXT](./Samples/simpleCUBLASXT)** |
+**[simpleAttributes](./Samples/simpleAttributes)** | **[cudaNvSci](./Samples/cudaNvSci)** | **[tf32TensorCoreGemm](./Samples/tf32TensorCoreGemm)** | **[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** |
+**[cudaCompressibleMemory](./Samples/cudaCompressibleMemory)** | **[bf16TensorCoreGemm](./Samples/bf16TensorCoreGemm)** | **[cuSolverDn_LinearSolver](./Samples/cuSolverDn_LinearSolver)** | **[vulkanImageCUDA](./Samples/vulkanImageCUDA)** |
+**[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** | **[matrixMulDrv](./Samples/matrixMulDrv)** | **[cuSolverSp_LinearSolver](./Samples/cuSolverSp_LinearSolver)** | **[simpleCUFFT](./Samples/simpleCUFFT)** |
+**[reduction](./Samples/reduction)** | **[nvJPEG_encoder](./Samples/nvJPEG_encoder)** | **[simpleDrvRuntime](./Samples/simpleDrvRuntime)** | **[MersenneTwisterGP11213](./Samples/MersenneTwisterGP11213)** |
+**[simpleAWBarrier](./Samples/simpleAWBarrier)** | **[immaTensorCoreGemm](./Samples/immaTensorCoreGemm)** | **[bandwidthTest](./Samples/bandwidthTest)** | **[concurrentKernels](./Samples/concurrentKernels)** |
+**[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[NV12toBGRandResize](./Samples/NV12toBGRandResize)** | **[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[jacobiCudaGraphs](./Samples/jacobiCudaGraphs)** |
+**[simpleVulkan](./Samples/simpleVulkan)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[cannyEdgeDetectorNPP](./Samples/cannyEdgeDetectorNPP)** | **[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** |
+**[simpleVulkanMMAP](./Samples/simpleVulkanMMAP)** | **[cudaOpenMP](./Samples/cudaOpenMP)** | **[matrixMul](./Samples/matrixMul)** | **[systemWideAtomics](./Samples/systemWideAtomics)** |
 
 #### Windows
 **[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[boxFilterNPP](./Samples/boxFilterNPP)** | **[binaryPartitionCG](./Samples/binaryPartitionCG)** | **[dmmaTensorCoreGemm](./Samples/dmmaTensorCoreGemm)** |
 ---|---|---|---|
 **[conjugateGradientMultiBlockCG](./Samples/conjugateGradientMultiBlockCG)** | **[simpleIPC](./Samples/simpleIPC)** | **[memMapIPCDrv](./Samples/memMapIPCDrv)** | **[vectorAddMMAP](./Samples/vectorAddMMAP)** |
-**[shfl_scan](./Samples/shfl_scan)** | **[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** | **[globalToShmemAsyncCopy](./Samples/globalToShmemAsyncCopy)** | **[nvJPEG](./Samples/nvJPEG)** |
-**[simpleD3D12](./Samples/simpleD3D12)** | **[simpleCudaGraphs](./Samples/simpleCudaGraphs)** | **[deviceQuery](./Samples/deviceQuery)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** |
-**[simpleCUBLASXT](./Samples/simpleCUBLASXT)** | **[simpleAttributes](./Samples/simpleAttributes)** | **[tf32TensorCoreGemm](./Samples/tf32TensorCoreGemm)** | **[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** |
-**[cudaCompressibleMemory](./Samples/cudaCompressibleMemory)** | **[bf16TensorCoreGemm](./Samples/bf16TensorCoreGemm)** | **[cuSolverDn_LinearSolver](./Samples/cuSolverDn_LinearSolver)** | **[vulkanImageCUDA](./Samples/vulkanImageCUDA)** |
-**[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** | **[matrixMulDrv](./Samples/matrixMulDrv)** | **[cuSolverSp_LinearSolver](./Samples/cuSolverSp_LinearSolver)** | **[simpleCUFFT](./Samples/simpleCUFFT)** |
-**[reduction](./Samples/reduction)** | **[nvJPEG_encoder](./Samples/nvJPEG_encoder)** | **[simpleDrvRuntime](./Samples/simpleDrvRuntime)** | **[simpleD3D11](./Samples/simpleD3D11)** |
-**[MersenneTwisterGP11213](./Samples/MersenneTwisterGP11213)** | **[simpleAWBarrier](./Samples/simpleAWBarrier)** | **[immaTensorCoreGemm](./Samples/immaTensorCoreGemm)** | **[bandwidthTest](./Samples/bandwidthTest)** |
-**[concurrentKernels](./Samples/concurrentKernels)** | **[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[NV12toBGRandResize](./Samples/NV12toBGRandResize)** | **[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** |
-**[jacobiCudaGraphs](./Samples/jacobiCudaGraphs)** | **[simpleVulkan](./Samples/simpleVulkan)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[cannyEdgeDetectorNPP](./Samples/cannyEdgeDetectorNPP)** |
-**[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** | **[simpleVulkanMMAP](./Samples/simpleVulkanMMAP)** | **[matrixMul](./Samples/matrixMul)** |
+**[shfl_scan](./Samples/shfl_scan)** | **[simpleZeroCopy](./Samples/simpleZeroCopy)** | **[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** | **[globalToShmemAsyncCopy](./Samples/globalToShmemAsyncCopy)** |
+**[nvJPEG](./Samples/nvJPEG)** | **[batchedLabelMarkersAndLabelCompressionNPP](./Samples/batchedLabelMarkersAndLabelCompressionNPP)** | **[simpleD3D12](./Samples/simpleD3D12)** | **[watershedSegmentationNPP](./Samples/watershedSegmentationNPP)** |
+**[simpleCudaGraphs](./Samples/simpleCudaGraphs)** | **[deviceQuery](./Samples/deviceQuery)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[simpleCUBLASXT](./Samples/simpleCUBLASXT)** |
+**[simpleAttributes](./Samples/simpleAttributes)** | **[tf32TensorCoreGemm](./Samples/tf32TensorCoreGemm)** | **[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** | **[cudaCompressibleMemory](./Samples/cudaCompressibleMemory)** |
+**[bf16TensorCoreGemm](./Samples/bf16TensorCoreGemm)** | **[cuSolverDn_LinearSolver](./Samples/cuSolverDn_LinearSolver)** | **[vulkanImageCUDA](./Samples/vulkanImageCUDA)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** |
+**[matrixMulDrv](./Samples/matrixMulDrv)** | **[cuSolverSp_LinearSolver](./Samples/cuSolverSp_LinearSolver)** | **[simpleCUFFT](./Samples/simpleCUFFT)** | **[reduction](./Samples/reduction)** |
+**[nvJPEG_encoder](./Samples/nvJPEG_encoder)** | **[simpleDrvRuntime](./Samples/simpleDrvRuntime)** | **[simpleD3D11](./Samples/simpleD3D11)** | **[MersenneTwisterGP11213](./Samples/MersenneTwisterGP11213)** |
+**[simpleAWBarrier](./Samples/simpleAWBarrier)** | **[immaTensorCoreGemm](./Samples/immaTensorCoreGemm)** | **[bandwidthTest](./Samples/bandwidthTest)** | **[concurrentKernels](./Samples/concurrentKernels)** |
+**[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[NV12toBGRandResize](./Samples/NV12toBGRandResize)** | **[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[jacobiCudaGraphs](./Samples/jacobiCudaGraphs)** |
+**[simpleVulkan](./Samples/simpleVulkan)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[cannyEdgeDetectorNPP](./Samples/cannyEdgeDetectorNPP)** | **[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** |
+**[simpleVulkanMMAP](./Samples/simpleVulkanMMAP)** | **[cudaOpenMP](./Samples/cudaOpenMP)** | **[matrixMul](./Samples/matrixMul)** |
 
 ## Dependencies
 

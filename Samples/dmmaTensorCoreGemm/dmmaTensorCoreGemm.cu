@@ -65,6 +65,8 @@
 #include <cuda_pipeline.h>
 #include <cooperative_groups.h>
 #include <cooperative_groups/memcpy_async.h>
+#include <cuda/std/type_traits>
+#include <cuda/barrier>
 
 // Switch for choosing cpp interface for cuda pipeline 
 // vs primitives interface.
@@ -622,9 +624,6 @@ __global__ void compute_dgemm_async_copy(const double *A, const double *B, const
     // Each CTA slides along the 64 x 64 tiles from the top left corner of the matrix to the
     // right and down, and selects the next tile to compute. Once there's no such tile,
     // all warps in this CTA exit.
-
-    nvcuda_namespace::pipeline pipe;
-
     for(unsigned int block_pos = blockIdx.x;; block_pos += gridDim.x) {
         const unsigned int block_tile_i = ((block_pos * BLOCK_ROW_TILES) / N_TILES) * (BLOCK_COL_TILES);
         const unsigned int block_tile_j = (block_pos * BLOCK_COL_TILES) % N_TILES;
@@ -638,17 +637,15 @@ __global__ void compute_dgemm_async_copy(const double *A, const double *B, const
         const size_t gmem_idx = (block_tile_i + warpId) * M * GLOBAL_MEM_STRIDE + block_tile_j * N;
         const double *src_gmem_warp_stream_ptr = &C[gmem_idx];
 
-
         // Stream multiple C tiles to shared memory.
-        #pragma unroll
-        for (int i = 0; i < N; i++)
-        {
-            int4 *shMemCopy_t = reinterpret_cast<int4*>(&shmem_warp_stream_ptr[(SHMEM_STRIDE * i)]);
-            const int4 *gMemCopy_t = reinterpret_cast<const int4*>(&src_gmem_warp_stream_ptr[(GLOBAL_MEM_STRIDE * i)]);
-            cg::memcpy_async(tile32, shMemCopy_t, tile32.size(), gMemCopy_t, tile32.size(), pipe);
+#pragma unroll
+        for (int i = 0; i < N; i++) {
+            auto dst_ptr = &shmem_warp_stream_ptr[(SHMEM_STRIDE * i)];
+            auto src_ptr = &src_gmem_warp_stream_ptr[(GLOBAL_MEM_STRIDE * i)];
+            cg::memcpy_async(tile32, dst_ptr, src_ptr, cuda::aligned_size_t<32>{tile32.size() * sizeof(int4)});
         }
-        cg::wait_prior<0>(tile32, pipe);
-        cg::sync(cta);
+
+        cg::wait(cta);
 
         // These fragments will accumulate the result of A and B matrix fragment multiplications
         // along the K_GLOBAL dimension.
@@ -660,12 +657,10 @@ __global__ void compute_dgemm_async_copy(const double *A, const double *B, const
 #pragma unroll
             for (int j = 0; j < WARP_ROW_TILES; j++) {
                 const double *tile_ptr = shmem_warp_tile_ptr + i * SHMEM_STRIDE * N + j * N;
-
                 wmma::load_matrix_sync(c[i][j], tile_ptr, SHMEM_STRIDE, C_LAYOUT);
             }
         }
-
-        __syncthreads();
+        cg::wait(cta);
 
         // Scale the C matrix.
 #pragma unroll
@@ -694,24 +689,24 @@ __global__ void compute_dgemm_async_copy(const double *A, const double *B, const
 
             // First half of the warp copies the first row / column of the matrix,
             // the second half of the warp copies the next.
-            int4 *lane_ptr = (int4*)(warp_ptr + tile_k * K + (laneId / CHUNK_COPY_LINE_LANES) * K_GLOBAL);
+            auto lane_ptr = warp_ptr + tile_k * K + (laneId / CHUNK_COPY_LINE_LANES) * K_GLOBAL;
 
             // Shift the second half of the warp to the next row / column in the shared memory.
             shmem_idx += laneId / CHUNK_COPY_LINE_LANES;
 
 #pragma unroll
             for(int i = 0; i < ((WARP_SIZE/2) / CHUNK_COPY_LINES_PER_WARP); i++) {
-                 // Copy 16 bytes at once in each lane.
-                int4 *shMemCopy_t = ((int4*)&shmem[shmem_idx][0]);
-                const int4 *gMemCopy_t = lane_ptr;
-                cg::memcpy_async(tileChunkCopy, shMemCopy_t, tileChunkCopy.size(), gMemCopy_t, tileChunkCopy.size(), pipe);
+                // Copy 16 bytes at once in each lane.
+                auto dst_ptr = &shmem[shmem_idx][0];
+                auto src_ptr = lane_ptr;
+
+                cg::memcpy_async(tileChunkCopy, dst_ptr, src_ptr, cuda::aligned_size_t<32>{tile32.size() * sizeof(int4)});
 
                 // Advance the global memory pointer and the shared memory index.
-                lane_ptr = (int4*)((double*)lane_ptr + K_GLOBAL * CHUNK_COPY_LINES_PER_WARP);
+                lane_ptr = lane_ptr + K_GLOBAL * CHUNK_COPY_LINES_PER_WARP;
                 shmem_idx += CHUNK_COPY_LINES_PER_WARP;
             }
-            cg::wait_prior<0>(tileChunkCopy, pipe);
-            cg::sync(cta);
+            cg::wait(cta);
 
             // Compute a grid of C matrix tiles in each warp.
 #pragma unroll
@@ -739,12 +734,10 @@ __global__ void compute_dgemm_async_copy(const double *A, const double *B, const
                         }
 
                         wmma::mma_sync(c[i][j], a[i], b[j], c[i][j]);
-
                     }
                 }
             }
-
-            __syncthreads();
+            cg::wait(cta);
         }
 
         // Store the D fragments to shared memory.
@@ -764,7 +757,7 @@ __global__ void compute_dgemm_async_copy(const double *A, const double *B, const
             }
         }
 
-        __syncthreads();
+        cg::wait(cta);
 
         // Now that shared memory contains all the D tiles, stream them to global memory.
         double *dst_gmem_warp_stream_ptr = &D[gmem_idx];
@@ -775,7 +768,7 @@ __global__ void compute_dgemm_async_copy(const double *A, const double *B, const
                 *((int4*)(shmem_warp_stream_ptr + SHMEM_STRIDE * i) + laneId);
         }
 
-        __syncthreads();
+        cg::wait(cta);
     }
 #endif
 }

@@ -34,16 +34,8 @@
 
 #include <stdio.h>
 
-#define CHECK_BANK_CONFLICTS 0
-#if CHECK_BANK_CONFLICTS
-#define AS(i, j) \
-  cutilBankChecker((reinterpret_cast<float *>(&As[0][0])), (block_size * i + j))
-#define BS(i, j) \
-  cutilBankChecker((reinterpret_cast<float *>(&Bs[0][0])), (block_size * i + j))
-#else
 #define AS(i, j) As[i][j]
 #define BS(i, j) Bs[i][j]
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Matrix multiplication on the device: C = A * B
@@ -119,17 +111,9 @@ __device__ void matrixMul(float *C, float *A, float *B, size_type wA,
 }
 
 // C wrappers around our template kernel
-extern "C" __global__ void matrixMul_bs16_32bit(float *C, float *A, float *B,
-                                                int wA, int wB) {
-  matrixMul<16, int>(C, A, B, wA, wB);
-}
 extern "C" __global__ void matrixMul_bs16_64bit(float *C, float *A, float *B,
                                                 size_t wA, size_t wB) {
   matrixMul<16, size_t>(C, A, B, wA, wB);
-}
-extern "C" __global__ void matrixMul_bs32_32bit(float *C, float *A, float *B,
-                                                int wA, int wB) {
-  matrixMul<32, int>(C, A, B, wA, wB);
 }
 extern "C" __global__ void matrixMul_bs32_64bit(float *C, float *A, float *B,
                                                 size_t wA, size_t wB) {

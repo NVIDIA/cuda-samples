@@ -306,7 +306,7 @@ ifeq ($(TARGET_OS),linux)
 endif
 
 # Gencode arguments
-SMS ?= 80
+SMS ?= 80 86
 
 ifeq ($(SMS),)
 $(info >>> WARNING - no SM architectures have been specified - waiving sample <<<)

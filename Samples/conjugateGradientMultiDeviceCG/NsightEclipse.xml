@@ -3,7 +3,7 @@
 <entry>
   <name>conjugateGradientMultiDeviceCG</name>
   <cflags>
-    <flag>-dc</flag>
+    <flag>-ewp</flag>
     <flag>-maxrregcount=64</flag>
     <flag>--std=c++11</flag>
   </cflags>
@@ -40,10 +40,11 @@
   <librarypaths>
   </librarypaths>
   <nsight_eclipse>true</nsight_eclipse>
-  <primary_file>conjugateGradientMultiBlockCG.cu</primary_file>
+  <primary_file>conjugateGradientMultiDeviceCG.cu</primary_file>
   <required_dependencies>
     <dependency>UVM</dependency>
     <dependency>MDCG</dependency>
+    <dependency>CPP11</dependency>
   </required_dependencies>
   <scopes>
     <scope>1:CUDA Advanced Topics</scope>
@@ -55,6 +56,7 @@
   <sm-arch>sm72</sm-arch>
   <sm-arch>sm75</sm-arch>
   <sm-arch>sm80</sm-arch>
+  <sm-arch>sm86</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>
@@ -66,6 +68,9 @@
     </env>
     <env>
       <platform>windows</platform>
+    </env>
+    <env>
+      <platform>aarch64</platform>
     </env>
   </supported_envs>
   <supported_sm_architectures>

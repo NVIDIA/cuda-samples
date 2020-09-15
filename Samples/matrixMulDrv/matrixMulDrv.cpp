@@ -46,13 +46,15 @@
 
 // includes, system
 #include <builtin_types.h>
-#include <cuda.h>
-#include <drvapi_error_string.h>
 #include <math.h>
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <iostream>
+#include <cstring>
 
-// includes, project
+// includes, project, CUDA
+#include <cuda.h>
 #include <helper_cuda_drvapi.h>
 #include <helper_image.h>
 #include <helper_string.h>
@@ -63,8 +65,6 @@
 #include <string>
 #include "matrixMul.h"
 
-// includes, CUDA
-const bool use_64bit_memory_address = false;
 
 ////////////////////////////////////////////////////////////////////////////////
 // declaration, forward
@@ -74,15 +74,10 @@ void randomInit(float *, int);
 extern "C" void computeGold(float *, const float *, const float *, unsigned int,
                             unsigned int, unsigned int);
 
-static CUresult initCUDA(int argc, char **argv, CUfunction *pMatrixMul);
+static int initCUDA(int argc, char **argv, CUfunction *pMatrixMul);
 
-// define input ptx file for different platforms
-#if defined(_WIN64) || defined(__LP64__)
-#define PTX_FILE "matrixMul_kernel64.ptx"
-#define CUBIN_FILE "matrixMul_kernel64.cubin"
-#else
-#define PTX_FILE "matrixMul_kernel32.ptx"
-#define CUBIN_FILE "matrixMul_kernel32.cubin"
+#ifndef FATBIN_FILE
+#define FATBIN_FILE "matrixMul_kernel64.fatbin"
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -118,13 +113,7 @@ void runTest(int argc, char **argv) {
   CUfunction matrixMul = NULL;
   int block_size = 32;
 
-  CUresult error_id = initCUDA(argc, argv, &matrixMul);
-
-  if (error_id != CUDA_SUCCESS) {
-    printf("initCUDA() returned %d\n-> %s\n", error_id,
-           getCudaDrvErrorString(error_id));
-    exit(EXIT_FAILURE);
-  }
+  initCUDA(argc, argv, &matrixMul);
 
   // set seed for rand()
   srand(2006);
@@ -141,18 +130,6 @@ void runTest(int argc, char **argv) {
   const float valB = 0.01f;
   constantInit(h_A, size_A, 1.0f);
   constantInit(h_B, size_B, valB);
-
-  // First reserve about 4GB of memory, so we ensure that all memory allocated
-  // afterwards is > 4GB
-  CUdeviceptr d_Mem[4];
-
-  if (use_64bit_memory_address) {
-    unsigned int mem_size = 1024 * 1024 * 1024;
-    checkCudaErrors(cuMemAlloc(&d_Mem[0], mem_size));
-    checkCudaErrors(cuMemAlloc(&d_Mem[1], mem_size));
-    checkCudaErrors(cuMemAlloc(&d_Mem[2], mem_size));
-    checkCudaErrors(cuMemAlloc(&d_Mem[3], mem_size));
-  }
 
   // allocate device memory
   CUdeviceptr d_A;
@@ -190,8 +167,6 @@ void runTest(int argc, char **argv) {
   if (1) {
     // This is the new CUDA 4.0 API for Kernel Parameter passing and Kernel
     // Launching (simplier method)
-    if (use_64bit_memory_address &&
-        (totalGlobalMem > (uint64_t)4 * 1024 * 1024 * 1024L)) {
       size_t Matrix_Width_A = (size_t)WA;
       size_t Matrix_Width_B = (size_t)WB;
       void *args[5] = {&d_C, &d_A, &d_B, &Matrix_Width_A, &Matrix_Width_B};
@@ -199,17 +174,6 @@ void runTest(int argc, char **argv) {
       checkCudaErrors(cuLaunchKernel(
           matrixMul, grid.x, grid.y, grid.z, block.x, block.y, block.z,
           2 * block_size * block_size * sizeof(float), NULL, args, NULL));
-
-    } else {
-      int Matrix_Width_A = WA;
-      int Matrix_Width_B = WB;
-      void *args[5] = {&d_C, &d_A, &d_B, &Matrix_Width_A, &Matrix_Width_B};
-      // new CUDA 4.0 Driver API Kernel launch call
-      checkCudaErrors(cuLaunchKernel(
-          matrixMul, grid.x, grid.y, grid.z, block.x, block.y, block.z,
-          2 * block_size * block_size * sizeof(float), NULL, args, NULL));
-    }
-
   } else {
     // This is the new CUDA 4.0 API for Kernel Parameter passing and Kernel
     // Launching (advanced method)
@@ -225,24 +189,13 @@ void runTest(int argc, char **argv) {
     *(reinterpret_cast<CUdeviceptr *>(&argBuffer[offset])) = d_B;
     offset += sizeof(d_B);
 
-    if (use_64bit_memory_address &&
-        (totalGlobalMem > (uint64_t)4 * 1024 * 1024 * 1024L)) {
       size_t Matrix_Width_A = (size_t)WA;
       size_t Matrix_Width_B = (size_t)WB;
 
-      *(reinterpret_cast<CUdeviceptr *>(&argBuffer[offset])) = Matrix_Width_A;
-      offset += sizeof(Matrix_Width_A);
-      *(reinterpret_cast<CUdeviceptr *>(&argBuffer[offset])) = Matrix_Width_B;
-      offset += sizeof(Matrix_Width_B);
-    } else {
-      int Matrix_Width_A = WA;
-      int Matrix_Width_B = WB;
-
-      *(reinterpret_cast<int *>(&argBuffer[offset])) = Matrix_Width_A;
-      offset += sizeof(Matrix_Width_A);
-      *(reinterpret_cast<int *>(&argBuffer[offset])) = Matrix_Width_B;
-      offset += sizeof(Matrix_Width_B);
-    }
+    *(reinterpret_cast<CUdeviceptr *>(&argBuffer[offset])) = Matrix_Width_A;
+    offset += sizeof(Matrix_Width_A);
+    *(reinterpret_cast<CUdeviceptr *>(&argBuffer[offset])) = Matrix_Width_B;
+    offset += sizeof(Matrix_Width_B);
 
     void *kernel_launch_config[5] = {CU_LAUNCH_PARAM_BUFFER_POINTER, argBuffer,
                                      CU_LAUNCH_PARAM_BUFFER_SIZE, &offset,
@@ -281,13 +234,6 @@ void runTest(int argc, char **argv) {
       "Results may vary when GPU Boost is enabled.\n");
 
   // clean up memory
-  if (use_64bit_memory_address) {
-    cuMemFree(d_Mem[0]);
-    cuMemFree(d_Mem[1]);
-    cuMemFree(d_Mem[2]);
-    cuMemFree(d_Mem[3]);
-  }
-
   free(h_A);
   free(h_B);
   free(h_C);
@@ -304,46 +250,11 @@ void randomInit(float *data, int size) {
   }
 }
 
-bool inline findModulePath(const char *module_file, std::string &module_path,
-                           char **argv, std::string &ptx_source) {
-  char *actual_path = sdkFindFilePath(module_file, argv[0]);
-
-  if (actual_path) {
-    module_path = actual_path;
-  } else {
-    printf("> findModulePath file not found: <%s> \n", module_file);
-    return false;
-  }
-
-  if (module_path.empty()) {
-    printf("> findModulePath file not found: <%s> \n", module_file);
-    return false;
-  } else {
-    printf("> findModulePath <%s>\n", module_path.c_str());
-
-    if (module_path.rfind(".ptx") != std::string::npos) {
-      FILE *fp = fopen(module_path.c_str(), "rb");
-      fseek(fp, 0, SEEK_END);
-      int file_size = ftell(fp);
-      char *buf = new char[file_size + 1];
-      fseek(fp, 0, SEEK_SET);
-      fread(buf, sizeof(char), file_size, fp);
-      fclose(fp);
-      buf[file_size] = '\0';
-      ptx_source = buf;
-      delete[] buf;
-    }
-
-    return true;
-  }
-}
-
-static CUresult initCUDA(int argc, char **argv, CUfunction *pMatrixMul) {
+static int initCUDA(int argc, char **argv, CUfunction *pMatrixMul) {
   CUfunction cuFunction = 0;
   CUresult status;
   int major = 0, minor = 0;
   char deviceName[100];
-  std::string module_path, ptx_source;
 
   cuDevice = findCudaDeviceDRV(argc, (const char **)argv);
 
@@ -352,85 +263,39 @@ static CUresult initCUDA(int argc, char **argv, CUfunction *pMatrixMul) {
       &major, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, cuDevice));
   checkCudaErrors(cuDeviceGetAttribute(
       &minor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, cuDevice));
-  checkCudaErrors(cuDeviceGetName(deviceName, 256, cuDevice));
+  checkCudaErrors(cuDeviceGetName(deviceName, sizeof(deviceName), cuDevice));
   printf("> GPU Device has SM %d.%d compute capability\n", major, minor);
 
   checkCudaErrors(cuDeviceTotalMem(&totalGlobalMem, cuDevice));
   printf("  Total amount of global memory:     %llu bytes\n",
          (long long unsigned int)totalGlobalMem);
-  printf("  64-bit Memory Address:             %s\n",
-         (totalGlobalMem > (uint64_t)4 * 1024 * 1024 * 1024L) ? "YES" : "NO");
 
-  status = cuCtxCreate(&cuContext, 0, cuDevice);
-
-  if (CUDA_SUCCESS != status) {
-    goto Error;
-  }
+  checkCudaErrors(cuCtxCreate(&cuContext, 0, cuDevice));
 
   // first search for the module path before we load the results
-  if (!findModulePath(PTX_FILE, module_path, argv, ptx_source)) {
-    if (!findModulePath(CUBIN_FILE, module_path, argv, ptx_source)) {
-      printf(
-          "> findModulePath could not find <matrixMul_kernel> ptx or cubin\n");
-      status = CUDA_ERROR_NOT_FOUND;
-      goto Error;
-    }
-  } else {
-    printf("> initCUDA loading module: <%s>\n", module_path.c_str());
-  }
+  std::string module_path;
+  std::ostringstream fatbin;
 
-  if (module_path.rfind("ptx") != std::string::npos) {
-    // in this branch we use compilation with parameters
-    const unsigned int jitNumOptions = 3;
-    CUjit_option *jitOptions = new CUjit_option[jitNumOptions];
-    void **jitOptVals = new void *[jitNumOptions];
-
-    // set up size of compilation log buffer
-    jitOptions[0] = CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES;
-    int jitLogBufferSize = 1024;
-    jitOptVals[0] = reinterpret_cast<void *>(jitLogBufferSize);
-
-    // set up pointer to the compilation log buffer
-    jitOptions[1] = CU_JIT_INFO_LOG_BUFFER;
-    char *jitLogBuffer = new char[jitLogBufferSize];
-    jitOptVals[1] = jitLogBuffer;
-
-    // set up pointer to set the Maximum # of registers for a particular kernel
-    jitOptions[2] = CU_JIT_MAX_REGISTERS;
-    int jitRegCount = 32;
-    jitOptVals[2] = reinterpret_cast<void *>(jitRegCount);
-
-    status =
-        cuModuleLoadDataEx(&cuModule, ptx_source.c_str(), jitNumOptions,
-                           jitOptions, reinterpret_cast<void **>(jitOptVals));
-
-    printf("> PTX JIT log:\n%s\n", jitLogBuffer);
-  } else {
-    status = cuModuleLoad(&cuModule, module_path.c_str());
-  }
-
-  if (CUDA_SUCCESS != status) {
-    goto Error;
-  }
-
-#if USE_64BIT_MEMORY_ADDRESS
-
-  if (totalGlobalMem > (uint64_t)4 * 1024 * 1024 * 1024L) {
-    status = cuModuleGetFunction(&cuFunction, cuModule, "matrixMul_bs32_64bit");
-  } else
-#endif
+  if (!findFatbinPath(FATBIN_FILE, module_path, argv, fatbin))
   {
-    status = cuModuleGetFunction(&cuFunction, cuModule, "matrixMul_bs32_32bit");
+      exit(EXIT_FAILURE);
+  }
+  else
+  {
+      printf("> initCUDA loading module: <%s>\n", module_path.c_str());
   }
 
-  if (CUDA_SUCCESS != status) {
-    goto Error;
+  if (!fatbin.str().size())
+  {
+      printf("fatbin file empty. exiting..\n");
+      exit(EXIT_FAILURE);
   }
+
+    // Create module from binary file (FATBIN)
+  checkCudaErrors(cuModuleLoadData(&cuModule, fatbin.str().c_str()));
+  checkCudaErrors(cuModuleGetFunction(&cuFunction, cuModule, "matrixMul_bs32_64bit"));
 
   *pMatrixMul = cuFunction;
 
-  return CUDA_SUCCESS;
-Error:
-  cuCtxDestroy(cuContext);
-  return status;
+  return 0;
 }

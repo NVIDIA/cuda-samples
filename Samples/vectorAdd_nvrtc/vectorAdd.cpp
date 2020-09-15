@@ -49,11 +49,11 @@
  * Host main routine
  */
 int main(int argc, char **argv) {
-  char *ptx, *kernel_file;
-  size_t ptxSize;
+  char *cubin, *kernel_file;
+  size_t cubinSize;
   kernel_file = sdkFindFilePath("vectorAdd_kernel.cu", argv[0]);
-  compileFileToPTX(kernel_file, argc, argv, &ptx, &ptxSize, 0);
-  CUmodule module = loadPTX(ptx, argc, argv);
+  compileFileToCUBIN(kernel_file, argc, argv, &cubin, &cubinSize, 0);
+  CUmodule module = loadCUBIN(cubin, argc, argv);
 
   CUfunction kernel_addr;
   checkCudaErrors(cuModuleGetFunction(&kernel_addr, module, "vectorAdd"));
