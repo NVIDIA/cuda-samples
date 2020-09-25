@@ -309,12 +309,12 @@ ifeq ($(TARGET_OS),linux)
     GCCVERSION := $(shell expr `echo $(GCCVERSIONSTRING)` | cut -f1 -d.)
     GCCVERSION += $(shell expr `echo $(GCCVERSIONSTRING)` | cut -f2 -d.)
     GCCVERSION += $(shell expr `echo $(GCCVERSIONSTRING)` | cut -f3 -d.)
-# Make sure the version number has at least 3 decimals
-    GCCVERSION += 00
+# Make sure the version number has at least 4 decimals
+    GCCVERSION += 000
 # Remove spaces from the version number
     GCCVERSION := $(subst $(space),$(empty),$(GCCVERSION))
-# Crop the version number to 3 decimals.
-    GCCVERSION := $(shell expr `echo $(GCCVERSION)` | cut -b1-3)
+# Crop the version number to 4 decimals.
+    GCCVERSION := $(shell expr `echo $(GCCVERSION)` | cut -b1-4)
 #$(warning $(GCCVERSION))
 
     IS_MIN_VERSION := $(shell expr `echo $(GCCVERSION)` \>= 470)
