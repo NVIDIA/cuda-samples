@@ -14,7 +14,7 @@ CUDA Runtime API, Linear Algebra, CPP11 CUDA
 
 ## Supported OSes
 
-Linux, Windows
+Linux, Windows, QNX
 
 ## Supported CPU Architecture
 

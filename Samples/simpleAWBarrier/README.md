@@ -14,7 +14,7 @@ Arrive Wait Barrier
 
 ## Supported OSes
 
-Linux, Windows
+Linux, Windows, QNX
 
 ## Supported CPU Architecture
 

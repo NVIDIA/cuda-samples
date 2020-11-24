@@ -88,7 +88,7 @@ endif
 
 # sbsa and aarch64 systems look similar. Need to differentiate them at host level for now.
 ifeq ($(HOST_ARCH),aarch64)
-    ifeq ($(CUDA_PATH)/targets/sbsa-linux,$(shell ls -1d $(CUDA_PATH)/targets/sbsa-linux))
+    ifeq ($(CUDA_PATH)/targets/sbsa-linux,$(shell ls -1d $(CUDA_PATH)/targets/sbsa-linux 2>/dev/null))
         HOST_ARCH := sbsa
         TARGET_ARCH := sbsa
     endif
@@ -146,7 +146,7 @@ else ifneq ($(TARGET_ARCH),$(HOST_ARCH))
             endif
             export QNX_HOST
             export QNX_TARGET
-            HOST_COMPILER ?= $(QNX_HOST)/usr/bin/aarch64-unknown-nto-qnx7.0.0-g++
+            HOST_COMPILER ?= $(QNX_HOST)/usr/bin/q++
         else ifeq ($(TARGET_OS), android)
             HOST_COMPILER ?= aarch64-linux-android-clang++
         endif
@@ -201,22 +201,32 @@ ifneq ($(TARGET_ARCH),$(HOST_ARCH))
             LDFLAGS += -rpath-link=$(TARGET_FS)/usr/lib -L$(TARGET_FS)/usr/lib
             LDFLAGS += -rpath-link=$(TARGET_FS)/usr/lib/aarch64-linux-gnu -L$(TARGET_FS)/usr/lib/aarch64-linux-gnu
             LDFLAGS += --unresolved-symbols=ignore-in-shared-libs
-            CCFLAGS += -isystem=$(TARGET_FS)/usr/include  -I$(TARGET_FS)/usr/include
+            CCFLAGS += -isystem=$(TARGET_FS)/usr/include -I$(TARGET_FS)/usr/include -I$(TARGET_FS)/usr/include/libdrm
             CCFLAGS += -isystem=$(TARGET_FS)/usr/include/aarch64-linux-gnu -I$(TARGET_FS)/usr/include/aarch64-linux-gnu
         endif
     endif
     ifeq ($(TARGET_ARCH)-$(TARGET_OS),aarch64-qnx)
+        NVCCFLAGS += --qpp-config 5.4.0,gcc_ntoaarch64le
         CCFLAGS += -DWIN_INTERFACE_CUSTOM -I/usr/include/aarch64-qnx-gnu
         LDFLAGS += -lsocket
-        LDFLAGS += -rpath=/usr/lib/aarch64-qnx-gnu -L/usr/lib/aarch64-qnx-gnu
-        ifneq ($(TARGET_FS),)
-            LDFLAGS += -rpath=$(TARGET_FS)/usr/lib -L $(TARGET_FS)/usr/lib
-            LDFLAGS += -rpath=$(TARGET_FS)/usr/libnvidia -L $(TARGET_FS)/usr/libnvidia
+        LDFLAGS += -L/usr/lib/aarch64-qnx-gnu
+        CCFLAGS += "-Wl\,-rpath-link\,/usr/lib/aarch64-qnx-gnu"
+        ifdef TARGET_OVERRIDE
+            LDFLAGS += -lslog2
         endif
-        ifdef TARGET_OVERRIDE # cuda toolkit targets override
-            NVCCFLAGS += -target-dir $(TARGET_OVERRIDE)
+
+        ifneq ($(TARGET_FS),)
+            LDFLAGS += -L$(TARGET_FS)/usr/lib
+            CCFLAGS += "-Wl\,-rpath-link\,$(TARGET_FS)/usr/lib"
+            LDFLAGS += -L$(TARGET_FS)/usr/libnvidia
+            CCFLAGS += "-Wl\,-rpath-link\,$(TARGET_FS)/usr/libnvidia"
+            CCFLAGS += -I$(TARGET_FS)/../include
         endif
     endif
+endif
+
+ifdef TARGET_OVERRIDE # cuda toolkit targets override
+    NVCCFLAGS += -target-dir $(TARGET_OVERRIDE)
 endif
 
 # Install directory of different arch

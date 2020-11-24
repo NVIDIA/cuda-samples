@@ -154,16 +154,17 @@ The samples makefiles can take advantage of certain options:
 ---|---|---|---|
 **[EGLStream_CUDA_Interop](./Samples/EGLStream_CUDA_Interop)** | **[conjugateGradientMultiBlockCG](./Samples/conjugateGradientMultiBlockCG)** | **[simpleIPC](./Samples/simpleIPC)** | **[memMapIPCDrv](./Samples/memMapIPCDrv)** |
 **[vectorAddMMAP](./Samples/vectorAddMMAP)** | **[shfl_scan](./Samples/shfl_scan)** | **[simpleZeroCopy](./Samples/simpleZeroCopy)** | **[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** |
-**[globalToShmemAsyncCopy](./Samples/globalToShmemAsyncCopy)** | **[nvJPEG](./Samples/nvJPEG)** | **[batchedLabelMarkersAndLabelCompressionNPP](./Samples/batchedLabelMarkersAndLabelCompressionNPP)** | **[watershedSegmentationNPP](./Samples/watershedSegmentationNPP)** |
-**[simpleCudaGraphs](./Samples/simpleCudaGraphs)** | **[deviceQuery](./Samples/deviceQuery)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[simpleCUBLASXT](./Samples/simpleCUBLASXT)** |
-**[simpleAttributes](./Samples/simpleAttributes)** | **[cudaNvSci](./Samples/cudaNvSci)** | **[tf32TensorCoreGemm](./Samples/tf32TensorCoreGemm)** | **[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** |
-**[cudaCompressibleMemory](./Samples/cudaCompressibleMemory)** | **[bf16TensorCoreGemm](./Samples/bf16TensorCoreGemm)** | **[cuSolverDn_LinearSolver](./Samples/cuSolverDn_LinearSolver)** | **[vulkanImageCUDA](./Samples/vulkanImageCUDA)** |
-**[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** | **[matrixMulDrv](./Samples/matrixMulDrv)** | **[cuSolverSp_LinearSolver](./Samples/cuSolverSp_LinearSolver)** | **[simpleCUFFT](./Samples/simpleCUFFT)** |
-**[reduction](./Samples/reduction)** | **[nvJPEG_encoder](./Samples/nvJPEG_encoder)** | **[simpleDrvRuntime](./Samples/simpleDrvRuntime)** | **[MersenneTwisterGP11213](./Samples/MersenneTwisterGP11213)** |
-**[simpleAWBarrier](./Samples/simpleAWBarrier)** | **[immaTensorCoreGemm](./Samples/immaTensorCoreGemm)** | **[bandwidthTest](./Samples/bandwidthTest)** | **[concurrentKernels](./Samples/concurrentKernels)** |
-**[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[NV12toBGRandResize](./Samples/NV12toBGRandResize)** | **[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[jacobiCudaGraphs](./Samples/jacobiCudaGraphs)** |
-**[simpleVulkan](./Samples/simpleVulkan)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[cannyEdgeDetectorNPP](./Samples/cannyEdgeDetectorNPP)** | **[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** |
-**[simpleVulkanMMAP](./Samples/simpleVulkanMMAP)** | **[cudaOpenMP](./Samples/cudaOpenMP)** | **[matrixMul](./Samples/matrixMul)** | **[systemWideAtomics](./Samples/systemWideAtomics)** |
+**[globalToShmemAsyncCopy](./Samples/globalToShmemAsyncCopy)** | **[cudaNvSciNvMedia](./Samples/cudaNvSciNvMedia)** | **[nvJPEG](./Samples/nvJPEG)** | **[batchedLabelMarkersAndLabelCompressionNPP](./Samples/batchedLabelMarkersAndLabelCompressionNPP)** |
+**[watershedSegmentationNPP](./Samples/watershedSegmentationNPP)** | **[simpleCudaGraphs](./Samples/simpleCudaGraphs)** | **[deviceQuery](./Samples/deviceQuery)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** |
+**[simpleCUBLASXT](./Samples/simpleCUBLASXT)** | **[simpleAttributes](./Samples/simpleAttributes)** | **[cudaNvSci](./Samples/cudaNvSci)** | **[tf32TensorCoreGemm](./Samples/tf32TensorCoreGemm)** |
+**[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** | **[cudaCompressibleMemory](./Samples/cudaCompressibleMemory)** | **[bf16TensorCoreGemm](./Samples/bf16TensorCoreGemm)** | **[cuSolverDn_LinearSolver](./Samples/cuSolverDn_LinearSolver)** |
+**[vulkanImageCUDA](./Samples/vulkanImageCUDA)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** | **[matrixMulDrv](./Samples/matrixMulDrv)** | **[cuSolverSp_LinearSolver](./Samples/cuSolverSp_LinearSolver)** |
+**[simpleCUFFT](./Samples/simpleCUFFT)** | **[reduction](./Samples/reduction)** | **[nvJPEG_encoder](./Samples/nvJPEG_encoder)** | **[simpleDrvRuntime](./Samples/simpleDrvRuntime)** |
+**[MersenneTwisterGP11213](./Samples/MersenneTwisterGP11213)** | **[simpleAWBarrier](./Samples/simpleAWBarrier)** | **[immaTensorCoreGemm](./Samples/immaTensorCoreGemm)** | **[bandwidthTest](./Samples/bandwidthTest)** |
+**[concurrentKernels](./Samples/concurrentKernels)** | **[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[NV12toBGRandResize](./Samples/NV12toBGRandResize)** | **[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** |
+**[jacobiCudaGraphs](./Samples/jacobiCudaGraphs)** | **[simpleVulkan](./Samples/simpleVulkan)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[cannyEdgeDetectorNPP](./Samples/cannyEdgeDetectorNPP)** |
+**[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** | **[simpleVulkanMMAP](./Samples/simpleVulkanMMAP)** | **[cudaOpenMP](./Samples/cudaOpenMP)** | **[matrixMul](./Samples/matrixMul)** |
+**[systemWideAtomics](./Samples/systemWideAtomics)** |
 
 #### Windows
 **[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[boxFilterNPP](./Samples/boxFilterNPP)** | **[binaryPartitionCG](./Samples/binaryPartitionCG)** | **[dmmaTensorCoreGemm](./Samples/dmmaTensorCoreGemm)** |
@@ -250,7 +251,12 @@ EGLOutput is a set of EGL extensions which allow EGL to render directly to the d
 EGLSync is a set of EGL extensions which provides sync objects that are synchronization primitive, representing events whose completion can be tested or waited upon.
 
 #### NVSCI
+
 NvSci is a set of communication interface libraries out of which CUDA interops with NvSciBuf and NvSciSync. NvSciBuf allows applications to allocate and exchange buffers in memory. NvSciSync allows applications to manage synchronization objects which coordinate when sequences of operations begin and end.
+
+#### NvMedia
+
+NvMedia provides powerful processing of multimedia data for true hardware acceleration across NVIDIA Tegra devices. Applications leverage the NvMedia Application Programming Interface (API) to process the image and video data.
 
 ### CUDA Features
 
