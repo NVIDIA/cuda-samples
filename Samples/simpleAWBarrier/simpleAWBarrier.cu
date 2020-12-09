@@ -31,7 +31,7 @@
 
 // Includes CUDA
 #include <cuda_runtime.h>
-#include <cuda_awbarrier.h>
+#include <cuda/barrier>
 #include <cooperative_groups.h>
 
 // Utilities and timing functions
@@ -40,12 +40,11 @@
 // CUDA helper functions
 #include <helper_cuda.h>         // helper functions for CUDA error check
 
-namespace nvcuda_namespace = nvcuda::experimental;
 namespace cg = cooperative_groups;
 
 
 #if __CUDA_ARCH__ >= 700
-template <bool writeSquareRoot> __device__ void reduceBlockData(nvcuda_namespace::awbarrier &barrier,
+template <bool writeSquareRoot> __device__ void reduceBlockData(cuda::barrier<cuda::thread_scope_block> &barrier,
                             cg::thread_block_tile<32> &tile32, double &threadSum, double *result)
 {
     extern __shared__ double tmp[];
@@ -60,11 +59,12 @@ template <bool writeSquareRoot> __device__ void reduceBlockData(nvcuda_namespace
         tmp[tile32.meta_group_rank()] = threadSum;
     }
 
-    const auto token = barrier.arrive();
+    auto token = barrier.arrive();
 
-    // The warp which would arrive last at the barrier will 
-    // perform last round of reduction
-    if (tile32.any(token.pending_count() == 1)) {
+    barrier.wait(std::move(token));
+
+    // The warp 0 will perform last round of reduction
+    if (tile32.meta_group_rank() == 0) {
 
         double beta  = tile32.thread_rank() < tile32.meta_group_size() ? tmp[tile32.thread_rank()] : 0.0;
 
@@ -82,22 +82,21 @@ template <bool writeSquareRoot> __device__ void reduceBlockData(nvcuda_namespace
                 *result = beta;
         }
     }
-
-    barrier.wait(token);
 }
 #endif
 
 __global__ void normVecByDotProductAWBarrier(float *vecA, float *vecB, double *partialResults, int size)
 {
 #if __CUDA_ARCH__ >= 700
+#pragma diag_suppress static_var_with_dynamic_init
     cg::thread_block cta = cg::this_thread_block();
     cg::grid_group grid = cg::this_grid();;
     cg::thread_block_tile<32> tile32 = cg::tiled_partition<32>(cta);
 
-    __shared__ nvcuda_namespace::awbarrier barrier;
+    __shared__ cuda::barrier<cuda::thread_scope_block> barrier;
 
     if (threadIdx.x == 0) {
-        nvcuda_namespace::init(&barrier, blockDim.x);
+        init(&barrier, blockDim.x);
     }
 
     cg::sync(cta);
@@ -253,6 +252,7 @@ int runNormVecByDotProductAWBarrier(int argc, char **argv, int deviceId)
         }
     }
 
+    printf("Result = %s\n", matches == size ? "PASSED" : "FAILED");
     checkCudaErrors(cudaFree(d_vecA));
     checkCudaErrors(cudaFree(d_vecB));
     checkCudaErrors(cudaFree(d_partialResults));

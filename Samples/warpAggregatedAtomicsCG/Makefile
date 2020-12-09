@@ -289,11 +289,9 @@ ifeq ($(TARGET_OS),linux)
     GCCVERSION += 00
 # Remove spaces from the version number
     GCCVERSION := $(subst $(space),$(empty),$(GCCVERSION))
-# Crop the version number to 3 decimals.
-    GCCVERSION := $(shell expr `echo $(GCCVERSION)` | cut -b1-3)
 #$(warning $(GCCVERSION))
 
-    IS_MIN_VERSION := $(shell expr `echo $(GCCVERSION)` \>= 470)
+    IS_MIN_VERSION := $(shell expr `echo $(GCCVERSION)` \>= 47000)
 
     ifeq ($(IS_MIN_VERSION), 1)
         $(info >>> GCC Version is greater or equal to 4.7.0 <<<)
@@ -326,7 +324,7 @@ GENCODE_FLAGS += -gencode arch=compute_$(HIGHEST_SM),code=compute_$(HIGHEST_SM)
 endif
 endif
 
-ALL_CCFLAGS += --std=c++11
+ALL_CCFLAGS += --std=c++11 --threads 0
 
 ifeq ($(SAMPLE_ENABLED),0)
 EXEC ?= @echo "[@]"

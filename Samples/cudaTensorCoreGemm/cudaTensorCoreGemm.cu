@@ -409,7 +409,7 @@ __global__ void compute_gemm(const half *A, const half *B, const float *C,
 __global__ void simple_wmma_gemm(half *a, half *b, float *c, float *d, int m_ld,
                                  int n_ld, int k_ld, float alpha, float beta) {
   // Leading dimensions. Packed with no transpositions.
-  int lda = m_ld;
+  int lda = k_ld;
   int ldb = k_ld;
   int ldc = n_ld;
 
@@ -431,15 +431,14 @@ __global__ void simple_wmma_gemm(half *a, half *b, float *c, float *d, int m_ld,
   for (int i = 0; i < k_ld; i += WMMA_K) {
     int aCol = i;
     int aRow = warpM * WMMA_M;
-
-    int bCol = i;
-    int bRow = warpN * WMMA_N;
+    int bCol = warpN * N;
+    int bRow = i;
 
     // Bounds checking
     if (aRow < m_ld && aCol < k_ld && bRow < k_ld && bCol < n_ld) {
       // Load the inputs
       wmma::load_matrix_sync(a_frag, a + aCol + aRow * lda, lda);
-      wmma::load_matrix_sync(b_frag, b + bCol + bRow * ldb, ldb);
+      wmma::load_matrix_sync(b_frag, b + bRow + bCol * ldb, ldb);
 
       // Perform the matrix multiplication
       wmma::mma_sync(acc_frag, a_frag, b_frag, acc_frag);

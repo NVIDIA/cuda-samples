@@ -352,6 +352,8 @@ else
   endif
 endif
 
+ALL_CCFLAGS += --threads 0
+
 INCLUDES += -I$(CUDA_PATH)/include
 
 LIBRARIES += -lnvrtc

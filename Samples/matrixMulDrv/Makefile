@@ -360,6 +360,8 @@ else
   endif
 endif
 
+ALL_CCFLAGS += --threads 0
+
 ifeq ($(SAMPLE_ENABLED),0)
 EXEC ?= @echo "[@]"
 endif

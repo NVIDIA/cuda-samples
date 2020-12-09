@@ -42,16 +42,15 @@
 
 // CUDA runtime
 #include <cuda_runtime.h>
-#include <cuda_pipeline.h>
+#include <cuda/pipeline>
+
 #if __CUDA_ARCH__ >= 700
-#include <cuda_awbarrier.h>
+#include <cuda/barrier>
 #endif
 
 // Helper functions and utilities to work with CUDA
 #include <helper_functions.h>
 #include <helper_cuda.h>
-
-namespace nvcuda_namespace = nvcuda::experimental;
 
 enum kernels
 {
@@ -68,8 +67,6 @@ const char* kernelNames[] = {"AsyncCopyMultiStageLargeChunk", "AsyncCopyLargeChu
                             "AsyncCopyLargeChunkAWBarrier", "AsyncCopyMultiStage", 
                             "AsyncCopySingleStage", "Naive", "NaiveLargeChunk"};
 
-#define USE_CPP_API 0
-
 constexpr int blockSize = 16;
 
 // Multi Stage memcpy_async pipeline with large chunk copy
@@ -84,11 +81,11 @@ template <int BLOCK_SIZE> __global__ void MatrixMulAsyncCopyMultiStageLargeChunk
 
     // Declaration of the shared memory array As used to
     // store the sub-matrix of A for each stage
-    __shared__ float As[maxPipelineStages][BLOCK_SIZE][BLOCK_SIZE];
+    __shared__ alignas(alignof(float4)) float As[maxPipelineStages][BLOCK_SIZE][BLOCK_SIZE];
 
     // Declaration of the shared memory array Bs used to
     // store the sub-matrix of B for each stage
-    __shared__ float Bs[maxPipelineStages][BLOCK_SIZE][BLOCK_SIZE];
+    __shared__ alignas(alignof(float4)) float Bs[maxPipelineStages][BLOCK_SIZE][BLOCK_SIZE];
 
     float Csub = 0.0;
 
@@ -107,48 +104,30 @@ template <int BLOCK_SIZE> __global__ void MatrixMulAsyncCopyMultiStageLargeChunk
     // Step size used to iterate through the sub-matrices of B
     int bStep  = BLOCK_SIZE * wB;
 
-    const int t4x = threadIdx.x * 4 ;
+    const int t4x = threadIdx.x * 4;
+    const auto shape4 = cuda::aligned_size_t<alignof(float4)>(sizeof(float4));
 
-#if USE_CPP_API
-    nvcuda_namespace::pipeline pipe;
-#endif
+    cuda::pipeline<cuda::thread_scope_thread> pipe = cuda::make_pipeline();
+
     // Loop over all the sub-matrices of A and B
     // required to compute the block sub-matrix
     for (int a = aBegin, b = bBegin, i = 0, aStage = aBegin, bStage = bBegin, iStage = 0; a <= aEnd; a += aStep, b += bStep, ++i ) {
         // Load the matrices from device memory to shared memory; each thread loads
         // one element of each matrix
-
         for ( ; aStage <= a + aStep * maxPipelineStages ; aStage += aStep, bStage += bStep, ++iStage )
         {
+            pipe.producer_acquire();
             if ( aStage <= aEnd && t4x < BLOCK_SIZE )
             {
                 // Rotating buffer
                 const int j = iStage % maxPipelineStages;
-                float4 * const A4s = reinterpret_cast<float4*>(& As[j][threadIdx.y][t4x]);
-                float4 * const B4s = reinterpret_cast<float4*>(& Bs[j][threadIdx.y][t4x]);
-                const float4 * const A4  = reinterpret_cast<const float4*>(& A[aStage + wA * threadIdx.y + t4x]);
-                const float4 * const B4  = reinterpret_cast<const float4*>(& B[aStage + wA * threadIdx.y + t4x]);
-
-#if USE_CPP_API
-                nvcuda_namespace::memcpy_async(*A4s,*A4, pipe);
-                nvcuda_namespace::memcpy_async(*B4s,*B4, pipe);
-#else
-                __pipeline_memcpy_async(A4s, A4, sizeof(float4));
-                __pipeline_memcpy_async(B4s, B4, sizeof(float4));
-#endif
+                cuda::memcpy_async(&As[j][threadIdx.y][t4x], &A[aStage + wA * threadIdx.y + t4x], shape4, pipe);
+                cuda::memcpy_async(&Bs[j][threadIdx.y][t4x], &B[aStage + wA * threadIdx.y + t4x], shape4, pipe);
             }
-
-#if USE_CPP_API
-            pipe.commit();
-#else
-            __pipeline_commit();
-#endif
+            pipe.producer_commit();
         }
-#if USE_CPP_API
-        pipe.wait_prior<maxPipelineStages-1>();
-#else
-        __pipeline_wait_prior(maxPipelineStages-1);
-#endif
+
+        pipe.consumer_wait();
         // Synchronize to make sure the matrices are loaded
         __syncthreads();
 
@@ -158,9 +137,11 @@ template <int BLOCK_SIZE> __global__ void MatrixMulAsyncCopyMultiStageLargeChunk
         // Multiply the two matrices together;
         // each thread computes one element
         // of the block sub-matrix
+        #pragma unroll
         for (int k = 0; k < BLOCK_SIZE; ++k) {
             Csub += As[j][threadIdx.y][k] * Bs[j][k][threadIdx.x];
         }
+        pipe.consumer_release();
 
         // Don't have to synchronize because 
         // next iteration is loading to a different buffer
@@ -172,6 +153,7 @@ template <int BLOCK_SIZE> __global__ void MatrixMulAsyncCopyMultiStageLargeChunk
     C[c + wB * threadIdx.y + threadIdx.x] = Csub;
 }
 
+
 // Single Stage memcpy_async pipeline with Large copy chunk (float4)
 template <int BLOCK_SIZE> __global__ void MatrixMulAsyncCopyLargeChunk(float* __restrict__ C, 
                                                         const float* __restrict__ A,
@@ -181,11 +163,11 @@ template <int BLOCK_SIZE> __global__ void MatrixMulAsyncCopyLargeChunk(float* __
 
     // Declaration of the shared memory array As used to
     // store the sub-matrix of A
-    __shared__ float As[BLOCK_SIZE][BLOCK_SIZE];
+    __shared__ alignas(alignof(float4)) float As[BLOCK_SIZE][BLOCK_SIZE];
 
     // Declaration of the shared memory array Bs used to
     // store the sub-matrix of B
-    __shared__ float Bs[BLOCK_SIZE][BLOCK_SIZE];
+    __shared__ alignas(alignof(float4)) float Bs[BLOCK_SIZE][BLOCK_SIZE];
 
     // Index of the first sub-matrix of A processed by the block
     int aBegin = wA * BLOCK_SIZE * blockIdx.y;
@@ -206,9 +188,9 @@ template <int BLOCK_SIZE> __global__ void MatrixMulAsyncCopyLargeChunk(float* __
     float Csub = 0.0;
 
     const int t4x = threadIdx.x * 4;
-#if USE_CPP_API
-    nvcuda_namespace::pipeline pipe;
-#endif
+    const auto shape4 = cuda::aligned_size_t<alignof(float4)>(sizeof(float4));
+    cuda::pipeline<cuda::thread_scope_thread> pipe = cuda::make_pipeline();
+
     // Loop over all the sub-matrices of A and B
     // required to compute the block sub-matrix
     for (int a = aBegin, b = bBegin; a <= aEnd; a += aStep, b += bStep) {
@@ -221,23 +203,14 @@ template <int BLOCK_SIZE> __global__ void MatrixMulAsyncCopyLargeChunk(float* __
 
         // Now, one fourth of the threads load four elements of each matrix
         if ( t4x < BLOCK_SIZE ) {
-            float4 * const A4s = reinterpret_cast<float4*>(& As[threadIdx.y][t4x]);
-            float4 * const B4s = reinterpret_cast<float4*>(& Bs[threadIdx.y][t4x]);
-            const float4 * const A4  = reinterpret_cast<const float4*>(& A[a + wA * threadIdx.y + t4x]);
-            const float4 * const B4  = reinterpret_cast<const float4*>(& B[a + wA * threadIdx.y + t4x]);
 
-#if USE_CPP_API
-            nvcuda_namespace::memcpy_async(*A4s,*A4,pipe);
-            nvcuda_namespace::memcpy_async(*B4s,*B4,pipe);
+            pipe.producer_acquire();
 
-            pipe.commit_and_wait();
-#else
-            __pipeline_memcpy_async(A4s, A4, sizeof(float4));
-            __pipeline_memcpy_async(B4s, B4, sizeof(float4));
+            cuda::memcpy_async(&As[threadIdx.y][t4x], &A[a + wA * threadIdx.y + t4x], shape4, pipe);
+            cuda::memcpy_async(&Bs[threadIdx.y][t4x], &B[a + wA * threadIdx.y + t4x], shape4, pipe);
 
-            __pipeline_commit();
-            __pipeline_wait_prior(0);
-#endif
+            pipe.producer_commit();
+            pipe.consumer_wait();
         }
 
         // Synchronize to make sure the matrices are loaded
@@ -250,6 +223,8 @@ template <int BLOCK_SIZE> __global__ void MatrixMulAsyncCopyLargeChunk(float* __
         for (int k = 0; k < BLOCK_SIZE; ++k) {
             Csub += As[threadIdx.y][k] * Bs[k][threadIdx.x];
         }
+
+        pipe.consumer_release();
 
         // Synchronize to make sure that the preceding
         // computation is done before loading two new
@@ -269,21 +244,21 @@ template <int BLOCK_SIZE> __global__ void MatrixMulAsyncCopyLargeChunkAWBarrier(
                                                         const float* __restrict__ B, int wA,
                                                         int wB) {
 #if __CUDA_ARCH__ >= 700
+#pragma diag_suppress static_var_with_dynamic_init
     // Requires BLOCK_SIZE % 4 == 0 
+
+    __shared__ cuda::barrier<cuda::thread_scope_block> bar;
 
     // Declaration of the shared memory array As used to
     // store the sub-matrix of A
-    __shared__ float As[BLOCK_SIZE][BLOCK_SIZE];
+    __shared__  alignas(alignof(float4)) float As[BLOCK_SIZE][BLOCK_SIZE];
 
     // Declaration of the shared memory array Bs used to
     // store the sub-matrix of B
-    __shared__ float Bs[BLOCK_SIZE][BLOCK_SIZE];
-
-    nvcuda_namespace::pipeline pipe;
-    __shared__ nvcuda_namespace::awbarrier barrier;
+    __shared__ alignas(alignof(float4)) float Bs[BLOCK_SIZE][BLOCK_SIZE];
 
     if (threadIdx.x == 0) {
-        nvcuda_namespace::init(&barrier, blockDim.x*blockDim.y);
+        init(&bar, blockDim.x*blockDim.y);
     }
     __syncthreads();
 
@@ -319,14 +294,12 @@ template <int BLOCK_SIZE> __global__ void MatrixMulAsyncCopyLargeChunkAWBarrier(
             const float4 * const A4  = reinterpret_cast<const float4*>(& A[a + wA * threadIdx.y + t4x]);
             const float4 * const B4  = reinterpret_cast<const float4*>(& B[a + wA * threadIdx.y + t4x]);
 
-            nvcuda_namespace::memcpy_async(*A4s,*A4,pipe);
-            nvcuda_namespace::memcpy_async(*B4s,*B4,pipe);
-
-            pipe.arrive_on(barrier);
-        }
+            cuda::memcpy_async(A4s, A4, sizeof(float4), bar);
+            cuda::memcpy_async(B4s, B4, sizeof(float4), bar);
+         }
 
         // Synchronize to make sure the matrices are loaded
-        barrier.arrive_and_wait();
+        bar.arrive_and_wait();
 
         // Multiply the two matrices together;
         // each thread computes one element
@@ -380,33 +353,25 @@ template <int BLOCK_SIZE> __global__ void MatrixMulAsyncCopySingleStage(float *C
     // Single-stage pipeline version
     float Csub = 0.0;
 
-#if USE_CPP_API
-    nvcuda_namespace::pipeline pipe;
-#endif
+    cuda::pipeline<cuda::thread_scope_thread> pipe = cuda::make_pipeline();
+    const auto shape1 = cuda::aligned_size_t<alignof(float)>(sizeof(float));
+
+
     // Loop over all the sub-matrices of A and B
     // required to compute the block sub-matrix
     for (int a = aBegin, b = bBegin; a <= aEnd; a += aStep, b += bStep) {
         // Load the matrices from device memory to shared memory; each thread loads
         // one element of each matrix
         {
-            const float *A_float = reinterpret_cast<const float*>(A + a + wA * threadIdx.y + threadIdx.x);
-            const float *B_float = reinterpret_cast<const float*>(B + b + wB * threadIdx.y + threadIdx.x);
+            pipe.producer_acquire();
 
-#if USE_CPP_API
+            cuda::memcpy_async(&As[threadIdx.y][threadIdx.x], &A[a + wA * threadIdx.y + threadIdx.x], shape1, pipe);
+            cuda::memcpy_async(&Bs[threadIdx.y][threadIdx.x], &B[b + wB * threadIdx.y + threadIdx.x], shape1, pipe);
 
-            nvcuda_namespace::memcpy_async(As[threadIdx.y][threadIdx.x], *A_float, pipe);
-            nvcuda_namespace::memcpy_async(Bs[threadIdx.y][threadIdx.x], *B_float, pipe);
-
-            pipe.commit_and_wait();
-#else
-            __pipeline_memcpy_async(&As[threadIdx.y][threadIdx.x], A_float, sizeof(float));
-            __pipeline_memcpy_async(&Bs[threadIdx.y][threadIdx.x], B_float, sizeof(float));
-
-            __pipeline_commit();
-            __pipeline_wait_prior(0);
-#endif
+            pipe.producer_commit();
         }
 
+        pipe.consumer_wait();
         // Synchronize to make sure the matrices are loaded
         __syncthreads();
 
@@ -463,9 +428,9 @@ template <int BLOCK_SIZE> __global__ void MatrixMulAsyncCopyMultiStage(float* __
     // Step size used to iterate through the sub-matrices of B
     int bStep  = BLOCK_SIZE * wB;
 
-#if USE_CPP_API
-    nvcuda_namespace::pipeline pipe;
-#endif
+    cuda::pipeline<cuda::thread_scope_thread> pipe = cuda::make_pipeline();
+    const auto shape1 = cuda::aligned_size_t<alignof(float)>(sizeof(float));
+
     // Loop over all the sub-matrices of A and B
     // required to compute the block sub-matrix
     for (int a = aBegin, b = bBegin, i = 0, aStage = aBegin, bStage = bBegin, iStage = 0; a <= aEnd; a += aStep, b += bStep, ++i ) {
@@ -476,30 +441,19 @@ template <int BLOCK_SIZE> __global__ void MatrixMulAsyncCopyMultiStage(float* __
         {
             if ( aStage <= aEnd )
             {
-                const float *A_float = reinterpret_cast<const float*>(A + aStage + wA * threadIdx.y + threadIdx.x);
-                const float *B_float = reinterpret_cast<const float*>(B + bStage + wB * threadIdx.y + threadIdx.x);
-
                 // Rotating buffer
                 const int j = iStage % maxPipelineStages;
-#if USE_CPP_API
-                nvcuda_namespace::memcpy_async(As[j][threadIdx.y][threadIdx.x], *A_float, pipe);
-                nvcuda_namespace::memcpy_async(Bs[j][threadIdx.y][threadIdx.x], *B_float, pipe);
-#else
-                __pipeline_memcpy_async(&As[j][threadIdx.y][threadIdx.x], A_float, sizeof(float));
-                __pipeline_memcpy_async(&Bs[j][threadIdx.y][threadIdx.x], B_float, sizeof(float));
-#endif
+
+                pipe.producer_acquire();
+
+                cuda::memcpy_async(&As[j][threadIdx.y][threadIdx.x], &A[aStage + wA * threadIdx.y + threadIdx.x], shape1, pipe);
+                cuda::memcpy_async(&Bs[j][threadIdx.y][threadIdx.x], &B[bStage + wB * threadIdx.y + threadIdx.x], shape1, pipe);
+
+                pipe.producer_commit();
             }
-#if USE_CPP_API
-            pipe.commit();
-#else
-            __pipeline_commit();
-#endif
         }
-#if USE_CPP_API
-        pipe.wait_prior<maxPipelineStages-1>();
-#else
-        __pipeline_wait_prior(maxPipelineStages-1);
-#endif
+        pipe.consumer_wait();
+
         // Synchronize to make sure the matrices are loaded
         __syncthreads();
 
@@ -512,6 +466,7 @@ template <int BLOCK_SIZE> __global__ void MatrixMulAsyncCopyMultiStage(float* __
             Csub += As[j][threadIdx.y][k] * Bs[j][k][threadIdx.x];
         }
 
+        pipe.consumer_release();
         // Don't have to synchronize because 
         // next iteration is loading to a different buffer
     }
@@ -596,11 +551,11 @@ template <int BLOCK_SIZE> __global__ void MatrixMulNaiveLargeChunk(float *C, flo
                                                         int wB) {
     // Declaration of the shared memory array As used to
     // store the sub-matrix of A
-    __shared__ float As[BLOCK_SIZE][BLOCK_SIZE];
+    __shared__ alignas(alignof(float4)) float As[BLOCK_SIZE][BLOCK_SIZE];
 
     // Declaration of the shared memory array Bs used to
     // store the sub-matrix of B
-    __shared__ float Bs[BLOCK_SIZE][BLOCK_SIZE];
+    __shared__ alignas(alignof(float4)) float Bs[BLOCK_SIZE][BLOCK_SIZE];
 
     int t4x = threadIdx.x * 4 ;
 
@@ -866,7 +821,7 @@ int MatrixMultiply(int argc, char **argv,
 
 
 int main(int argc, char **argv) {
-    printf("[Matrix Multiply Using CUDA] - Starting...\n");
+    printf("[globalToShmemAsyncCopy] - Starting...\n");
 
     if (checkCmdLineFlag(argc, (const char **)argv, "help") ||
             checkCmdLineFlag(argc, (const char **)argv, "?")) {
@@ -887,8 +842,8 @@ int main(int argc, char **argv) {
     int dev = findCudaDevice(argc, (const char **)argv);
 
     int matrixBlock = 32;
-    dim3 dimsA(10 * 2 * matrixBlock, 10 * 2 * matrixBlock, 1);
-    dim3 dimsB(10 * 2 * matrixBlock, 10 * 2 * matrixBlock, 1);
+    dim3 dimsA(10 * 4 * matrixBlock, 10 * 4 * matrixBlock, 1);
+    dim3 dimsB(10 * 4 * matrixBlock, 10 * 4 * matrixBlock, 1);
 
     // width of Matrix A
     if (checkCmdLineFlag(argc, (const char **)argv, "wA")) {
@@ -930,16 +885,15 @@ int main(int argc, char **argv) {
             printf("Error: kernel number should be between 0 to 6, you have entered %d\n", kernel_number);
             exit(EXIT_FAILURE);
         }
-
-        int major = 0;
-        checkCudaErrors(cudaDeviceGetAttribute(&major, cudaDevAttrComputeCapabilityMajor, dev));
-        if ((kernel_number == AsyncCopyLargeChunkAWBarrier) && major < 7)
-        {
-            printf("AsyncCopyLargeChunkAWBarrier kernel requires requires SM 7.0 or higher.  Exiting...\n");
-            exit(EXIT_WAIVED);
-        }
     }
 
+    int major = 0;
+    checkCudaErrors(cudaDeviceGetAttribute(&major, cudaDevAttrComputeCapabilityMajor, dev));
+    if (major < 7)
+    {
+        printf("globalToShmemAsyncCopy requires SM 7.0 or higher.  Exiting...\n");
+        exit(EXIT_WAIVED);
+    }
 
     printf("MatrixA(%d,%d), MatrixB(%d,%d)\n", dimsA.x, dimsA.y,
                                                dimsB.x, dimsB.y);

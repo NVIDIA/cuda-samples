@@ -64,13 +64,9 @@ typedef struct shmStruct_st {
   int sense;
 } shmStruct;
 
-bool findModulePath(const char *, string &, char **, string &);
-
-// define input ptx file for different platforms
-#if defined(_WIN64) || defined(__LP64__)
-#define PTX_FILE "memMapIpc_kernel64.ptx"
-#else
-#define PTX_FILE "memMapIpc_kernel32.ptx"
+// define input fatbin file
+#ifndef FATBIN_FILE
+#define FATBIN_FILE "memMapIpc_kernel64.fatbin"
 #endif
 
 // `ipcHandleTypeFlag` specifies the platform specific handle type this sample
@@ -259,43 +255,22 @@ static void memMapUnmapAndFreeMemory(CUdeviceptr dptr, size_t size) {
 
 static void memMapGetDeviceFunction(char **argv) {
   // first search for the module path before we load the results
-  string module_path, ptx_source;
-  if (!findModulePath(PTX_FILE, module_path, argv, ptx_source)) {
-    if (!findModulePath("memMapIpc_kernel.cubin", module_path, argv,
-                        ptx_source)) {
-      printf(
-          "> findModulePath could not find <simpleMemMapIpc> ptx or cubin\n");
-      exit(EXIT_FAILURE);
-    }
+  string module_path;
+  std::ostringstream fatbin;
+
+  if (!findFatbinPath(FATBIN_FILE, module_path, argv, fatbin)) {
+    exit(EXIT_FAILURE);
   } else {
     printf("> initCUDA loading module: <%s>\n", module_path.c_str());
   }
 
-  // Create module from binary file (PTX or CUBIN)
-  if (module_path.rfind("ptx") != string::npos) {
-    // in this branch we use compilation with parameters
-    const unsigned int jitNumOptions = 3;
-    CUjit_option *jitOptions = new CUjit_option[jitNumOptions];
-    void **jitOptVals = new void *[jitNumOptions];
-    // set up size of compilation log buffer
-    jitOptions[0] = CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES;
-    int jitLogBufferSize = 1024;
-    jitOptVals[0] = (void *)(size_t)jitLogBufferSize;
-    // set up pointer to the compilation log buffer
-    jitOptions[1] = CU_JIT_INFO_LOG_BUFFER;
-    char *jitLogBuffer = new char[jitLogBufferSize];
-    jitOptVals[1] = jitLogBuffer;
-    // set up pointer to set the Maximum # of registers for a particular kernel
-    jitOptions[2] = CU_JIT_MAX_REGISTERS;
-    int jitRegCount = 32;
-    jitOptVals[2] = (void *)(size_t)jitRegCount;
-    checkCudaErrors(cuModuleLoadDataEx(&cuModule, ptx_source.c_str(),
-                                       jitNumOptions, jitOptions,
-                                       (void **)jitOptVals));
-    printf("> PTX JIT log:\n%s\n", jitLogBuffer);
-  } else {
-    checkCudaErrors(cuModuleLoad(&cuModule, module_path.c_str()));
+  if (!fatbin.str().size()) {
+    printf("fatbin file empty. exiting..\n");
+    exit(EXIT_FAILURE);
   }
+
+  // Create module from binary file (FATBIN)
+  checkCudaErrors(cuModuleLoadData(&cuModule, fatbin.str().c_str()));
 
   // Get function handle from module
   checkCudaErrors(
@@ -609,38 +584,4 @@ int main(int argc, char **argv) {
   }
   return EXIT_SUCCESS;
 #endif
-}
-
-bool inline findModulePath(const char *module_file, string &module_path,
-                           char **argv, string &ptx_source) {
-  char *actual_path = sdkFindFilePath(module_file, argv[0]);
-
-  if (actual_path) {
-    module_path = actual_path;
-  } else {
-    printf("> findModulePath file not found: <%s> \n", module_file);
-    return false;
-  }
-
-  if (module_path.empty()) {
-    printf("> findModulePath could not find file: <%s> \n", module_file);
-    return false;
-  } else {
-    printf("> findModulePath found file at <%s>\n", module_path.c_str());
-
-    if (module_path.rfind(".ptx") != string::npos) {
-      FILE *fp = fopen(module_path.c_str(), "rb");
-      fseek(fp, 0, SEEK_END);
-      int file_size = ftell(fp);
-      char *buf = new char[file_size + 1];
-      fseek(fp, 0, SEEK_SET);
-      fread(buf, sizeof(char), file_size, fp);
-      fclose(fp);
-      buf[file_size] = '\0';
-      ptx_source = buf;
-      delete[] buf;
-    }
-
-    return true;
-  }
 }

@@ -288,6 +288,8 @@ LIBRARIES :=
 
 ################################################################################
 
+ALL_CCFLAGS += --threads 0
+
 LIBRARIES += -lnvjpeg
 
 ifeq ($(SAMPLE_ENABLED),0)

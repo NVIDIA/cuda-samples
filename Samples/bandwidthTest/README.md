@@ -27,7 +27,7 @@ cudaSetDevice, cudaHostAlloc, cudaFree, cudaMallocHost, cudaFreeHost, cudaMemcpy
 
 ## Prerequisites
 
-Download and install the [CUDA Toolkit 11.1](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit 11.2](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 
 ## Build and Run
 

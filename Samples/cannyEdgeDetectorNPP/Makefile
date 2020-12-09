@@ -301,12 +301,14 @@ GENCODE_FLAGS += -gencode arch=compute_$(HIGHEST_SM),code=compute_$(HIGHEST_SM)
 endif
 endif
 
-INCLUDES += -I../../Common/UtilNPP -I../../Common/FreeImage/include
+ALL_CCFLAGS += --threads 0
 
-LIBRARIES += -L../../Common/FreeImage/lib/x64 -L../../Common/FreeImage/lib/$(TARGET_OS) -L../../Common/FreeImage/lib/$(TARGET_OS)/$(TARGET_ARCH) -lnppisu_static -lnppif_static -lnppc_static -lculibos -lfreeimage
+INCLUDES += -I../../Common/UtilNPP
+
+LIBRARIES += -lnppisu_static -lnppif_static -lnppc_static -lculibos -lfreeimage
 
 # Attempt to compile a minimal application linked against FreeImage. If a.out exists, FreeImage is properly set up.
-$(shell echo "#include \"FreeImage.h\"" > test.c; echo "int main() { return 0; }" >> test.c ; $(NVCC) $(ALL_CCFLAGS) $(INCLUDES) $(LIBRARIES) -l freeimage test.c)
+$(shell echo "#include \"FreeImage.h\"" > test.c; echo "int main() { return 0; }" >> test.c ; $(NVCC) $(ALL_CCFLAGS) $(INCLUDES) $(ALL_LDFLAGS) $(LIBRARIES) -l freeimage test.c)
 FREEIMAGE := $(shell find a.out 2>/dev/null)
 $(shell rm a.out test.c 2>/dev/null)
 

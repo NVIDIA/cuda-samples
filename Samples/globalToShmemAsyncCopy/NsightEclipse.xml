@@ -48,12 +48,6 @@
     <scope>1:CUDA Basic Topics</scope>
     <scope>3:Linear Algebra</scope>
   </scopes>
-  <sm-arch>sm35</sm-arch>
-  <sm-arch>sm37</sm-arch>
-  <sm-arch>sm50</sm-arch>
-  <sm-arch>sm52</sm-arch>
-  <sm-arch>sm60</sm-arch>
-  <sm-arch>sm61</sm-arch>
   <sm-arch>sm70</sm-arch>
   <sm-arch>sm72</sm-arch>
   <sm-arch>sm75</sm-arch>
@@ -88,7 +82,7 @@
     </env>
   </supported_envs>
   <supported_sm_architectures>
-    <include>all</include>
+    <from>7.0</from>
   </supported_sm_architectures>
   <title>Global Memory to Shared Memory Async Copy</title>
 </entry>

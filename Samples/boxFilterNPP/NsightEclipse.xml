@@ -10,7 +10,7 @@
   </files>
   <includepaths>
     <path>../../Common/UtilNPP</path>
-    <path>../../Common/FreeImage/include</path>
+    <path os="Windows">../../Common/FreeImage/Dist/x64</path>
     <path>./</path>
     <path>../</path>
     <path>../../common/inc</path>
@@ -34,8 +34,6 @@
     <library>freeimage</library>
   </libraries>
   <librarypaths>
-    <path>../../Common/FreeImage/lib/$(TARGET_OS)</path>
-    <path>../../Common/FreeImage/lib/$(TARGET_OS)/$(TARGET_ARCH)</path>
   </librarypaths>
   <nsight_eclipse>true</nsight_eclipse>
   <primary_file>boxFilterNPP.cpp</primary_file>

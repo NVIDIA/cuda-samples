@@ -382,6 +382,8 @@ else
   endif
 endif
 
+ALL_CCFLAGS += --threads 0
+
 LIBRARIES += -lcudart_static
 
 ifeq ($(SAMPLE_ENABLED),0)

@@ -286,6 +286,8 @@ LIBRARIES :=
 
 ################################################################################
 
+ALL_CCFLAGS += --threads 0
+
 LIBRARIES += -lcusolver -lcublas -lcusparse
 
 ifeq ($(SAMPLE_ENABLED),0)

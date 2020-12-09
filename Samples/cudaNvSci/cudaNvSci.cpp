@@ -122,12 +122,10 @@ class cudaNvSciSignal {
 
   void setRawBufAttrList(uint64_t size) {
     NvSciBufType bufType = NvSciBufType_RawBuffer;
-    uint64_t tempAlignment = 0;
     bool cpuAccess = false;
     NvSciBufAttrValAccessPerm perm = NvSciBufAccessPerm_ReadWrite;
     NvSciBufAttrKeyValuePair rawBufAttrs[] = {
         {NvSciBufRawBufferAttrKey_Size, &size, sizeof(size)},
-        {NvSciBufRawBufferAttrKey_Align, &tempAlignment, sizeof(tempAlignment)},
         {NvSciBufGeneralAttrKey_Types, &bufType, sizeof(bufType)},
         {NvSciBufGeneralAttrKey_NeedCpuAccess, &cpuAccess, sizeof(cpuAccess)},
         {NvSciBufGeneralAttrKey_RequiredPerm, &perm, sizeof(perm)},
@@ -234,13 +232,11 @@ class cudaNvSciSignal {
 
     memset(pairArrayOut, 0, sizeof(NvSciBufAttrKeyValuePair) * 10);
     pairArrayOut[0].key = NvSciBufRawBufferAttrKey_Size;
-    pairArrayOut[1].key = NvSciBufRawBufferAttrKey_Align;
 
     checkNvSciErrors(
-        NvSciBufAttrListGetAttrs(m_buffAttrListOut[0], pairArrayOut, 2));
+        NvSciBufAttrListGetAttrs(m_buffAttrListOut[0], pairArrayOut, 1));
 
     uint64_t size = *(uint64_t *)pairArrayOut[0].value;
-    uint64_t offset = *(uint64_t *)pairArrayOut[1].value;
 
     cudaExternalMemoryHandleDesc memHandleDesc;
     memset(&memHandleDesc, 0, sizeof(memHandleDesc));
@@ -251,7 +247,7 @@ class cudaNvSciSignal {
 
     cudaExternalMemoryBufferDesc bufferDesc;
     memset(&bufferDesc, 0, sizeof(bufferDesc));
-    bufferDesc.offset = offset;
+    bufferDesc.offset = 0;
     bufferDesc.size = size;
     m_bufSize = size;
     checkCudaErrors(cudaExternalMemoryGetMappedBuffer(
@@ -410,12 +406,10 @@ class cudaNvSciWait {
 
   void setRawBufAttrList(uint64_t size) {
     NvSciBufType bufType = NvSciBufType_RawBuffer;
-    uint64_t tempAlignment = 0;
     bool cpuAccess = false;
     NvSciBufAttrValAccessPerm perm = NvSciBufAccessPerm_ReadWrite;
     NvSciBufAttrKeyValuePair rawBufAttrs[] = {
         {NvSciBufRawBufferAttrKey_Size, &size, sizeof(size)},
-        {NvSciBufRawBufferAttrKey_Align, &tempAlignment, sizeof(tempAlignment)},
         {NvSciBufGeneralAttrKey_Types, &bufType, sizeof(bufType)},
         {NvSciBufGeneralAttrKey_NeedCpuAccess, &cpuAccess, sizeof(cpuAccess)},
         {NvSciBufGeneralAttrKey_RequiredPerm, &perm, sizeof(perm)},
@@ -475,13 +469,11 @@ class cudaNvSciWait {
 
     memset(pairArrayOut, 0, sizeof(NvSciBufAttrKeyValuePair) * 10);
     pairArrayOut[0].key = NvSciBufRawBufferAttrKey_Size;
-    pairArrayOut[1].key = NvSciBufRawBufferAttrKey_Align;
 
     checkNvSciErrors(
-        NvSciBufAttrListGetAttrs(m_buffAttrListOut, pairArrayOut, 2));
+        NvSciBufAttrListGetAttrs(m_buffAttrListOut, pairArrayOut, 1));
 
     uint64_t size = *(uint64_t *)pairArrayOut[0].value;
-    uint64_t offset = *(uint64_t *)pairArrayOut[1].value;
 
     cudaExternalMemoryHandleDesc memHandleDesc;
     memset(&memHandleDesc, 0, sizeof(memHandleDesc));
@@ -492,7 +484,7 @@ class cudaNvSciWait {
 
     cudaExternalMemoryBufferDesc bufferDesc;
     memset(&bufferDesc, 0, sizeof(bufferDesc));
-    bufferDesc.offset = offset;
+    bufferDesc.offset = 0;
     bufferDesc.size = size;
     m_bufSize = size;
 
