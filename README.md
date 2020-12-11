@@ -209,7 +209,7 @@ These third-party dependencies are required by some CUDA samples. If available, 
 
 FreeImage is an open source imaging library. FreeImage can usually be installed on Linux using your distribution's package manager system. FreeImage can also be downloaded from the FreeImage website.
 
-To set up FreeImage on a Windows system, extract the FreeImage DLL distribution into the `7_CUDALibraries/common/` folder such that `7_CUDALibraries/common/FreeImage/Dist/x64/` contains the .h, .dll, and .lib files.
+To set up FreeImage on a Windows system, extract the FreeImage DLL distribution into the folder `../../Common/FreeImage/Dist/x64` such that it contains the .h, .dll, and .lib files.
 
 #### Message Passing Interface
 
