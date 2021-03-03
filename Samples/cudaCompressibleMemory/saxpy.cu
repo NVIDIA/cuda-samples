@@ -48,26 +48,47 @@ __global__ void saxpy(const float a, const float4 *x, const float4 *y, float4 *z
     }
 }
 
-__global__ void init(float4 *x, float4 *y, float4 *z, const float val, const size_t n)
+__global__ void init(float4 *x, float4 *y, const float val, const size_t n)
 {
     const float4 val4 = make_float4(val, val, val, val);
     for (size_t i = blockIdx.x * blockDim.x + threadIdx.x; i < n; i += gridDim.x * blockDim.x)
     {
-        z[i] = x[i] = y[i] = val4;
+        x[i] = y[i] = val4;
     }
 }
 
-void launchSaxpy(const float a, float4 *x, float4 *y, float4 *z, const size_t n, const float init_val)
+void launchSaxpy(const float a, float4 *x, float4 *y, float4 *z, const size_t n, const float init_val, const bool compressibleZbuf)
 {
     cudaEvent_t start, stop;
     float ms;
     int blockSize;
     int minGridSize;
+    dim3 threads, blocks; 
 
-    checkCudaErrors(cudaOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, (void*)init));
-    dim3 threads = dim3(blockSize, 1, 1);
-    dim3 blocks  = dim3(minGridSize, 1, 1);
-    init<<<blocks, threads>>>(x, y, z, init_val, n);
+    if (!compressibleZbuf)
+    {
+        // We are on config where compressible buffer can only be initialized through cudaMemcpy
+        // hence, x & y buffers are allocated as compressible and initialized via cudaMemcpy
+        // whereas z buffer is allocated as non-compressible.
+        float4 *h_x = (float4 *) malloc(sizeof(float4) * n);
+        float4 *h_y = (float4 *) malloc(sizeof(float4) * n);
+        for (int i = 0; i < n; i++)
+        {
+            h_x[i].x = h_x[i].y = h_x[i].z = h_x[i].w = init_val;
+            h_y[i].x = h_y[i].y = h_y[i].z = h_y[i].w = init_val;
+        }
+        checkCudaErrors(cudaMemcpy(x, h_x, sizeof(float4) * n, cudaMemcpyHostToDevice));
+        checkCudaErrors(cudaMemcpy(y, h_y, sizeof(float4) * n, cudaMemcpyHostToDevice));
+        free(h_x);
+        free(h_y);
+    }
+    else
+    {
+        checkCudaErrors(cudaOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, (void*)init));
+        threads = dim3(blockSize, 1, 1);
+        blocks  = dim3(minGridSize, 1, 1);
+        init<<<blocks, threads>>>(x, y, init_val, n);
+    }
 
     checkCudaErrors(cudaOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, (void*)saxpy));
     threads = dim3(blockSize, 1, 1);
@@ -121,19 +142,39 @@ int main(int argc, char **argv)
 
     printf("Generic memory compression support is available\n");
 
+    int major, minor;
+    checkCudaErrors(cuDeviceGetAttribute(&major,
+                          CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR,
+                          currentDevice));
+    checkCudaErrors(cuDeviceGetAttribute(&minor,
+                          CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR,
+                          currentDevice));
     float4 *x, *y, *z;
     const size_t size = n * sizeof(float4);
 
     // Allocating compressible memory
     checkCudaErrors(allocateCompressible((void **)&x, size, true));
     checkCudaErrors(allocateCompressible((void **)&y, size, true));
-    checkCudaErrors(allocateCompressible((void **)&z, size, true));
+    bool compressibleZbuf = 0;
+    if ((major == 8 && minor == 0) || (major == 8 && minor == 6))
+    {
+        // On SM 8.0 and 8.6 GPUs compressible buffer can only be initialized 
+        // through cudaMemcpy.
+        printf("allocating non-compressible Z buffer\n");
+        checkCudaErrors(allocateCompressible((void **)&z, size, false));
+        compressibleZbuf = 0;
+    }
+    else
+    {
+        checkCudaErrors(allocateCompressible((void **)&z, size, true));
+        compressibleZbuf = 1;
+    }
 
     printf("Running saxpy on %zu bytes of Compressible memory\n", size);
 
     const float a = 1.0f;
     const float init_val = 1.0f;
-    launchSaxpy(a, x, y, z, n, init_val);
+    launchSaxpy(a, x, y, z, n, init_val, compressibleZbuf);
  
     checkCudaErrors(freeCompressible(x, size, true));
     checkCudaErrors(freeCompressible(y, size, true));
@@ -145,8 +186,8 @@ int main(int argc, char **argv)
     checkCudaErrors(allocateCompressible((void **)&y, size, false));
     checkCudaErrors(allocateCompressible((void **)&z, size, false));
 
-    launchSaxpy(a, x, y, z, n, init_val);
- 
+    launchSaxpy(a, x, y, z, n, init_val, compressibleZbuf);
+
     checkCudaErrors(freeCompressible(x, size, false));
     checkCudaErrors(freeCompressible(y, size, false));
     checkCudaErrors(freeCompressible(z, size, false));
