@@ -277,6 +277,12 @@ ifeq ($(TARGET_ARCH),armv7l)
   SAMPLE_ENABLED := 0
 endif
 
+# This sample is not supported on QNX
+ifeq ($(TARGET_OS),qnx)
+  $(info >>> WARNING - nvJPEG_encoder is not supported on QNX - waiving sample <<<)
+  SAMPLE_ENABLED := 0
+endif
+
 ALL_LDFLAGS :=
 ALL_LDFLAGS += $(ALL_CCFLAGS)
 ALL_LDFLAGS += $(addprefix -Xlinker ,$(LDFLAGS))

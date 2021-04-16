@@ -223,8 +223,10 @@ __device__ void gpuDotProduct(float *vecA, float *vecB, int size,
   cg::sync(cta);
 
   if (tile32.meta_group_rank() == 0) {
-     temp_sum = tile32.thread_rank() < tile32.meta_group_size() ? tmp[tile32.thread_rank()] : 0.0;
-     temp_sum = cg::reduce(tile32, temp_sum, cg::plus<double>());
+    temp_sum = tile32.thread_rank() < tile32.meta_group_size()
+                   ? tmp[tile32.thread_rank()]
+                   : 0.0;
+    temp_sum = cg::reduce(tile32, temp_sum, cg::plus<double>());
 
     if (tile32.thread_rank() == 0) {
       atomicAdd(&grid_dot_result, temp_sum);
@@ -239,8 +241,9 @@ __device__ void gpuCopyVector(float *srcA, float *destB, int size,
   }
 }
 
-__device__ void gpuScaleVectorAndSaxpy(float *x, float *y, float a, float scale, int size,
-                         const cg::multi_grid_group &multi_grid) {
+__device__ void gpuScaleVectorAndSaxpy(float *x, float *y, float a, float scale,
+                                       int size,
+                                       const cg::multi_grid_group &multi_grid) {
   for (int i = multi_grid.thread_rank(); i < size; i += multi_grid.size()) {
     y[i] = a * x[i] + scale * y[i];
   }
@@ -360,10 +363,11 @@ std::multimap<std::pair<int, int>, int> getIdenticalGPUs() {
     // Filter unsupported devices
     if (deviceProp.cooperativeMultiDeviceLaunch &&
         deviceProp.concurrentManagedAccess) {
-      identicalGpus.emplace(std::make_pair(deviceProp.major, deviceProp.minor), i);
+      identicalGpus.emplace(std::make_pair(deviceProp.major, deviceProp.minor),
+                            i);
     }
     printf("GPU Device %d: \"%s\" with compute capability %d.%d\n", i,
-          deviceProp.name, deviceProp.major, deviceProp.minor);
+           deviceProp.name, deviceProp.major, deviceProp.minor);
   }
 
   return identicalGpus;
@@ -387,15 +391,17 @@ int main(int argc, char **argv) {
 
   auto bestFit = std::make_pair(it, it);
   // use std::distance to find the largest number of GPUs amongst architectures
-  auto distance = [](decltype(bestFit) p){return std::distance(p.first, p.second);};
+  auto distance = [](decltype(bestFit) p) {
+    return std::distance(p.first, p.second);
+  };
 
   // Read each unique key/pair element in order
   for (; it != end; it = gpusByArch.upper_bound(it->first)) {
     // first and second are iterators bounded within the architecture group
     auto testFit = gpusByArch.equal_range(it->first);
-    // Always use devices with highest architecture version or whichever has the most devices available
-    if (distance(bestFit) <= distance(testFit))
-        bestFit = testFit;
+    // Always use devices with highest architecture version or whichever has the
+    // most devices available
+    if (distance(bestFit) <= distance(testFit)) bestFit = testFit;
   }
 
   if (distance(bestFit) < kNumGpusRequired) {
@@ -408,33 +414,35 @@ int main(int argc, char **argv) {
 
   std::set<int> bestFitDeviceIds;
 
-  // check & select peer-to-peer access capable GPU devices as enabling p2p access between participating
+  // check & select peer-to-peer access capable GPU devices as enabling p2p
+  // access between participating
   // GPUs gives better performance for multi_grid sync.
   for (auto itr = bestFit.first; itr != bestFit.second; itr++) {
     int deviceId = itr->second;
     checkCudaErrors(cudaSetDevice(deviceId));
 
-    std::for_each(itr, bestFit.second, [&deviceId, &bestFitDeviceIds](decltype(*itr) mapPair) {
-      if (deviceId != mapPair.second)
-      {
+    std::for_each(itr, bestFit.second, [&deviceId, &bestFitDeviceIds,
+                                        &kNumGpusRequired](
+                                           decltype(*itr) mapPair) {
+      if (deviceId != mapPair.second) {
         int access = 0;
-        checkCudaErrors(cudaDeviceCanAccessPeer(&access, deviceId, mapPair.second));
-        printf("Device=%d %s Access Peer Device=%d\n", deviceId, access ? "CAN" : "CANNOT", mapPair.second);
+        checkCudaErrors(
+            cudaDeviceCanAccessPeer(&access, deviceId, mapPair.second));
+        printf("Device=%d %s Access Peer Device=%d\n", deviceId,
+               access ? "CAN" : "CANNOT", mapPair.second);
         if (access && bestFitDeviceIds.size() < kNumGpusRequired) {
           bestFitDeviceIds.emplace(deviceId);
           bestFitDeviceIds.emplace(mapPair.second);
-        }
-        else {
+        } else {
           printf("Ignoring device %i (max devices exceeded)\n", mapPair.second);
         }
       }
     });
 
-    if (bestFitDeviceIds.size() >= kNumGpusRequired)
-    {
+    if (bestFitDeviceIds.size() >= kNumGpusRequired) {
       printf("Selected p2p capable devices - ");
-      for (auto devicesItr = bestFitDeviceIds.begin(); devicesItr != bestFitDeviceIds.end(); devicesItr++)
-      {
+      for (auto devicesItr = bestFitDeviceIds.begin();
+           devicesItr != bestFitDeviceIds.end(); devicesItr++) {
         printf("deviceId = %d  ", *devicesItr);
       }
       printf("\n");
@@ -442,33 +450,34 @@ int main(int argc, char **argv) {
     }
   }
 
-  // if bestFitDeviceIds.size() == 0 it means the GPUs in system are not p2p capable,
+  // if bestFitDeviceIds.size() == 0 it means the GPUs in system are not p2p
+  // capable,
   // hence we add it without p2p capability check.
-  if (!bestFitDeviceIds.size())
-  {
-    printf("Devices involved are not p2p capable.. selecting %zu of them\n", kNumGpusRequired);
-    std::for_each(bestFit.first, bestFit.second, [&bestFitDeviceIds](decltype(*bestFit.first) mapPair) {
-      if (bestFitDeviceIds.size() < kNumGpusRequired) {
-        bestFitDeviceIds.emplace(mapPair.second);
-      }
-      else {
-        printf("Ignoring device %i (max devices exceeded)\n", mapPair.second);
-      }
-      // Insert the sequence into the deviceIds set
-    });
-  }
-  else
-  {
-    // perform cudaDeviceEnablePeerAccess in both directions for all participating devices
-    // of a cudaLaunchCooperativeKernelMultiDevice call this gives better performance for multi_grid sync.
-    for (auto p1_itr = bestFitDeviceIds.begin(); p1_itr != bestFitDeviceIds.end(); p1_itr++)
-    {
+  if (!bestFitDeviceIds.size()) {
+    printf("Devices involved are not p2p capable.. selecting %zu of them\n",
+           kNumGpusRequired);
+    std::for_each(bestFit.first, bestFit.second,
+                  [&bestFitDeviceIds,
+                   &kNumGpusRequired](decltype(*bestFit.first) mapPair) {
+                    if (bestFitDeviceIds.size() < kNumGpusRequired) {
+                      bestFitDeviceIds.emplace(mapPair.second);
+                    } else {
+                      printf("Ignoring device %i (max devices exceeded)\n",
+                             mapPair.second);
+                    }
+                    // Insert the sequence into the deviceIds set
+                  });
+  } else {
+    // perform cudaDeviceEnablePeerAccess in both directions for all
+    // participating devices of a cudaLaunchCooperativeKernelMultiDevice call
+    // this gives better performance for multi_grid sync.
+    for (auto p1_itr = bestFitDeviceIds.begin();
+         p1_itr != bestFitDeviceIds.end(); p1_itr++) {
       checkCudaErrors(cudaSetDevice(*p1_itr));
-      for (auto p2_itr = bestFitDeviceIds.begin(); p2_itr != bestFitDeviceIds.end(); p2_itr++)
-      {
-        if (*p1_itr != *p2_itr)
-        {
-          checkCudaErrors(cudaDeviceEnablePeerAccess(*p2_itr, 0 ));
+      for (auto p2_itr = bestFitDeviceIds.begin();
+           p2_itr != bestFitDeviceIds.end(); p2_itr++) {
+        if (*p1_itr != *p2_itr) {
+          checkCudaErrors(cudaDeviceEnablePeerAccess(*p2_itr, 0));
           checkCudaErrors(cudaSetDevice(*p1_itr));
         }
       }
@@ -518,7 +527,7 @@ int main(int argc, char **argv) {
   std::cout << "\nRunning on GPUs = " << kNumGpusRequired << std::endl;
   cudaStream_t nStreams[kNumGpusRequired];
 
-  int sMemSize = sizeof(double) * ((THREADS_PER_BLOCK/32) + 1);
+  int sMemSize = sizeof(double) * ((THREADS_PER_BLOCK / 32) + 1);
   int numBlocksPerSm = INT_MAX;
   int numThreads = THREADS_PER_BLOCK;
   int numSms = INT_MAX;
@@ -530,17 +539,16 @@ int main(int argc, char **argv) {
     checkCudaErrors(cudaSetDevice(*deviceId));
     checkCudaErrors(cudaGetDeviceProperties(&deviceProp, *deviceId));
 
-    int numBlocksPerSm_current=0;
+    int numBlocksPerSm_current = 0;
     checkCudaErrors(cudaOccupancyMaxActiveBlocksPerMultiprocessor(
-        &numBlocksPerSm_current, multiGpuConjugateGradient, numThreads, sMemSize));
+        &numBlocksPerSm_current, multiGpuConjugateGradient, numThreads,
+        sMemSize));
 
-    if (numBlocksPerSm > numBlocksPerSm_current)
-    {
-        numBlocksPerSm = numBlocksPerSm_current;
+    if (numBlocksPerSm > numBlocksPerSm_current) {
+      numBlocksPerSm = numBlocksPerSm_current;
     }
-    if (numSms > deviceProp.multiProcessorCount)
-    {
-        numSms = deviceProp.multiProcessorCount;
+    if (numSms > deviceProp.multiProcessorCount) {
+      numSms = deviceProp.multiProcessorCount;
     }
     deviceId++;
   }
@@ -554,7 +562,7 @@ int main(int argc, char **argv) {
 
   int device_count = 0;
   int totalThreadsPerGPU = numSms * numBlocksPerSm * THREADS_PER_BLOCK;
-  deviceId =  bestFitDeviceIds.begin();;
+  deviceId = bestFitDeviceIds.begin();
   while (deviceId != bestFitDeviceIds.end()) {
     checkCudaErrors(cudaSetDevice(*deviceId));
     checkCudaErrors(cudaStreamCreate(&nStreams[device_count]));
@@ -621,14 +629,15 @@ int main(int argc, char **argv) {
 
   printf("Total threads per GPU = %d numBlocksPerSm  = %d\n",
          numSms * numBlocksPerSm * THREADS_PER_BLOCK, numBlocksPerSm);
-  dim3 dimGrid(numSms * numBlocksPerSm, 1, 1), dimBlock(THREADS_PER_BLOCK, 1, 1);
+  dim3 dimGrid(numSms * numBlocksPerSm, 1, 1),
+      dimBlock(THREADS_PER_BLOCK, 1, 1);
   void *kernelArgs[] = {
       (void *)&I,  (void *)&J, (void *)&val, (void *)&x,
       (void *)&Ax, (void *)&p, (void *)&r,   (void *)&dot_result,
       (void *)&nz, (void *)&N, (void *)&tol,
   };
-  cudaLaunchParams *launchParamsList = (cudaLaunchParams *)malloc(
-      sizeof(cudaLaunchParams) * kNumGpusRequired);
+  cudaLaunchParams *launchParamsList =
+      (cudaLaunchParams *)malloc(sizeof(cudaLaunchParams) * kNumGpusRequired);
   for (int i = 0; i < kNumGpusRequired; i++) {
     launchParamsList[i].func = (void *)multiGpuConjugateGradient;
     launchParamsList[i].gridDim = dimGrid;
@@ -645,12 +654,11 @@ int main(int argc, char **argv) {
       cudaCooperativeLaunchMultiDeviceNoPreSync |
           cudaCooperativeLaunchMultiDeviceNoPostSync));
 
+  checkCudaErrors(cudaMemPrefetchAsync(x, sizeof(float) * N, cudaCpuDeviceId));
   checkCudaErrors(
-      cudaMemPrefetchAsync(x, sizeof(float) * N, cudaCpuDeviceId));
-  checkCudaErrors(
-        cudaMemPrefetchAsync(dot_result, sizeof(double), cudaCpuDeviceId));
+      cudaMemPrefetchAsync(dot_result, sizeof(double), cudaCpuDeviceId));
 
-  deviceId =  bestFitDeviceIds.begin();;
+  deviceId = bestFitDeviceIds.begin();
   device_count = 0;
   while (deviceId != bestFitDeviceIds.end()) {
     checkCudaErrors(cudaSetDevice(*deviceId));
@@ -658,7 +666,7 @@ int main(int argc, char **argv) {
     deviceId++;
   }
 
-  r1 = *dot_result;
+  r1 = (float)*dot_result;
 
   printf("GPU Final, residual = %e \n  ", sqrt(r1));
 

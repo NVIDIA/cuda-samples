@@ -302,14 +302,10 @@ LIBRARIES :=
 
 ################################################################################
 
-FATBIN_FILE := memMapIpc_kernel${TARGET_SIZE}.fatbin
+PTX_FILE := memMapIpc_kernel${TARGET_SIZE}.ptx
 
 # Gencode arguments
-ifeq ($(TARGET_ARCH),$(filter $(TARGET_ARCH),armv7l aarch64))
-SMS ?= 35 37 50 52 60 61 70 72 75 80 86
-else
-SMS ?= 35 37 50 52 60 61 70 75 80 86
-endif
+SMS ?=
 
 ifeq ($(GENCODE_FLAGS),)
 # Generate SASS code for each SM architecture listed in $(SMS)
@@ -395,7 +391,7 @@ endif
 # Target rules
 all: build
 
-build: memMapIPCDrv $(FATBIN_FILE)
+build: memMapIPCDrv $(PTX_FILE)
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -404,8 +400,8 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-$(FATBIN_FILE): memMapIpc_kernel.cu
-	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -fatbin $<
+$(PTX_FILE): memMapIpc_kernel.cu
+	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -ptx $<
 	$(EXEC) mkdir -p data
 	$(EXEC) cp -f $@ ./data
 	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
@@ -426,9 +422,8 @@ run: build
 	$(EXEC) ./memMapIPCDrv
 
 clean:
-	rm -f memMapIPCDrv helper_multiprocess.o memMapIpc.o  data/$(FATBIN_FILE) $(FATBIN_FILE)
+	rm -f memMapIPCDrv helper_multiprocess.o memMapIpc.o  data/$(PTX_FILE) $(PTX_FILE)
 	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/memMapIPCDrv
-
-	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/$(FATBIN_FILE)
+	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/$(PTX_FILE)
 
 clobber: clean

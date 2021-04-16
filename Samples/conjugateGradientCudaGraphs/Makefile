@@ -265,6 +265,12 @@ ALL_CCFLAGS += $(addprefix -Xcompiler ,$(EXTRA_CCFLAGS))
 
 SAMPLE_ENABLED := 1
 
+# This sample is not supported on QNX
+ifeq ($(TARGET_OS),qnx)
+  $(info >>> WARNING - conjugateGradientCudaGraphs is not supported on QNX - waiving sample <<<)
+  SAMPLE_ENABLED := 0
+endif
+
 ALL_LDFLAGS :=
 ALL_LDFLAGS += $(ALL_CCFLAGS)
 ALL_LDFLAGS += $(addprefix -Xlinker ,$(LDFLAGS))

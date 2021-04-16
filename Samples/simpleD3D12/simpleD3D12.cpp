@@ -266,17 +266,8 @@ void DX12CudaInterop::LoadAssets() {
     parameter.InitAsDescriptorTable(1, &range, D3D12_SHADER_VISIBILITY_VERTEX);
 
     D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
-        D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |  // Only
-                                                                        // the
-                                                                        // input
-                                                                        // assembler
-                                                                        // stage
-                                                                        // needs
-                                                                        // access
-                                                                        // to
-                                                                        // the
-                                                                        // constant
-                                                                        // buffer.
+        // Only the input assembler stage needs access to the constant buffer.
+        D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
         D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
         D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
         D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
@@ -390,6 +381,7 @@ void DX12CudaInterop::LoadAssets() {
 
     checkCudaErrors(
         cudaImportExternalMemory(&m_externalMemory, &externalMemoryHandleDesc));
+    CloseHandle(sharedHandle);
 
     cudaExternalMemoryBufferDesc externalMemoryBufferDesc;
     memset(&externalMemoryBufferDesc, 0, sizeof(externalMemoryBufferDesc));
@@ -468,6 +460,7 @@ void DX12CudaInterop::OnDestroy() {
   WaitForGpu();
   checkCudaErrors(cudaDestroyExternalSemaphore(m_externalSemaphore));
   checkCudaErrors(cudaDestroyExternalMemory(m_externalMemory));
+  checkCudaErrors(cudaFree(m_cudaDevVertptr));
   CloseHandle(m_fenceEvent);
 }
 

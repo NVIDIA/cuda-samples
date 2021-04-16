@@ -100,8 +100,10 @@ int main(int argc, char **argv) {
 
   double *b = NULL;
   float *A = NULL;
-  b = (double *)calloc(N_ROWS, sizeof(double));
-  A = (float *)calloc(N_ROWS * N_ROWS, sizeof(float));
+  checkCudaErrors(cudaMallocHost(&b, N_ROWS * sizeof(double)));
+  memset(b, 0, N_ROWS * sizeof(double));
+  checkCudaErrors(cudaMallocHost(&A, N_ROWS * N_ROWS * sizeof(float)));
+  memset(A, 0, N_ROWS * N_ROWS * sizeof(float));
 
   createLinearSystem(A, b);
   double *x = NULL;
@@ -169,6 +171,9 @@ int main(int argc, char **argv) {
   checkCudaErrors(cudaFree(d_A));
   checkCudaErrors(cudaFree(d_x));
   checkCudaErrors(cudaFree(d_x_new));
+
+  checkCudaErrors(cudaFreeHost(A));
+  checkCudaErrors(cudaFreeHost(b));
 
   printf("&&&& jacobiCudaGraphs %s\n",
          (fabs(sum - sumGPU) < conv_threshold) ? "PASSED" : "FAILED");

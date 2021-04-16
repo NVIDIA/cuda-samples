@@ -393,7 +393,7 @@ int main(int argc, char **argv) {
   float *inputVec_d = NULL, *inputVec_h = NULL;
   double *outputVec_d = NULL, *result_d;
 
-  inputVec_h = (float *)malloc(sizeof(float) * size);
+  checkCudaErrors(cudaMallocHost(&inputVec_h, sizeof(float) * size));
   checkCudaErrors(cudaMalloc(&inputVec_d, sizeof(float) * size));
   checkCudaErrors(cudaMalloc(&outputVec_d, sizeof(double) * maxBlocks));
   checkCudaErrors(cudaMalloc(&result_d, sizeof(double)));
@@ -408,5 +408,6 @@ int main(int argc, char **argv) {
   checkCudaErrors(cudaFree(inputVec_d));
   checkCudaErrors(cudaFree(outputVec_d));
   checkCudaErrors(cudaFree(result_d));
+  checkCudaErrors(cudaFreeHost(inputVec_h));
   return EXIT_SUCCESS;
 }

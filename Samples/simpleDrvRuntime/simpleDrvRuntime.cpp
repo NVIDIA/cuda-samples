@@ -117,9 +117,9 @@ int main(int argc, char **argv) {
       cuModuleGetFunction(&vecAdd_kernel, cuModule, "VecAdd_kernel"));
 
   // Allocate input vectors h_A and h_B in host memory
-  h_A = (float *)malloc(size);
-  h_B = (float *)malloc(size);
-  h_C = (float *)malloc(size);
+  checkCudaErrors(cudaMallocHost(&h_A, size));
+  checkCudaErrors(cudaMallocHost(&h_B, size));
+  checkCudaErrors(cudaMallocHost(&h_C, size));
 
   // Initialize input vectors
   RandomInit(h_A, N);
@@ -179,15 +179,15 @@ int CleanupNoFailure(CUcontext &cuContext) {
 
   // Free host memory
   if (h_A) {
-    free(h_A);
+    checkCudaErrors(cudaFreeHost(h_A));
   }
 
   if (h_B) {
-    free(h_B);
+    checkCudaErrors(cudaFreeHost(h_B));
   }
 
   if (h_C) {
-    free(h_C);
+    checkCudaErrors(cudaFreeHost(h_C));
   }
 
   checkCudaDrvErrors(cuCtxDestroy(cuContext));

@@ -263,6 +263,14 @@ ALL_CCFLAGS += $(EXTRA_NVCCFLAGS)
 ALL_CCFLAGS += $(addprefix -Xcompiler ,$(CCFLAGS))
 ALL_CCFLAGS += $(addprefix -Xcompiler ,$(EXTRA_CCFLAGS))
 
+SAMPLE_ENABLED := 1
+
+# This sample is not supported on QNX
+ifeq ($(TARGET_OS),qnx)
+  $(info >>> WARNING - simpleCUBLAS is not supported on QNX - waiving sample <<<)
+  SAMPLE_ENABLED := 0
+endif
+
 ALL_LDFLAGS :=
 ALL_LDFLAGS += $(ALL_CCFLAGS)
 ALL_LDFLAGS += $(addprefix -Xlinker ,$(LDFLAGS))
@@ -297,6 +305,10 @@ ALL_CCFLAGS += --threads 0
 
 LIBRARIES += -lcublas
 
+ifeq ($(SAMPLE_ENABLED),0)
+EXEC ?= @echo "[@]"
+endif
+
 ################################################################################
 
 # Target rules
@@ -304,16 +316,23 @@ all: build
 
 build: simpleCUBLAS
 
+check.deps:
+ifeq ($(SAMPLE_ENABLED),0)
+	@echo "Sample will be waived due to the above missing dependencies"
+else
+	@echo "Sample is ready - all dependencies have been met"
+endif
+
 simpleCUBLAS.o:simpleCUBLAS.cpp
-	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
+	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
 simpleCUBLAS: simpleCUBLAS.o
-	$(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
-	mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
-	cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
+	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
+	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
+	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
 run: build
-	./simpleCUBLAS
+	$(EXEC) ./simpleCUBLAS
 
 clean:
 	rm -f simpleCUBLAS simpleCUBLAS.o

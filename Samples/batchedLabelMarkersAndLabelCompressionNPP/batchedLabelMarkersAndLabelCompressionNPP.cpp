@@ -36,11 +36,13 @@
 #include <string.h>
 #include <fstream>
 
+#include <cuda_runtime.h>
 #include <helper_cuda.h>
+#include <helper_string.h>
 #include <npp.h>
 
 // Note:  If you want to view these images we HIGHLY recommend using imagej
-// which is free on the internet and works on most platforms
+//        which is free on the internet and works on most platforms
 //        because it is one of the few image viewing apps that can display 32
 //        bit integer image data.  While it normalizes the data to floating
 //        point values for viewing it still provides a good representation of
@@ -102,11 +104,12 @@ void tearDown()  // Clean up and tear down
   if (pUFBatchSrcDstImageListDev != 0) cudaFree(pUFBatchSrcDstImageListDev);
   if (pUFBatchSrcImageListDev != 0) cudaFree(pUFBatchSrcImageListDev);
   if (pUFBatchPerImageCompressedCountListHost != 0)
-    free(pUFBatchPerImageCompressedCountListHost);
+    cudaFreeHost(pUFBatchPerImageCompressedCountListHost);
   if (pUFBatchSrcDstScratchBufferListHost != 0)
-    free(pUFBatchSrcDstScratchBufferListHost);
-  if (pUFBatchSrcDstImageListHost != 0) free(pUFBatchSrcDstImageListHost);
-  if (pUFBatchSrcImageListHost != 0) free(pUFBatchSrcImageListHost);
+    cudaFreeHost(pUFBatchSrcDstScratchBufferListHost);
+  if (pUFBatchSrcDstImageListHost != 0)
+    cudaFreeHost(pUFBatchSrcDstImageListHost);
+  if (pUFBatchSrcImageListHost != 0) cudaFreeHost(pUFBatchSrcImageListHost);
 
   for (int j = 0; j < NUMBER_OF_IMAGES; j++) {
     if (pUFCompressedLabelsScratchBufferDev[j] != 0)
@@ -115,8 +118,8 @@ void tearDown()  // Clean up and tear down
       cudaFree(pUFGenerateLabelsScratchBufferDev[j]);
     if (pUFLabelDev[j] != 0) cudaFree(pUFLabelDev[j]);
     if (pInputImageDev[j] != 0) cudaFree(pInputImageDev[j]);
-    if (pUFLabelHost[j] != 0) free(pUFLabelHost[j]);
-    if (pInputImageHost[j] != 0) free(pInputImageHost[j]);
+    if (pUFLabelHost[j] != 0) cudaFreeHost(pUFLabelHost[j]);
+    if (pInputImageHost[j] != 0) cudaFreeHost(pInputImageHost[j]);
   }
 }
 
@@ -177,7 +180,7 @@ int loadRaw8BitImage(Npp8u *pImage, int nWidth, int nHeight, int nImage) {
       exit(EXIT_WAIVED);
     }
 
-    bmpFile = fopen(InputFile, "rb");
+    FOPEN(bmpFile, InputFile, "rb");
   } else if (nImage == 1) {
     if (nWidth != 512 || nHeight != 512) return -1;
     const char *fileName = "CT_skull_512x512_8u.raw";
@@ -187,7 +190,7 @@ int loadRaw8BitImage(Npp8u *pImage, int nWidth, int nHeight, int nImage) {
       exit(EXIT_WAIVED);
     }
 
-    bmpFile = fopen(InputFile, "rb");
+    FOPEN(bmpFile, InputFile, "rb");
   } else if (nImage == 2) {
     if (nWidth != 509 || nHeight != 335) return -1;
     const char *fileName = "PCB_METAL_509x335_8u.raw";
@@ -197,7 +200,7 @@ int loadRaw8BitImage(Npp8u *pImage, int nWidth, int nHeight, int nImage) {
       exit(EXIT_WAIVED);
     }
 
-    bmpFile = fopen(InputFile, "rb");
+    FOPEN(bmpFile, InputFile, "rb");
   } else if (nImage == 3) {
     if (nWidth != 1024 || nHeight != 683) return -1;
     const char *fileName = "PCB2_1024x683_8u.raw";
@@ -207,7 +210,7 @@ int loadRaw8BitImage(Npp8u *pImage, int nWidth, int nHeight, int nImage) {
       exit(EXIT_WAIVED);
     }
 
-    bmpFile = fopen(InputFile, "rb");
+    FOPEN(bmpFile, InputFile, "rb");
   } else if (nImage == 4) {
     if (nWidth != 1280 || nHeight != 720) return -1;
     const char *fileName = "PCB_1280x720_8u.raw";
@@ -217,7 +220,7 @@ int loadRaw8BitImage(Npp8u *pImage, int nWidth, int nHeight, int nImage) {
       exit(EXIT_WAIVED);
     }
 
-    bmpFile = fopen(InputFile, "rb");
+    FOPEN(bmpFile, InputFile, "rb");
   } else {
     printf("Input file load failed.\n");
     return -1;
@@ -347,9 +350,11 @@ int main(int argc, char **argv) {
         oSizeROI[nImage].width * sizeof(Npp32u) * oSizeROI[nImage].height);
     if (cudaError != cudaSuccess) return NPP_MEMORY_ALLOCATION_ERR;
 
-    pInputImageHost[nImage] = reinterpret_cast<Npp8u *>(malloc(
+    checkCudaErrors(cudaMallocHost(
+        &(pInputImageHost[nImage]),
         oSizeROI[nImage].width * sizeof(Npp8u) * oSizeROI[nImage].height));
-    pUFLabelHost[nImage] = reinterpret_cast<Npp32u *>(malloc(
+    checkCudaErrors(cudaMallocHost(
+        &(pUFLabelHost[nImage]),
         oSizeROI[nImage].width * sizeof(Npp32u) * oSizeROI[nImage].height));
 
     // Use UF functions throughout this sample.
@@ -409,15 +414,15 @@ int main(int argc, char **argv) {
       }
 
       if (nImage == 0)
-        bmpFile = fopen(LabelMarkersOutputFile0.c_str(), "wb");
+        FOPEN(bmpFile, LabelMarkersOutputFile0.c_str(), "wb");
       else if (nImage == 1)
-        bmpFile = fopen(LabelMarkersOutputFile1.c_str(), "wb");
+        FOPEN(bmpFile, LabelMarkersOutputFile1.c_str(), "wb");
       else if (nImage == 2)
-        bmpFile = fopen(LabelMarkersOutputFile2.c_str(), "wb");
+        FOPEN(bmpFile, LabelMarkersOutputFile2.c_str(), "wb");
       else if (nImage == 3)
-        bmpFile = fopen(LabelMarkersOutputFile3.c_str(), "wb");
+        FOPEN(bmpFile, LabelMarkersOutputFile3.c_str(), "wb");
       else if (nImage == 4)
-        bmpFile = fopen(LabelMarkersOutputFile4.c_str(), "wb");
+        FOPEN(bmpFile, LabelMarkersOutputFile4.c_str(), "wb");
 
       if (bmpFile == NULL) return -1;
       size_t nSize = 0;
@@ -478,15 +483,15 @@ int main(int argc, char **argv) {
       }
 
       if (nImage == 0)
-        bmpFile = fopen(CompressedMarkerLabelsOutputFile0.c_str(), "wb");
+        FOPEN(bmpFile, CompressedMarkerLabelsOutputFile0.c_str(), "wb");
       else if (nImage == 1)
-        bmpFile = fopen(CompressedMarkerLabelsOutputFile1.c_str(), "wb");
+        FOPEN(bmpFile, CompressedMarkerLabelsOutputFile1.c_str(), "wb");
       else if (nImage == 2)
-        bmpFile = fopen(CompressedMarkerLabelsOutputFile2.c_str(), "wb");
+        FOPEN(bmpFile, CompressedMarkerLabelsOutputFile2.c_str(), "wb");
       else if (nImage == 3)
-        bmpFile = fopen(CompressedMarkerLabelsOutputFile3.c_str(), "wb");
+        FOPEN(bmpFile, CompressedMarkerLabelsOutputFile3.c_str(), "wb");
       else if (nImage == 4)
-        bmpFile = fopen(CompressedMarkerLabelsOutputFile4.c_str(), "wb");
+        FOPEN(bmpFile, CompressedMarkerLabelsOutputFile4.c_str(), "wb");
 
       if (bmpFile == NULL) return -1;
       nSize = 0;
@@ -554,10 +559,11 @@ int main(int argc, char **argv) {
       cudaMalloc((void **)&pUFBatchSrcDstImageListDev, nBatchImageListBytes);
   if (cudaError != cudaSuccess) return NPP_MEMORY_ALLOCATION_ERR;
 
-  pUFBatchSrcImageListHost =
-      reinterpret_cast<NppiImageDescriptor *>(malloc(nBatchImageListBytes));
-  pUFBatchSrcDstImageListHost =
-      reinterpret_cast<NppiImageDescriptor *>(malloc(nBatchImageListBytes));
+  checkCudaErrors(
+      cudaMallocHost((void **)&pUFBatchSrcImageListHost, nBatchImageListBytes));
+
+  checkCudaErrors(cudaMallocHost((void **)&pUFBatchSrcDstImageListHost,
+                                 nBatchImageListBytes));
 
   NppiSize oMaxROISize = {0, 0};
 
@@ -620,15 +626,15 @@ int main(int argc, char **argv) {
   // Save output to files
   for (int nImage = 0; nImage < NUMBER_OF_IMAGES; nImage++) {
     if (nImage == 0)
-      bmpFile = fopen(LabelMarkersBatchOutputFile0.c_str(), "wb");
+      FOPEN(bmpFile, LabelMarkersBatchOutputFile0.c_str(), "wb");
     else if (nImage == 1)
-      bmpFile = fopen(LabelMarkersBatchOutputFile1.c_str(), "wb");
+      FOPEN(bmpFile, LabelMarkersBatchOutputFile1.c_str(), "wb");
     else if (nImage == 2)
-      bmpFile = fopen(LabelMarkersBatchOutputFile2.c_str(), "wb");
+      FOPEN(bmpFile, LabelMarkersBatchOutputFile2.c_str(), "wb");
     else if (nImage == 3)
-      bmpFile = fopen(LabelMarkersBatchOutputFile3.c_str(), "wb");
+      FOPEN(bmpFile, LabelMarkersBatchOutputFile3.c_str(), "wb");
     else if (nImage == 4)
-      bmpFile = fopen(LabelMarkersBatchOutputFile4.c_str(), "wb");
+      FOPEN(bmpFile, LabelMarkersBatchOutputFile4.c_str(), "wb");
 
     if (bmpFile == NULL) return -1;
     size_t nSize = 0;
@@ -652,12 +658,13 @@ int main(int argc, char **argv) {
 
   // Allocate host side scratch buffer point and size list and initialize with
   // device scratch buffer pointers
-  pUFBatchSrcDstScratchBufferListHost =
-      reinterpret_cast<NppiBufferDescriptor *>(
-          malloc(NUMBER_OF_IMAGES * sizeof(NppiBufferDescriptor)));
+  checkCudaErrors(
+      cudaMallocHost((void **)&pUFBatchSrcDstScratchBufferListHost,
+                     NUMBER_OF_IMAGES * sizeof(NppiBufferDescriptor)));
 
-  pUFBatchPerImageCompressedCountListHost =
-      reinterpret_cast<Npp32u *>(malloc(NUMBER_OF_IMAGES * sizeof(Npp32u)));
+  checkCudaErrors(
+      cudaMallocHost((void **)&pUFBatchPerImageCompressedCountListHost,
+                     +NUMBER_OF_IMAGES * sizeof(Npp32u)));
 
   // Start buffer pointer at beginning of full per image buffer list sized
   // pUFCompressedLabelsScratchBufferDev[0]
@@ -728,15 +735,15 @@ int main(int argc, char **argv) {
   // Save compressed label images into files
   for (int nImage = 0; nImage < NUMBER_OF_IMAGES; nImage++) {
     if (nImage == 0)
-      bmpFile = fopen(CompressedMarkerLabelsBatchOutputFile0.c_str(), "wb");
+      FOPEN(bmpFile, CompressedMarkerLabelsBatchOutputFile0.c_str(), "wb");
     else if (nImage == 1)
-      bmpFile = fopen(CompressedMarkerLabelsBatchOutputFile1.c_str(), "wb");
+      FOPEN(bmpFile, CompressedMarkerLabelsBatchOutputFile1.c_str(), "wb");
     else if (nImage == 2)
-      bmpFile = fopen(CompressedMarkerLabelsBatchOutputFile2.c_str(), "wb");
+      FOPEN(bmpFile, CompressedMarkerLabelsBatchOutputFile2.c_str(), "wb");
     else if (nImage == 3)
-      bmpFile = fopen(CompressedMarkerLabelsBatchOutputFile3.c_str(), "wb");
+      FOPEN(bmpFile, CompressedMarkerLabelsBatchOutputFile3.c_str(), "wb");
     else if (nImage == 4)
-      bmpFile = fopen(CompressedMarkerLabelsBatchOutputFile4.c_str(), "wb");
+      FOPEN(bmpFile, CompressedMarkerLabelsBatchOutputFile4.c_str(), "wb");
 
     if (bmpFile == NULL) return -1;
     size_t nSize = 0;

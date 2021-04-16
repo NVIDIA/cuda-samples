@@ -122,24 +122,23 @@ std::pair<int, int> getP2PCapableGpuPair() {
     int deviceId = itr->second;
     checkCudaErrors(cudaSetDevice(deviceId));
 
-    std::for_each(
-        itr, bestFit.second,
-        [&deviceId, &bestFitDeviceIds](decltype(*itr) mapPair) {
-          if (deviceId != mapPair.second) {
-            int access = 0;
-            checkCudaErrors(
-                cudaDeviceCanAccessPeer(&access, deviceId, mapPair.second));
-            printf("Device=%d %s Access Peer Device=%d\n", deviceId,
-                   access ? "CAN" : "CANNOT", mapPair.second);
-            if (access && bestFitDeviceIds.size() < kNumGpusRequired) {
-              bestFitDeviceIds.emplace(deviceId);
-              bestFitDeviceIds.emplace(mapPair.second);
-            } else {
-              printf("Ignoring device %i (max devices exceeded)\n",
-                     mapPair.second);
-            }
-          }
-        });
+    std::for_each(itr, bestFit.second, [&deviceId, &bestFitDeviceIds,
+                                        &kNumGpusRequired](
+                                           decltype(*itr) mapPair) {
+      if (deviceId != mapPair.second) {
+        int access = 0;
+        checkCudaErrors(
+            cudaDeviceCanAccessPeer(&access, deviceId, mapPair.second));
+        printf("Device=%d %s Access Peer Device=%d\n", deviceId,
+               access ? "CAN" : "CANNOT", mapPair.second);
+        if (access && bestFitDeviceIds.size() < kNumGpusRequired) {
+          bestFitDeviceIds.emplace(deviceId);
+          bestFitDeviceIds.emplace(mapPair.second);
+        } else {
+          printf("Ignoring device %i (max devices exceeded)\n", mapPair.second);
+        }
+      }
+    });
 
     if (bestFitDeviceIds.size() >= kNumGpusRequired) {
       printf("Selected p2p capable devices - ");

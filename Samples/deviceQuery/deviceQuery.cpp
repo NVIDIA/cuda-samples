@@ -112,10 +112,10 @@ int main(int argc, char **argv) {
     char msg[256];
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
     sprintf_s(msg, sizeof(msg),
-             "  Total amount of global memory:                 %.0f MBytes "
-             "(%llu bytes)\n",
-             static_cast<float>(deviceProp.totalGlobalMem / 1048576.0f),
-             (unsigned long long)deviceProp.totalGlobalMem);
+              "  Total amount of global memory:                 %.0f MBytes "
+              "(%llu bytes)\n",
+              static_cast<float>(deviceProp.totalGlobalMem / 1048576.0f),
+              (unsigned long long)deviceProp.totalGlobalMem);
 #else
     snprintf(msg, sizeof(msg),
              "  Total amount of global memory:                 %.0f MBytes "
@@ -125,7 +125,7 @@ int main(int argc, char **argv) {
 #endif
     printf("%s", msg);
 
-    printf("  (%2d) Multiprocessors, (%3d) CUDA Cores/MP:     %d CUDA Cores\n",
+    printf("  (%03d) Multiprocessors, (%03d) CUDA Cores/MP:    %d CUDA Cores\n",
            deviceProp.multiProcessorCount,
            _ConvertSMVer2Cores(deviceProp.major, deviceProp.minor),
            _ConvertSMVer2Cores(deviceProp.major, deviceProp.minor) *
@@ -250,8 +250,7 @@ int main(int argc, char **argv) {
         "device)",
         "Exclusive Process (many threads in one process is able to use "
         "::cudaSetDevice() with this device)",
-        "Unknown",
-        NULL};
+        "Unknown", NULL};
     printf("  Compute Mode:\n");
     printf("     < %s >\n", sComputeMode[deviceProp.computeMode]);
   }
@@ -272,7 +271,7 @@ int main(int argc, char **argv) {
           // must be enabled to support this
           && prop[i].tccDriver
 #endif
-      ) {
+          ) {
         // This is an array of P2P capable GPUs
         gpuid[gpu_p2p_count++] = i;
       }
@@ -307,7 +306,8 @@ int main(int argc, char **argv) {
   // driver version
   sProfileString += ", CUDA Driver Version = ";
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
-  sprintf_s(cTemp, 10, "%d.%d", driverVersion/1000, (driverVersion%100)/10);
+  sprintf_s(cTemp, 10, "%d.%d", driverVersion / 1000,
+            (driverVersion % 100) / 10);
 #else
   snprintf(cTemp, sizeof(cTemp), "%d.%d", driverVersion / 1000,
            (driverVersion % 100) / 10);
@@ -317,7 +317,8 @@ int main(int argc, char **argv) {
   // Runtime version
   sProfileString += ", CUDA Runtime Version = ";
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
-  sprintf_s(cTemp, 10, "%d.%d", runtimeVersion/1000, (runtimeVersion%100)/10);
+  sprintf_s(cTemp, 10, "%d.%d", runtimeVersion / 1000,
+            (runtimeVersion % 100) / 10);
 #else
   snprintf(cTemp, sizeof(cTemp), "%d.%d", runtimeVersion / 1000,
            (runtimeVersion % 100) / 10);

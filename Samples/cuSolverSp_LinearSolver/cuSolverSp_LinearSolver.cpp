@@ -495,13 +495,13 @@ int main(int argc, char *argv[]) {
   size_t bufferSize = 0;
   checkCudaErrors(cusparseSpMV_bufferSize(
       cusparseHandle, CUSPARSE_OPERATION_NON_TRANSPOSE, &minus_one, matA, vecx,
-      &one, vecAx, CUDA_R_64F, CUSPARSE_MV_ALG_DEFAULT, &bufferSize));
+      &one, vecAx, CUDA_R_64F, CUSPARSE_SPMV_ALG_DEFAULT, &bufferSize));
   void *buffer = NULL;
   checkCudaErrors(cudaMalloc(&buffer, bufferSize));
 
   checkCudaErrors(cusparseSpMV(cusparseHandle, CUSPARSE_OPERATION_NON_TRANSPOSE,
                                &minus_one, matA, vecx, &one, vecAx, CUDA_R_64F,
-                               CUSPARSE_MV_ALG_DEFAULT, &buffer));
+                               CUSPARSE_SPMV_ALG_DEFAULT, buffer));
 
   checkCudaErrors(cudaMemcpyAsync(h_r, d_r, sizeof(double) * rowsA,
                                   cudaMemcpyDeviceToHost, stream));
@@ -559,7 +559,7 @@ int main(int argc, char *argv[]) {
 
   checkCudaErrors(cusparseSpMV(cusparseHandle, CUSPARSE_OPERATION_NON_TRANSPOSE,
                                &minus_one, matA, vecx, &one, vecAx, CUDA_R_64F,
-                               CUSPARSE_MV_ALG_DEFAULT, &buffer));
+                               CUSPARSE_SPMV_ALG_DEFAULT, buffer));
 
   checkCudaErrors(cudaMemcpyAsync(h_x, d_x, sizeof(double) * colsA,
                                   cudaMemcpyDeviceToHost, stream));
