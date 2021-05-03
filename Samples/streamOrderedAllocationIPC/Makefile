@@ -402,7 +402,7 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-helper_multiprocess.o:../../common/src/helper_multiprocess.cpp
+helper_multiprocess.o:../../Common/helper_multiprocess.cpp
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
 streamOrderedAllocationIPC.o:streamOrderedAllocationIPC.cu
