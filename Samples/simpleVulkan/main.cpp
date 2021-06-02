@@ -92,9 +92,9 @@ class VulkanCudaSineWave : public VulkanBaseApp {
     }
     // Add our compiled vulkan shader files
     char *vertex_shader_path =
-        sdkFindFilePath("sinewave.vert", execution_path.c_str());
+        sdkFindFilePath("vert.spv", execution_path.c_str());
     char *fragment_shader_path =
-        sdkFindFilePath("sinewave.frag", execution_path.c_str());
+        sdkFindFilePath("frag.spv", execution_path.c_str());
     m_shaderFiles.push_back(
         std::make_pair(VK_SHADER_STAGE_VERTEX_BIT, vertex_shader_path));
     m_shaderFiles.push_back(

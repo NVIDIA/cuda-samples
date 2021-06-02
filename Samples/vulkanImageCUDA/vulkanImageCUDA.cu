@@ -69,7 +69,7 @@ const std::vector<const char*> validationLayers = {
     "VK_LAYER_KHRONOS_validation"};
 
 #ifdef NDEBUG
-const bool enableValidationLayers = false;
+const bool enableValidationLayers = true;
 #else
 const bool enableValidationLayers = false;
 #endif
@@ -494,7 +494,7 @@ class vulkanImageCUDA {
 
   unsigned int* image_data = NULL;
   unsigned int imageWidth, imageHeight;
-  unsigned int mipLevels;
+  unsigned int mipLevels = 1;
   size_t totalImageMemSize;
 
   // CUDA objects
@@ -630,6 +630,9 @@ class vulkanImageCUDA {
     vkDestroyBuffer(device, vertexBuffer, nullptr);
     vkFreeMemory(device, vertexBufferMemory, nullptr);
 
+    vkDestroySemaphore(device, cudaUpdateVkSemaphore, nullptr);
+    vkDestroySemaphore(device, vkUpdateCudaSemaphore, nullptr);
+
     for (size_t i = 0; i < MAX_FRAMES; i++) {
       vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
       vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
@@ -686,7 +689,7 @@ class vulkanImageCUDA {
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.pEngineName = "No Engine";
     appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.apiVersion = VK_API_VERSION_1_0;
+    appInfo.apiVersion = VK_API_VERSION_1_1;
 
     VkInstanceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -905,6 +908,7 @@ class vulkanImageCUDA {
     }
 
     VkPhysicalDeviceFeatures deviceFeatures = {};
+    deviceFeatures.samplerAnisotropy = VK_TRUE;
 
     VkDeviceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -1078,8 +1082,8 @@ class vulkanImageCUDA {
   }
 
   void createGraphicsPipeline() {
-    auto vertShaderCode = readFile("shader.vert");
-    auto fragShaderCode = readFile("shader.frag");
+    auto vertShaderCode = readFile("vert.spv");
+    auto fragShaderCode = readFile("frag.spv");
 
     VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
     VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
@@ -1268,7 +1272,7 @@ class vulkanImageCUDA {
 
     // VK_FORMAT_R8G8B8A8_UNORM changed to VK_FORMAT_R8G8B8A8_UINT
     createImage(
-        imageWidth, imageHeight, VK_FORMAT_R8G8B8A8_UINT,
+        imageWidth, imageHeight, VK_FORMAT_R8G8B8A8_UNORM,
         VK_IMAGE_TILING_OPTIMAL,
         VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
             VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
@@ -1280,9 +1284,6 @@ class vulkanImageCUDA {
     copyBufferToImage(stagingBuffer, textureImage,
                       static_cast<uint32_t>(imageWidth),
                       static_cast<uint32_t>(imageHeight));
-    transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_UINT,
-                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                          VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     vkDestroyBuffer(device, stagingBuffer, nullptr);
     vkFreeMemory(device, stagingBufferMemory, nullptr);
@@ -1523,8 +1524,13 @@ class vulkanImageCUDA {
     vkExternalMemImageCreateInfo.sType =
         VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO;
     vkExternalMemImageCreateInfo.pNext = NULL;
+#ifdef _WIN64
+    vkExternalMemImageCreateInfo.handleTypes =
+        VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT;
+#else
     vkExternalMemImageCreateInfo.handleTypes =
         VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT_KHR;
+#endif
 
     imageInfo.pNext = &vkExternalMemImageCreateInfo;
 
@@ -2147,7 +2153,7 @@ class vulkanImageCUDA {
       if (vkCreateSemaphore(device, &semaphoreInfo, nullptr,
                             &imageAvailableSemaphores[i]) != VK_SUCCESS ||
           vkCreateSemaphore(device, &semaphoreInfo, nullptr,
-                            &renderFinishedSemaphores[i]) != VK_SUCCESS || 
+                            &renderFinishedSemaphores[i]) != VK_SUCCESS ||
           vkCreateFence(device, &fenceInfo, nullptr, &inFlightFences[i]) !=
               VK_SUCCESS) {
         throw std::runtime_error(
@@ -2201,7 +2207,6 @@ class vulkanImageCUDA {
       throw std::runtime_error(
           "failed to create synchronization objects for a CUDA-Vulkan!");
     }
-
   }
 
   void updateUniformBuffer() {
@@ -2333,8 +2338,8 @@ class vulkanImageCUDA {
     submitInfo.signalSemaphoreCount = 2;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) !=
-        VK_SUCCESS) {
+    if (vkQueueSubmit(graphicsQueue, 1, &submitInfo,
+                      inFlightFences[currentFrame]) != VK_SUCCESS) {
       throw std::runtime_error("failed to submit draw command buffer!");
     }
   }
@@ -2360,8 +2365,8 @@ class vulkanImageCUDA {
     submitInfo.signalSemaphoreCount = 2;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) !=
-        VK_SUCCESS) {
+    if (vkQueueSubmit(graphicsQueue, 1, &submitInfo,
+                      inFlightFences[currentFrame]) != VK_SUCCESS) {
       throw std::runtime_error("failed to submit draw command buffer!");
     }
   }

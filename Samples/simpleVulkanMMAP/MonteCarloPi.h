@@ -39,62 +39,57 @@
 
 typedef float vec2[2];
 
-class MonteCarloPiSimulation
-{
-    size_t m_numPoints;
+class MonteCarloPiSimulation {
+  size_t m_numPoints;
 
-    // Pointers to Cuda allocated buffers which are imported and used by vulkan as vertex buffer
-    vec2 *m_xyVector;
-    float *m_pointsInsideCircle;
+  // Pointers to Cuda allocated buffers which are imported and used by vulkan as
+  // vertex buffer
+  vec2 *m_xyVector;
+  float *m_pointsInsideCircle;
 
-    // Pointers to device and host allocated memories storing number of points that are inside the unit circle
-    float *m_numPointsInCircle;
-    float *m_hostNumPointsInCircle;
+  // Pointers to device and host allocated memories storing number of points
+  // that are inside the unit circle
+  float *m_numPointsInCircle;
+  float *m_hostNumPointsInCircle;
 
-    int m_blocks, m_threads;
+  int m_blocks, m_threads;
 
-    // Total size of allocations created by cuMemMap Apis. This size is the sum of sizes of
-    // m_xyVector and m_pointsInsideCircle buffers.
-    size_t m_totalAllocationSize;
+  // Total size of allocations created by cuMemMap Apis. This size is the sum of
+  // sizes of m_xyVector and m_pointsInsideCircle buffers.
+  size_t m_totalAllocationSize;
 
-    // Shareable Handles(a file descriptor on Linux and NT Handle on Windows), used for sharing cuda
-    // allocated memory with Vulkan
-    ShareableHandle m_posShareableHandle, m_inCircleShareableHandle;
+  // Shareable Handles(a file descriptor on Linux and NT Handle on Windows),
+  // used for sharing cuda
+  // allocated memory with Vulkan
+  ShareableHandle m_posShareableHandle, m_inCircleShareableHandle;
 
-    // Cuda Device corresponding to the Vulkan Physical device
-    int m_cudaDevice;
+  // Cuda Device corresponding to the Vulkan Physical device
+  int m_cudaDevice;
 
-    // Track and accumulate total points that have been simulated since start of the sample.
-    // The idea is to get a closer approximation to PI with time.
-    size_t m_totalPointsInsideCircle;
-    size_t m_totalPointsSimulated;
+  // Track and accumulate total points that have been simulated since start of
+  // the sample. The idea is to get a closer approximation to PI with time.
+  size_t m_totalPointsInsideCircle;
+  size_t m_totalPointsSimulated;
 
-    void setupSimulationAllocations();
-    void cleanupSimulationAllocations();
-    void getIdealExecutionConfiguration();
+  void setupSimulationAllocations();
+  void cleanupSimulationAllocations();
+  void getIdealExecutionConfiguration();
 
-public:
-    MonteCarloPiSimulation(size_t num_points);
-    ~MonteCarloPiSimulation();
-    void initSimulation(int cudaDevice, cudaStream_t stream = 0);
-    void stepSimulation(float time, cudaStream_t stream = 0);
-    static void computePiCallback(void *args);
+ public:
+  MonteCarloPiSimulation(size_t num_points);
+  ~MonteCarloPiSimulation();
+  void initSimulation(int cudaDevice, cudaStream_t stream = 0);
+  void stepSimulation(float time, cudaStream_t stream = 0);
+  static void computePiCallback(void *args);
 
-    size_t getNumPoints() const {
-        return m_numPoints;
-    }
+  size_t getNumPoints() const { return m_numPoints; }
 
-    float getNumPointsInCircle() const {
-        return *m_hostNumPointsInCircle;
-    }
+  float getNumPointsInCircle() const { return *m_hostNumPointsInCircle; }
 
-    ShareableHandle &getPositionShareableHandle() {
-        return m_posShareableHandle;
-    }
-    ShareableHandle &getInCircleShareableHandle() {
-        return m_inCircleShareableHandle;
-    }
-
+  ShareableHandle &getPositionShareableHandle() { return m_posShareableHandle; }
+  ShareableHandle &getInCircleShareableHandle() {
+    return m_inCircleShareableHandle;
+  }
 };
 
-#endif // __PISIM_H__
+#endif  // __PISIM_H__

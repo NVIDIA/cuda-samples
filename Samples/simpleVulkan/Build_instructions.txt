@@ -19,8 +19,17 @@ For Linux:
 -- Install "libxcb1-dev" and "xorg-dev" as GLFW3 is depended on it
 -- Add Vulkan and GLFW3 libraries directories to LD_LIBRARY_PATH
 
+
 For Linux aarch64(L4T):
 -- Install GLFW3 library using "sudo apt-get install libglfw3-dev" this will provide glfw3 
 -- install above will also provide libvulkan-dev as dependencies
 -- Add Vulkan and GLFW3 libraries directories to LD_LIBRARY_PATH
 -- Pass path to vulkan sdk while building 'make VULKAN_SDK_PATH=<PATH_TO_VULKAN_SDK>', VULKAN_SDK_PATH in this scenario is typically "/usr"
+
+
+For Shader changes:
+-- Update the sinewave.vert and/or sinewave.frag shader source file as required
+-- Use the glslc shader compiler from the installed Vulkan SDK's bin directory to compile shaders as:
+    glslc sinewave.vert -o vert.spv
+    glslc sinewave.frag -o frag.spv
+** Make sure to add glslc's path in your PATH environment variable **
