@@ -25,7 +25,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #ifndef __CUDA_BUFIMPORT_KERNEL_H__
 #define __CUDA_BUFIMPORT_KERNEL_H__
 
@@ -35,38 +34,39 @@
 #include "nvscisync.h"
 #include "nvmedia_utils/cmdline.h"
 
-struct cudaExternalResInterop
-{
-    cudaMipmappedArray_t    *d_mipmapArray;
-    cudaArray_t             *d_mipLevelArray;
-    cudaSurfaceObject_t     *cudaSurfaceNvmediaBuf;
-    cudaStream_t            stream;
-    cudaExternalMemory_t    extMemImageBuf;
-    cudaExternalSemaphore_t waitSem;
-    cudaExternalSemaphore_t signalSem;
+struct cudaExternalResInterop {
+  cudaMipmappedArray_t *d_mipmapArray;
+  cudaArray_t *d_mipLevelArray;
+  cudaSurfaceObject_t *cudaSurfaceNvmediaBuf;
+  cudaStream_t stream;
+  cudaExternalMemory_t extMemImageBuf;
+  cudaExternalSemaphore_t waitSem;
+  cudaExternalSemaphore_t signalSem;
 
-    int32_t                 planeCount;
-    int32_t                 *imageWidth;
-    int32_t                 *imageHeight;
-    unsigned int            *d_outputImage;
+  int32_t planeCount;
+  uint64_t *planeOffset;
+  int32_t *imageWidth;
+  int32_t *imageHeight;
+  unsigned int *d_outputImage;
 };
 
-struct cudaResources
-{
-    cudaArray_t *d_yuvArray;
-    cudaStream_t stream;
-    cudaSurfaceObject_t *cudaSurfaceNvmediaBuf;
-    unsigned int *d_outputImage;
+struct cudaResources {
+  cudaArray_t *d_yuvArray;
+  cudaStream_t stream;
+  cudaSurfaceObject_t *cudaSurfaceNvmediaBuf;
+  unsigned int *d_outputImage;
 };
 
-void runCudaOperation(cudaExternalResInterop& cudaExtResObj, NvSciSyncFence *fence,
-                        NvSciSyncFence *cudaSignalfence, int deviceId, int iterations);
+void runCudaOperation(cudaExternalResInterop &cudaExtResObj,
+                      NvSciSyncFence *fence, NvSciSyncFence *cudaSignalfence,
+                      int deviceId, int iterations);
 void runCudaOperation(Blit2DTest *ctx, cudaResources &cudaResObj, int deviceId);
 
-void setupCuda(cudaExternalResInterop& cudaExtResObj, NvSciBufObj& inputBufObj,
-                NvSciSyncObj &syncObj, NvSciSyncObj &cudaSignalerSyncObj, int deviceId);
+void setupCuda(cudaExternalResInterop &cudaExtResObj, NvSciBufObj &inputBufObj,
+               NvSciSyncObj &syncObj, NvSciSyncObj &cudaSignalerSyncObj,
+               int deviceId);
 void setupCuda(Blit2DTest *ctx, cudaResources &cudaResObj, int deviceId);
-void cleanupCuda(cudaExternalResInterop& cudaObjs);
+void cleanupCuda(cudaExternalResInterop &cudaObjs);
 void cleanupCuda(Blit2DTest *ctx, cudaResources &cudaResObj);
 
 #endif
