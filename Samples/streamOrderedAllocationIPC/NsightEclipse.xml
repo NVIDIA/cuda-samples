@@ -48,8 +48,8 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sources>
-    <extracompilation>../../common/src/helper_multiprocess.cpp</extracompilation>
-    <extraheader>../../common/inc/helper_multiprocess.h</extraheader>
+    <extracompilation>../../Common/helper_multiprocess.cpp</extracompilation>
+    <extraheader>../../Common/helper_multiprocess.h</extraheader>
   </sources>
   <supported_envs>
     <env>
