@@ -606,6 +606,13 @@ void VulkanBaseApp::createDevice() {
   VkDeviceCreateInfo createInfo = {};
   createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 
+#ifdef _VK_TIMELINE_SEMAPHORE
+  VkPhysicalDeviceVulkan12Features vk12features = {};
+  vk12features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
+  vk12features.timelineSemaphore = true;
+  createInfo.pNext = &vk12features;
+#endif
+
   createInfo.pQueueCreateInfos = queueCreateInfos.data();
   createInfo.queueCreateInfoCount =
       static_cast<uint32_t>(queueCreateInfos.size());
@@ -1604,36 +1611,10 @@ void VulkanBaseApp::createExternalSemaphore(
   timelineCreateInfo.pNext = NULL;
   timelineCreateInfo.semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE;
   timelineCreateInfo.initialValue = 0;
-#endif /* _VK_TIMELINE_SEMAPHORE */
-
-#ifdef _WIN64
-  WindowsSecurityAttributes winSecurityAttributes;
-
-  VkExportSemaphoreWin32HandleInfoKHR exportSemaphoreWin32HandleInfoKHR = {};
-  exportSemaphoreWin32HandleInfoKHR.sType =
-      VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHR;
-
-#ifdef _VK_TIMELINE_SEMAPHORE
-  exportSemaphoreWin32HandleInfoKHR.pNext = &timelineCreateInfo;
-#else
-  exportSemaphoreWin32HandleInfoKHR.pNext = NULL;
-#endif /* _VK_TIMELINE_SEMAPHORE */
-
-  exportSemaphoreWin32HandleInfoKHR.pAttributes = &winSecurityAttributes;
-  exportSemaphoreWin32HandleInfoKHR.dwAccess =
-      DXGI_SHARED_RESOURCE_READ | DXGI_SHARED_RESOURCE_WRITE;
-  exportSemaphoreWin32HandleInfoKHR.name = (LPCWSTR)NULL;
-  exportSemaphoreCreateInfo.pNext =
-      (handleType & VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT)
-          ? &exportSemaphoreWin32HandleInfoKHR
-          : NULL;
-#else
-#ifdef _VK_TIMELINE_SEMAPHORE
   exportSemaphoreCreateInfo.pNext = &timelineCreateInfo;
 #else
   exportSemaphoreCreateInfo.pNext = NULL;
 #endif /* _VK_TIMELINE_SEMAPHORE */
-#endif /* _WIN64 */
   exportSemaphoreCreateInfo.handleTypes = handleType;
   semaphoreInfo.pNext = &exportSemaphoreCreateInfo;
 
