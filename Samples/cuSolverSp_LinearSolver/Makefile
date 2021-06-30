@@ -265,12 +265,6 @@ ALL_CCFLAGS += $(addprefix -Xcompiler ,$(EXTRA_CCFLAGS))
 
 SAMPLE_ENABLED := 1
 
-# This sample is not supported on QNX
-ifeq ($(TARGET_OS),qnx)
-  $(info >>> WARNING - cuSolverSp_LinearSolver is not supported on QNX - waiving sample <<<)
-  SAMPLE_ENABLED := 0
-endif
-
 ifeq ($(TARGET_OS),linux)
 ALL_CCFLAGS += -Xcompiler \"-Wl,--no-as-needed\"
 endif

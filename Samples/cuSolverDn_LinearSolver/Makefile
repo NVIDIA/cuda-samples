@@ -271,12 +271,6 @@ ifeq ($(TARGET_ARCH),armv7l)
   SAMPLE_ENABLED := 0
 endif
 
-# This sample is not supported on QNX
-ifeq ($(TARGET_OS),qnx)
-  $(info >>> WARNING - cuSolverDn_LinearSolver is not supported on QNX - waiving sample <<<)
-  SAMPLE_ENABLED := 0
-endif
-
 ifeq ($(TARGET_OS),linux)
 ALL_CCFLAGS += -Xcompiler \"-Wl,--no-as-needed\"
 endif
