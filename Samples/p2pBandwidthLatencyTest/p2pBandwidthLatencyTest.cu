@@ -281,10 +281,9 @@ void outputBandwidthMatrix(int numElems, int numGPUs, bool p2p, P2PDataTransfer 
     cudaCheckError();
     cudaStreamDestroy(stream[d]);
     cudaCheckError();
+    cudaDeviceReset();
+    cudaCheckError();
   }
-
-  cudaFreeHost((void *)flag);
-  cudaCheckError();
 }
 
 void outputBidirectionalBandwidthMatrix(int numElems, int numGPUs, bool p2p) {
@@ -438,10 +437,9 @@ void outputBidirectionalBandwidthMatrix(int numElems, int numGPUs, bool p2p) {
     cudaCheckError();
     cudaStreamDestroy(stream1[d]);
     cudaCheckError();
+    cudaDeviceReset();
+    cudaCheckError();
   }
-
-  cudaFreeHost((void *)flag);
-  cudaCheckError();
 }
 
 void outputLatencyMatrix(int numGPUs, bool p2p, P2PDataTransfer p2p_method) {
@@ -594,12 +592,11 @@ void outputLatencyMatrix(int numGPUs, bool p2p, P2PDataTransfer p2p_method) {
     cudaCheckError();
     cudaStreamDestroy(stream[d]);
     cudaCheckError();
+    cudaDeviceReset();
+    cudaCheckError();
   }
 
   sdkDeleteTimer(&stopWatch);
-
-  cudaFreeHost((void *)flag);
-  cudaCheckError();
 }
 
 int main(int argc, char **argv) {
