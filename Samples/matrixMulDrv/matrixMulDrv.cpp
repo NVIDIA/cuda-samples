@@ -166,7 +166,7 @@ void runTest(int argc, char **argv) {
 
   if (1) {
     // This is the new CUDA 4.0 API for Kernel Parameter passing and Kernel
-    // Launching (simplier method)
+    // Launching (simpler method)
       size_t Matrix_Width_A = (size_t)WA;
       size_t Matrix_Width_B = (size_t)WB;
       void *args[5] = {&d_C, &d_A, &d_B, &Matrix_Width_A, &Matrix_Width_B};
