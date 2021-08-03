@@ -1,15 +1,17 @@
 # CUDA Samples
 
-Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This version supports [CUDA Toolkit 11.4](https://developer.nvidia.com/cuda-downloads).
+Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This version supports [CUDA Toolkit 11.4 update 1](https://developer.nvidia.com/cuda-downloads).
 
 ## Release Notes
 
 This section describes the release notes for the CUDA Samples on GitHub only.
 
+### CUDA 11.4 update 1
+* Added support for VS Code on linux platform.
+
 ### CUDA 11.4
 * Added `cdpQuadtree`. Demonstrates Quad Trees implementation using CUDA Dynamic Parallelism.
 * Updated `simpleVulkan`, `simpleVulkanMMAP` and `vulkanImageCUDA`. Demonstrates use of SPIR-V shaders.
-* Added support for VS Code on linux platform.
 
 ### CUDA 11.3
 *  Added `streamOrderedAllocationIPC`. Demonstrates Inter Process Communication using one process per GPU for computation.
