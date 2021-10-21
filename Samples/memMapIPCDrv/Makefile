@@ -304,6 +304,31 @@ LIBRARIES :=
 
 PTX_FILE := memMapIpc_kernel${TARGET_SIZE}.ptx
 
+#Detect if installed version of GCC supports required C++11
+ifeq ($(TARGET_OS),linux)
+    empty :=
+    space := $(empty) $(empty)
+    GCCVERSIONSTRING := $(shell expr `$(HOST_COMPILER) -dumpversion`)
+#Create version number without "."
+    GCCVERSION := $(shell expr `echo $(GCCVERSIONSTRING)` | cut -f1 -d.)
+    GCCVERSION += $(shell expr `echo $(GCCVERSIONSTRING)` | cut -f2 -d.)
+    GCCVERSION += $(shell expr `echo $(GCCVERSIONSTRING)` | cut -f3 -d.)
+# Make sure the version number has at least 3 decimals
+    GCCVERSION += 00
+# Remove spaces from the version number
+    GCCVERSION := $(subst $(space),$(empty),$(GCCVERSION))
+#$(warning $(GCCVERSION))
+
+    IS_MIN_VERSION := $(shell expr `echo $(GCCVERSION)` \>= 51000)
+
+    ifeq ($(IS_MIN_VERSION), 1)
+        $(info >>> GCC Version is greater or equal to 5.1.0 <<<)
+    else
+        $(info >>> Waiving build. Minimum GCC version required is 5.1.0<<<)
+        SAMPLE_ENABLED := 0
+    endif
+endif
+
 # Gencode arguments
 SMS ?=
 
@@ -380,7 +405,7 @@ else
   endif
 endif
 
-ALL_CCFLAGS += --threads 0
+ALL_CCFLAGS += --threads 0 --std=c++11
 
 ifeq ($(SAMPLE_ENABLED),0)
 EXEC ?= @echo "[@]"

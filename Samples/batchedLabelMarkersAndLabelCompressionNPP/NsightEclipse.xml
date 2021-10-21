@@ -9,7 +9,7 @@ single image and batched image versions.]]></description>
   <includepaths>
     <path>./</path>
     <path>../</path>
-    <path>../../common/inc</path>
+    <path>../../Common</path>
   </includepaths>
   <keyconcepts>
     <concept level="basic">Performance Strategies</concept>

@@ -11,7 +11,7 @@
   <includepaths>
     <path>./</path>
     <path>../</path>
-    <path>../../common/inc</path>
+    <path>../../Common</path>
   </includepaths>
   <keyconcepts>
     <concept level="basic">Linear Algebra</concept>

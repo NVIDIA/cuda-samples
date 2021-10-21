@@ -1,4 +1,4 @@
-/* Copyright (c) 2020, NVIDIA CORPORATION. All rights reserved.
+/* Copyright (c) 2021, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -1681,7 +1681,6 @@ void VulkanBaseApp::copyBuffer(VkBuffer dst, VkBuffer src, VkDeviceSize size) {
 
   endSingleTimeCommands(commandBuffer);
 }
-
 #ifdef _VK_TIMELINE_SEMAPHORE
 void VulkanBaseApp::drawFrame() {
   const uint64_t waitValue = 0;

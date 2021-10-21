@@ -15,7 +15,7 @@
   <includepaths>
     <path>./</path>
     <path>../</path>
-    <path>../../common/inc</path>
+    <path>../../Common</path>
   </includepaths>
   <keyconcepts>
     <concept level="basic">Arrive Wait Barrier</concept>
@@ -24,7 +24,7 @@
     <keyword>CUDA</keyword>
     <keyword>GPGPU</keyword>
     <keyword>CPP11</keyword>
-    <keyword>GCC 5.0.0</keyword>
+    <keyword>GCC 5.1.0</keyword>
   </keywords>
   <libraries>
   </libraries>

@@ -1,4 +1,4 @@
-/* Copyright (c) 2020, NVIDIA CORPORATION. All rights reserved.
+/* Copyright (c) 2021, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -311,7 +311,6 @@ class VulkanCudaSineWave : public VulkanBaseApp {
     importCudaExternalSemaphore(m_cudaTimelineSemaphore, m_vkTimelineSemaphore,
                                 getDefaultSemaphoreHandleType());
 #else
-
     // Create the semaphore vulkan will signal when it's done with the vertex
     // buffer
     createExternalSemaphore(m_vkSignalSemaphore,

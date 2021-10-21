@@ -24,7 +24,7 @@ In addition to that, it demonstrates the use of the new CUDA function attribute 
   <includepaths>
     <path>./</path>
     <path>../</path>
-    <path>../../common/inc</path>
+    <path>../../Common</path>
   </includepaths>
   <keyconcepts>
     <concept level="basic">Matrix Multiply</concept>

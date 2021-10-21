@@ -50,6 +50,9 @@ PROJECTS := $(filter-out $(FILTER_OUT),$(PROJECTS))
 %.ph_clobber :
 	+@$(MAKE) -C $(dir $*) clobber $(USE_DEVICE)
 
+%.ph_run :
+	+@$(MAKE) -C $(dir $*) run
+
 all:  $(addsuffix .ph_build,$(PROJECTS))
 	@echo "Finished building CUDA samples"
 
@@ -62,3 +65,5 @@ tidy:
 clean: tidy $(addsuffix .ph_clean,$(PROJECTS))
 
 clobber: clean $(addsuffix .ph_clobber,$(PROJECTS))
+
+run: $(addsuffix .ph_run,$(PROJECTS))

@@ -1,4 +1,4 @@
-/* Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+/* Copyright (c) 2021, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -394,6 +394,7 @@ void DX12CudaInterop::LoadAssets() {
     RunSineWaveKernel(vertBufWidth, vertBufHeight, (Vertex *)m_cudaDevVertptr,
                       m_streamToRun, 1.0f);
     checkCudaErrors(cudaStreamSynchronize(m_streamToRun));
+    
   }
 
   // Create synchronization objects and wait until assets have been uploaded to

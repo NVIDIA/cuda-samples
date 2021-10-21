@@ -1,4 +1,4 @@
-/* Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+/* Copyright (c) 2021, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -278,7 +278,7 @@ int MatrixMultiply(int argc, char **argv,
   checkCudaErrors(cudaEventDestroy(start));
   checkCudaErrors(cudaEventDestroy(stop));
   printf(
-      "\nNOTE: The CUDA Samples are not meant for performance"
+      "\nNOTE: The CUDA Samples are not meant for performance "
       "measurements. Results may vary when GPU Boost is enabled.\n");
 
   if (correct) {

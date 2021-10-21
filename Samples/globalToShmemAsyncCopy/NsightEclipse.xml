@@ -21,7 +21,7 @@
   <includepaths>
     <path>./</path>
     <path>../</path>
-    <path>../../common/inc</path>
+    <path>../../Common</path>
   </includepaths>
   <keyconcepts>
     <concept level="basic">CUDA Runtime API</concept>
@@ -33,7 +33,7 @@
     <keyword>matrix multiply</keyword>
     <keyword>Async copy</keyword>
     <keyword>CPP11</keyword>
-    <keyword>GCC 5.0.0</keyword>
+    <keyword>GCC 5.1.0</keyword>
   </keywords>
   <libraries>
   </libraries>

@@ -1,4 +1,4 @@
-/* Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+/* Copyright (c) 2021, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -27,7 +27,8 @@
 
 /*
  * This sample implements a conjugate gradient solver on multiple GPU using
- * Unified Memory optimized prefetching and usage hints.
+ * Multi Device Cooperative Groups, also uses Unified Memory optimized using
+ * prefetching and usage hints.
  *
  */
 
@@ -61,8 +62,8 @@ __device__ double grid_dot_result = 0.0;
 /* genTridiag: generate a random tridiagonal symmetric matrix */
 void genTridiag(int *I, int *J, float *val, int N, int nz) {
   I[0] = 0, J[0] = 0, J[1] = 1;
-  val[0] = (float)rand() / RAND_MAX + 10.0f;
-  val[1] = (float)rand() / RAND_MAX;
+  val[0] = static_cast<float>(rand()) / RAND_MAX + 10.0f;
+  val[1] = static_cast<float>(rand()) / RAND_MAX;
   int start;
 
   for (int i = 1; i < N; i++) {
@@ -81,10 +82,10 @@ void genTridiag(int *I, int *J, float *val, int N, int nz) {
     }
 
     val[start] = val[start - 1];
-    val[start + 1] = (float)rand() / RAND_MAX + 10.0f;
+    val[start + 1] = static_cast<float>(rand()) / RAND_MAX + 10.0f;
 
     if (i < N - 1) {
-      val[start + 2] = (float)rand() / RAND_MAX;
+      val[start + 2] = static_cast<float>(rand()) / RAND_MAX;
     }
   }
 
@@ -111,8 +112,8 @@ void cpuSpMV(int *I, int *J, float *val, int nnz, int num_rows, float alpha,
   return;
 }
 
-float dotProduct(float *vecA, float *vecB, int size) {
-  float result = 0.0;
+double dotProduct(float *vecA, float *vecB, int size) {
+  double result = 0.0;
 
   for (int i = 0; i < size; i++) {
     result = result + (vecA[i] * vecB[i]);
@@ -175,90 +176,11 @@ void cpuConjugateGrad(int *I, int *J, float *val, float *x, float *Ax, float *p,
   }
 }
 
-// Data filled on CPU needed for MultiGPU operations.
-struct MultiDeviceData {
-  unsigned char *hostMemoryArrivedList;
-  unsigned int numDevices;
-  unsigned int deviceRank;
-};
-
-// Class used for coordination of multiple devices.
-class PeerGroup {
-  const MultiDeviceData &data;
-  const cg::grid_group &grid;
-
-  __device__ unsigned char load_arrived(unsigned char *arrived) const {
-#if __CUDA_ARCH__ < 700
-    return *(volatile unsigned char *)arrived;
-#else
-    unsigned int result;
-    asm volatile("ld.acquire.sys.global.u8 %0, [%1];"
-                 : "=r"(result)
-                 : "l"(arrived)
-                 : "memory");
-    return result;
-#endif
-  }
-
-  __device__ void store_arrived(unsigned char *arrived,
-                                unsigned char val) const {
-#if __CUDA_ARCH__ < 700
-    *(volatile unsigned char *)arrived = val;
-#else
-    unsigned int reg_val = val;
-    asm volatile(
-        "st.release.sys.global.u8 [%1], %0;" ::"r"(reg_val) "l"(arrived)
-        : "memory");
-
-    // Avoids compiler warnings from unused variable val.
-    (void)(reg_val = reg_val);
-#endif
-  }
-
- public:
-  __device__ PeerGroup(const MultiDeviceData &data, const cg::grid_group &grid)
-      : data(data), grid(grid){};
-
-  __device__ unsigned int size() const { return data.numDevices * grid.size(); }
-
-  __device__ unsigned int thread_rank() const {
-    return data.deviceRank * grid.size() + grid.thread_rank();
-  }
-
-  __device__ void sync() const {
-    grid.sync();
-
-    // One thread from each grid participates in the sync.
-    if (grid.thread_rank() == 0) {
-      if (data.deviceRank == 0) {
-        // Leader grid waits for others to join and then releases them.
-        // Other GPUs can arrive in any order, so the leader have to wait for
-        // all others.
-        for (int i = 0; i < data.numDevices - 1; i++) {
-          while (load_arrived(&data.hostMemoryArrivedList[i]) == 0)
-            ;
-        }
-        for (int i = 0; i < data.numDevices - 1; i++) {
-          store_arrived(&data.hostMemoryArrivedList[i], 0);
-        }
-        __threadfence_system();
-      } else {
-        // Other grids note their arrival and wait to be released.
-        store_arrived(&data.hostMemoryArrivedList[data.deviceRank - 1], 1);
-        while (load_arrived(&data.hostMemoryArrivedList[data.deviceRank - 1]) ==
-               1)
-          ;
-      }
-    }
-
-    grid.sync();
-  }
-};
-
 __device__ void gpuSpMV(int *I, int *J, float *val, int nnz, int num_rows,
                         float alpha, float *inputVecX, float *outputVecY,
-                        const PeerGroup &peer_group) {
-  for (int i = peer_group.thread_rank(); i < num_rows; i += peer_group.size()) {
+                        cg::thread_block &cta,
+                        const cg::multi_grid_group &multi_grid) {
+  for (int i = multi_grid.thread_rank(); i < num_rows; i += multi_grid.size()) {
     int row_elem = I[i];
     int next_row_elem = I[i + 1];
     int num_elems_this_row = next_row_elem - row_elem;
@@ -273,21 +195,21 @@ __device__ void gpuSpMV(int *I, int *J, float *val, int nnz, int num_rows,
 }
 
 __device__ void gpuSaxpy(float *x, float *y, float a, int size,
-                         const PeerGroup &peer_group) {
-  for (int i = peer_group.thread_rank(); i < size; i += peer_group.size()) {
+                         const cg::multi_grid_group &multi_grid) {
+  for (int i = multi_grid.thread_rank(); i < size; i += multi_grid.size()) {
     y[i] = a * x[i] + y[i];
   }
 }
 
 __device__ void gpuDotProduct(float *vecA, float *vecB, int size,
                               const cg::thread_block &cta,
-                              const PeerGroup &peer_group) {
+                              const cg::multi_grid_group &multi_grid) {
   extern __shared__ double tmp[];
 
   double temp_sum = 0.0;
 
-  for (int i = peer_group.thread_rank(); i < size; i += peer_group.size()) {
-    temp_sum += (double)(vecA[i] * vecB[i]);
+  for (int i = multi_grid.thread_rank(); i < size; i += multi_grid.size()) {
+    temp_sum += static_cast<double>(vecA[i] * vecB[i]);
   }
 
   cg::thread_block_tile<32> tile32 = cg::tiled_partition<32>(cta);
@@ -313,26 +235,26 @@ __device__ void gpuDotProduct(float *vecA, float *vecB, int size,
 }
 
 __device__ void gpuCopyVector(float *srcA, float *destB, int size,
-                              const PeerGroup &peer_group) {
-  for (int i = peer_group.thread_rank(); i < size; i += peer_group.size()) {
+                              const cg::multi_grid_group &multi_grid) {
+  for (int i = multi_grid.thread_rank(); i < size; i += multi_grid.size()) {
     destB[i] = srcA[i];
   }
 }
 
 __device__ void gpuScaleVectorAndSaxpy(float *x, float *y, float a, float scale,
-                                       int size, const PeerGroup &peer_group) {
-  for (int i = peer_group.thread_rank(); i < size; i += peer_group.size()) {
+                                       int size,
+                                       const cg::multi_grid_group &multi_grid) {
+  for (int i = multi_grid.thread_rank(); i < size; i += multi_grid.size()) {
     y[i] = a * x[i] + scale * y[i];
   }
 }
 
 extern "C" __global__ void multiGpuConjugateGradient(
     int *I, int *J, float *val, float *x, float *Ax, float *p, float *r,
-    double *dot_result, int nnz, int N, float tol,
-    MultiDeviceData multi_device_data) {
+    double *dot_result, int nnz, int N, float tol) {
   cg::thread_block cta = cg::this_thread_block();
   cg::grid_group grid = cg::this_grid();
-  PeerGroup peer_group(multi_device_data, grid);
+  cg::multi_grid_group multi_grid = cg::this_multi_grid();
 
   const int max_iter = 10000;
 
@@ -340,22 +262,22 @@ extern "C" __global__ void multiGpuConjugateGradient(
   float alpham1 = -1.0;
   float r0 = 0.0, r1, b, a, na;
 
-  for (int i = peer_group.thread_rank(); i < N; i += peer_group.size()) {
+  for (int i = multi_grid.thread_rank(); i < N; i += multi_grid.size()) {
     r[i] = 1.0;
     x[i] = 0.0;
   }
 
   cg::sync(grid);
 
-  gpuSpMV(I, J, val, nnz, N, alpha, x, Ax, peer_group);
+  gpuSpMV(I, J, val, nnz, N, alpha, x, Ax, cta, multi_grid);
 
   cg::sync(grid);
 
-  gpuSaxpy(Ax, r, alpham1, N, peer_group);
+  gpuSaxpy(Ax, r, alpham1, N, multi_grid);
 
   cg::sync(grid);
 
-  gpuDotProduct(r, r, N, cta, peer_group);
+  gpuDotProduct(r, r, N, cta, multi_grid);
 
   cg::sync(grid);
 
@@ -363,7 +285,7 @@ extern "C" __global__ void multiGpuConjugateGradient(
     atomicAdd_system(dot_result, grid_dot_result);
     grid_dot_result = 0.0;
   }
-  peer_group.sync();
+  cg::sync(multi_grid);
 
   r1 = *dot_result;
 
@@ -371,21 +293,21 @@ extern "C" __global__ void multiGpuConjugateGradient(
   while (r1 > tol * tol && k <= max_iter) {
     if (k > 1) {
       b = r1 / r0;
-      gpuScaleVectorAndSaxpy(r, p, alpha, b, N, peer_group);
+      gpuScaleVectorAndSaxpy(r, p, alpha, b, N, multi_grid);
     } else {
-      gpuCopyVector(r, p, N, peer_group);
+      gpuCopyVector(r, p, N, multi_grid);
     }
 
-    peer_group.sync();
+    cg::sync(multi_grid);
 
-    gpuSpMV(I, J, val, nnz, N, alpha, p, Ax, peer_group);
+    gpuSpMV(I, J, val, nnz, N, alpha, p, Ax, cta, multi_grid);
 
-    if (peer_group.thread_rank() == 0) {
+    if (multi_grid.thread_rank() == 0) {
       *dot_result = 0.0;
     }
-    peer_group.sync();
+    cg::sync(multi_grid);
 
-    gpuDotProduct(p, Ax, N, cta, peer_group);
+    gpuDotProduct(p, Ax, N, cta, multi_grid);
 
     cg::sync(grid);
 
@@ -393,27 +315,26 @@ extern "C" __global__ void multiGpuConjugateGradient(
       atomicAdd_system(dot_result, grid_dot_result);
       grid_dot_result = 0.0;
     }
-    peer_group.sync();
+    cg::sync(multi_grid);
 
     a = r1 / *dot_result;
 
-    gpuSaxpy(p, x, a, N, peer_group);
+    gpuSaxpy(p, x, a, N, multi_grid);
 
     na = -a;
 
-    gpuSaxpy(Ax, r, na, N, peer_group);
+    gpuSaxpy(Ax, r, na, N, multi_grid);
 
     r0 = r1;
 
-    peer_group.sync();
-
-    if (peer_group.thread_rank() == 0) {
+    cg::sync(multi_grid);
+    if (multi_grid.thread_rank() == 0) {
       *dot_result = 0.0;
     }
 
-    peer_group.sync();
+    cg::sync(multi_grid);
 
-    gpuDotProduct(r, r, N, cta, peer_group);
+    gpuDotProduct(r, r, N, cta, multi_grid);
 
     cg::sync(grid);
 
@@ -421,7 +342,7 @@ extern "C" __global__ void multiGpuConjugateGradient(
       atomicAdd_system(dot_result, grid_dot_result);
       grid_dot_result = 0.0;
     }
-    peer_group.sync();
+    cg::sync(multi_grid);
 
     r1 = *dot_result;
     k++;
@@ -440,7 +361,8 @@ std::multimap<std::pair<int, int>, int> getIdenticalGPUs() {
     checkCudaErrors(cudaGetDeviceProperties(&deviceProp, i));
 
     // Filter unsupported devices
-    if (deviceProp.cooperativeLaunch && deviceProp.concurrentManagedAccess) {
+    if (deviceProp.cooperativeMultiDeviceLaunch &&
+        deviceProp.concurrentManagedAccess) {
       identicalGpus.emplace(std::make_pair(deviceProp.major, deviceProp.minor),
                             i);
     }
@@ -484,39 +406,38 @@ int main(int argc, char **argv) {
 
   if (distance(bestFit) < kNumGpusRequired) {
     printf(
-        "No two or more GPUs with same architecture capable of "
-        "concurrentManagedAccess found. "
+        "No Two or more GPUs with same architecture capable of "
+        "cooperativeMultiDeviceLaunch & concurrentManagedAccess found. "
         "\nWaiving the sample\n");
     exit(EXIT_WAIVED);
   }
 
   std::set<int> bestFitDeviceIds;
 
-  // Check & select peer-to-peer access capable GPU devices as enabling p2p
-  // access between participating GPUs gives better performance.
+  // check & select peer-to-peer access capable GPU devices as enabling p2p
+  // access between participating
+  // GPUs gives better performance for multi_grid sync.
   for (auto itr = bestFit.first; itr != bestFit.second; itr++) {
     int deviceId = itr->second;
     checkCudaErrors(cudaSetDevice(deviceId));
 
-    std::for_each(
-        itr, bestFit.second,
-        [&deviceId, &bestFitDeviceIds,
-         &kNumGpusRequired](decltype(*itr) mapPair) {
-          if (deviceId != mapPair.second) {
-            int access = 0;
-            checkCudaErrors(
-                cudaDeviceCanAccessPeer(&access, deviceId, mapPair.second));
-            printf("Device=%d %s Access Peer Device=%d\n", deviceId,
-                   access ? "CAN" : "CANNOT", mapPair.second);
-            if (access && bestFitDeviceIds.size() < kNumGpusRequired) {
-              bestFitDeviceIds.emplace(deviceId);
-              bestFitDeviceIds.emplace(mapPair.second);
-            } else {
-              printf("Ignoring device %i (max devices exceeded)\n",
-                     mapPair.second);
-            }
-          }
-        });
+    std::for_each(itr, bestFit.second, [&deviceId, &bestFitDeviceIds,
+                                        &kNumGpusRequired](
+                                           decltype(*itr) mapPair) {
+      if (deviceId != mapPair.second) {
+        int access = 0;
+        checkCudaErrors(
+            cudaDeviceCanAccessPeer(&access, deviceId, mapPair.second));
+        printf("Device=%d %s Access Peer Device=%d\n", deviceId,
+               access ? "CAN" : "CANNOT", mapPair.second);
+        if (access && bestFitDeviceIds.size() < kNumGpusRequired) {
+          bestFitDeviceIds.emplace(deviceId);
+          bestFitDeviceIds.emplace(mapPair.second);
+        } else {
+          printf("Ignoring device %i (max devices exceeded)\n", mapPair.second);
+        }
+      }
+    });
 
     if (bestFitDeviceIds.size() >= kNumGpusRequired) {
       printf("Selected p2p capable devices - ");
@@ -530,7 +451,8 @@ int main(int argc, char **argv) {
   }
 
   // if bestFitDeviceIds.size() == 0 it means the GPUs in system are not p2p
-  // capable, hence we add it without p2p capability check.
+  // capable,
+  // hence we add it without p2p capability check.
   if (!bestFitDeviceIds.size()) {
     printf("Devices involved are not p2p capable.. selecting %zu of them\n",
            kNumGpusRequired);
@@ -547,7 +469,8 @@ int main(int argc, char **argv) {
                   });
   } else {
     // perform cudaDeviceEnablePeerAccess in both directions for all
-    // participating devices.
+    // participating devices of a cudaLaunchCooperativeKernelMultiDevice call
+    // this gives better performance for multi_grid sync.
     for (auto p1_itr = bestFitDeviceIds.begin();
          p1_itr != bestFitDeviceIds.end(); p1_itr++) {
       checkCudaErrors(cudaSetDevice(*p1_itr));
@@ -565,11 +488,14 @@ int main(int argc, char **argv) {
   N = 10485760 * 2;
   nz = (N - 2) * 3 + 4;
 
-  checkCudaErrors(cudaMallocManaged((void **)&I, sizeof(int) * (N + 1)));
-  checkCudaErrors(cudaMallocManaged((void **)&J, sizeof(int) * nz));
-  checkCudaErrors(cudaMallocManaged((void **)&val, sizeof(float) * nz));
+  checkCudaErrors(
+      cudaMallocManaged(reinterpret_cast<void **>(&I), sizeof(int) * (N + 1)));
+  checkCudaErrors(
+      cudaMallocManaged(reinterpret_cast<void **>(&J), sizeof(int) * nz));
+  checkCudaErrors(
+      cudaMallocManaged(reinterpret_cast<void **>(&val), sizeof(float) * nz));
 
-  float *val_cpu = (float *)malloc(sizeof(float) * nz);
+  float *val_cpu = reinterpret_cast<float *>(malloc(sizeof(float) * nz));
 
   genTridiag(I, J, val_cpu, N, nz);
 
@@ -581,17 +507,22 @@ int main(int argc, char **argv) {
   checkCudaErrors(
       cudaMemAdvise(val, sizeof(float) * nz, cudaMemAdviseSetReadMostly, 0));
 
-  checkCudaErrors(cudaMallocManaged((void **)&x, sizeof(float) * N));
+  checkCudaErrors(
+      cudaMallocManaged(reinterpret_cast<void **>(&x), sizeof(float) * N));
 
   double *dot_result;
-  checkCudaErrors(cudaMallocManaged((void **)&dot_result, sizeof(double)));
+  checkCudaErrors(cudaMallocManaged(reinterpret_cast<void **>(&dot_result),
+                                    sizeof(double)));
 
-  checkCudaErrors(cudaMemset(dot_result, 0, sizeof(double)));
+  checkCudaErrors(cudaMemset(dot_result, 0.0, sizeof(double)));
 
   // temp memory for ConjugateGradient
-  checkCudaErrors(cudaMallocManaged((void **)&r, N * sizeof(float)));
-  checkCudaErrors(cudaMallocManaged((void **)&p, N * sizeof(float)));
-  checkCudaErrors(cudaMallocManaged((void **)&Ax, N * sizeof(float)));
+  checkCudaErrors(
+      cudaMallocManaged(reinterpret_cast<void **>(&r), N * sizeof(float)));
+  checkCudaErrors(
+      cudaMallocManaged(reinterpret_cast<void **>(&p), N * sizeof(float)));
+  checkCudaErrors(
+      cudaMallocManaged(reinterpret_cast<void **>(&Ax), N * sizeof(float)));
 
   std::cout << "\nRunning on GPUs = " << kNumGpusRequired << std::endl;
   cudaStream_t nStreams[kNumGpusRequired];
@@ -685,10 +616,10 @@ int main(int argc, char **argv) {
   }
 
 #if ENABLE_CPU_DEBUG_CODE
-  float *Ax_cpu = (float *)malloc(sizeof(float) * N);
-  float *r_cpu = (float *)malloc(sizeof(float) * N);
-  float *p_cpu = (float *)malloc(sizeof(float) * N);
-  float *x_cpu = (float *)malloc(sizeof(float) * N);
+  float *Ax_cpu = reinterpret_cast<float *>(malloc(sizeof(float) * N));
+  float *r_cpu = reinterpret_cast<float *>(malloc(sizeof(float) * N));
+  float *p_cpu = reinterpret_cast<float *>(malloc(sizeof(float) * N));
+  float *x_cpu = reinterpret_cast<float *>(malloc(sizeof(float) * N));
 
   for (int i = 0; i < N; i++) {
     r_cpu[i] = 1.0;
@@ -700,37 +631,28 @@ int main(int argc, char **argv) {
          numSms * numBlocksPerSm * THREADS_PER_BLOCK, numBlocksPerSm);
   dim3 dimGrid(numSms * numBlocksPerSm, 1, 1),
       dimBlock(THREADS_PER_BLOCK, 1, 1);
-
-  // Structure used for cross-grid synchronization.
-  MultiDeviceData multi_device_data;
-  checkCudaErrors(cudaHostAlloc(
-      &multi_device_data.hostMemoryArrivedList,
-      (kNumGpusRequired - 1) * sizeof(*multi_device_data.hostMemoryArrivedList),
-      cudaHostAllocPortable));
-  memset(multi_device_data.hostMemoryArrivedList, 0,
-         (kNumGpusRequired - 1) *
-             sizeof(*multi_device_data.hostMemoryArrivedList));
-  multi_device_data.numDevices = kNumGpusRequired;
-  multi_device_data.deviceRank = 0;
-
   void *kernelArgs[] = {
       (void *)&I,  (void *)&J, (void *)&val, (void *)&x,
       (void *)&Ax, (void *)&p, (void *)&r,   (void *)&dot_result,
-      (void *)&nz, (void *)&N, (void *)&tol, (void *)&multi_device_data,
+      (void *)&nz, (void *)&N, (void *)&tol,
   };
+  cudaLaunchParams *launchParamsList =
+      (cudaLaunchParams *)malloc(sizeof(cudaLaunchParams) * kNumGpusRequired);
+  for (int i = 0; i < kNumGpusRequired; i++) {
+    launchParamsList[i].func = (void *)multiGpuConjugateGradient;
+    launchParamsList[i].gridDim = dimGrid;
+    launchParamsList[i].blockDim = dimBlock;
+    launchParamsList[i].sharedMem = sMemSize;
+    launchParamsList[i].stream = nStreams[i];
+    launchParamsList[i].args = kernelArgs;
+  }
 
   printf("Launching kernel\n");
 
-  deviceId = bestFitDeviceIds.begin();
-  device_count = 0;
-  while (deviceId != bestFitDeviceIds.end()) {
-    checkCudaErrors(cudaSetDevice(*deviceId));
-    checkCudaErrors(cudaLaunchCooperativeKernel(
-        (void *)multiGpuConjugateGradient, dimGrid, dimBlock, kernelArgs,
-        sMemSize, nStreams[device_count++]));
-    multi_device_data.deviceRank++;
-    deviceId++;
-  }
+  checkCudaErrors(cudaLaunchCooperativeKernelMultiDevice(
+      launchParamsList, kNumGpusRequired,
+      cudaCooperativeLaunchMultiDeviceNoPreSync |
+          cudaCooperativeLaunchMultiDeviceNoPostSync));
 
   checkCudaErrors(cudaMemPrefetchAsync(x, sizeof(float) * N, cudaCpuDeviceId));
   checkCudaErrors(
@@ -768,7 +690,6 @@ int main(int argc, char **argv) {
     }
   }
 
-  checkCudaErrors(cudaFreeHost(multi_device_data.hostMemoryArrivedList));
   checkCudaErrors(cudaFree(I));
   checkCudaErrors(cudaFree(J));
   checkCudaErrors(cudaFree(val));
