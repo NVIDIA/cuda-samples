@@ -184,13 +184,13 @@ __host__ void init_host_matrices(__nv_bfloat16 *a, __nv_bfloat16 *b, float *c)
 {
     for (int i = 0; i < M_GLOBAL; i++) {
         for (int j = 0; j < K_GLOBAL; j++) {
-            a[i*K_GLOBAL+j] = (__nv_bfloat16)(rand() % 3);
+            a[i*K_GLOBAL+j] = (__nv_bfloat16)(float)(rand() % 3);
         }
     }
 
     for (int i = 0; i < N_GLOBAL; i++) {
         for (int j = 0; j < K_GLOBAL; j++) {
-            b[i*K_GLOBAL+j] = (__nv_bfloat16)(rand() % 3);
+            b[i*K_GLOBAL+j] = (__nv_bfloat16)(float)(rand() % 3);
         }
     }
 
