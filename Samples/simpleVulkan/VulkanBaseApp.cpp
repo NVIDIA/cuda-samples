@@ -1683,8 +1683,8 @@ void VulkanBaseApp::copyBuffer(VkBuffer dst, VkBuffer src, VkDeviceSize size) {
 }
 #ifdef _VK_TIMELINE_SEMAPHORE
 void VulkanBaseApp::drawFrame() {
-  const uint64_t waitValue = 0;
-  const uint64_t signalValue = 1;
+  static uint64_t waitValue = 0;
+  static uint64_t signalValue = 1;
 
   VkSemaphoreWaitInfo semaphoreWaitInfo = {};
   semaphoreWaitInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO;
@@ -1761,6 +1761,9 @@ void VulkanBaseApp::drawFrame() {
   }
 
   m_currentFrame++;
+
+  waitValue += 2;
+  signalValue += 2;
 }
 #else
 void VulkanBaseApp::drawFrame() {

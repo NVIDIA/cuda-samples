@@ -482,13 +482,16 @@ class VulkanCudaSineWave : public VulkanBaseApp {
     VulkanBaseApp::drawFrame();
 
 #ifdef _VK_TIMELINE_SEMAPHORE
+    static uint64_t waitValue = 1;
+    static uint64_t signalValue = 2;
+
     cudaExternalSemaphoreWaitParams waitParams = {};
     waitParams.flags = 0;
-    waitParams.params.fence.value = 1;
+    waitParams.params.fence.value = waitValue;
 
     cudaExternalSemaphoreSignalParams signalParams = {};
     signalParams.flags = 0;
-    signalParams.params.fence.value = 0;
+    signalParams.params.fence.value = signalValue;
     // Wait for vulkan to complete it's work
     checkCudaErrors(cudaWaitExternalSemaphoresAsync(&m_cudaTimelineSemaphore,
                                                     &waitParams, 1, m_stream));
@@ -497,6 +500,9 @@ class VulkanCudaSineWave : public VulkanBaseApp {
     // Signal vulkan to continue with the updated buffers
     checkCudaErrors(cudaSignalExternalSemaphoresAsync(
         &m_cudaTimelineSemaphore, &signalParams, 1, m_stream));
+
+    waitValue += 2;
+    signalValue += 2;
 #else
     cudaExternalSemaphoreWaitParams waitParams = {};
     waitParams.flags = 0;
