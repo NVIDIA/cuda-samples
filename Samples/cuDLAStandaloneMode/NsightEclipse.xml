@@ -22,6 +22,7 @@
     <keyword>CPP11</keyword>
   </keywords>
   <libraries>
+    <library>cudla</library>
     <library>nvscibuf</library>
     <library>nvscisync</library>
   </libraries>

@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2021, NVIDIA CORPORATION. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -345,6 +345,8 @@ endif
 endif
 
 ALL_CCFLAGS += --std=c++11 --threads 0
+
+LIBRARIES += -lcudla
 
 ifeq ($(SAMPLE_ENABLED),0)
 EXEC ?= @echo "[@]"

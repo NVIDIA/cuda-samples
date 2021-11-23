@@ -37,6 +37,8 @@
 #include <sstream>
 #include <unistd.h>
 
+#define DPRINTF(...) printf(__VA_ARGS__)
+
 static void printTensorDesc(cudlaModuleTensorDescriptor* tensorDesc) {
   DPRINTF("\tTENSOR NAME : %s\n", tensorDesc->name);
   DPRINTF("\tsize: %lu\n", tensorDesc->size);
