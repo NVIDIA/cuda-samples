@@ -331,13 +331,13 @@ class VulkanCudaSineWave : public VulkanBaseApp {
                                 VkExternalMemoryHandleTypeFlagBits handleType) {
     cudaExternalMemoryHandleDesc externalMemoryHandleDesc = {};
 
-    if (handleType & VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT) {
+    if (handleType & VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT) {
       externalMemoryHandleDesc.type = cudaExternalMemoryHandleTypeOpaqueWin32;
     } else if (handleType &
-               VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT) {
+               VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT) {
       externalMemoryHandleDesc.type =
           cudaExternalMemoryHandleTypeOpaqueWin32Kmt;
-    } else if (handleType & VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD_BIT) {
+    } else if (handleType & VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT) {
       externalMemoryHandleDesc.type = cudaExternalMemoryHandleTypeOpaqueFd;
     } else {
       throw std::runtime_error("Unknown handle type requested!");
