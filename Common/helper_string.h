@@ -100,7 +100,7 @@ inline int stringRemoveDelimiter(char delimiter, const char *string) {
     string_start++;
   }
 
-  if (string_start >= static_cast<int>(strlen(string) - 1)) {
+  if (string_start >= static_cast<int>(strlen(string))) {
     return 0;
   }
 
