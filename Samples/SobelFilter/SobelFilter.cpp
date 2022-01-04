@@ -138,7 +138,6 @@ void display(void) {
   size_t num_bytes;
   checkCudaErrors(cudaGraphicsResourceGetMappedPointer(
       (void **)&data, &num_bytes, cuda_pbo_resource));
-  // printf("CUDA mapped PBO: May access %ld bytes\n", num_bytes);
 
   sobelFilter(data, imWidth, imHeight, g_SobelDisplayMode, imageScale);
   checkCudaErrors(cudaGraphicsUnmapResources(1, &cuda_pbo_resource, 0));
