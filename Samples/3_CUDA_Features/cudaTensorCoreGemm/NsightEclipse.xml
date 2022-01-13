@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
+<entry>
+  <name>cudaTensorCoreGemm</name>
+  <cflags>
+    <flag>-maxrregcount=255</flag>
+  </cflags>
+  <cuda_api_list>
+    <toolkit>cudaMemset</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaEventRecord</toolkit>
+    <toolkit>cudaEventCreate</toolkit>
+    <toolkit>cudaFuncSetAttribute</toolkit>
+    <toolkit>cudaEventElapsedTime</toolkit>
+    <toolkit>cudaEventSynchronize</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaGetLastError</toolkit>
+    <toolkit>cudaMemcpy</toolkit>
+    <toolkit>cudaGetErrorString</toolkit>
+    <toolkit>cudaGetDeviceProperties</toolkit>
+  </cuda_api_list>
+  <description><![CDATA[CUDA sample demonstrating a GEMM computation using the Warp Matrix Multiply and Accumulate (WMMA) API introduced in CUDA 9.
+
+This sample demonstrates the use of the new CUDA WMMA API employing the Tensor Cores introduced in the Volta chip family for faster matrix operations.
+
+In addition to that, it demonstrates the use of the new CUDA function attribute cudaFuncAttributeMaxDynamicSharedMemorySize that allows the application to reserve an extended amount of shared memory than it is available by default.]]></description>
+  <devicecompilation>whole</devicecompilation>
+  <includepaths>
+    <path>./</path>
+    <path>../</path>
+    <path>../../../Common</path>
+  </includepaths>
+  <keyconcepts>
+    <concept level="basic">Matrix Multiply</concept>
+    <concept level="advanced">WMMA</concept>
+    <concept level="advanced">Tensor Cores</concept>
+  </keyconcepts>
+  <keywords>
+  </keywords>
+  <libraries>
+  </libraries>
+  <librarypaths>
+  </librarypaths>
+  <nsight_eclipse>true</nsight_eclipse>
+  <primary_file>cudaTensorCoreGemm.cu</primary_file>
+  <scopes>
+    <scope>1:CUDA Basic Topics</scope>
+  </scopes>
+  <sm-arch>sm70</sm-arch>
+  <sm-arch>sm72</sm-arch>
+  <sm-arch>sm75</sm-arch>
+  <sm-arch>sm80</sm-arch>
+  <sm-arch>sm86</sm-arch>
+  <sm-arch>sm87</sm-arch>
+  <supported_envs>
+    <env>
+      <arch>x86_64</arch>
+      <platform>linux</platform>
+    </env>
+    <env>
+      <arch>aarch64</arch>
+    </env>
+    <env>
+      <arch>sbsa</arch>
+    </env>
+    <env>
+      <platform>windows7</platform>
+    </env>
+    <env>
+      <arch>ppc64le</arch>
+      <platform>linux</platform>
+    </env>
+  </supported_envs>
+  <supported_sm_architectures>
+    <from>7.0</from>
+  </supported_sm_architectures>
+  <title>CUDA Tensor Core GEMM</title>
+  <type>exe</type>
+</entry>

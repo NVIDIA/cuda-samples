@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
+<entry>
+  <name>simpleCUBLAS_LU</name>
+  <cuda_api_list>
+    <toolkit>cudaGetErrorEnum</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaMemcpy</toolkit>
+  </cuda_api_list>
+  <description><![CDATA[CUDA sample demonstrating cuBLAS API cublasDgetrfBatched() for lower-upper (LU) decomposition of a matrix.]]></description>
+  <devicecompilation>whole</devicecompilation>
+  <includepaths>
+    <path>./</path>
+    <path>../</path>
+    <path>../../../Common</path>
+  </includepaths>
+  <keyconcepts>
+    <concept level="basic">CUBLAS Library</concept>
+    <concept level="basic">LU decomposition</concept>
+  </keyconcepts>
+  <keywords>
+    <keyword>CUDA</keyword>
+    <keyword>CUBLAS</keyword>
+    <keyword>Linear Algebra</keyword>
+    <keyword>LU decomposition</keyword>
+  </keywords>
+  <libraries>
+    <library>cublas</library>
+  </libraries>
+  <librarypaths>
+  </librarypaths>
+  <nsight_eclipse>true</nsight_eclipse>
+  <primary_file>simpleCUBLAS_LU.cpp</primary_file>
+  <required_dependencies>
+    <dependency>CUBLAS</dependency>
+  </required_dependencies>
+  <scopes>
+    <scope>1:CUDA Basic Topics</scope>
+    <scope>3:Linear Algebra</scope>
+  </scopes>
+  <sm-arch>sm35</sm-arch>
+  <sm-arch>sm37</sm-arch>
+  <sm-arch>sm50</sm-arch>
+  <sm-arch>sm52</sm-arch>
+  <sm-arch>sm53</sm-arch>
+  <sm-arch>sm60</sm-arch>
+  <sm-arch>sm61</sm-arch>
+  <sm-arch>sm70</sm-arch>
+  <sm-arch>sm72</sm-arch>
+  <sm-arch>sm75</sm-arch>
+  <sm-arch>sm80</sm-arch>
+  <sm-arch>sm86</sm-arch>
+  <sm-arch>sm87</sm-arch>
+  <supported_envs>
+    <env>
+      <arch>x86_64</arch>
+      <platform>linux</platform>
+    </env>
+    <env>
+      <platform>windows7</platform>
+    </env>
+    <env>
+      <arch>aarch64</arch>
+    </env>
+    <env>
+      <arch>sbsa</arch>
+    </env>
+    <env>
+      <arch>ppc64le</arch>
+      <platform>linux</platform>
+    </env>
+  </supported_envs>
+  <supported_sm_architectures>
+    <include>all</include>
+  </supported_sm_architectures>
+  <title>Simple CUBLAS LU</title>
+  <type>exe</type>
+</entry>

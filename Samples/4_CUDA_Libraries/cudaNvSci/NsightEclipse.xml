@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
+<entry>
+  <name>cudaNvSci</name>
+  <cflags>
+    <flag>--std=c++11</flag>
+  </cflags>
+  <cuda_api_list>
+    <driver>cuDeviceGetUuid</driver>
+    <toolkit>cudaGetMipmappedArrayLevel</toolkit>
+    <toolkit>cudaImportNvSciImage</toolkit>
+    <toolkit>cudaImportExternalSemaphore</toolkit>
+    <toolkit>cudaNvSciApp</toolkit>
+    <toolkit>cudaStreamCreateWithFlags</toolkit>
+    <toolkit>cudaExternalMemoryGetMappedMipmappedArray</toolkit>
+    <toolkit>cudaNvSciWait</toolkit>
+    <toolkit>cudaDestroyExternalMemory</toolkit>
+    <toolkit>cudaMemcpyAsync</toolkit>
+    <toolkit>cudaStreamDestroy</toolkit>
+    <toolkit>cudaSignalExternalSemaphoresAsync</toolkit>
+    <toolkit>cudaDeviceGetNvSciSyncAttributes</toolkit>
+    <toolkit>cudaFreeMipmappedArray</toolkit>
+    <toolkit>cudaMallocHost</toolkit>
+    <toolkit>cudaNvSci</toolkit>
+    <toolkit>cudaImportExternalMemory</toolkit>
+    <toolkit>cudaSetDevice</toolkit>
+    <toolkit>cudaImportNvSciRawBuf</toolkit>
+    <toolkit>cudaImportNvSciSemaphore</toolkit>
+    <toolkit>cudaGetDeviceCount</toolkit>
+    <toolkit>cudaDestroyTextureObject</toolkit>
+    <toolkit>cudaDeviceGetAttribute</toolkit>
+    <toolkit>cudaDestroyExternalSemaphore</toolkit>
+    <toolkit>cudaStreamSynchronize</toolkit>
+    <toolkit>cudaNvSciSignal</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaDeviceId</toolkit>
+    <toolkit>cudaExternalMemoryGetMappedBuffer</toolkit>
+    <toolkit>cudaCreateTextureObject</toolkit>
+    <toolkit>cudaFreeHost</toolkit>
+    <toolkit>cudaWaitExternalSemaphoresAsync</toolkit>
+  </cuda_api_list>
+  <description><![CDATA[This sample demonstrates CUDA-NvSciBuf/NvSciSync Interop. Two CPU threads import the NvSciBuf and NvSciSync into CUDA to perform two image processing algorithms on a ppm image - image rotation in 1st thread &amp;amp;amp;amp;amp;amp;amp;amp;amp;amp; rgba to grayscale conversion of rotated image in 2nd thread. Currently only supported on Ubuntu 18.04]]></description>
+  <devicecompilation>whole</devicecompilation>
+  <includepaths>
+    <path>./</path>
+    <path>../</path>
+    <path>../../../Common</path>
+  </includepaths>
+  <keyconcepts>
+    <concept level="basic">CUDA NvSci Interop</concept>
+    <concept level="advanced">Data Parallel Algorithms</concept>
+    <concept level="advanced">Image Processing</concept>
+  </keyconcepts>
+  <keywords>
+    <keyword>CUDA</keyword>
+    <keyword>CPP11</keyword>
+  </keywords>
+  <libraries>
+    <library os="linux">cuda</library>
+    <library framework="true" os="macosx">CUDA</library>
+    <library>nvscibuf</library>
+    <library>nvscisync</library>
+  </libraries>
+  <librarypaths>
+  </librarypaths>
+  <nsight_eclipse>true</nsight_eclipse>
+  <primary_file>main.cpp</primary_file>
+  <required_dependencies>
+    <dependency>NVSCI</dependency>
+  </required_dependencies>
+  <scopes>
+    <scope>1:CUDA Advanced Topics</scope>
+    <scope>1:CUDA NvSciBuf/NvSciSync Interop</scope>
+  </scopes>
+  <sm-arch>sm60</sm-arch>
+  <sm-arch>sm61</sm-arch>
+  <sm-arch>sm70</sm-arch>
+  <sm-arch>sm72</sm-arch>
+  <sm-arch>sm75</sm-arch>
+  <sm-arch>sm80</sm-arch>
+  <sm-arch>sm86</sm-arch>
+  <sm-arch>sm87</sm-arch>
+  <supported_envs>
+    <env>
+      <platform>aarch64</platform>
+    </env>
+    <env>
+      <arch>x86_64</arch>
+      <platform>linux</platform>
+    </env>
+  </supported_envs>
+  <supported_sm_architectures>
+    <from>6.0</from>
+  </supported_sm_architectures>
+  <title>CUDA NvSciBuf/NvSciSync Interop</title>
+  <type>exe</type>
+</entry>

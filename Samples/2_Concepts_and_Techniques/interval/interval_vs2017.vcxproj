@@ -1,0 +1,218 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <CUDAPropsPath Condition="'$(CUDAPropsPath)'==''">$(VCTargetsPath)\BuildCustomizations</CUDAPropsPath>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{997E0757-EA74-4A4E-A0FC-47D8C8831A15}</ProjectGuid>
+    <RootNamespace>interval_vs2017</RootNamespace>
+    <ProjectName>interval</ProjectName>
+    <CudaToolkitCustomDir />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(WindowsTargetPlatformVersion)'==''">
+    <LatestTargetPlatformVersion>$([Microsoft.Build.Utilities.ToolLocationHelper]::GetLatestSDKTargetPlatformVersion('Windows', '10.0'))</LatestTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(WindowsTargetPlatformVersion)' == ''">$(LatestTargetPlatformVersion)</WindowsTargetPlatformVersion>
+    <TargetPlatformVersion>$(WindowsTargetPlatformVersion)</TargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup>
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(CUDAPropsPath)\CUDA 11.6.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <IntDir>$(Platform)/$(Configuration)/</IntDir>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Platform)'=='x64'">
+    <OutDir>../../../bin/win64/$(Configuration)/</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>./;$(CudaToolkitDir)/include;../../../Common;.;</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>cudart_static.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(CudaToolkitLibDir);</AdditionalLibraryDirectories>
+      <OutputFile>$(OutDir)/interval.exe</OutputFile>
+    </Link>
+    <CudaCompile>
+      <CodeGeneration>compute_35,sm_35;compute_37,sm_37;compute_50,sm_50;compute_52,sm_52;compute_60,sm_60;compute_61,sm_61;compute_70,sm_70;compute_75,sm_75;compute_80,sm_80;compute_86,sm_86;</CodeGeneration>
+      <AdditionalOptions>-Xcompiler "/wd 4819"  --threads 0 </AdditionalOptions>
+      <Include>./;../../../Common</Include>
+      <Defines>WIN32</Defines>
+    </CudaCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+    </Link>
+    <CudaCompile>
+      <Runtime>MTd</Runtime>
+      <TargetMachinePlatform>64</TargetMachinePlatform>
+    </CudaCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
+    <CudaCompile>
+      <Runtime>MT</Runtime>
+      <TargetMachinePlatform>64</TargetMachinePlatform>
+    </CudaCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CudaCompile Include="interval.cu" />
+    <ClInclude Include="boost/config.hpp" />
+    <ClInclude Include="boost/config/abi/borland_prefix.hpp" />
+    <ClInclude Include="boost/config/abi/borland_suffix.hpp" />
+    <ClInclude Include="boost/config/abi/msvc_prefix.hpp" />
+    <ClInclude Include="boost/config/abi/msvc_suffix.hpp" />
+    <ClInclude Include="boost/config/abi_prefix.hpp" />
+    <ClInclude Include="boost/config/abi_suffix.hpp" />
+    <ClInclude Include="boost/config/auto_link.hpp" />
+    <ClInclude Include="boost/config/compiler/borland.hpp" />
+    <ClInclude Include="boost/config/compiler/codegear.hpp" />
+    <ClInclude Include="boost/config/compiler/comeau.hpp" />
+    <ClInclude Include="boost/config/compiler/common_edg.hpp" />
+    <ClInclude Include="boost/config/compiler/compaq_cxx.hpp" />
+    <ClInclude Include="boost/config/compiler/digitalmars.hpp" />
+    <ClInclude Include="boost/config/compiler/gcc.hpp" />
+    <ClInclude Include="boost/config/compiler/gcc_xml.hpp" />
+    <ClInclude Include="boost/config/compiler/greenhills.hpp" />
+    <ClInclude Include="boost/config/compiler/hp_acc.hpp" />
+    <ClInclude Include="boost/config/compiler/intel.hpp" />
+    <ClInclude Include="boost/config/compiler/kai.hpp" />
+    <ClInclude Include="boost/config/compiler/metrowerks.hpp" />
+    <ClInclude Include="boost/config/compiler/mpw.hpp" />
+    <ClInclude Include="boost/config/compiler/pgi.hpp" />
+    <ClInclude Include="boost/config/compiler/sgi_mipspro.hpp" />
+    <ClInclude Include="boost/config/compiler/sunpro_cc.hpp" />
+    <ClInclude Include="boost/config/compiler/vacpp.hpp" />
+    <ClInclude Include="boost/config/compiler/visualc.hpp" />
+    <ClInclude Include="boost/config/no_tr1/cmath.hpp" />
+    <ClInclude Include="boost/config/no_tr1/complex.hpp" />
+    <ClInclude Include="boost/config/no_tr1/functional.hpp" />
+    <ClInclude Include="boost/config/no_tr1/memory.hpp" />
+    <ClInclude Include="boost/config/no_tr1/utility.hpp" />
+    <ClInclude Include="boost/config/platform/aix.hpp" />
+    <ClInclude Include="boost/config/platform/amigaos.hpp" />
+    <ClInclude Include="boost/config/platform/beos.hpp" />
+    <ClInclude Include="boost/config/platform/bsd.hpp" />
+    <ClInclude Include="boost/config/platform/cygwin.hpp" />
+    <ClInclude Include="boost/config/platform/hpux.hpp" />
+    <ClInclude Include="boost/config/platform/irix.hpp" />
+    <ClInclude Include="boost/config/platform/linux.hpp" />
+    <ClInclude Include="boost/config/platform/macos.hpp" />
+    <ClInclude Include="boost/config/platform/qnxnto.hpp" />
+    <ClInclude Include="boost/config/platform/solaris.hpp" />
+    <ClInclude Include="boost/config/platform/vxworks.hpp" />
+    <ClInclude Include="boost/config/platform/win32.hpp" />
+    <ClInclude Include="boost/config/posix_features.hpp" />
+    <ClInclude Include="boost/config/requires_threads.hpp" />
+    <ClInclude Include="boost/config/select_compiler_config.hpp" />
+    <ClInclude Include="boost/config/select_platform_config.hpp" />
+    <ClInclude Include="boost/config/select_stdlib_config.hpp" />
+    <ClInclude Include="boost/config/stdlib/dinkumware.hpp" />
+    <ClInclude Include="boost/config/stdlib/libcomo.hpp" />
+    <ClInclude Include="boost/config/stdlib/libstdcpp3.hpp" />
+    <ClInclude Include="boost/config/stdlib/modena.hpp" />
+    <ClInclude Include="boost/config/stdlib/msl.hpp" />
+    <ClInclude Include="boost/config/stdlib/roguewave.hpp" />
+    <ClInclude Include="boost/config/stdlib/sgi.hpp" />
+    <ClInclude Include="boost/config/stdlib/stlport.hpp" />
+    <ClInclude Include="boost/config/stdlib/vacpp.hpp" />
+    <ClInclude Include="boost/config/suffix.hpp" />
+    <ClInclude Include="boost/config/user.hpp" />
+    <ClInclude Include="boost/config/warning_disable.hpp" />
+    <ClInclude Include="boost/limits.hpp" />
+    <ClInclude Include="boost/numeric/interval.hpp" />
+    <ClInclude Include="boost/numeric/interval/arith.hpp" />
+    <ClInclude Include="boost/numeric/interval/arith2.hpp" />
+    <ClInclude Include="boost/numeric/interval/arith3.hpp" />
+    <ClInclude Include="boost/numeric/interval/checking.hpp" />
+    <ClInclude Include="boost/numeric/interval/compare.hpp" />
+    <ClInclude Include="boost/numeric/interval/compare/certain.hpp" />
+    <ClInclude Include="boost/numeric/interval/compare/explicit.hpp" />
+    <ClInclude Include="boost/numeric/interval/compare/lexicographic.hpp" />
+    <ClInclude Include="boost/numeric/interval/compare/possible.hpp" />
+    <ClInclude Include="boost/numeric/interval/compare/set.hpp" />
+    <ClInclude Include="boost/numeric/interval/compare/tribool.hpp" />
+    <ClInclude Include="boost/numeric/interval/constants.hpp" />
+    <ClInclude Include="boost/numeric/interval/detail/alpha_rounding_control.hpp" />
+    <ClInclude Include="boost/numeric/interval/detail/bcc_rounding_control.hpp" />
+    <ClInclude Include="boost/numeric/interval/detail/bugs.hpp" />
+    <ClInclude Include="boost/numeric/interval/detail/c99_rounding_control.hpp" />
+    <ClInclude Include="boost/numeric/interval/detail/c99sub_rounding_control.hpp" />
+    <ClInclude Include="boost/numeric/interval/detail/division.hpp" />
+    <ClInclude Include="boost/numeric/interval/detail/ia64_rounding_control.hpp" />
+    <ClInclude Include="boost/numeric/interval/detail/interval_prototype.hpp" />
+    <ClInclude Include="boost/numeric/interval/detail/msvc_rounding_control.hpp" />
+    <ClInclude Include="boost/numeric/interval/detail/ppc_rounding_control.hpp" />
+    <ClInclude Include="boost/numeric/interval/detail/sparc_rounding_control.hpp" />
+    <ClInclude Include="boost/numeric/interval/detail/test_input.hpp" />
+    <ClInclude Include="boost/numeric/interval/detail/x86_rounding_control.hpp" />
+    <ClInclude Include="boost/numeric/interval/detail/x86gcc_rounding_control.hpp" />
+    <ClInclude Include="boost/numeric/interval/ext/integer.hpp" />
+    <ClInclude Include="boost/numeric/interval/ext/x86_fast_rounding_control.hpp" />
+    <ClInclude Include="boost/numeric/interval/hw_rounding.hpp" />
+    <ClInclude Include="boost/numeric/interval/interval.hpp" />
+    <ClInclude Include="boost/numeric/interval/io.hpp" />
+    <ClInclude Include="boost/numeric/interval/limits.hpp" />
+    <ClInclude Include="boost/numeric/interval/policies.hpp" />
+    <ClInclude Include="boost/numeric/interval/rounded_arith.hpp" />
+    <ClInclude Include="boost/numeric/interval/rounded_transc.hpp" />
+    <ClInclude Include="boost/numeric/interval/rounding.hpp" />
+    <ClInclude Include="boost/numeric/interval/transc.hpp" />
+    <ClInclude Include="boost/numeric/interval/utility.hpp" />
+    <ClInclude Include="cpu_interval.h" />
+    <ClInclude Include="cuda_interval.h" />
+    <ClInclude Include="cuda_interval_lib.h" />
+    <ClInclude Include="cuda_interval_rounded_arith.h" />
+    <ClInclude Include="interval.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(CUDAPropsPath)\CUDA 11.6.targets" />
+  </ImportGroup>
+</Project>

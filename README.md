@@ -1,130 +1,23 @@
 # CUDA Samples
 
-Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This version supports [CUDA Toolkit 11.5](https://developer.nvidia.com/cuda-downloads).
+Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This version supports [CUDA Toolkit 11.6](https://developer.nvidia.com/cuda-downloads).
 
 ## Release Notes
 
 This section describes the release notes for the CUDA Samples on GitHub only.
 
-### CUDA 11.5
-* Added `cuDLAHybridMode`. Demonstrate usage of cuDLA in hybrid mode.
-* Added `cuDLAStandaloneMode`. Demonstrate usage of cuDLA in standalone mode.
-* Added `cuDLAErrorReporting`. Demonstrate DLA error detection via CUDA.
-* Added `graphMemoryNodes`. Demonstrates memory allocations and frees within CUDA graphs using Graph APIs and Stream Capture APIs.
-* Added `graphMemoryFootprint`. Demonstrates how graph memory nodes re-use virtual addresses and physical memory.
-* All samples from CUDA toolkit are now available on [GitHub](https://github.com/nvidia/cuda-samples).
+### CUDA 11.6
+* Added new folder structure for samples
+* Added support of Visual Studio 2022 to all samples supported on [Windows](#windows-1).
+* All CUDA samples are now only available on [GitHub](https://github.com/nvidia/cuda-samples). They are no longer available via CUDA toolkit.
 
-### CUDA 11.4 update 1
-* Added support for VS Code on linux platform.
-
-### CUDA 11.4
-* Added `cdpQuadtree`. Demonstrates Quad Trees implementation using CUDA Dynamic Parallelism.
-* Updated `simpleVulkan`, `simpleVulkanMMAP` and `vulkanImageCUDA`. Demonstrates use of SPIR-V shaders.
-
-### CUDA 11.3
-*  Added `streamOrderedAllocationIPC`. Demonstrates Inter Process Communication using one process per GPU for computation.
-*  Added `simpleCUBLAS_LU`. Demonstrates batched matrix LU decomposition using cuBLAS API `cublas<t>getrfBatched()`
-*  Updated `simpleVulkan`. Demonstrates use of timeline semaphore.
-*  Updated multiple samples to use pinned memory using `cudaMallocHost()`.
-
-### CUDA 11.2
-*  Added `streamOrderedAllocation`. Demonstrates stream ordered memory allocation on a GPU using cudaMallocAsync and cudaMemPool family of APIs.
-*  Added `streamOrderedAllocationP2P`. Demonstrates peer-to-peer access of stream ordered memory allocated using cudaMallocAsync and cudaMemPool family of APIs.
-*  Dropped Visual Studio 2015 support from all the windows supported samples.
-*  FreeImage is no longer distributed with the CUDA Samples. On Windows, see the [Dependencies](#freeimage) section for more details on how to set up FreeImage. On Linux, it is recommended to install FreeImage with your distribution's package manager.
-*  All the samples using CUDA Pipeline & Arrive-wait barriers are been updated to use new `cuda::pipeline` and `cuda::barrier` interfaces.
-*  Updated all the samples to build with parallel build option `--threads` of `nvcc` cuda compiler.
-*  Added `cudaNvSciNvMedia`. Demonstrates CUDA-NvMedia interop via NvSciBuf/NvSciSync APIs.
-*  Added `simpleGL`. Demonstrates interoperability between CUDA and OpenGL.
-
-### CUDA 11.1
-*  Added `watershedSegmentationNPP`. Demonstrates how to use the NPP watershed segmentation function.
-*  Added `batchedLabelMarkersAndLabelCompressionNPP`. Demonstrates how to use the NPP label markers generation and label compression functions based on a Union Find (UF) algorithm including both single image and batched image versions.
-*  Dropped Visual Studio 2012, 2013 support from all the windows supported samples.
-*  Added kernel performing warp aggregated atomic max in multi buckets using cg::labeled_partition & cg::reduce in `warpAggregatedAtomicsCG`.
-*  Added extended CG shuffle mechanics to `shfl_scan` sample.
-*  Added `cudaOpenMP`. Demonstrates how to use OpenMP API to write an application for multiple GPUs.
-*  Added `simpleZeroCopy`. Demonstrates how to use zero copy, kernels can read and write directly to pinned system memory.
-
-### CUDA 11.0
-*  Added `dmmaTensorCoreGemm`. Demonstrates double precision GEMM computation using the Double precision Warp Matrix Multiply and Accumulate (WMMA) API introduced with CUDA 11 in Ampere chip family tensor cores.
-*  Added `bf16TensorCoreGemm`. Demonstrates __nv_bfloat16 (e8m7) GEMM computation using the __nv_bfloat16 WMMA API introduced with CUDA 11 in Ampere chip family tensor cores.
-*  Added `tf32TensorCoreGemm`. Demonstrates tf32 (e8m10) GEMM computation using the tf32 WMMA API introduced with CUDA 11 in Ampere chip family tensor cores.
-*  Added `globalToShmemAsyncCopy`. Demonstrates async copy of data from global to shared memory when on compute capability 8.0 or higher. Also demonstrates arrive-wait barrier for synchronization.
-*  Added `simpleAWBarrier`. Demonstrates arrive wait barriers.
-*  Added `simpleAttributes`. Demonstrates the stream attributes that affect L2 locality.
-*  Added warp aggregated atomic multi bucket increments kernel using labeled_partition cooperative groups in `warpAggregatedAtomicsCG` which can be used on compute capability 7.0 and above GPU architectures.
-*  Added `binaryPartitionCG`. Demonstrates  binary partition cooperative groups and reduction within the thread block.
-*  Added two new reduction kernels in `reduction` one which demonstrates reduce_add_sync intrinstic supported on compute capability 8.0 and another which uses cooperative_groups::reduce function which does thread_block_tile level reduction introduced from CUDA 11.0.
-*  Added `cudaCompressibleMemory`. Demonstrates compressible memory allocation using cuMemMap API.
-*  Added `simpleVulkanMMAP`. Demonstrates Vulkan CUDA Interop via cuMemMap APIs.
-*  Added `concurrentKernels`. Demonstrates the use of CUDA streams for concurrent execution of several kernels on a GPU.
-*  Dropped Mac OSX support from all samples.
-
-### CUDA 10.2
-*  Added `simpleD3D11`. Demonstrates CUDA-D3D11 External Resource Interoperability APIs for updating D3D11 buffers from CUDA and synchronization between D3D11 and CUDA with Keyed Mutexes.
-*  Added `simpleDrvRuntime`. Demonstrates CUDA Driver and Runtime APIs working together to load fatbinary of a CUDA kernel.
-*  Added `vectorAddMMAP`. Demonstrates how cuMemMap API allows the user to specify the physical properties of their memory while retaining the contiguous nature of their access.
-*  Added `memMapIPCDrv`. Demonstrates Inter Process Communication using cuMemMap APIs.
-*  Added `cudaNvSci`. Demonstrates CUDA-NvSciBuf/NvSciSync Interop.
-*  Added `jacobiCudaGraphs`. Demonstrates Instantiated CUDA Graph Update with Jacobi Iterative Method using different approaches.
-*  Added `cuSolverSp_LinearSolver`. Demonstrates cuSolverSP's LU, QR and Cholesky factorization.
-*  Added `MersenneTwisterGP11213`. Demonstrates the Mersenne Twister random number generator GP11213 in cuRAND.
-
-### CUDA 10.1 Update 2
-*  Added `vulkanImageCUDA`. Demonstrates how to perform Vulkan image - CUDA Interop.
-*  Added `nvJPEG_encoder`. Demonstrates encoding of jpeg images using NVJPEG Library.
-*  Added Windows OS support to `nvJPEG` sample.
-*  Added `boxFilterNPP`. Demonstrates how to use NPP FilterBox function to perform a box filter.
-*  Added `cannyEdgeDetectorNPP`. Demonstrates the nppiFilterCannyBorder_8u_C1R Canny Edge Detection image filter function.
-
-### CUDA 10.1 Update 1
-*  Added `NV12toBGRandResize`. Demonstrates how to convert and resize NV12 frames to BGR planars frames using CUDA in batch.
-*  Added `EGLStream_CUDA_Interop`. Demonstrates data exchange between CUDA and EGL Streams.
-*  Added `cuSolverDn_LinearSolver`. Demonstrates cuSolverDN's LU, QR and Cholesky factorization.
-*  Added support of Visual Studio 2019 to all samples supported on [Windows](#windows-1).
-
-### CUDA 10.1
-*  Added `immaTensorCoreGemm`. Demonstrates integer GEMM computation using the Warp Matrix Multiply and Accumulate (WMMA) API for integers employing the Tensor Cores.
-*  Added `simpleIPC`. Demonstrates Inter Process Communication with one process per GPU for computation.
-*  Added `nvJPEG`. Demonstrates single and batched decoding of jpeg images using NVJPEG Library.
-*  Added `bandwidthTest`. It measures the memcopy bandwidth of the GPU and memcpy bandwidth across PCI-e.
-*  Added `reduction`. Demonstrates several important optimization strategies for Data-Parallel Algorithms like reduction.
-*  Update all the samples to support CUDA 10.1.
-
-### CUDA 10.0
-*  Added `simpleCudaGraphs`. Demonstrates CUDA Graphs creation, instantiation and launch using Graphs APIs and Stream Capture APIs.
-*  Added `conjugateGradientCudaGraphs`. Demonstrates conjugate gradient solver on GPU using CUBLAS and CUSPARSE library calls captured and called using CUDA Graph APIs.
-*  Added `simpleVulkan`. Demonstrates Vulkan - CUDA Interop.
-*  Added `simpleD3D12`. Demonstrates DX12 - CUDA Interop.
-*  Added `UnifiedMemoryPerf`. Demonstrates performance comparision of various memory types involved in system.
-*  Added `p2pBandwidthLatencyTest`. Demonstrates Peer-To-Peer (P2P) data transfers between pairs of GPUs and computes latency and bandwidth.
-*  Added `systemWideAtomics`. Demonstrates system wide atomic instructions.
-*  Added `simpleCUBLASXT`. Demonstrates CUBLAS-XT library which performs GEMM operations over multiple GPUs.
-*  Added Windows OS support to `conjugateGradientMultiDeviceCG` sample.
-*  Removed support of Visual Studio 2010 from all samples.
-
-### CUDA 9.2
-
-This is the first release of CUDA Samples on GitHub:
-*  Added `vectorAdd_nvrtc`. Demonstrates runtime compilation library using NVRTC of a simple vectorAdd kernel.
-*  Added `warpAggregatedAtomicsCG`. Demonstrates warp aggregated atomics using Cooperative Groups.
-*  Added `deviceQuery`. Enumerates the properties of the CUDA devices present in the system.
-*  Added `matrixMul`. Demonstrates a matrix multiplication using shared memory through tiled approach.
-*  Added `matrixMulDrv`. Demonstrates a matrix multiplication using shared memory through tiled approach, uses CUDA Driver API.
-*  Added `cudaTensorCoreGemm`. Demonstrates a GEMM computation using the Warp Matrix Multiply and Accumulate (WMMA) API introduced in CUDA 9, as well as the new Tensor Cores introduced in the Volta chip family.
-*  Added `simpleVoteIntrinsics` which uses *_sync equivalent of the vote intrinsics _any, _all added since CUDA 9.0.
-*  Added `shfl_scan` which uses *_sync equivalent of the shfl intrinsics added since CUDA 9.0.
-*  Added `conjugateGradientMultiBlockCG`. Demonstrates a conjugate gradient solver on GPU using Multi Block Cooperative Groups.
-*  Added `conjugateGradientMultiDeviceCG`. Demonstrates a conjugate gradient solver on multiple GPUs using Multi Device Cooperative Groups, also uses unified memory prefetching and usage hints APIs.
-*  Added `simpleCUBLAS`. Demonstrates how perform GEMM operations using CUBLAS library.
-*  Added `simpleCUFFT`. Demonstrates how perform FFT operations using CUFFT library.
+### [older versions...](./CHANGELOG.md)
 
 ## Getting Started
 
 ### Prerequisites
 
-Download and install the [CUDA Toolkit 11.5](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit 11.6](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 For system requirements and installation instructions of cuda toolkit, please refer to the [Linux Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/), and the [Windows Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html).
 
 ### Getting the CUDA Samples
@@ -178,107 +71,26 @@ The samples makefiles can take advantage of certain options:
 
 ## Samples list
 
-### Samples by OS
+### [0. Introduction](./Samples/0_Introduction/README.md)
+Basic CUDA samples for beginners that illustrate key concepts with using CUDA and CUDA runtime APIs.
 
-#### Linux
-**[simpleAssert_nvrtc](./Samples/simpleAssert_nvrtc)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[graphMemoryFootprint](./Samples/graphMemoryFootprint)** | **[MC_EstimatePiQ](./Samples/MC_EstimatePiQ)** |
----|---|---|---|
-**[reductionMultiBlockCG](./Samples/reductionMultiBlockCG)** | **[cuDLAStandaloneMode](./Samples/cuDLAStandaloneMode)** | **[conjugateGradientPrecond](./Samples/conjugateGradientPrecond)** | **[ptxjit](./Samples/ptxjit)** |
-**[threadMigration](./Samples/threadMigration)** | **[EGLStream_CUDA_CrossGPU](./Samples/EGLStream_CUDA_CrossGPU)** | **[threadFenceReduction](./Samples/threadFenceReduction)** | **[simpleAtomicIntrinsics_nvrtc](./Samples/simpleAtomicIntrinsics_nvrtc)** |
-**[shfl_scan](./Samples/shfl_scan)** | **[clock](./Samples/clock)** | **[binaryPartitionCG](./Samples/binaryPartitionCG)** | **[MC_EstimatePiP](./Samples/MC_EstimatePiP)** |
-**[transpose](./Samples/transpose)** | **[simpleMultiCopy](./Samples/simpleMultiCopy)** | **[cuDLAErrorReporting](./Samples/cuDLAErrorReporting)** | **[concurrentKernels](./Samples/concurrentKernels)** |
-**[streamOrderedAllocationIPC](./Samples/streamOrderedAllocationIPC)** | **[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** | **[cppIntegration](./Samples/cppIntegration)** | **[bf16TensorCoreGemm](./Samples/bf16TensorCoreGemm)** |
-**[cuSolverSp_LinearSolver](./Samples/cuSolverSp_LinearSolver)** | **[nvJPEG](./Samples/nvJPEG)** | **[watershedSegmentationNPP](./Samples/watershedSegmentationNPP)** | **[MC_EstimatePiInlineP](./Samples/MC_EstimatePiInlineP)** |
-**[vulkanImageCUDA](./Samples/vulkanImageCUDA)** | **[boxFilterNPP](./Samples/boxFilterNPP)** | **[simpleAssert](./Samples/simpleAssert)** | **[simpleTemplates](./Samples/simpleTemplates)** |
-**[cuHook](./Samples/cuHook)** | **[simpleCUDA2GL](./Samples/simpleCUDA2GL)** | **[matrixMul](./Samples/matrixMul)** | **[quasirandomGenerator_nvrtc](./Samples/quasirandomGenerator_nvrtc)** |
-**[nvJPEG_encoder](./Samples/nvJPEG_encoder)** | **[simpleCudaGraphs](./Samples/simpleCudaGraphs)** | **[simpleTextureDrv](./Samples/simpleTextureDrv)** | **[simpleCUFFT](./Samples/simpleCUFFT)** |
-**[simpleCallback](./Samples/simpleCallback)** | **[batchCUBLAS](./Samples/batchCUBLAS)** | **[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[simpleAtomicIntrinsics](./Samples/simpleAtomicIntrinsics)** |
-**[newdelete](./Samples/newdelete)** | **[bicubicTexture](./Samples/bicubicTexture)** | **[dxtc](./Samples/dxtc)** | **[cudaOpenMP](./Samples/cudaOpenMP)** |
-**[cdpBezierTessellation](./Samples/cdpBezierTessellation)** | **[randomFog](./Samples/randomFog)** | **[bilateralFilter](./Samples/bilateralFilter)** | **[conjugateGradient](./Samples/conjugateGradient)** |
-**[particles](./Samples/particles)** | **[NV12toBGRandResize](./Samples/NV12toBGRandResize)** | **[Mandelbrot](./Samples/Mandelbrot)** | **[binomialOptions_nvrtc](./Samples/binomialOptions_nvrtc)** |
-**[cudaNvSci](./Samples/cudaNvSci)** | **[mergeSort](./Samples/mergeSort)** | **[HSOpticalFlow](./Samples/HSOpticalFlow)** | **[immaTensorCoreGemm](./Samples/immaTensorCoreGemm)** |
-**[convolutionTexture](./Samples/convolutionTexture)** | **[simpleVulkan](./Samples/simpleVulkan)** | **[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[jacobiCudaGraphs](./Samples/jacobiCudaGraphs)** |
-**[eigenvalues](./Samples/eigenvalues)** | **[streamOrderedAllocationP2P](./Samples/streamOrderedAllocationP2P)** | **[cuSolverSp_LowlevelCholesky](./Samples/cuSolverSp_LowlevelCholesky)** | **[topologyQuery](./Samples/topologyQuery)** |
-**[dmmaTensorCoreGemm](./Samples/dmmaTensorCoreGemm)** | **[volumeRender](./Samples/volumeRender)** | **[stereoDisparity](./Samples/stereoDisparity)** | **[simpleTexture](./Samples/simpleTexture)** |
-**[simpleStreams](./Samples/simpleStreams)** | **[smokeParticles](./Samples/smokeParticles)** | **[simpleMultiGPU](./Samples/simpleMultiGPU)** | **[deviceQueryDrv](./Samples/deviceQueryDrv)** |
-**[fastWalshTransform](./Samples/fastWalshTransform)** | **[quasirandomGenerator](./Samples/quasirandomGenerator)** | **[vectorAddMMAP](./Samples/vectorAddMMAP)** | **[MersenneTwisterGP11213](./Samples/MersenneTwisterGP11213)** |
-**[conjugateGradientUM](./Samples/conjugateGradientUM)** | **[simpleVoteIntrinsics_nvrtc](./Samples/simpleVoteIntrinsics_nvrtc)** | **[simpleLayeredTexture](./Samples/simpleLayeredTexture)** | **[streamOrderedAllocation](./Samples/streamOrderedAllocation)** |
-**[cuSolverDn_LinearSolver](./Samples/cuSolverDn_LinearSolver)** | **[cudaCompressibleMemory](./Samples/cudaCompressibleMemory)** | **[matrixMulCUBLAS](./Samples/matrixMulCUBLAS)** | **[histEqualizationNPP](./Samples/histEqualizationNPP)** |
-**[simpleAWBarrier](./Samples/simpleAWBarrier)** | **[recursiveGaussian](./Samples/recursiveGaussian)** | **[imageDenoising](./Samples/imageDenoising)** | **[FunctionPointers](./Samples/FunctionPointers)** |
-**[simpleGL](./Samples/simpleGL)** | **[segmentationTreeThrust](./Samples/segmentationTreeThrust)** | **[scalarProd](./Samples/scalarProd)** | **[SobolQRNG](./Samples/SobolQRNG)** |
-**[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** | **[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** | **[simplePitchLinearTexture](./Samples/simplePitchLinearTexture)** | **[freeImageInteropNPP](./Samples/freeImageInteropNPP)** |
-**[template](./Samples/template)** | **[dwtHaar1D](./Samples/dwtHaar1D)** | **[postProcessGL](./Samples/postProcessGL)** | **[BlackScholes](./Samples/BlackScholes)** |
-**[volumeFiltering](./Samples/volumeFiltering)** | **[simpleCUFFT_callback](./Samples/simpleCUFFT_callback)** | **[UnifiedMemoryStreams](./Samples/UnifiedMemoryStreams)** | **[globalToShmemAsyncCopy](./Samples/globalToShmemAsyncCopy)** |
-**[deviceQuery](./Samples/deviceQuery)** | **[simpleHyperQ](./Samples/simpleHyperQ)** | **[systemWideAtomics](./Samples/systemWideAtomics)** | **[cuSolverSp_LowlevelQR](./Samples/cuSolverSp_LowlevelQR)** |
-**[inlinePTX](./Samples/inlinePTX)** | **[matrixMulDrv](./Samples/matrixMulDrv)** | **[EGLStream_CUDA_Interop](./Samples/EGLStream_CUDA_Interop)** | **[cuDLAHybridMode](./Samples/cuDLAHybridMode)** |
-**[asyncAPI](./Samples/asyncAPI)** | **[MC_EstimatePiInlineQ](./Samples/MC_EstimatePiInlineQ)** | **[scan](./Samples/scan)** | **[simpleCooperativeGroups](./Samples/simpleCooperativeGroups)** |
-**[conjugateGradientMultiBlockCG](./Samples/conjugateGradientMultiBlockCG)** | **[simpleTemplates_nvrtc](./Samples/simpleTemplates_nvrtc)** | **[simpleTexture3D](./Samples/simpleTexture3D)** | **[lineOfSight](./Samples/lineOfSight)** |
-**[simpleZeroCopy](./Samples/simpleZeroCopy)** | **[binomialOptions](./Samples/binomialOptions)** | **[simpleAttributes](./Samples/simpleAttributes)** | **[bindlessTexture](./Samples/bindlessTexture)** |
-**[simpleCUFFT_2d_MGPU](./Samples/simpleCUFFT_2d_MGPU)** | **[simplePrintf](./Samples/simplePrintf)** | **[batchedLabelMarkersAndLabelCompressionNPP](./Samples/batchedLabelMarkersAndLabelCompressionNPP)** | **[histogram](./Samples/histogram)** |
-**[matrixMulDynlinkJIT](./Samples/matrixMulDynlinkJIT)** | **[simpleP2P](./Samples/simpleP2P)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** | **[vectorAddDrv](./Samples/vectorAddDrv)** |
-**[sortingNetworks](./Samples/sortingNetworks)** | **[alignedTypes](./Samples/alignedTypes)** | **[inlinePTX_nvrtc](./Samples/inlinePTX_nvrtc)** | **[simpleCubemapTexture](./Samples/simpleCubemapTexture)** |
-**[simpleIPC](./Samples/simpleIPC)** | **[simpleVulkanMMAP](./Samples/simpleVulkanMMAP)** | **[radixSortThrust](./Samples/radixSortThrust)** | **[MonteCarloMultiGPU](./Samples/MonteCarloMultiGPU)** |
-**[cudaNvSciNvMedia](./Samples/cudaNvSciNvMedia)** | **[vectorAdd](./Samples/vectorAdd)** | **[cdpSimplePrint](./Samples/cdpSimplePrint)** | **[FilterBorderControlNPP](./Samples/FilterBorderControlNPP)** |
-**[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[convolutionSeparable](./Samples/convolutionSeparable)** | **[nbody](./Samples/nbody)** | **[simpleCUBLAS_LU](./Samples/simpleCUBLAS_LU)** |
-**[simpleSeparateCompilation](./Samples/simpleSeparateCompilation)** | **[c++11_cuda](./Samples/c++11_cuda)** | **[fluidsGL](./Samples/fluidsGL)** | **[bandwidthTest](./Samples/bandwidthTest)** |
-**[clock_nvrtc](./Samples/clock_nvrtc)** | **[graphMemoryNodes](./Samples/graphMemoryNodes)** | **[cdpQuadtree](./Samples/cdpQuadtree)** | **[interval](./Samples/interval)** |
-**[boxFilter](./Samples/boxFilter)** | **[matrixMul_nvrtc](./Samples/matrixMul_nvrtc)** | **[simpleCUBLASXT](./Samples/simpleCUBLASXT)** | **[cppOverload](./Samples/cppOverload)** |
-**[marchingCubes](./Samples/marchingCubes)** | **[cuSolverRf](./Samples/cuSolverRf)** | **[BlackScholes_nvrtc](./Samples/BlackScholes_nvrtc)** | **[cdpAdvancedQuicksort](./Samples/cdpAdvancedQuicksort)** |
-**[tf32TensorCoreGemm](./Samples/tf32TensorCoreGemm)** | **[cdpSimpleQuicksort](./Samples/cdpSimpleQuicksort)** | **[simpleOccupancy](./Samples/simpleOccupancy)** | **[simpleSurfaceWrite](./Samples/simpleSurfaceWrite)** |
-**[simpleCUFFT_MGPU](./Samples/simpleCUFFT_MGPU)** | **[simpleDrvRuntime](./Samples/simpleDrvRuntime)** | **[convolutionFFT2D](./Samples/convolutionFFT2D)** | **[reduction](./Samples/reduction)** |
-**[memMapIPCDrv](./Samples/memMapIPCDrv)** | **[SobelFilter](./Samples/SobelFilter)** | **[dct8x8](./Samples/dct8x8)** | **[fp16ScalarProduct](./Samples/fp16ScalarProduct)** |
-**[FDTD3d](./Samples/FDTD3d)** | **[oceanFFT](./Samples/oceanFFT)** | **[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[StreamPriorities](./Samples/StreamPriorities)** |
-**[cannyEdgeDetectorNPP](./Samples/cannyEdgeDetectorNPP)** | **[MC_SingleAsianOptionP](./Samples/MC_SingleAsianOptionP)** | **[simpleMPI](./Samples/simpleMPI)** |
+### [1. Utilities](./Samples/1_Utilities/README.md)
+Utility samples that demonstrate how to query device capabilities and measure GPU/CPU bandwidth.
 
-#### Windows
-**[simpleAssert_nvrtc](./Samples/simpleAssert_nvrtc)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[graphMemoryFootprint](./Samples/graphMemoryFootprint)** | **[MC_EstimatePiQ](./Samples/MC_EstimatePiQ)** |
----|---|---|---|
-**[reductionMultiBlockCG](./Samples/reductionMultiBlockCG)** | **[conjugateGradientPrecond](./Samples/conjugateGradientPrecond)** | **[ptxjit](./Samples/ptxjit)** | **[threadMigration](./Samples/threadMigration)** |
-**[threadFenceReduction](./Samples/threadFenceReduction)** | **[simpleAtomicIntrinsics_nvrtc](./Samples/simpleAtomicIntrinsics_nvrtc)** | **[shfl_scan](./Samples/shfl_scan)** | **[clock](./Samples/clock)** |
-**[binaryPartitionCG](./Samples/binaryPartitionCG)** | **[MC_EstimatePiP](./Samples/MC_EstimatePiP)** | **[transpose](./Samples/transpose)** | **[simpleMultiCopy](./Samples/simpleMultiCopy)** |
-**[concurrentKernels](./Samples/concurrentKernels)** | **[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** | **[cppIntegration](./Samples/cppIntegration)** | **[bf16TensorCoreGemm](./Samples/bf16TensorCoreGemm)** |
-**[cuSolverSp_LinearSolver](./Samples/cuSolverSp_LinearSolver)** | **[nvJPEG](./Samples/nvJPEG)** | **[watershedSegmentationNPP](./Samples/watershedSegmentationNPP)** | **[MC_EstimatePiInlineP](./Samples/MC_EstimatePiInlineP)** |
-**[simpleD3D10](./Samples/simpleD3D10)** | **[vulkanImageCUDA](./Samples/vulkanImageCUDA)** | **[fluidsD3D9](./Samples/fluidsD3D9)** | **[boxFilterNPP](./Samples/boxFilterNPP)** |
-**[simpleAssert](./Samples/simpleAssert)** | **[simpleTemplates](./Samples/simpleTemplates)** | **[simpleCUDA2GL](./Samples/simpleCUDA2GL)** | **[matrixMul](./Samples/matrixMul)** |
-**[quasirandomGenerator_nvrtc](./Samples/quasirandomGenerator_nvrtc)** | **[nvJPEG_encoder](./Samples/nvJPEG_encoder)** | **[simpleCudaGraphs](./Samples/simpleCudaGraphs)** | **[simpleTextureDrv](./Samples/simpleTextureDrv)** |
-**[simpleCUFFT](./Samples/simpleCUFFT)** | **[simpleCallback](./Samples/simpleCallback)** | **[SLID3D10Texture](./Samples/SLID3D10Texture)** | **[batchCUBLAS](./Samples/batchCUBLAS)** |
-**[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[simpleAtomicIntrinsics](./Samples/simpleAtomicIntrinsics)** | **[newdelete](./Samples/newdelete)** | **[bicubicTexture](./Samples/bicubicTexture)** |
-**[dxtc](./Samples/dxtc)** | **[cudaOpenMP](./Samples/cudaOpenMP)** | **[cdpBezierTessellation](./Samples/cdpBezierTessellation)** | **[randomFog](./Samples/randomFog)** |
-**[bilateralFilter](./Samples/bilateralFilter)** | **[conjugateGradient](./Samples/conjugateGradient)** | **[particles](./Samples/particles)** | **[NV12toBGRandResize](./Samples/NV12toBGRandResize)** |
-**[Mandelbrot](./Samples/Mandelbrot)** | **[binomialOptions_nvrtc](./Samples/binomialOptions_nvrtc)** | **[simpleD3D10RenderTarget](./Samples/simpleD3D10RenderTarget)** | **[mergeSort](./Samples/mergeSort)** |
-**[HSOpticalFlow](./Samples/HSOpticalFlow)** | **[immaTensorCoreGemm](./Samples/immaTensorCoreGemm)** | **[convolutionTexture](./Samples/convolutionTexture)** | **[simpleVulkan](./Samples/simpleVulkan)** |
-**[simpleD3D9Texture](./Samples/simpleD3D9Texture)** | **[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[jacobiCudaGraphs](./Samples/jacobiCudaGraphs)** | **[eigenvalues](./Samples/eigenvalues)** |
-**[simpleD3D10Texture](./Samples/simpleD3D10Texture)** | **[streamOrderedAllocationP2P](./Samples/streamOrderedAllocationP2P)** | **[cuSolverSp_LowlevelCholesky](./Samples/cuSolverSp_LowlevelCholesky)** | **[topologyQuery](./Samples/topologyQuery)** |
-**[dmmaTensorCoreGemm](./Samples/dmmaTensorCoreGemm)** | **[volumeRender](./Samples/volumeRender)** | **[stereoDisparity](./Samples/stereoDisparity)** | **[simpleTexture](./Samples/simpleTexture)** |
-**[simpleStreams](./Samples/simpleStreams)** | **[smokeParticles](./Samples/smokeParticles)** | **[simpleMultiGPU](./Samples/simpleMultiGPU)** | **[deviceQueryDrv](./Samples/deviceQueryDrv)** |
-**[fastWalshTransform](./Samples/fastWalshTransform)** | **[quasirandomGenerator](./Samples/quasirandomGenerator)** | **[vectorAddMMAP](./Samples/vectorAddMMAP)** | **[MersenneTwisterGP11213](./Samples/MersenneTwisterGP11213)** |
-**[conjugateGradientUM](./Samples/conjugateGradientUM)** | **[simpleVoteIntrinsics_nvrtc](./Samples/simpleVoteIntrinsics_nvrtc)** | **[simpleLayeredTexture](./Samples/simpleLayeredTexture)** | **[streamOrderedAllocation](./Samples/streamOrderedAllocation)** |
-**[cuSolverDn_LinearSolver](./Samples/cuSolverDn_LinearSolver)** | **[cudaCompressibleMemory](./Samples/cudaCompressibleMemory)** | **[matrixMulCUBLAS](./Samples/matrixMulCUBLAS)** | **[histEqualizationNPP](./Samples/histEqualizationNPP)** |
-**[simpleAWBarrier](./Samples/simpleAWBarrier)** | **[recursiveGaussian](./Samples/recursiveGaussian)** | **[imageDenoising](./Samples/imageDenoising)** | **[FunctionPointers](./Samples/FunctionPointers)** |
-**[simpleGL](./Samples/simpleGL)** | **[segmentationTreeThrust](./Samples/segmentationTreeThrust)** | **[scalarProd](./Samples/scalarProd)** | **[SobolQRNG](./Samples/SobolQRNG)** |
-**[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** | **[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** | **[simplePitchLinearTexture](./Samples/simplePitchLinearTexture)** | **[freeImageInteropNPP](./Samples/freeImageInteropNPP)** |
-**[template](./Samples/template)** | **[dwtHaar1D](./Samples/dwtHaar1D)** | **[simpleD3D11Texture](./Samples/simpleD3D11Texture)** | **[postProcessGL](./Samples/postProcessGL)** |
-**[BlackScholes](./Samples/BlackScholes)** | **[simpleD3D11](./Samples/simpleD3D11)** | **[volumeFiltering](./Samples/volumeFiltering)** | **[UnifiedMemoryStreams](./Samples/UnifiedMemoryStreams)** |
-**[globalToShmemAsyncCopy](./Samples/globalToShmemAsyncCopy)** | **[deviceQuery](./Samples/deviceQuery)** | **[simpleHyperQ](./Samples/simpleHyperQ)** | **[cuSolverSp_LowlevelQR](./Samples/cuSolverSp_LowlevelQR)** |
-**[inlinePTX](./Samples/inlinePTX)** | **[matrixMulDrv](./Samples/matrixMulDrv)** | **[asyncAPI](./Samples/asyncAPI)** | **[MC_EstimatePiInlineQ](./Samples/MC_EstimatePiInlineQ)** |
-**[scan](./Samples/scan)** | **[simpleCooperativeGroups](./Samples/simpleCooperativeGroups)** | **[conjugateGradientMultiBlockCG](./Samples/conjugateGradientMultiBlockCG)** | **[simpleTemplates_nvrtc](./Samples/simpleTemplates_nvrtc)** |
-**[simpleTexture3D](./Samples/simpleTexture3D)** | **[lineOfSight](./Samples/lineOfSight)** | **[simpleZeroCopy](./Samples/simpleZeroCopy)** | **[binomialOptions](./Samples/binomialOptions)** |
-**[simpleAttributes](./Samples/simpleAttributes)** | **[bindlessTexture](./Samples/bindlessTexture)** | **[simpleD3D12](./Samples/simpleD3D12)** | **[simpleCUFFT_2d_MGPU](./Samples/simpleCUFFT_2d_MGPU)** |
-**[simplePrintf](./Samples/simplePrintf)** | **[batchedLabelMarkersAndLabelCompressionNPP](./Samples/batchedLabelMarkersAndLabelCompressionNPP)** | **[histogram](./Samples/histogram)** | **[matrixMulDynlinkJIT](./Samples/matrixMulDynlinkJIT)** |
-**[simpleP2P](./Samples/simpleP2P)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** | **[vectorAddDrv](./Samples/vectorAddDrv)** | **[sortingNetworks](./Samples/sortingNetworks)** |
-**[alignedTypes](./Samples/alignedTypes)** | **[inlinePTX_nvrtc](./Samples/inlinePTX_nvrtc)** | **[simpleCubemapTexture](./Samples/simpleCubemapTexture)** | **[simpleIPC](./Samples/simpleIPC)** |
-**[simpleVulkanMMAP](./Samples/simpleVulkanMMAP)** | **[radixSortThrust](./Samples/radixSortThrust)** | **[MonteCarloMultiGPU](./Samples/MonteCarloMultiGPU)** | **[vectorAdd](./Samples/vectorAdd)** |
-**[VFlockingD3D10](./Samples/VFlockingD3D10)** | **[simpleD3D9](./Samples/simpleD3D9)** | **[cdpSimplePrint](./Samples/cdpSimplePrint)** | **[FilterBorderControlNPP](./Samples/FilterBorderControlNPP)** |
-**[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[convolutionSeparable](./Samples/convolutionSeparable)** | **[nbody](./Samples/nbody)** | **[simpleCUBLAS_LU](./Samples/simpleCUBLAS_LU)** |
-**[simpleSeparateCompilation](./Samples/simpleSeparateCompilation)** | **[c++11_cuda](./Samples/c++11_cuda)** | **[fluidsGL](./Samples/fluidsGL)** | **[bandwidthTest](./Samples/bandwidthTest)** |
-**[clock_nvrtc](./Samples/clock_nvrtc)** | **[graphMemoryNodes](./Samples/graphMemoryNodes)** | **[cdpQuadtree](./Samples/cdpQuadtree)** | **[interval](./Samples/interval)** |
-**[boxFilter](./Samples/boxFilter)** | **[matrixMul_nvrtc](./Samples/matrixMul_nvrtc)** | **[simpleCUBLASXT](./Samples/simpleCUBLASXT)** | **[cppOverload](./Samples/cppOverload)** |
-**[marchingCubes](./Samples/marchingCubes)** | **[cuSolverRf](./Samples/cuSolverRf)** | **[BlackScholes_nvrtc](./Samples/BlackScholes_nvrtc)** | **[cdpAdvancedQuicksort](./Samples/cdpAdvancedQuicksort)** |
-**[tf32TensorCoreGemm](./Samples/tf32TensorCoreGemm)** | **[cdpSimpleQuicksort](./Samples/cdpSimpleQuicksort)** | **[simpleOccupancy](./Samples/simpleOccupancy)** | **[simpleSurfaceWrite](./Samples/simpleSurfaceWrite)** |
-**[simpleCUFFT_MGPU](./Samples/simpleCUFFT_MGPU)** | **[simpleDrvRuntime](./Samples/simpleDrvRuntime)** | **[convolutionFFT2D](./Samples/convolutionFFT2D)** | **[reduction](./Samples/reduction)** |
-**[memMapIPCDrv](./Samples/memMapIPCDrv)** | **[SobelFilter](./Samples/SobelFilter)** | **[dct8x8](./Samples/dct8x8)** | **[fp16ScalarProduct](./Samples/fp16ScalarProduct)** |
-**[FDTD3d](./Samples/FDTD3d)** | **[oceanFFT](./Samples/oceanFFT)** | **[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[cannyEdgeDetectorNPP](./Samples/cannyEdgeDetectorNPP)** |
-**[MC_SingleAsianOptionP](./Samples/MC_SingleAsianOptionP)** | **[simpleMPI](./Samples/simpleMPI)** |
+### [2. Concepts and Techniques](./Samples/2_Concepts_and_Techniques/README.md)
+Samples that demonstrate CUDA related concepts and common problem solving techniques.
+
+### [3. CUDA Features](./Samples/3_CUDA_Features/README.md)
+Samples that demonstrate CUDA Features (Cooperative Groups, CUDA Dynamic Parallelism, CUDA Graphs etc).
+
+### [4. CUDA Libraries](./Samples/4_CUDA_Libraries/README.md)
+Samples that demonstrate how to use CUDA platform libraries (NPP, NVJPEG, NVGRAPH cuBLAS, cuFFT, cuSPARSE, cuSOLVER and cuRAND).
+
+### [5. Domain Specific](./Samples/5_Domain_Specific/README.md)
+Samples that are specific to domain (Graphics, Finance, Image Processing).
+
+### [6. Performance](./Samples/6_Performance/README.md)
+Samples that demonstrate performance optimization.
 
 ## Dependencies
 
@@ -296,7 +108,7 @@ These third-party dependencies are required by some CUDA samples. If available, 
 
 FreeImage is an open source imaging library. FreeImage can usually be installed on Linux using your distribution's package manager system. FreeImage can also be downloaded from the FreeImage website.
 
-To set up FreeImage on a Windows system, extract the FreeImage DLL distribution into the folder `../../Common/FreeImage/Dist/x64` such that it contains the .h, .dll, and .lib files.
+To set up FreeImage on a Windows system, extract the FreeImage DLL distribution into the folder `../../../Common/FreeImage/Dist/x64` such that it contains the .h and .lib files. Copy the .dll file to root level `bin/win64/Debug` and `bin/win64/Release` folder.
 
 #### Message Passing Interface
 
@@ -449,3 +261,6 @@ Answers to frequently asked questions about CUDA can be found at http://develope
 *   [CUDA Programming Guide](http://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html)
 *   [Accelerated Computing Blog](https://developer.nvidia.com/blog/?tags=accelerated-computing)
 
+## Attributions
+
+*   Teapot image is obtained from [Wikimedia](https://en.wikipedia.org/wiki/File:Original_Utah_Teapot.jpg) and is licensed under the Creative Commons [Attribution-Share Alike 2.0](https://creativecommons.org/licenses/by-sa/2.0/deed.en) Generic license. The image is modified for samples use cases.

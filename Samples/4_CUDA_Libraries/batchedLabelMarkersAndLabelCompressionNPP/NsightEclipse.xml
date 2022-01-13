@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
+<entry>
+  <name>batchedLabelMarkersAndLabelCompressionNPP</name>
+  <cuda_api_list>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaMallocHost</toolkit>
+    <toolkit>cudaMallocPitch</toolkit>
+    <toolkit>cudaDeviceGetAttribute</toolkit>
+    <toolkit>cudaFreeHost</toolkit>
+    <toolkit>cudaDriverGetVersion</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaStreamGetFlags</toolkit>
+    <toolkit>cudaRuntimeGetVersion</toolkit>
+    <toolkit>cudaStreamSynchronize</toolkit>
+    <toolkit>cudaMemcpyAsync</toolkit>
+    <toolkit>cudaGetDeviceProperties</toolkit>
+    <toolkit>cudaGetDevice</toolkit>
+  </cuda_api_list>
+  <description><![CDATA[An NPP CUDA Sample that demonstrates how to use the NPP label markers generation and label compression functions based on a Union Find (UF) algorithm including both single image and batched image versions.]]></description>
+  <devicecompilation>whole</devicecompilation>
+  <fallback_min_ptx>true</fallback_min_ptx>
+  <includepaths>
+    <path>./</path>
+    <path>../</path>
+    <path>../../../Common</path>
+  </includepaths>
+  <keyconcepts>
+    <concept level="basic">Performance Strategies</concept>
+    <concept level="basic">Image Processing</concept>
+    <concept level="basic">NPP Library</concept>
+    <concept level="basic">Using NPP Batch Functions</concept>
+  </keyconcepts>
+  <keywords>
+    <keyword>CUDA</keyword>
+    <keyword>NPP</keyword>
+    <keyword>Image Processing</keyword>
+  </keywords>
+  <libraries>
+    <library>nppisu_static</library>
+    <library>nppif_static</library>
+    <library>nppc_static</library>
+    <library>culibos</library>
+  </libraries>
+  <librarypaths>
+  </librarypaths>
+  <nsight_eclipse>true</nsight_eclipse>
+  <primary_file>batchedLabelMarkersAndLabelCompressionNPP.cpp</primary_file>
+  <required_dependencies>
+    <dependency>NPP</dependency>
+  </required_dependencies>
+  <scopes>
+    <scope>1:CUDA Basic Topics</scope>
+    <scope>1:Performance Strategies</scope>
+    <scope>2:Image Processing</scope>
+    <scope>2:Computer Vision</scope>
+  </scopes>
+  <sm-arch>sm35</sm-arch>
+  <sm-arch>sm37</sm-arch>
+  <sm-arch>sm50</sm-arch>
+  <sm-arch>sm52</sm-arch>
+  <sm-arch>sm53</sm-arch>
+  <sm-arch>sm60</sm-arch>
+  <sm-arch>sm61</sm-arch>
+  <sm-arch>sm70</sm-arch>
+  <sm-arch>sm72</sm-arch>
+  <sm-arch>sm75</sm-arch>
+  <sm-arch>sm80</sm-arch>
+  <sm-arch>sm86</sm-arch>
+  <sm-arch>sm87</sm-arch>
+  <supported_envs>
+    <env>
+      <arch>x86_64</arch>
+      <platform>linux</platform>
+    </env>
+    <env>
+      <platform>windows7</platform>
+    </env>
+    <env>
+      <arch>arm</arch>
+    </env>
+    <env>
+      <arch>sbsa</arch>
+    </env>
+    <env>
+      <arch>ppc64le</arch>
+      <platform>linux</platform>
+    </env>
+  </supported_envs>
+  <supported_sm_architectures>
+    <include>all</include>
+  </supported_sm_architectures>
+  <title>Batched Label Markers And Label Compression NPP</title>
+  <type>exe</type>
+</entry>

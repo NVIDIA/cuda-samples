@@ -1,4 +1,4 @@
-/* Copyright (c) 2021, NVIDIA CORPORATION. All rights reserved.
+/* Copyright (c) 2022, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -113,6 +113,7 @@ inline int _ConvertSMVer2CoresDRV(int major, int minor) {
       {0x75,  64},
       {0x80,  64},
       {0x86, 128},
+      {0x87, 128},
       {-1, -1}};
 
   int index = 0;

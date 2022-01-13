@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
+<entry>
+  <name>graphMemoryFootprint</name>
+  <cuda_api_list>
+    <toolkit>cudaGraphAddMemFreeNode</toolkit>
+    <toolkit>cudaStreamDestroy</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaGraphExecDestroy</toolkit>
+    <toolkit>cudaGraphInstantiate</toolkit>
+    <toolkit>cudaDeviceGetAttribute</toolkit>
+    <toolkit>cudaDriverGetVersion</toolkit>
+    <toolkit>cudaGraphCreate</toolkit>
+    <toolkit>cudaGraphAddKernelNode</toolkit>
+    <toolkit>cudaGraphAddMemAllocNode</toolkit>
+    <toolkit>cudaStreamCreateWithFlags</toolkit>
+    <toolkit>cudaDeviceGraphMemTrim</toolkit>
+    <toolkit>cudaStreamSynchronize</toolkit>
+    <toolkit>cudaDeviceGetGraphMemAttribute</toolkit>
+    <toolkit>cudaGraphDestroy</toolkit>
+    <toolkit>cudaGetDeviceProperties</toolkit>
+    <toolkit>cudaGraphLaunch</toolkit>
+  </cuda_api_list>
+  <description><![CDATA[This sample demonstrates how graph memory nodes re-use virtual addresses and physical memory.]]></description>
+  <devicecompilation>whole</devicecompilation>
+  <includepaths>
+    <path>./</path>
+    <path>../</path>
+    <path>../../../Common</path>
+  </includepaths>
+  <keyconcepts>
+    <concept level="basic">CUDA Runtime API</concept>
+    <concept level="basic">Performance Strategies</concept>
+    <concept level="basic">CUDA Graphs</concept>
+  </keyconcepts>
+  <keywords>
+    <keyword>CUDA</keyword>
+    <keyword>CUDA Graphs</keyword>
+    <keyword>Performance</keyword>
+  </keywords>
+  <libraries>
+  </libraries>
+  <librarypaths>
+  </librarypaths>
+  <nsight_eclipse>true</nsight_eclipse>
+  <primary_file>graphMemoryFootprint.cu</primary_file>
+  <scopes>
+    <scope>1:CUDA Basic Topics</scope>
+    <scope>1:Performance Strategies</scope>
+  </scopes>
+  <sm-arch>sm60</sm-arch>
+  <sm-arch>sm61</sm-arch>
+  <sm-arch>sm70</sm-arch>
+  <sm-arch>sm72</sm-arch>
+  <sm-arch>sm75</sm-arch>
+  <sm-arch>sm80</sm-arch>
+  <sm-arch>sm86</sm-arch>
+  <sm-arch>sm87</sm-arch>
+  <supported_envs>
+    <env>
+      <arch>x86_64</arch>
+      <platform>linux</platform>
+    </env>
+    <env>
+      <platform>windows7</platform>
+    </env>
+    <env>
+      <arch>arm</arch>
+    </env>
+    <env>
+      <arch>sbsa</arch>
+    </env>
+    <env>
+      <arch>ppc64le</arch>
+      <platform>linux</platform>
+    </env>
+  </supported_envs>
+  <supported_sm_architectures>
+    <from>6.0</from>
+  </supported_sm_architectures>
+  <title>Graph Memory Footprint</title>
+  <type>exe</type>
+</entry>

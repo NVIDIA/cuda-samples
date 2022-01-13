@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
+<entry>
+  <name>simpleMultiCopy</name>
+  <cuda_api_list>
+    <toolkit>cudaMemset</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaStreamDestroy</toolkit>
+    <toolkit>cudaEventRecord</toolkit>
+    <toolkit>cudaStreamCreate</toolkit>
+    <toolkit>cudaHostAlloc</toolkit>
+    <toolkit>cudaEventCreate</toolkit>
+    <toolkit>cudaEventElapsedTime</toolkit>
+    <toolkit>cudaDeviceSynchronize</toolkit>
+    <toolkit>cudaEventSynchronize</toolkit>
+    <toolkit>cudaFreeHost</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaEventDestroy</toolkit>
+    <toolkit>cudaSetDevice</toolkit>
+    <toolkit>cudaMemcpyAsync</toolkit>
+    <toolkit>cudaGetDeviceProperties</toolkit>
+  </cuda_api_list>
+  <description><![CDATA[Supported in GPUs with Compute Capability 1.1, overlapping compute with one memcopy is possible from the host system.  For Quadro and Tesla GPUs with Compute Capability 2.0, a second overlapped copy operation in either direction at full speed is possible (PCI-e is symmetric).  This sample illustrates the usage of CUDA streams to achieve overlapping of kernel execution with data copies to and from the device.]]></description>
+  <devicecompilation>whole</devicecompilation>
+  <files>
+    <file>doc</file>
+    <file>doc\C1060_CopyOverlap.cpj</file>
+    <file>doc\C1060_CopyOverlap_Session1_Context_0.csv</file>
+    <file>doc\GTX480_CopyOverlap.cpj</file>
+    <file>doc\GTX480_CopyOverlap_Session1_Context_0.csv</file>
+  </files>
+  <includepaths>
+    <path>./</path>
+    <path>../</path>
+    <path>../../../Common</path>
+  </includepaths>
+  <keyconcepts>
+    <concept level="basic">CUDA Streams and Events</concept>
+    <concept level="basic">Asynchronous Data Transfers</concept>
+    <concept level="basic">Overlap Compute and Copy</concept>
+    <concept level="basic">GPU Performance</concept>
+  </keyconcepts>
+  <keywords>
+    <keyword>GPGPU</keyword>
+  </keywords>
+  <libraries>
+  </libraries>
+  <librarypaths>
+  </librarypaths>
+  <nsight_eclipse>true</nsight_eclipse>
+  <primary_file>simpleMultiCopy.cu</primary_file>
+  <scopes>
+    <scope>1:CUDA Advanced Topics</scope>
+    <scope>1:Performance Strategies</scope>
+  </scopes>
+  <sm-arch>sm35</sm-arch>
+  <sm-arch>sm37</sm-arch>
+  <sm-arch>sm50</sm-arch>
+  <sm-arch>sm52</sm-arch>
+  <sm-arch>sm53</sm-arch>
+  <sm-arch>sm60</sm-arch>
+  <sm-arch>sm61</sm-arch>
+  <sm-arch>sm70</sm-arch>
+  <sm-arch>sm72</sm-arch>
+  <sm-arch>sm75</sm-arch>
+  <sm-arch>sm80</sm-arch>
+  <sm-arch>sm86</sm-arch>
+  <sm-arch>sm87</sm-arch>
+  <supported_envs>
+    <env>
+      <arch>x86_64</arch>
+      <platform>linux</platform>
+    </env>
+    <env>
+      <platform>windows7</platform>
+    </env>
+    <env>
+      <arch>x86_64</arch>
+      <platform>macosx</platform>
+    </env>
+    <env>
+      <arch>arm</arch>
+    </env>
+    <env>
+      <arch>sbsa</arch>
+    </env>
+    <env>
+      <arch>ppc64le</arch>
+      <platform>linux</platform>
+    </env>
+  </supported_envs>
+  <supported_sm_architectures>
+    <include>all</include>
+  </supported_sm_architectures>
+  <title>Simple Multi Copy and Compute</title>
+  <type>exe</type>
+</entry>

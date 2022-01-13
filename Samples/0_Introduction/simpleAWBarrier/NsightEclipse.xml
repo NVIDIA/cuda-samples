@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
+<entry>
+  <name>simpleAWBarrier</name>
+  <cflags>
+    <flag>--std=c++11</flag>
+  </cflags>
+  <cuda_api_list>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaMallocHost</toolkit>
+    <toolkit>cudaOccupancyMaxActiveBlocksPerMultiprocessor</toolkit>
+    <toolkit>cudaOccupancyMaxPotentialBlockSize</toolkit>
+    <toolkit>cudaDeviceGetAttribute</toolkit>
+    <toolkit>cudaFreeHost</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaStreamCreateWithFlags</toolkit>
+    <toolkit>cudaLaunchCooperativeKernel</toolkit>
+    <toolkit>cudaStreamSynchronize</toolkit>
+    <toolkit>cudaMemcpyAsync</toolkit>
+  </cuda_api_list>
+  <description><![CDATA[A simple demonstration of arrive wait barriers.]]></description>
+  <devicecompilation>whole</devicecompilation>
+  <includepaths>
+    <path>./</path>
+    <path>../</path>
+    <path>../../../Common</path>
+  </includepaths>
+  <keyconcepts>
+    <concept level="basic">Arrive Wait Barrier</concept>
+  </keyconcepts>
+  <keywords>
+    <keyword>CUDA</keyword>
+    <keyword>GPGPU</keyword>
+    <keyword>CPP11</keyword>
+    <keyword>GCC 5.1.0</keyword>
+  </keywords>
+  <libraries>
+  </libraries>
+  <librarypaths>
+  </librarypaths>
+  <nsight_eclipse>true</nsight_eclipse>
+  <primary_file>simpleAWBarrier.cu</primary_file>
+  <required_dependencies>
+    <dependency>CPP11</dependency>
+    <dependency>MBCG</dependency>
+  </required_dependencies>
+  <scopes>
+    <scope>1:CUDA Basic Topics</scope>
+  </scopes>
+  <sm-arch>sm70</sm-arch>
+  <sm-arch>sm72</sm-arch>
+  <sm-arch>sm75</sm-arch>
+  <sm-arch>sm80</sm-arch>
+  <sm-arch>sm86</sm-arch>
+  <sm-arch>sm87</sm-arch>
+  <supported_envs>
+    <env>
+      <arch>x86_64</arch>
+      <platform>linux</platform>
+    </env>
+    <env>
+      <platform>windows7</platform>
+    </env>
+    <env>
+      <arch>arm</arch>
+    </env>
+    <env>
+      <arch>sbsa</arch>
+    </env>
+    <env>
+      <arch>ppc64le</arch>
+      <platform>linux</platform>
+    </env>
+    <env>
+      <arch>aarch64</arch>
+      <platform>linux</platform>
+    </env>
+    <env>
+      <arch>aarch64</arch>
+      <platform>qnx</platform>
+    </env>
+  </supported_envs>
+  <supported_sm_architectures>
+    <from>7.0</from>
+  </supported_sm_architectures>
+  <title>Simple Arrive Wait Barrier</title>
+  <type>exe</type>
+</entry>

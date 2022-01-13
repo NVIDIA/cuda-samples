@@ -1,4 +1,4 @@
-/* Copyright (c) 2021, NVIDIA CORPORATION. All rights reserved.
+/* Copyright (c) 2022, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -399,10 +399,10 @@ int getInputDir(std::string &input_dir, const char *executable_path) {
     // Search in default paths for input images.
     std::string pathname = "";
     const char *searchPath[] = {
-        "./images", "../../../../Samples/<executable_name>/images",
-        "../../../Samples/<executable_name>/images",
-        "../../Samples/<executable_name>/images"};
-
+        "./images",
+        "../../../../Samples/4_CUDA_Libraries/<executable_name>/images",
+        "../../../Samples/4_CUDA_Libraries/<executable_name>/images",
+        "../../Samples/4_CUDA_Libraries/<executable_name>/images"};
 
     for (unsigned int i = 0; i < sizeof(searchPath) / sizeof(char *); ++i) {
       std::string pathname(searchPath[i]);
