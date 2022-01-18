@@ -365,7 +365,7 @@ LIBSIZE := 64
 endif
 endif
 
-LIBRARIES += -L$(CUDA_PATH)/lib$(LIBSIZE) -lcudart
+LIBRARIES += -L$(CUDA_PATH)/lib -L$(CUDA_PATH)/lib$(LIBSIZE) -lcudart
 
 ifeq ($(SAMPLE_ENABLED),0)
 EXEC ?= @echo "[@]"
