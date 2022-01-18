@@ -280,31 +280,6 @@ LIBRARIES :=
 
 FATBIN_FILE := matrixMul_kernel${TARGET_SIZE}.fatbin
 
-#Detect if installed version of GCC supports required C++11
-ifeq ($(TARGET_OS),linux)
-    empty :=
-    space := $(empty) $(empty)
-    GCCVERSIONSTRING := $(shell expr `$(HOST_COMPILER) -dumpversion`)
-#Create version number without "."
-    GCCVERSION := $(shell expr `echo $(GCCVERSIONSTRING)` | cut -f1 -d.)
-    GCCVERSION += $(shell expr `echo $(GCCVERSIONSTRING)` | cut -f2 -d.)
-    GCCVERSION += $(shell expr `echo $(GCCVERSIONSTRING)` | cut -f3 -d.)
-# Make sure the version number has at least 3 decimals
-    GCCVERSION += 00
-# Remove spaces from the version number
-    GCCVERSION := $(subst $(space),$(empty),$(GCCVERSION))
-#$(warning $(GCCVERSION))
-
-    IS_MIN_VERSION := $(shell expr `echo $(GCCVERSION)` \>= 51000)
-
-    ifeq ($(IS_MIN_VERSION), 1)
-        $(info >>> GCC Version is greater or equal to 5.1.0 <<<)
-    else
-        $(info >>> Waiving build. Minimum GCC version required is 5.1.0<<<)
-        SAMPLE_ENABLED := 0
-    endif
-endif
-
 # Gencode arguments
 ifeq ($(TARGET_ARCH),$(filter $(TARGET_ARCH),armv7l aarch64))
 SMS ?= 35 37 50 52 60 61 70 72 75 80 86
