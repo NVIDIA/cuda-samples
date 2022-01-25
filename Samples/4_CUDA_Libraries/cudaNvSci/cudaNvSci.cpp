@@ -113,7 +113,12 @@ class cudaNvSciSignal {
         "%d.%d\n\n",
         m_cudaDeviceId, _ConvertSMVer2ArchName(major, minor), major, minor);
 
+#ifdef cuDeviceGetUuid_v2
+    CUresult res = cuDeviceGetUuid_v2(&m_devUUID, m_cudaDeviceId);
+#else
     CUresult res = cuDeviceGetUuid(&m_devUUID, m_cudaDeviceId);
+#endif
+
     if (res != CUDA_SUCCESS) {
       fprintf(stderr, "Driver API error = %04d \n", res);
       exit(EXIT_FAILURE);
@@ -387,7 +392,11 @@ class cudaNvSciWait {
     checkCudaErrors(cudaSetDevice(m_cudaDeviceId));
     checkCudaErrors(
         cudaStreamCreateWithFlags(&streamToRun, cudaStreamNonBlocking));
+#ifdef cuDeviceGetUuid_v2
+    CUresult res = cuDeviceGetUuid_v2(&m_devUUID, m_cudaDeviceId);
+#else
     CUresult res = cuDeviceGetUuid(&m_devUUID, m_cudaDeviceId);
+#endif
     if (res != CUDA_SUCCESS) {
       fprintf(stderr, "Driver API error = %04d \n", res);
       exit(EXIT_FAILURE);
