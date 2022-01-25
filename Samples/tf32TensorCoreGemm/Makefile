@@ -303,7 +303,7 @@ ifeq ($(TARGET_OS),linux)
     GCCVERSION := $(subst $(space),$(empty),$(GCCVERSION))
 #$(warning $(GCCVERSION))
 
-    IS_MIN_VERSION := $(shell expr `echo $(GCCVERSION)` \>= 51000)
+    IS_MIN_VERSION := $(shell expr `echo $(GCCVERSION)` \>= 48000)
 
     ifeq ($(IS_MIN_VERSION), 1)
         $(info >>> GCC Version is greater or equal to  5.1.0 <<<)

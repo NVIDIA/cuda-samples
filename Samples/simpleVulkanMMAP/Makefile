@@ -327,12 +327,12 @@ ifeq ($(TARGET_OS),linux)
     GCCVERSION := $(subst $(space),$(empty),$(GCCVERSION))
 #$(warning $(GCCVERSION))
 
-    IS_MIN_VERSION := $(shell expr `echo $(GCCVERSION)` \>= 51000)
+    IS_MIN_VERSION := $(shell expr `echo $(GCCVERSION)` \>= 48000)
 
     ifeq ($(IS_MIN_VERSION), 1)
-        $(info >>> GCC Version is greater or equal to 5.1.0 <<<)
+        $(info >>> GCC Version is greater or equal to 4.8.0 <<<)
     else
-        $(info >>> Waiving build. Minimum GCC version required is 5.1.0<<<)
+        $(info >>> Waiving build. Minimum GCC version required is 4.8.0<<<)
         SAMPLE_ENABLED := 0
     endif
 endif
