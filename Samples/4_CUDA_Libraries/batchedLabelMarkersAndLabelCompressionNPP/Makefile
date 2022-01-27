@@ -272,6 +272,12 @@ ifeq ($(TARGET_OS),darwin)
   SAMPLE_ENABLED := 0
 endif
 
+# This sample is not supported on QNX
+ifeq ($(TARGET_OS),qnx)
+  $(info >>> WARNING - batchedLabelMarkersAndLabelCompressionNPP is not supported on QNX - waiving sample <<<)
+  SAMPLE_ENABLED := 0
+endif
+
 ALL_LDFLAGS :=
 ALL_LDFLAGS += $(ALL_CCFLAGS)
 ALL_LDFLAGS += $(addprefix -Xlinker ,$(LDFLAGS))
