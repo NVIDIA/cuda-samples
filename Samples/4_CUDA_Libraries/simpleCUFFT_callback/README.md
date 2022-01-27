@@ -26,7 +26,7 @@ x86_64, ppc64le, aarch64
 cudaFree, cudaMalloc, cudaMemcpy, cudaMemcpyFromSymbol, cudaGetDeviceProperties, cudaGetDevice
 
 ## Dependencies needed to build/run
-[callback](../../README.md#callback), [CUFFT](../../README.md#cufft)
+[callback](../../../README.md#callback), [CUFFT](../../../README.md#cufft)
 
 ## Prerequisites
 

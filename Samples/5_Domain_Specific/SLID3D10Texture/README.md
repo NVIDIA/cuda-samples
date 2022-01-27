@@ -29,7 +29,7 @@ cuCtxPushCurrent, cuCtxPopCurrent
 cudaMemset, cudaFree, cudaGraphicsMapResources, cudaGraphicsUnregisterResource, cudaGraphicsResourceSetMapFlags, cudaGetDeviceCount, cudaMallocPitch, cudaMalloc, cudaGraphicsSubResourceGetMappedArray, cudaGetLastError, cudaGraphicsUnmapResources, cudaGetErrorString, cudaGetDeviceProperties
 
 ## Dependencies needed to build/run
-[DirectX](../../README.md#directx)
+[DirectX](../../../README.md#directx)
 
 ## Prerequisites
 

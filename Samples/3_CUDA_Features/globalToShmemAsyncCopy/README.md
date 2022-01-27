@@ -26,7 +26,7 @@ x86_64, ppc64le, armv7l, aarch64
 cudaFree, cudaEventRecord, cudaMallocHost, cudaEventCreate, cudaMemsetAsync, cudaEventElapsedTime, cudaEventSynchronize, cudaDeviceGetAttribute, cudaFreeHost, cudaMalloc, cudaStreamCreateWithFlags, cudaEventDestroy, cudaStreamSynchronize, cudaMemcpyAsync
 
 ## Dependencies needed to build/run
-[CPP11](../../README.md#cpp11)
+[CPP11](../../../README.md#cpp11)
 
 ## Prerequisites
 

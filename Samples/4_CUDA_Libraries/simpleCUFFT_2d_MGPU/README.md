@@ -26,7 +26,7 @@ x86_64, ppc64le, armv7l
 cudaFree, cudaXtFree, cudaGetDeviceCount, cudaDeviceSynchronize, cudaMalloc, cudaSetDevice, cudaMemcpy, cudaGetDeviceProperties
 
 ## Dependencies needed to build/run
-[CUFFT](../../README.md#cufft)
+[CUFFT](../../../README.md#cufft)
 
 ## Prerequisites
 

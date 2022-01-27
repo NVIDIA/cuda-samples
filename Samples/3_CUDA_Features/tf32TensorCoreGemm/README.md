@@ -26,7 +26,7 @@ x86_64, ppc64le, aarch64
 cudaMemset, cudaFree, cudaEventRecord, cudaEventCreate, cudaFuncSetAttribute, cudaEventElapsedTime, cudaEventSynchronize, cudaMalloc, cudaGetLastError, cudaMemcpy, cudaGetErrorString, cudaGetDeviceProperties
 
 ## Dependencies needed to build/run
-[CPP11](../../README.md#cpp11)
+[CPP11](../../../README.md#cpp11)
 
 ## Prerequisites
 

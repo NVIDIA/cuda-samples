@@ -26,7 +26,7 @@ x86_64, ppc64le, armv7l
 cudaFree, cudaMallocHost, cudaMallocPitch, cudaDeviceGetAttribute, cudaFreeHost, cudaDriverGetVersion, cudaMalloc, cudaStreamGetFlags, cudaRuntimeGetVersion, cudaStreamSynchronize, cudaMemcpyAsync, cudaGetDeviceProperties, cudaGetDevice
 
 ## Dependencies needed to build/run
-[NPP](../../README.md#npp)
+[NPP](../../../README.md#npp)
 
 ## Prerequisites
 

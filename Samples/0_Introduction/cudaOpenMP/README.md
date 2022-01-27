@@ -26,7 +26,7 @@ x86_64, ppc64le, armv7l
 cudaMemset, cudaFree, cudaGetDeviceCount, cudaSetDevice, cudaMalloc, cudaGetLastError, cudaMemcpy, cudaGetErrorString, cudaGetDeviceProperties, cudaGetDevice
 
 ## Dependencies needed to build/run
-[OpenMP](../../README.md#openmp)
+[OpenMP](../../../README.md#openmp)
 
 ## Prerequisites
 

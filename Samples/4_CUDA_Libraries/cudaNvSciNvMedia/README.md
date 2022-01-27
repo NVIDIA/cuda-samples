@@ -29,7 +29,7 @@ cuDeviceGetUuid
 cudaGetMipmappedArrayLevel, cudaImportNvSciImage, cudaImportExternalSemaphore, cudaStreamCreateWithFlags, cudaExternalMemoryGetMappedMipmappedArray, cudaDestroyExternalMemory, cudaMemcpyAsync, cudaStreamDestroy, cudaSignalExternalSemaphoresAsync, cudaDeviceGetNvSciSyncAttributes, cudaFreeMipmappedArray, cudaMallocHost, cudaDestroySurfaceObject, cudaImportExternalMemory, cudaMalloc, cudaSetDevice, cudaDestroyExternalSemaphore, cudaCreateChannelDesc, cudaStreamSynchronize, cudaFree, cudaFreeArray, cudaCreateSurfaceObject, cudaFreeHost, cudaMallocArray, cudaWaitExternalSemaphoresAsync, cudaImportNvSciSync
 
 ## Dependencies needed to build/run
-[NVSCI](../../README.md#nvsci), [NvMedia](../../README.md#nvmedia)
+[NVSCI](../../../README.md#nvsci), [NvMedia](../../../README.md#nvmedia)
 
 ## Prerequisites
 

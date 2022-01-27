@@ -26,7 +26,7 @@ x86_64, ppc64le, aarch64
 cudaFree, cudaEventRecord, cudaEventCreate, cudaEventElapsedTime, cudaDeviceSynchronize, cudaEventSynchronize, cudaMalloc, cudaGetErrorString, cudaGetDeviceProperties
 
 ## Dependencies needed to build/run
-[NVJPEG](../../README.md#nvjpeg)
+[NVJPEG](../../../README.md#nvjpeg)
 
 ## Prerequisites
 

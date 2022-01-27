@@ -26,7 +26,7 @@ x86_64, ppc64le, armv7l
 cudaMalloc, cudaMemset, cudaFree, cudaMemcpy
 
 ## Dependencies needed to build/run
-[CPP11](../../README.md#cpp11)
+[CPP11](../../../README.md#cpp11)
 
 ## Prerequisites
 

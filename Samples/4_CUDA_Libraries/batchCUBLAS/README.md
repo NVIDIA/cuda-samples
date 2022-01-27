@@ -29,7 +29,7 @@ cuRand, cuEqual
 cudaFree, cudaStreamCreate, cudaDeviceSynchronize, cudaMalloc, cudaGetLastError, cudaMemcpy, cudaGetErrorString, cudaGetDeviceProperties, cudaGetDevice
 
 ## Dependencies needed to build/run
-[CUBLAS](../../README.md#cublas)
+[CUBLAS](../../../README.md#cublas)
 
 ## Prerequisites
 

@@ -26,7 +26,7 @@ x86_64, aarch64
 cudaTimelineSemaphore, cudaSignalExternalSemaphoresAsync, cudaOccupancyMaxActiveBlocksPerMultiprocessor, cudaGetDeviceCount, cudaImportExternalSemaphore, cudaVertMem, cudaImportExternalMemory, cudaDestroyExternalMemory, cudaExternalMemoryGetMappedBuffer, cudaSignalSemaphore, cudaStreamCreateWithFlags, cudaWaitSemaphore, cudaHeightMap, cudaDestroyExternalSemaphore, cudaSetDevice, cudaWaitExternalSemaphoresAsync, cudaStreamSynchronize, cudaGetDeviceProperties
 
 ## Dependencies needed to build/run
-[X11](../../README.md#x11), [VULKAN](../../README.md#vulkan)
+[X11](../../../README.md#x11), [VULKAN](../../../README.md#vulkan)
 
 ## Prerequisites
 

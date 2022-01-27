@@ -26,7 +26,7 @@ x86_64, ppc64le, armv7l
 cudaMemset, cudaFree, cudaDeviceSynchronize, cudaDestroyTextureObject, cudaCreateTextureObject, cudaMalloc, cudaMemcpy
 
 ## Dependencies needed to build/run
-[CUFFT](../../README.md#cufft)
+[CUFFT](../../../README.md#cufft)
 
 ## Prerequisites
 

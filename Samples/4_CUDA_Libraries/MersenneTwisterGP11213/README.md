@@ -26,7 +26,7 @@ x86_64, ppc64le, armv7l
 cudaStreamDestroy, cudaFree, cudaMallocHost, cudaFreeHost, cudaMalloc, cudaStreamCreateWithFlags, cudaStreamSynchronize, cudaMemcpyAsync
 
 ## Dependencies needed to build/run
-[CURAND](../../README.md#curand)
+[CURAND](../../../README.md#curand)
 
 ## Prerequisites
 

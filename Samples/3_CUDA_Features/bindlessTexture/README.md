@@ -26,7 +26,7 @@ x86_64, armv7l
 cudaGraphicsMapResources, cudaGetMipmappedArrayLevel, cudaGraphicsResourceGetMappedPointer, cudaArrayGetInfo, cudaMemcpy, cudaFreeMipmappedArray, cudaDestroySurfaceObject, cudaPitchedPtr, cudaMalloc, cudaGraphicsUnregisterResource, cudaDeviceSynchronize, cudaDestroyTextureObject, cudaGetLastError, cudaFree, cudaFreeArray, cudaGraphicsGLRegisterBuffer, cudaExtent, cudaCreateSurfaceObject, cudaMallocMipmappedArray, cudaCreateTextureObject, cudaMallocArray, cudaGraphicsUnmapResources
 
 ## Dependencies needed to build/run
-[X11](../../README.md#x11), [GL](../../README.md#gl)
+[X11](../../../README.md#x11), [GL](../../../README.md#gl)
 
 ## Prerequisites
 

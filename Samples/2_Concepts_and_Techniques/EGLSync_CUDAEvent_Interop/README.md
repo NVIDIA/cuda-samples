@@ -29,7 +29,7 @@ cuGraphicsEGLRegisterImage, cuStreamCreate, cuEventCreate, cuCtxCreate, cuGraphi
 cudaFree, cudaDeviceSynchronize, cudaGetValueMismatch, cudaMalloc, cudaMemcpy, cudaGetErrorString
 
 ## Dependencies needed to build/run
-[EGL](../../README.md#egl), [EGLSync](../../README.md#eglsync), [X11](../../README.md#x11), [GLES](../../README.md#gles)
+[EGL](../../../README.md#egl), [EGLSync](../../../README.md#eglsync), [X11](../../../README.md#x11), [GLES](../../../README.md#gles)
 
 ## Prerequisites
 

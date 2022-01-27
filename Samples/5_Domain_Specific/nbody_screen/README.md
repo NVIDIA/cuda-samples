@@ -26,7 +26,7 @@ aarch64
 cudaMemcpyToSymbol, cudaGraphicsMapResources, cudaEventRecord, cudaStreamQuery, cudaEventCreate, cudaGraphicsResourceGetMappedPointer, cudaGetDeviceCount, cudaEventElapsedTime, cudaDeviceSynchronize, cudaEventSynchronize, cudaGraphicsResourceSetMapFlags, cudaSetDeviceFlags, cudaEventDestroy, cudaSetDevice, cudaGraphicsUnmapResources, cudaGetDeviceProperties, cudaGetDevice
 
 ## Dependencies needed to build/run
-[screen](../../README.md#screen), [GLES](../../README.md#gles)
+[screen](../../../README.md#screen), [GLES](../../../README.md#gles)
 
 ## Prerequisites
 

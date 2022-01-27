@@ -26,7 +26,7 @@ x86_64, armv7l
 cudaMalloc, cudaFree, cudaMemcpy, cudaGetErrorString
 
 ## Dependencies needed to build/run
-[X11](../../README.md#x11), [GL](../../README.md#gl), [CURAND](../../README.md#curand)
+[X11](../../../README.md#x11), [GL](../../../README.md#gl), [CURAND](../../../README.md#curand)
 
 ## Prerequisites
 

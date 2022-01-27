@@ -26,7 +26,7 @@ x86_64, ppc64le, armv7l, aarch64
 cudaMalloc, cudaFree
 
 ## Dependencies needed to build/run
-[CUBLAS](../../README.md#cublas)
+[CUBLAS](../../../README.md#cublas)
 
 ## Prerequisites
 

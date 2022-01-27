@@ -26,7 +26,7 @@ x86_64, ppc64le, armv7l, aarch64
 cudaMalloc, cudaFree, cudaMemcpy
 
 ## Dependencies needed to build/run
-[CUFFT](../../README.md#cufft)
+[CUFFT](../../../README.md#cufft)
 
 ## Prerequisites
 

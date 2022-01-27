@@ -26,7 +26,7 @@ x86_64, ppc64le
 cudaDeviceEnablePeerAccess, cudaFree, cudaEventRecord, cudaMallocHost, cudaGetDeviceCount, cudaEventElapsedTime, cudaDeviceSynchronize, cudaEventSynchronize, cudaFreeHost, cudaMalloc, cudaEventCreateWithFlags, cudaDeviceCanAccessPeer, cudaEventDestroy, cudaSetDevice, cudaDeviceDisablePeerAccess, cudaMemcpy, cudaGetDeviceProperties
 
 ## Dependencies needed to build/run
-[only-64-bit](../../README.md#only-64-bit)
+[only-64-bit](../../../README.md#only-64-bit)
 
 ## Prerequisites
 

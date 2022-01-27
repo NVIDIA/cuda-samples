@@ -26,7 +26,7 @@ x86_64, ppc64le, armv7l
 cudaFree, cudaMallocHost, cudaFreeHost, cudaMalloc, cudaMemcpy, cudaGetDeviceProperties
 
 ## Dependencies needed to build/run
-[FP16](../../README.md#fp16)
+[FP16](../../../README.md#fp16)
 
 ## Prerequisites
 

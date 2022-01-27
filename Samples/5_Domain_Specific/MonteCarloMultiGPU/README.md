@@ -26,7 +26,7 @@ x86_64, ppc64le, armv7l
 cudaMemset, cudaFree, cudaStreamDestroy, cudaEventRecord, cudaMallocHost, cudaStreamCreate, cudaEventCreate, cudaGetDeviceCount, cudaDeviceSynchronize, cudaEventSynchronize, cudaFreeHost, cudaMalloc, cudaEventDestroy, cudaSetDevice, cudaMemcpyAsync, cudaStreamSynchronize, cudaGetDeviceProperties
 
 ## Dependencies needed to build/run
-[CURAND](../../README.md#curand)
+[CURAND](../../../README.md#curand)
 
 ## Prerequisites
 

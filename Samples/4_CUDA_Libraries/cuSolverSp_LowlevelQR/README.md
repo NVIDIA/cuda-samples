@@ -29,7 +29,7 @@ cuDoubleComplex, cuComplex, cuGet
 cudaStreamDestroy, cudaFree, cudaStreamCreate, cudaMalloc, cudaMemcpy
 
 ## Dependencies needed to build/run
-[CUSOLVER](../../README.md#cusolver), [CUSPARSE](../../README.md#cusparse)
+[CUSOLVER](../../../README.md#cusolver), [CUSPARSE](../../../README.md#cusparse)
 
 ## Prerequisites
 

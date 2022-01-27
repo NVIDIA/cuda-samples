@@ -26,7 +26,7 @@ x86_64, armv7l
 cudaMemcpyToSymbol, cudaGraphicsMapResources, cudaEventRecord, cudaStreamQuery, cudaEventCreate, cudaGraphicsResourceGetMappedPointer, cudaGetDeviceCount, cudaEventElapsedTime, cudaDeviceSynchronize, cudaEventSynchronize, cudaGraphicsResourceSetMapFlags, cudaSetDeviceFlags, cudaEventDestroy, cudaDeviceCanAccessPeer, cudaSetDevice, cudaGraphicsUnmapResources, cudaGetDeviceProperties, cudaGetDevice
 
 ## Dependencies needed to build/run
-[X11](../../README.md#x11), [GL](../../README.md#gl)
+[X11](../../../README.md#x11), [GL](../../../README.md#gl)
 
 ## Prerequisites
 

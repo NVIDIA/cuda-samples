@@ -23,7 +23,7 @@ aarch64
 ## CUDA APIs involved
 
 ## Dependencies needed to build/run
-[NVSCI](../../README.md#nvsci)
+[NVSCI](../../../README.md#nvsci)
 
 ## Prerequisites
 

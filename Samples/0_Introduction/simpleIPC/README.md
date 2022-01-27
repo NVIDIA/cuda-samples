@@ -26,7 +26,7 @@ x86_64, ppc64le
 cudaDeviceEnablePeerAccess, cudaIpcOpenEventHandle, cudaOccupancyMaxActiveBlocksPerMultiprocessor, cudaStreamCreateWithFlags, cudaDeviceCanAccessPeer, cudaMemcpyAsync, cudaStreamDestroy, cudaEventCreate, cudaMalloc, cudaEventDestroy, cudaSetDevice, cudaIpcOpenMemHandle, cudaGetDeviceProperties, cudaGetDeviceCount, cudaIpcGetEventHandle, cudaGetLastError, cudaStreamSynchronize, cudaStreamWaitEvent, cudaFree, cudaIpcCloseMemHandle, cudaEventRecord, cudaIpcGetMemHandle, cudaEventSynchronize
 
 ## Dependencies needed to build/run
-[IPC](../../README.md#ipc)
+[IPC](../../../README.md#ipc)
 
 ## Prerequisites
 

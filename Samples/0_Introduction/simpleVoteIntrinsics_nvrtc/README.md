@@ -26,7 +26,7 @@ x86_64, ppc64le, aarch64
 cuModuleGetFunction, cuMemAlloc, cuLaunchKernel, cuCtxSynchronize, cuMemFree, cuMemcpyDtoH, cuMemcpyHtoD
 
 ## Dependencies needed to build/run
-[NVRTC](../../README.md#nvrtc)
+[NVRTC](../../../README.md#nvrtc)
 
 ## Prerequisites
 

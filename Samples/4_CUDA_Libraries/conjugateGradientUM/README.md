@@ -26,7 +26,7 @@ x86_64, ppc64le, armv7l
 cudaFree, cudaMallocManaged, cudaDeviceSynchronize, cudaMalloc, cudaGetDeviceProperties
 
 ## Dependencies needed to build/run
-[UVM](../../README.md#uvm), [CUBLAS](../../README.md#cublas), [CUSPARSE](../../README.md#cusparse)
+[UVM](../../../README.md#uvm), [CUBLAS](../../../README.md#cublas), [CUSPARSE](../../../README.md#cusparse)
 
 ## Prerequisites
 

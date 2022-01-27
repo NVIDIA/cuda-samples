@@ -26,7 +26,7 @@ x86_64
 cudaFree, cudaSignalExternalSemaphoresAsync, cudaStreamCreate, cudaGetDeviceCount, cudaImportExternalSemaphore, cudaGetDeviceProperties, cudaImportExternalMemory, cudaExternalMemoryGetMappedBuffer, cudaDestroyExternalSemaphore, cudaSetDevice, cudaWaitExternalSemaphoresAsync, cudaStreamSynchronize, cudaDestroyExternalMemory
 
 ## Dependencies needed to build/run
-[DirectX12](../../README.md#directx12)
+[DirectX12](../../../README.md#directx12)
 
 ## Prerequisites
 

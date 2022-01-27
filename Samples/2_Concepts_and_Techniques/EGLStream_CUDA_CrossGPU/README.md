@@ -29,7 +29,7 @@ cuEGLStreamConsumerConnect, cuMemFree, cuInit, cuStreamCreate, cuCtxCreate, cuGr
 cudaDeviceCreateConsumer, cudaFree, cudaConsumerReleaseFrame, cudaDeviceSynchronize, cudaGetValueMismatch, cudaProducerDeinit, cudaProducerPresentFrame, cudaMalloc, cudaProducerInit, cudaProducerReturnFrame, cudaProducerPrepareFrame, cudaConsumerAcquireFrame, cudaMemcpy, cudaGetErrorString, cudaDeviceCreateProducer
 
 ## Dependencies needed to build/run
-[EGL](../../README.md#egl)
+[EGL](../../../README.md#egl)
 
 ## Prerequisites
 

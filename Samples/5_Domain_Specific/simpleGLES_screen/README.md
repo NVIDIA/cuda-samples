@@ -26,7 +26,7 @@ aarch64
 cudaFree, cudaGraphicsMapResources, cudaGraphicsGLRegisterBuffer, cudaGraphicsResourceGetMappedPointer, cudaDeviceSynchronize, cudaMalloc, cudaGraphicsUnregisterResource, cudaGraphicsUnmapResources, cudaMemcpy
 
 ## Dependencies needed to build/run
-[screen](../../README.md#screen), [GLES](../../README.md#gles)
+[screen](../../../README.md#screen), [GLES](../../../README.md#gles)
 
 ## Prerequisites
 

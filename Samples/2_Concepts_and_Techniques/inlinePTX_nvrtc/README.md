@@ -29,7 +29,7 @@ cuMemAlloc, cuLaunchKernel, cuCtxSynchronize, cuMemFree, cuMemcpyDtoH, cuModuleG
 cudaBlockSize, cudaGridSize
 
 ## Dependencies needed to build/run
-[NVRTC](../../README.md#nvrtc)
+[NVRTC](../../../README.md#nvrtc)
 
 ## Prerequisites
 

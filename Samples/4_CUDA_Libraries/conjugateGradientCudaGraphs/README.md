@@ -26,7 +26,7 @@ x86_64, ppc64le, armv7l
 cudaStreamDestroy, cudaFree, cudaGraphExecDestroy, cudaMallocHost, cudaStreamCreate, cudaGraphInstantiate, cudaOccupancyMaxPotentialBlockSize, cudaStreamBeginCapture, cudaMemsetAsync, cudaStreamEndCapture, cudaFreeHost, cudaMalloc, cudaStreamSynchronize, cudaMemcpyAsync, cudaGraphDestroy, cudaGetDeviceProperties, cudaGraphLaunch
 
 ## Dependencies needed to build/run
-[CUBLAS](../../README.md#cublas), [CUSPARSE](../../README.md#cusparse)
+[CUBLAS](../../../README.md#cublas), [CUSPARSE](../../../README.md#cusparse)
 
 ## Prerequisites
 

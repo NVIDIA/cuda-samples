@@ -26,7 +26,7 @@ x86_64, ppc64le, armv7l
 cudaDeviceSetLimit, cudaFree, cudaStreamDestroy, cudaDeviceSynchronize, cudaMalloc, cudaStreamCreateWithFlags, cudaMemcpy, cudaGetDeviceProperties
 
 ## Dependencies needed to build/run
-[CDP](../../README.md#cdp)
+[CDP](../../../README.md#cdp)
 
 ## Prerequisites
 

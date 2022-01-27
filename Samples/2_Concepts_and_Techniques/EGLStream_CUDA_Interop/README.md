@@ -29,7 +29,7 @@ cuEGLStreamConsumerConnect, cuArrayDestroy, cuMemFree, cuInit, cuCtxCreate, cuGr
 cudaDeviceCreateConsumer, cudaConsumerTest, cudaProducerDeinit, cudaProducerInit, cudaProducerReadYUVFrame, cudaProducerTest, cudaProducerReadARGBFrame, cudaDeviceCreateProducer
 
 ## Dependencies needed to build/run
-[EGL](../../README.md#egl)
+[EGL](../../../README.md#egl)
 
 ## Prerequisites
 

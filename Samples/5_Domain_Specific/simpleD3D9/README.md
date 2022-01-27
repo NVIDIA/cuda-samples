@@ -26,7 +26,7 @@ x86_64
 cudaGraphicsMapResources, cudaGraphicsUnregisterResource, cudaGraphicsResourceGetMappedPointer, cudaGetLastError, cudaGraphicsUnmapResources
 
 ## Dependencies needed to build/run
-[DirectX](../../README.md#directx)
+[DirectX](../../../README.md#directx)
 
 ## Prerequisites
 

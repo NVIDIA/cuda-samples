@@ -26,7 +26,7 @@ x86_64, ppc64le, aarch64
 cudaFree, cudaOccupancyMaxActiveBlocksPerMultiprocessor, cudaOccupancyMaxPotentialBlockSize, cudaDeviceSynchronize, cudaSetDevice, cudaMalloc, cudaLaunchCooperativeKernel, cudaMemcpy, cudaGetDeviceProperties
 
 ## Dependencies needed to build/run
-[MBCG](../../README.md#mbcg), [CPP11](../../README.md#cpp11)
+[MBCG](../../../README.md#mbcg), [CPP11](../../../README.md#cpp11)
 
 ## Prerequisites
 

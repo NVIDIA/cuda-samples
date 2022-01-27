@@ -26,7 +26,7 @@ x86_64, ppc64le, armv7l
 cudaFree, cudaEventRecord, cudaEventCreate, cudaEventElapsedTime, cudaEventSynchronize, cudaMalloc, cudaMemcpy, cudaGetDeviceProperties
 
 ## Dependencies needed to build/run
-[CUBLAS](../../README.md#cublas)
+[CUBLAS](../../../README.md#cublas)
 
 ## Prerequisites
 

@@ -26,7 +26,7 @@ x86_64, ppc64le
 cudaDeviceGetStreamPriorityRange, cudaEventRecord, cudaEventCreate, cudaEventElapsedTime, cudaEventSynchronize, cudaMalloc, cudaStreamCreateWithPriority, cudaMemcpy, cudaGetDeviceProperties
 
 ## Dependencies needed to build/run
-[Stream-Priorities](../../README.md#stream-priorities)
+[Stream-Priorities](../../../README.md#stream-priorities)
 
 ## Prerequisites
 

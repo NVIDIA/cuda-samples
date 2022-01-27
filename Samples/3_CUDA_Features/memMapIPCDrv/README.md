@@ -26,7 +26,7 @@ x86_64, ppc64le
 cuCtxSetCurrent, cuMemSetAccess, cuMemcpyDtoHAsync, cuStreamDestroy, cuInit, cuMemAddressReserve, cuCtxDestroy, cuModuleGetFunction, cuModuleLoad, cuStreamCreate, cuCtxCreate, cuMemExportToShareableHandle, cuMemAddressFree, cuMemGetAllocationGranularity, cuModuleLoadDataEx, cuDeviceGet, cuMemUnmap, cuDeviceGetAttribute, cuMemRelease, cuCtxEnablePeerAccess, cuMemMap, cuMemImportFromShareableHandle, cuMemCreate, cuStreamSynchronize, cuDeviceCanAccessPeer, cuDeviceGetCount, cuLaunchKernel, cuOccupancyMaxActiveBlocksPerMultiprocessor
 
 ## Dependencies needed to build/run
-[IPC](../../README.md#ipc)
+[IPC](../../../README.md#ipc)
 
 ## Prerequisites
 

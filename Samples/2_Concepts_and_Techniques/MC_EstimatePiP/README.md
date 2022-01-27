@@ -26,7 +26,7 @@ x86_64, ppc64le, armv7l
 cudaFree, cudaFuncGetAttributes, cudaGetDeviceCount, cudaMalloc, cudaSetDevice, cudaMemcpy, cudaGetErrorString, cudaGetDeviceProperties
 
 ## Dependencies needed to build/run
-[CURAND](../../README.md#curand)
+[CURAND](../../../README.md#curand)
 
 ## Prerequisites
 

@@ -26,7 +26,7 @@ x86_64
 cudaMemset, cudaFree, cudaGraphicsMapResources, cudaGraphicsUnregisterResource, cudaGetDeviceCount, cudaMallocPitch, cudaMalloc, cudaGraphicsSubResourceGetMappedArray, cudaGetLastError, cudaGraphicsUnmapResources, cudaGetErrorString, cudaGetDeviceProperties
 
 ## Dependencies needed to build/run
-[DirectX](../../README.md#directx)
+[DirectX](../../../README.md#directx)
 
 ## Prerequisites
 
