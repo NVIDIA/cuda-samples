@@ -115,9 +115,12 @@ VulkanBaseApp::VulkanBaseApp(const std::string &appName, bool enableValidation)
 VkExternalSemaphoreHandleTypeFlagBits
 VulkanBaseApp::getDefaultSemaphoreHandleType() {
 #ifdef _WIN64
-  return IsWindows8OrGreater()
-             ? VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT
-             : VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT;
+  // "IsWindows8<xxx>orGreater" returns false on windows 10!
+  // https://docs.microsoft.com/en-us/windows/win32/sysinfo/version-helper-apis
+  //return IsWindows8OrGreater()
+  //           ? VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT
+  //           : VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT;
+  return VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT;
 #else
   return VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD_BIT;
 #endif /* _WIN64 */
@@ -125,9 +128,12 @@ VulkanBaseApp::getDefaultSemaphoreHandleType() {
 
 VkExternalMemoryHandleTypeFlagBits VulkanBaseApp::getDefaultMemHandleType() {
 #ifdef _WIN64
-  return IsWindows8Point1OrGreater()
-             ? VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT
-             : VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT;
+  // "IsWindows8<xxx>orGreater" returns false on windows 10!
+  // https://docs.microsoft.com/en-us/windows/win32/sysinfo/version-helper-apis
+  //return IsWindows8Point1OrGreater()
+  //           ? VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT
+  //           : VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT;
+  return VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT;
 #else
   return VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT;
 #endif /* _WIN64 */

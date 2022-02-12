@@ -345,6 +345,9 @@ class VulkanCudaSineWave : public VulkanBaseApp {
 
     externalMemoryHandleDesc.size = size;
 
+    // https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#importing-memory-objects-vul-int
+    externalMemoryHandleDesc.flags |= cudaExternalMemoryDedicated;
+
 #ifdef _WIN64
     externalMemoryHandleDesc.handle.win32.handle =
         (HANDLE)getMemHandle(vkMem, handleType);
