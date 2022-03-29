@@ -421,7 +421,6 @@ inline char *sdkFindFilePath(const char *filename,
   }
 
   // File not found
-  printf("\nerror: sdkFindFilePath: file <%s> not found!\n", filename);
   return 0;
 }
 
