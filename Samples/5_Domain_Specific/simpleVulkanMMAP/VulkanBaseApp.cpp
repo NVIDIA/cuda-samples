@@ -622,8 +622,15 @@ void VulkanBaseApp::createDevice() {
     queueCreateInfos.push_back(queueCreateInfo);
   }
 
-  VkPhysicalDeviceFeatures deviceFeatures = {};
-  deviceFeatures.fillModeNonSolid = true;
+  // (SE) change to VkPhysicalDeviceFeatures2 to allow chaining
+  VkPhysicalDeviceFeatures2 deviceFeatures2 = {};
+  deviceFeatures2.features.fillModeNonSolid = true;
+
+  // (SE) add enable for BDA
+  VkPhysicalDeviceBufferAddressFeaturesEXT buffer_device_address_features{};
+  buffer_device_address_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT;
+  buffer_device_address_features.bufferDeviceAddress = VK_TRUE;
+  deviceFeatures2.pNext = &buffer_device_address_features;
 
   VkDeviceCreateInfo createInfo = {};
   createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -632,7 +639,9 @@ void VulkanBaseApp::createDevice() {
   createInfo.queueCreateInfoCount =
       static_cast<uint32_t>(queueCreateInfos.size());
 
-  createInfo.pEnabledFeatures = &deviceFeatures;
+  // (SE) now chained
+  // createInfo.pEnabledFeatures = &deviceFeatures;
+  createInfo.pNext = &deviceFeatures2;
 
   std::vector<const char *> deviceExtensions = getRequiredDeviceExtensions();
   deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);

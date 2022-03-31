@@ -168,8 +168,8 @@ void MonteCarloPiSimulation::computePiCallback(void *args) {
   cbData->m_totalPointsSimulated += cbData->m_numPoints;
   double piValue = 4.0 * ((double)cbData->m_totalPointsInsideCircle /
                           (double)cbData->m_totalPointsSimulated);
-  printf("Approximate Pi value for %zd data points: %lf \n",
-         cbData->m_totalPointsSimulated, piValue);
+  //printf("Approximate Pi value for %zd data points: %lf \n",
+  //       cbData->m_totalPointsSimulated, piValue);
 }
 
 void MonteCarloPiSimulation::getIdealExecutionConfiguration() {

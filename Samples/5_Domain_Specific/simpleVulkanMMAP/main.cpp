@@ -226,6 +226,17 @@ class VulkanCudaPi : public VulkanBaseApp {
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_inCircleBuffer,
         m_inCircleMemory);
 
+    // (SE) get function ptr
+    auto* vkGetBufferDeviceAddressKHR = (PFN_vkGetBufferDeviceAddressKHR)vkGetDeviceProcAddr(m_device, "vkGetBufferDeviceAddressKHR");
+    std::cout << "DEBUG: vkGetBufferDeviceAddressKHR = " << (void*)vkGetBufferDeviceAddressKHR << std::endl;
+  
+    // get BDA for the circle buffer
+    VkBufferDeviceAddressInfoKHR bda_info{VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO_KHR,
+                                          nullptr,
+                                          m_inCircleBuffer};
+    auto bda = vkGetBufferDeviceAddressKHR(m_device, &bda_info);
+    std::cout << "DEBUG: BDA = " << (void*)bda << std::endl;
+
     // Create the semaphore vulkan will signal when it's done with the vertex
     // buffer
     createExternalSemaphore(m_vkSignalSemaphore,
@@ -306,6 +317,8 @@ class VulkanCudaPi : public VulkanBaseApp {
     extensions.push_back(VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME);
     extensions.push_back(VK_KHR_EXTERNAL_SEMAPHORE_FD_EXTENSION_NAME);
 #endif /* _WIN64 */
+    // (SE) add BDA as required device extension
+    extensions.push_back(VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME);
     return extensions;
   }
 
