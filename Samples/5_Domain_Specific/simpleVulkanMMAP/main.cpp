@@ -59,8 +59,8 @@ std::string execution_path;
 class VulkanCudaPi : public VulkanBaseApp {
   typedef struct UniformBufferObject_st { float frame; } UniformBufferObject;
 
-  VkBuffer m_inCircleBuffer, m_xyPositionBuffer;
-  VkDeviceMemory m_inCircleMemory, m_xyPositionMemory;
+  VkBuffer m_inCircleBuffer, m_xyPositionBuffer, m_bdaBuffer;
+  VkDeviceMemory m_inCircleMemory, m_xyPositionMemory, m_bdaMemory;
   VkSemaphore m_vkWaitSemaphore, m_vkSignalSemaphore;
   MonteCarloPiSimulation m_sim;
   UniformBufferObject m_ubo;
@@ -75,8 +75,10 @@ class VulkanCudaPi : public VulkanBaseApp {
       : VulkanBaseApp("simpleVulkanMMAP", ENABLE_VALIDATION),
         m_inCircleBuffer(VK_NULL_HANDLE),
         m_xyPositionBuffer(VK_NULL_HANDLE),
+        m_bdaBuffer(VK_NULL_HANDLE),
         m_inCircleMemory(VK_NULL_HANDLE),
         m_xyPositionMemory(VK_NULL_HANDLE),
+        m_bdaMemory(VK_NULL_HANDLE),
         m_sim(num_points),
         m_ubo(),
         m_stream(0),
@@ -122,6 +124,12 @@ class VulkanCudaPi : public VulkanBaseApp {
     }
     if (m_inCircleMemory != VK_NULL_HANDLE) {
       vkFreeMemory(m_device, m_inCircleMemory, nullptr);
+    }
+    if (m_bdaBuffer != VK_NULL_HANDLE) {
+      vkDestroyBuffer(m_device, m_bdaBuffer, nullptr);
+    }
+    if (m_bdaMemory != VK_NULL_HANDLE) {
+      vkFreeMemory(m_device, m_bdaMemory, nullptr);
     }
   }
 
@@ -226,14 +234,21 @@ class VulkanCudaPi : public VulkanBaseApp {
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_inCircleBuffer,
         m_inCircleMemory);
 
+    importExternalBuffer(
+        (void*)(uintptr_t)m_sim.getBDAShareableHandle(),
+        getDefaultMemHandleType(), sizeof(float) * 2,
+        VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_bdaBuffer,
+        m_bdaMemory);
+
     // (SE) get function ptr
     auto* vkGetBufferDeviceAddressKHR = (PFN_vkGetBufferDeviceAddressKHR)vkGetDeviceProcAddr(m_device, "vkGetBufferDeviceAddressKHR");
     std::cout << "DEBUG: vkGetBufferDeviceAddressKHR = " << (void*)vkGetBufferDeviceAddressKHR << std::endl;
   
-    // get BDA for the circle buffer
+    // get BDA
     VkBufferDeviceAddressInfoKHR bda_info{VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO_KHR,
                                           nullptr,
-                                          m_inCircleBuffer};
+                                          m_bdaBuffer};
     auto bda = vkGetBufferDeviceAddressKHR(m_device, &bda_info);
     std::cout << "DEBUG: BDA = " << (void*)bda << std::endl;
 

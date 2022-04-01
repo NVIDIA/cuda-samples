@@ -201,7 +201,7 @@ void MonteCarloPiSimulation::getIdealExecutionConfiguration() {
 void MonteCarloPiSimulation::setupSimulationAllocations() {
   CUdeviceptr d_ptr = 0U;
   size_t granularity = 0;
-  CUmemGenericAllocationHandle cudaPositionHandle, cudaInCircleHandle;
+  CUmemGenericAllocationHandle cudaPositionHandle, cudaInCircleHandle, cudaBDAHandle;
 
   CUmemAllocationProp allocProp = {};
   allocProp.type = CU_MEM_ALLOCATION_TYPE_PINNED;
@@ -222,11 +222,13 @@ void MonteCarloPiSimulation::setupSimulationAllocations() {
 
   size_t xyPositionVecSize = m_numPoints * sizeof(*m_xyVector);
   size_t inCircleVecSize = m_numPoints * sizeof(*m_pointsInsideCircle);
+  size_t bdaVecSize = sizeof(float) * 2;
 
   size_t xyPositionSize =
       ROUND_UP_TO_GRANULARITY(xyPositionVecSize, granularity);
   size_t inCircleSize = ROUND_UP_TO_GRANULARITY(inCircleVecSize, granularity);
-  m_totalAllocationSize = (xyPositionSize + inCircleSize);
+  size_t bdaSize = ROUND_UP_TO_GRANULARITY(bdaVecSize, granularity);
+  m_totalAllocationSize = (xyPositionSize + inCircleSize + bdaSize);
 
   // Reserve the required contiguous VA space for the allocations
   checkCudaErrors(
@@ -240,6 +242,8 @@ void MonteCarloPiSimulation::setupSimulationAllocations() {
       cuMemCreate(&cudaPositionHandle, xyPositionSize, &allocProp, 0));
   checkCudaErrors(
       cuMemCreate(&cudaInCircleHandle, inCircleSize, &allocProp, 0));
+  checkCudaErrors(
+      cuMemCreate(&cudaBDAHandle, bdaSize, &allocProp, 0));
 
   // Export the allocation to a platform-specific handle. The type of handle
   // requested here must match the requestedHandleTypes field in the prop
@@ -250,9 +254,12 @@ void MonteCarloPiSimulation::setupSimulationAllocations() {
   checkCudaErrors(
       cuMemExportToShareableHandle((void *)&m_inCircleShareableHandle,
                                    cudaInCircleHandle, ipcHandleTypeFlag, 0));
+  checkCudaErrors(cuMemExportToShareableHandle(
+      (void *)&m_bdaShareableHandle, cudaBDAHandle, ipcHandleTypeFlag, 0));
 
   CUdeviceptr va_position = d_ptr;
   CUdeviceptr va_InCircle = va_position + xyPositionSize;
+  CUdeviceptr va_BDA = va_InCircle + inCircleSize;
   m_pointsInsideCircle = (float *)va_InCircle;
   m_xyVector = (vec2 *)va_position;
 
@@ -261,6 +268,8 @@ void MonteCarloPiSimulation::setupSimulationAllocations() {
       cuMemMap(va_position, xyPositionSize, 0, cudaPositionHandle, 0));
   checkCudaErrors(
       cuMemMap(va_InCircle, inCircleSize, 0, cudaInCircleHandle, 0));
+  checkCudaErrors(
+      cuMemMap(va_BDA, bdaSize, 0, cudaBDAHandle, 0));
 
   // Release the handles for the allocation. Since the allocation is currently
   // mapped to a VA range with a previous call to cuMemMap the actual freeing of
@@ -268,6 +277,7 @@ void MonteCarloPiSimulation::setupSimulationAllocations() {
   // allocation will be kept live until it is unmapped.
   checkCudaErrors(cuMemRelease(cudaPositionHandle));
   checkCudaErrors(cuMemRelease(cudaInCircleHandle));
+  checkCudaErrors(cuMemRelease(cudaBDAHandle));
 
   CUmemAccessDesc accessDescriptor = {};
   accessDescriptor.location.id = m_cudaDevice;
@@ -278,6 +288,10 @@ void MonteCarloPiSimulation::setupSimulationAllocations() {
   // Read-Write access to the range.
   checkCudaErrors(
       cuMemSetAccess(d_ptr, m_totalAllocationSize, &accessDescriptor, 1));
+
+  // fill the BDA buffer with something
+  const float bdaValues[2] = { 42.0f, 17.0f };
+  cuMemcpyHtoD(va_BDA, &bdaValues[0], sizeof(float) * 2);
 }
 
 void MonteCarloPiSimulation::cleanupSimulationAllocations() {
@@ -290,6 +304,7 @@ void MonteCarloPiSimulation::cleanupSimulationAllocations() {
 
     checkIpcErrors(ipcCloseShareableHandle(m_posShareableHandle));
     checkIpcErrors(ipcCloseShareableHandle(m_inCircleShareableHandle));
+    checkIpcErrors(ipcCloseShareableHandle(m_bdaShareableHandle));
 
     // Free the virtual address region.
     checkCudaErrors(

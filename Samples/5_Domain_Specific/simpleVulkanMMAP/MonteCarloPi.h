@@ -61,7 +61,7 @@ class MonteCarloPiSimulation {
   // Shareable Handles(a file descriptor on Linux and NT Handle on Windows),
   // used for sharing cuda
   // allocated memory with Vulkan
-  ShareableHandle m_posShareableHandle, m_inCircleShareableHandle;
+  ShareableHandle m_posShareableHandle, m_inCircleShareableHandle, m_bdaShareableHandle;
 
   // Cuda Device corresponding to the Vulkan Physical device
   int m_cudaDevice;
@@ -90,6 +90,7 @@ class MonteCarloPiSimulation {
   ShareableHandle &getInCircleShareableHandle() {
     return m_inCircleShareableHandle;
   }
+  ShareableHandle &getBDAShareableHandle() { return m_bdaShareableHandle; }
 };
 
 #endif  // __PISIM_H__
