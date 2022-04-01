@@ -71,6 +71,7 @@ class VulkanCudaPi : public VulkanBaseApp {
   using chrono_tp = std::chrono::time_point<std::chrono::high_resolution_clock>;
   chrono_tp m_lastTime;
   size_t m_lastFrame;
+  uint64_t m_bdaBufferBaseAddress;
 
  public:
   VulkanCudaPi(size_t num_points)
@@ -88,7 +89,8 @@ class VulkanCudaPi : public VulkanBaseApp {
         m_vkSignalSemaphore(VK_NULL_HANDLE),
         m_cudaWaitSemaphore(),
         m_cudaSignalSemaphore(),
-        m_lastFrame(0) {
+        m_lastFrame(0),
+        m_bdaBufferBaseAddress(0) {
     // Add our compiled vulkan shader files
     char* vertex_shader_path =
         sdkFindFilePath("vert.spv", execution_path.c_str());
@@ -141,6 +143,12 @@ class VulkanCudaPi : public VulkanBaseApp {
     vkCmdBindVertexBuffers(commandBuffer, 0,
                            sizeof(vertexBuffers) / sizeof(vertexBuffers[0]),
                            vertexBuffers, offsets);
+    vkCmdPushConstants(commandBuffer,
+                       m_pipelineLayout,
+                       VK_SHADER_STAGE_VERTEX_BIT,
+                       0,
+                       sizeof(uint64_t),
+                       &m_bdaBufferBaseAddress);
     vkCmdDraw(commandBuffer, (uint32_t)(m_sim.getNumPoints()), 1, 0, 0);
   }
 
@@ -252,9 +260,9 @@ class VulkanCudaPi : public VulkanBaseApp {
     VkBufferDeviceAddressInfoKHR bda_info{VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO_KHR,
                                           nullptr,
                                           m_bdaBuffer};
-    auto bda = vkGetBufferDeviceAddressKHR(m_device, &bda_info);
-    assert(bda);
-    std::cout << "DEBUG: BDA = " << (void*)bda << std::endl;
+    m_bdaBufferBaseAddress = vkGetBufferDeviceAddressKHR(m_device, &bda_info);
+    assert(m_bdaBufferBaseAddress);
+    std::cout << "DEBUG: BDA = " << (void*)m_bdaBufferBaseAddress << std::endl;
 
     // Create the semaphore vulkan will signal when it's done with the vertex
     // buffer

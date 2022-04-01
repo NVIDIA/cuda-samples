@@ -290,7 +290,7 @@ void MonteCarloPiSimulation::setupSimulationAllocations() {
       cuMemSetAccess(d_ptr, m_totalAllocationSize, &accessDescriptor, 1));
 
   // fill the BDA buffer with something
-  const float bdaValues[2] = { 42.0f, 17.0f };
+  const float bdaValues[2] = { 0.2f, 0.2f };
   cuMemcpyHtoD(va_BDA, &bdaValues[0], sizeof(float) * 2);
 }
 

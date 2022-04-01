@@ -1083,8 +1083,14 @@ void VulkanBaseApp::createGraphicsPipeline() {
   pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
   pipelineLayoutInfo.setLayoutCount = 1;                    // Optional
   pipelineLayoutInfo.pSetLayouts = &m_descriptorSetLayout;  // Optional
-  pipelineLayoutInfo.pushConstantRangeCount = 0;            // Optional
-  pipelineLayoutInfo.pPushConstantRanges = nullptr;         // Optional
+
+  VkPushConstantRange pcr{};
+  pcr.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+  pcr.offset = 0;
+  pcr.size = sizeof(uint64_t);
+
+  pipelineLayoutInfo.pushConstantRangeCount = 1;
+  pipelineLayoutInfo.pPushConstantRanges = &pcr;
 
   if (vkCreatePipelineLayout(m_device, &pipelineLayoutInfo, nullptr,
                              &m_pipelineLayout) != VK_SUCCESS) {
