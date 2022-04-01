@@ -39,6 +39,8 @@
 #include <chrono>
 #include <algorithm>
 
+#include <assert.h>
+
 #include "MonteCarloPi.h"
 #include <helper_cuda.h>
 #include <cuda.h>
@@ -243,6 +245,7 @@ class VulkanCudaPi : public VulkanBaseApp {
 
     // (SE) get function ptr
     auto* vkGetBufferDeviceAddressKHR = (PFN_vkGetBufferDeviceAddressKHR)vkGetDeviceProcAddr(m_device, "vkGetBufferDeviceAddressKHR");
+    assert(vkGetBufferDeviceAddressKHR);
     std::cout << "DEBUG: vkGetBufferDeviceAddressKHR = " << (void*)vkGetBufferDeviceAddressKHR << std::endl;
   
     // get BDA
@@ -250,6 +253,7 @@ class VulkanCudaPi : public VulkanBaseApp {
                                           nullptr,
                                           m_bdaBuffer};
     auto bda = vkGetBufferDeviceAddressKHR(m_device, &bda_info);
+    assert(bda);
     std::cout << "DEBUG: BDA = " << (void*)bda << std::endl;
 
     // Create the semaphore vulkan will signal when it's done with the vertex
