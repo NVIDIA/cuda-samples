@@ -27,6 +27,8 @@
  
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
+#extension GL_ARB_gpu_shader_int64 : require
+#extension GL_EXT_buffer_reference2 : enable
 
 layout(binding = 0) uniform UniformBufferObject {
     float frame;
@@ -44,10 +46,33 @@ out gl_PerVertex
     vec4 gl_Position;
     float gl_PointSize;
 };
- 
+
+layout(buffer_reference, std430, buffer_reference_align = 4) buffer BufferFloat {
+  float f[];
+};
+
+layout(push_constant, std430) uniform Registers
+{
+  uint64_t base_address;
+} registers;
+
+layout(std430, binding = 0) buffer CUDA_SSBO {
+  float coords[2];
+} cuda_ssbo;
+
 void main() {
     gl_PointSize = 1.0;
     gl_Position = vec4(xyPos.xy, 0.0f, 1.0f);
+
+#if 0
+    gl_Position.x += cuda_ssbo.coords[0];
+    gl_Position.y += cuda_ssbo.coords[1];
+#endif
+#if 0
+    gl_Position.x += BufferFloat(registers.base_address).f[0];
+    gl_Position.y += BufferFloat(registers.base_address).f[1];
+#endif
+
     float color_r = 1.0f + 0.5f * sin(ubo.frame / 100.0f);
     float color_g = 1.0f + 0.5f * sin((ubo.frame / 100.0f) + (2.0f*PI/3.0f));
     float color_b = 1.0f;
