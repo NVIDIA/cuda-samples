@@ -23,7 +23,7 @@
   <PropertyGroup>
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
@@ -99,7 +99,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <CudaCompile Include="simpleCudaGraphs.cu" />
-
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
