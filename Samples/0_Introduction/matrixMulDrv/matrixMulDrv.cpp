@@ -1,4 +1,4 @@
-/* Copyright (c) 2022, NVIDIA CORPORATION. All rights reserved.
+/* Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -74,8 +74,7 @@ void randomInit(float *, int);
 extern "C" void computeGold(float *, const float *, const float *, unsigned int,
                             unsigned int, unsigned int);
 
-static int initCUDA(int argc, char **argv, CUfunction *pMatrixMul,
-                    int *blk_size);
+static int initCUDA(int argc, char **argv, CUfunction *pMatrixMul);
 
 #ifndef FATBIN_FILE
 #define FATBIN_FILE "matrixMul_kernel64.fatbin"
@@ -112,9 +111,9 @@ int main(int argc, char **argv) {
 void runTest(int argc, char **argv) {
   // initialize CUDA
   CUfunction matrixMul = NULL;
-  int block_size = 0;
+  int block_size = 32;
 
-  initCUDA(argc, argv, &matrixMul, &block_size);
+  initCUDA(argc, argv, &matrixMul);
 
   // set seed for rand()
   srand(2006);
@@ -167,14 +166,14 @@ void runTest(int argc, char **argv) {
 
   if (1) {
     // This is the new CUDA 4.0 API for Kernel Parameter passing and Kernel
-    // Launching (simplier method)
-    size_t Matrix_Width_A = (size_t)WA;
-    size_t Matrix_Width_B = (size_t)WB;
-    void *args[5] = {&d_C, &d_A, &d_B, &Matrix_Width_A, &Matrix_Width_B};
-    // new CUDA 4.0 Driver API Kernel launch call
-    checkCudaErrors(cuLaunchKernel(
-        matrixMul, grid.x, grid.y, grid.z, block.x, block.y, block.z,
-        2 * block_size * block_size * sizeof(float), NULL, args, NULL));
+    // Launching (simpler method)
+      size_t Matrix_Width_A = (size_t)WA;
+      size_t Matrix_Width_B = (size_t)WB;
+      void *args[5] = {&d_C, &d_A, &d_B, &Matrix_Width_A, &Matrix_Width_B};
+      // new CUDA 4.0 Driver API Kernel launch call
+      checkCudaErrors(cuLaunchKernel(
+          matrixMul, grid.x, grid.y, grid.z, block.x, block.y, block.z,
+          2 * block_size * block_size * sizeof(float), NULL, args, NULL));
   } else {
     // This is the new CUDA 4.0 API for Kernel Parameter passing and Kernel
     // Launching (advanced method)
@@ -190,8 +189,8 @@ void runTest(int argc, char **argv) {
     *(reinterpret_cast<CUdeviceptr *>(&argBuffer[offset])) = d_B;
     offset += sizeof(d_B);
 
-    size_t Matrix_Width_A = (size_t)WA;
-    size_t Matrix_Width_B = (size_t)WB;
+      size_t Matrix_Width_A = (size_t)WA;
+      size_t Matrix_Width_B = (size_t)WB;
 
     *(reinterpret_cast<CUdeviceptr *>(&argBuffer[offset])) = Matrix_Width_A;
     offset += sizeof(Matrix_Width_A);
@@ -230,8 +229,9 @@ void runTest(int argc, char **argv) {
 
   printf("%s\n", correct ? "Result = PASS" : "Result = FAIL");
 
-  printf("\nNOTE: The CUDA Samples are not meant for performance measurements. "
-         "Results may vary when GPU Boost is enabled.\n");
+  printf(
+      "\nNOTE: The CUDA Samples are not meant for performance measurements. "
+      "Results may vary when GPU Boost is enabled.\n");
 
   // clean up memory
   free(h_A);
@@ -250,9 +250,9 @@ void randomInit(float *data, int size) {
   }
 }
 
-static int initCUDA(int argc, char **argv, CUfunction *pMatrixMul,
-                    int *blk_size) {
+static int initCUDA(int argc, char **argv, CUfunction *pMatrixMul) {
   CUfunction cuFunction = 0;
+  CUresult status;
   int major = 0, minor = 0;
   char deviceName[100];
 
@@ -276,45 +276,26 @@ static int initCUDA(int argc, char **argv, CUfunction *pMatrixMul,
   std::string module_path;
   std::ostringstream fatbin;
 
-  if (!findFatbinPath(FATBIN_FILE, module_path, argv, fatbin)) {
-    exit(EXIT_FAILURE);
-  } else {
-    printf("> initCUDA loading module: <%s>\n", module_path.c_str());
+  if (!findFatbinPath(FATBIN_FILE, module_path, argv, fatbin))
+  {
+      exit(EXIT_FAILURE);
+  }
+  else
+  {
+      printf("> initCUDA loading module: <%s>\n", module_path.c_str());
   }
 
-  if (!fatbin.str().size()) {
-    printf("fatbin file empty. exiting..\n");
-    exit(EXIT_FAILURE);
+  if (!fatbin.str().size())
+  {
+      printf("fatbin file empty. exiting..\n");
+      exit(EXIT_FAILURE);
   }
 
-  // Create module from binary file (FATBIN)
+    // Create module from binary file (FATBIN)
   checkCudaErrors(cuModuleLoadData(&cuModule, fatbin.str().c_str()));
-
-  // select the suitable kernel function
-  const char *kernels[] = {"matrixMul_bs32_64bit", "matrixMul_bs16_64bit",
-                           "matrixMul_bs8_64bit"};
-
-  int idx = 0;
-  int block_size = 32;
-  while (idx < 3) {
-    int threadsPerBlock = 0;
-    int blocksPerGrid = 0;
-
-    checkCudaErrors(cuModuleGetFunction(&cuFunction, cuModule, kernels[idx]));
-    checkCudaErrors(cuOccupancyMaxPotentialBlockSize(
-        &blocksPerGrid, &threadsPerBlock, cuFunction, 0,
-        2 * block_size * block_size * sizeof(float), 0));
-    if (block_size * block_size <= threadsPerBlock) {
-      printf("> %d block size selected\n", block_size);
-      break;
-    } else {
-      block_size /= 2;
-    }
-    idx++;
-  }
+  checkCudaErrors(cuModuleGetFunction(&cuFunction, cuModule, "matrixMul_bs32_64bit"));
 
   *pMatrixMul = cuFunction;
-  *blk_size = block_size;
 
   return 0;
 }
