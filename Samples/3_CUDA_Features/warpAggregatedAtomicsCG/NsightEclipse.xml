@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
+<entry>
+  <name>warpAggregatedAtomicsCG</name>
+  <cflags>
+    <flag>--std=c++11</flag>
+  </cflags>
+  <cuda_api_list>
+    <toolkit>cudaMemset</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaDeviceGetAttribute</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaMemcpy</toolkit>
+  </cuda_api_list>
+  <description><![CDATA[This sample demonstrates how using Cooperative Groups (CG) to perform warp aggregated atomics to single and multiple counters, a useful technique to improve performance when many threads atomically add to a single or multiple counters.]]></description>
+  <includepaths>
+    <path>./</path>
+    <path>../</path>
+    <path>../../../Common</path>
+  </includepaths>
+  <keyconcepts>
+    <concept level="basic">Cooperative Groups</concept>
+    <concept level="basic">Atomic Intrinsics</concept>
+  </keyconcepts>
+  <keywords>
+    <keyword>GPGPU</keyword>
+    <keyword>Cooperative Groups</keyword>
+    <keyword>Atomic</keyword>
+    <keyword>CPP11</keyword>
+  </keywords>
+  <libraries>
+  </libraries>
+  <librarypaths>
+  </librarypaths>
+  <nsight_eclipse>true</nsight_eclipse>
+  <primary_file>warpAggregatedAtomicsCG.cu</primary_file>
+  <scopes>
+    <scope>1:CUDA Advanced Topics</scope>
+  </scopes>
+  <sm-arch>sm35</sm-arch>
+  <sm-arch>sm37</sm-arch>
+  <sm-arch>sm50</sm-arch>
+  <sm-arch>sm52</sm-arch>
+  <sm-arch>sm53</sm-arch>
+  <sm-arch>sm60</sm-arch>
+  <sm-arch>sm61</sm-arch>
+  <sm-arch>sm70</sm-arch>
+  <sm-arch>sm72</sm-arch>
+  <sm-arch>sm75</sm-arch>
+  <sm-arch>sm80</sm-arch>
+  <sm-arch>sm86</sm-arch>
+  <sm-arch>sm87</sm-arch>
+  <supported_envs>
+    <env>
+      <arch>x86_64</arch>
+      <platform>linux</platform>
+    </env>
+    <env>
+      <arch>ppc64le</arch>
+      <platform>linux</platform>
+    </env>
+    <env>
+      <arch>x86_64</arch>
+      <platform>macosx</platform>
+    </env>
+    <env>
+      <platform>windows7</platform>
+    </env>
+    <env>
+      <arch>arm</arch>
+    </env>
+    <env>
+      <arch>aarch64</arch>
+    </env>
+    <env>
+      <arch>sbsa</arch>
+    </env>
+  </supported_envs>
+  <supported_sm_architectures>
+    <from>3.5</from>
+  </supported_sm_architectures>
+  <title>Warp Aggregated Atomics using Cooperative Groups</title>
+</entry>

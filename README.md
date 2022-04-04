@@ -1,99 +1,23 @@
 # CUDA Samples
 
-Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This version supports [CUDA Toolkit 11.1](https://developer.nvidia.com/cuda-downloads).
+Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This version supports [CUDA Toolkit 11.6](https://developer.nvidia.com/cuda-downloads).
 
 ## Release Notes
 
 This section describes the release notes for the CUDA Samples on GitHub only.
 
-### CUDA 11.1
-*  Added `watershedSegmentationNPP`. Demonstrates how to use the NPP watershed segmentation function.
-*  Added `batchedLabelMarkersAndLabelCompressionNPP`. Demonstrates how to use the NPP label markers generation and label compression functions based on a Union Find (UF) algorithm including both single image and batched image versions.
-*  Dropped Visual Studio 2012, 2013 support from all the windows supported samples.
-*  Added kernel performing warp aggregated atomic max in multi buckets using cg::labeled_partition & cg::reduce in `warpAggregatedAtomicsCG`.
-*  Added extended CG shuffle mechanics to `shfl_scan` sample.
-*  Added `cudaOpenMP`. Demonstrates how to use OpenMP API to write an application for multiple GPUs.
-*  Added `simpleZeroCopy`. Demonstrates how to use zero copy, kernels can read and write directly to pinned system memory.
+### CUDA 11.6
+* Added new folder structure for samples
+* Added support of Visual Studio 2022 to all samples supported on [Windows](#windows-1).
+* All CUDA samples are now only available on [GitHub](https://github.com/nvidia/cuda-samples). They are no longer available via CUDA toolkit.
 
-### CUDA 11.0
-*  Added `dmmaTensorCoreGemm`. Demonstrates double precision GEMM computation using the Double precision Warp Matrix Multiply and Accumulate (WMMA) API introduced with CUDA 11 in Ampere chip family tensor cores.
-*  Added `bf16TensorCoreGemm`. Demonstrates __nv_bfloat16 (e8m7) GEMM computation using the __nv_bfloat16 WMMA API introduced with CUDA 11 in Ampere chip family tensor cores.
-*  Added `tf32TensorCoreGemm`. Demonstrates tf32 (e8m10) GEMM computation using the tf32 WMMA API introduced with CUDA 11 in Ampere chip family tensor cores.
-*  Added `globalToShmemAsyncCopy`. Demonstrates async copy of data from global to shared memory when on compute capability 8.0 or higher. Also demonstrates arrive-wait barrier for synchronization.
-*  Added `simpleAWBarrier`. Demonstrates arrive wait barriers.
-*  Added `simpleAttributes`. Demonstrates the stream attributes that affect L2 locality.
-*  Added warp aggregated atomic multi bucket increments kernel using labeled_partition cooperative groups in `warpAggregatedAtomicsCG` which can be used on compute capability 7.0 and above GPU architectures.
-*  Added `binaryPartitionCG`. Demonstrates  binary partition cooperative groups and reduction within the thread block.
-*  Added two new reduction kernels in `reduction` one which demonstrates reduce_add_sync intrinstic supported on compute capability 8.0 and another which uses cooperative_groups::reduce function which does thread_block_tile level reduction introduced from CUDA 11.0.
-*  Added `cudaCompressibleMemory`. Demonstrates compressible memory allocation using cuMemMap API.
-*  Added `simpleVulkanMMAP`. Demonstrates Vulkan CUDA Interop via cuMemMap APIs.
-*  Added `concurrentKernels`. Demonstrates the use of CUDA streams for concurrent execution of several kernels on a GPU.
-*  Dropped Mac OSX support from all samples.
-
-### CUDA 10.2
-*  Added `simpleD3D11`. Demonstrates CUDA-D3D11 External Resource Interoperability APIs for updating D3D11 buffers from CUDA and synchronization between D3D11 and CUDA with Keyed Mutexes.
-*  Added `simpleDrvRuntime`. Demonstrates CUDA Driver and Runtime APIs working together to load fatbinary of a CUDA kernel.
-*  Added `vectorAddMMAP`. Demonstrates how cuMemMap API allows the user to specify the physical properties of their memory while retaining the contiguous nature of their access.
-*  Added `memMapIPCDrv`. Demonstrates Inter Process Communication using cuMemMap APIs.
-*  Added `cudaNvSci`. Demonstrates CUDA-NvSciBuf/NvSciSync Interop.
-*  Added `jacobiCudaGraphs`. Demonstrates Instantiated CUDA Graph Update with Jacobi Iterative Method using different approaches.
-*  Added `cuSolverSp_LinearSolver`. Demonstrates cuSolverSP's LU, QR and Cholesky factorization.
-*  Added `MersenneTwisterGP11213`. Demonstrates the Mersenne Twister random number generator GP11213 in cuRAND.
-
-### CUDA 10.1 Update 2
-*  Added `vulkanImageCUDA`. Demonstrates how to perform Vulkan image - CUDA Interop.
-*  Added `nvJPEG_encoder`. Demonstrates encoding of jpeg images using NVJPEG Library.
-*  Added Windows OS support to `nvJPEG` sample.
-*  Added `boxFilterNPP`. Demonstrates how to use NPP FilterBox function to perform a box filter.
-*  Added `cannyEdgeDetectorNPP`. Demonstrates the nppiFilterCannyBorder_8u_C1R Canny Edge Detection image filter function.
-
-### CUDA 10.1 Update 1
-*  Added `NV12toBGRandResize`. Demonstrates how to convert and resize NV12 frames to BGR planars frames using CUDA in batch.
-*  Added `EGLStream_CUDA_Interop`. Demonstrates data exchange between CUDA and EGL Streams.
-*  Added `cuSolverDn_LinearSolver`. Demonstrates cuSolverDN's LU, QR and Cholesky factorization.
-*  Added support of Visual Studio 2019 to all samples supported on [Windows](#windows-1).
-
-### CUDA 10.1
-*  Added `immaTensorCoreGemm`. Demonstrates integer GEMM computation using the Warp Matrix Multiply and Accumulate (WMMA) API for integers employing the Tensor Cores.
-*  Added `simpleIPC`. Demonstrates Inter Process Communication with one process per GPU for computation.
-*  Added `nvJPEG`. Demonstrates single and batched decoding of jpeg images using NVJPEG Library.
-*  Added `bandwidthTest`. It measures the memcopy bandwidth of the GPU and memcpy bandwidth across PCI-e.
-*  Added `reduction`. Demonstrates several important optimization strategies for Data-Parallel Algorithms like reduction.
-*  Update all the samples to support CUDA 10.1.
-
-### CUDA 10.0
-*  Added `simpleCudaGraphs`. Demonstrates CUDA Graphs creation, instantiation and launch using Graphs APIs and Stream Capture APIs.
-*  Added `conjugateGradientCudaGraphs`. Demonstrates conjugate gradient solver on GPU using CUBLAS and CUSPARSE library calls captured and called using CUDA Graph APIs.
-*  Added `simpleVulkan`. Demonstrates Vulkan - CUDA Interop.
-*  Added `simpleD3D12`. Demonstrates DX12 - CUDA Interop.
-*  Added `UnifiedMemoryPerf`. Demonstrates performance comparision of various memory types involved in system.
-*  Added `p2pBandwidthLatencyTest`. Demonstrates Peer-To-Peer (P2P) data transfers between pairs of GPUs and computes latency and bandwidth.
-*  Added `systemWideAtomics`. Demonstrates system wide atomic instructions.
-*  Added `simpleCUBLASXT`. Demonstrates CUBLAS-XT library which performs GEMM operations over multiple GPUs.
-*  Added Windows OS support to `conjugateGradientMultiDeviceCG` sample.
-*  Removed support of Visual Studio 2010 from all samples.
-
-### CUDA 9.2
-
-This is the first release of CUDA Samples on GitHub:
-*  Added `vectorAdd_nvrtc`. Demonstrates runtime compilation library using NVRTC of a simple vectorAdd kernel.
-*  Added `warpAggregatedAtomicsCG`. Demonstrates warp aggregated atomics using Cooperative Groups.
-*  Added `deviceQuery`. Enumerates the properties of the CUDA devices present in the system.
-*  Added `matrixMul`. Demonstrates a matrix multiplication using shared memory through tiled approach.
-*  Added `matrixMulDrv`. Demonstrates a matrix multiplication using shared memory through tiled approach, uses CUDA Driver API.
-*  Added `cudaTensorCoreGemm`. Demonstrates a GEMM computation using the Warp Matrix Multiply and Accumulate (WMMA) API introduced in CUDA 9, as well as the new Tensor Cores introduced in the Volta chip family.
-*  Added `simpleVoteIntrinsics` which uses *_sync equivalent of the vote intrinsics _any, _all added since CUDA 9.0.
-*  Added `shfl_scan` which uses *_sync equivalent of the shfl intrinsics added since CUDA 9.0.
-*  Added `conjugateGradientMultiBlockCG`. Demonstrates a conjugate gradient solver on GPU using Multi Block Cooperative Groups.
-*  Added `conjugateGradientMultiDeviceCG`. Demonstrates a conjugate gradient solver on multiple GPUs using Multi Device Cooperative Groups, also uses unified memory prefetching and usage hints APIs.
-*  Added `simpleCUBLAS`. Demonstrates how perform GEMM operations using CUBLAS library.
-*  Added `simpleCUFFT`. Demonstrates how perform FFT operations using CUFFT library.
+### [older versions...](./CHANGELOG.md)
 
 ## Getting Started
 
 ### Prerequisites
 
-Download and install the [CUDA Toolkit 11.1](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit 11.6](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 For system requirements and installation instructions of cuda toolkit, please refer to the [Linux Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/), and the [Windows Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html).
 
 ### Getting the CUDA Samples
@@ -147,39 +71,26 @@ The samples makefiles can take advantage of certain options:
 
 ## Samples list
 
-### Samples by OS
+### [0. Introduction](./Samples/0_Introduction/README.md)
+Basic CUDA samples for beginners that illustrate key concepts with using CUDA and CUDA runtime APIs.
 
-#### Linux
-**[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[boxFilterNPP](./Samples/boxFilterNPP)** | **[binaryPartitionCG](./Samples/binaryPartitionCG)** | **[dmmaTensorCoreGemm](./Samples/dmmaTensorCoreGemm)** |
----|---|---|---|
-**[EGLStream_CUDA_Interop](./Samples/EGLStream_CUDA_Interop)** | **[conjugateGradientMultiBlockCG](./Samples/conjugateGradientMultiBlockCG)** | **[simpleIPC](./Samples/simpleIPC)** | **[memMapIPCDrv](./Samples/memMapIPCDrv)** |
-**[vectorAddMMAP](./Samples/vectorAddMMAP)** | **[shfl_scan](./Samples/shfl_scan)** | **[simpleZeroCopy](./Samples/simpleZeroCopy)** | **[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** |
-**[globalToShmemAsyncCopy](./Samples/globalToShmemAsyncCopy)** | **[nvJPEG](./Samples/nvJPEG)** | **[batchedLabelMarkersAndLabelCompressionNPP](./Samples/batchedLabelMarkersAndLabelCompressionNPP)** | **[watershedSegmentationNPP](./Samples/watershedSegmentationNPP)** |
-**[simpleCudaGraphs](./Samples/simpleCudaGraphs)** | **[deviceQuery](./Samples/deviceQuery)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[simpleCUBLASXT](./Samples/simpleCUBLASXT)** |
-**[simpleAttributes](./Samples/simpleAttributes)** | **[cudaNvSci](./Samples/cudaNvSci)** | **[tf32TensorCoreGemm](./Samples/tf32TensorCoreGemm)** | **[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** |
-**[cudaCompressibleMemory](./Samples/cudaCompressibleMemory)** | **[bf16TensorCoreGemm](./Samples/bf16TensorCoreGemm)** | **[cuSolverDn_LinearSolver](./Samples/cuSolverDn_LinearSolver)** | **[vulkanImageCUDA](./Samples/vulkanImageCUDA)** |
-**[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** | **[matrixMulDrv](./Samples/matrixMulDrv)** | **[cuSolverSp_LinearSolver](./Samples/cuSolverSp_LinearSolver)** | **[simpleCUFFT](./Samples/simpleCUFFT)** |
-**[reduction](./Samples/reduction)** | **[nvJPEG_encoder](./Samples/nvJPEG_encoder)** | **[simpleDrvRuntime](./Samples/simpleDrvRuntime)** | **[MersenneTwisterGP11213](./Samples/MersenneTwisterGP11213)** |
-**[simpleAWBarrier](./Samples/simpleAWBarrier)** | **[immaTensorCoreGemm](./Samples/immaTensorCoreGemm)** | **[bandwidthTest](./Samples/bandwidthTest)** | **[concurrentKernels](./Samples/concurrentKernels)** |
-**[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[NV12toBGRandResize](./Samples/NV12toBGRandResize)** | **[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[jacobiCudaGraphs](./Samples/jacobiCudaGraphs)** |
-**[simpleVulkan](./Samples/simpleVulkan)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[cannyEdgeDetectorNPP](./Samples/cannyEdgeDetectorNPP)** | **[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** |
-**[simpleVulkanMMAP](./Samples/simpleVulkanMMAP)** | **[cudaOpenMP](./Samples/cudaOpenMP)** | **[matrixMul](./Samples/matrixMul)** | **[systemWideAtomics](./Samples/systemWideAtomics)** |
+### [1. Utilities](./Samples/1_Utilities/README.md)
+Utility samples that demonstrate how to query device capabilities and measure GPU/CPU bandwidth.
 
-#### Windows
-**[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[boxFilterNPP](./Samples/boxFilterNPP)** | **[binaryPartitionCG](./Samples/binaryPartitionCG)** | **[dmmaTensorCoreGemm](./Samples/dmmaTensorCoreGemm)** |
----|---|---|---|
-**[conjugateGradientMultiBlockCG](./Samples/conjugateGradientMultiBlockCG)** | **[simpleIPC](./Samples/simpleIPC)** | **[memMapIPCDrv](./Samples/memMapIPCDrv)** | **[vectorAddMMAP](./Samples/vectorAddMMAP)** |
-**[shfl_scan](./Samples/shfl_scan)** | **[simpleZeroCopy](./Samples/simpleZeroCopy)** | **[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** | **[globalToShmemAsyncCopy](./Samples/globalToShmemAsyncCopy)** |
-**[nvJPEG](./Samples/nvJPEG)** | **[batchedLabelMarkersAndLabelCompressionNPP](./Samples/batchedLabelMarkersAndLabelCompressionNPP)** | **[simpleD3D12](./Samples/simpleD3D12)** | **[watershedSegmentationNPP](./Samples/watershedSegmentationNPP)** |
-**[simpleCudaGraphs](./Samples/simpleCudaGraphs)** | **[deviceQuery](./Samples/deviceQuery)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[simpleCUBLASXT](./Samples/simpleCUBLASXT)** |
-**[simpleAttributes](./Samples/simpleAttributes)** | **[tf32TensorCoreGemm](./Samples/tf32TensorCoreGemm)** | **[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** | **[cudaCompressibleMemory](./Samples/cudaCompressibleMemory)** |
-**[bf16TensorCoreGemm](./Samples/bf16TensorCoreGemm)** | **[cuSolverDn_LinearSolver](./Samples/cuSolverDn_LinearSolver)** | **[vulkanImageCUDA](./Samples/vulkanImageCUDA)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** |
-**[matrixMulDrv](./Samples/matrixMulDrv)** | **[cuSolverSp_LinearSolver](./Samples/cuSolverSp_LinearSolver)** | **[simpleCUFFT](./Samples/simpleCUFFT)** | **[reduction](./Samples/reduction)** |
-**[nvJPEG_encoder](./Samples/nvJPEG_encoder)** | **[simpleDrvRuntime](./Samples/simpleDrvRuntime)** | **[simpleD3D11](./Samples/simpleD3D11)** | **[MersenneTwisterGP11213](./Samples/MersenneTwisterGP11213)** |
-**[simpleAWBarrier](./Samples/simpleAWBarrier)** | **[immaTensorCoreGemm](./Samples/immaTensorCoreGemm)** | **[bandwidthTest](./Samples/bandwidthTest)** | **[concurrentKernels](./Samples/concurrentKernels)** |
-**[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[NV12toBGRandResize](./Samples/NV12toBGRandResize)** | **[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[jacobiCudaGraphs](./Samples/jacobiCudaGraphs)** |
-**[simpleVulkan](./Samples/simpleVulkan)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[cannyEdgeDetectorNPP](./Samples/cannyEdgeDetectorNPP)** | **[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** |
-**[simpleVulkanMMAP](./Samples/simpleVulkanMMAP)** | **[cudaOpenMP](./Samples/cudaOpenMP)** | **[matrixMul](./Samples/matrixMul)** |
+### [2. Concepts and Techniques](./Samples/2_Concepts_and_Techniques/README.md)
+Samples that demonstrate CUDA related concepts and common problem solving techniques.
+
+### [3. CUDA Features](./Samples/3_CUDA_Features/README.md)
+Samples that demonstrate CUDA Features (Cooperative Groups, CUDA Dynamic Parallelism, CUDA Graphs etc).
+
+### [4. CUDA Libraries](./Samples/4_CUDA_Libraries/README.md)
+Samples that demonstrate how to use CUDA platform libraries (NPP, NVJPEG, NVGRAPH cuBLAS, cuFFT, cuSPARSE, cuSOLVER and cuRAND).
+
+### [5. Domain Specific](./Samples/5_Domain_Specific/README.md)
+Samples that are specific to domain (Graphics, Finance, Image Processing).
+
+### [6. Performance](./Samples/6_Performance/README.md)
+Samples that demonstrate performance optimization.
 
 ## Dependencies
 
@@ -195,7 +106,9 @@ These third-party dependencies are required by some CUDA samples. If available, 
 
 #### FreeImage
 
-FreeImage is an open source imaging library. FreeImage can usually be installed on Linux using your distribution's package manager system. FreeImage can also be downloaded from the [FreeImage website](http://freeimage.sourceforge.net/). FreeImage is also redistributed with the CUDA Samples.
+FreeImage is an open source imaging library. FreeImage can usually be installed on Linux using your distribution's package manager system. FreeImage can also be downloaded from the FreeImage website.
+
+To set up FreeImage on a Windows system, extract the FreeImage DLL distribution into the folder `../../../Common/FreeImage/Dist/x64` such that it contains the .h and .lib files. Copy the .dll file to root level `bin/win64/Debug` and `bin/win64/Release` folder.
 
 #### Message Passing Interface
 
@@ -250,7 +163,12 @@ EGLOutput is a set of EGL extensions which allow EGL to render directly to the d
 EGLSync is a set of EGL extensions which provides sync objects that are synchronization primitive, representing events whose completion can be tested or waited upon.
 
 #### NVSCI
+
 NvSci is a set of communication interface libraries out of which CUDA interops with NvSciBuf and NvSciSync. NvSciBuf allows applications to allocate and exchange buffers in memory. NvSciSync allows applications to manage synchronization objects which coordinate when sequences of operations begin and end.
+
+#### NvMedia
+
+NvMedia provides powerful processing of multimedia data for true hardware acceleration across NVIDIA Tegra devices. Applications leverage the NvMedia Application Programming Interface (API) to process the image and video data.
 
 ### CUDA Features
 
@@ -341,5 +259,8 @@ Answers to frequently asked questions about CUDA can be found at http://develope
 ## References
 
 *   [CUDA Programming Guide](http://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html)
-*   [Accelerated Computing Blog](https://devblogs.nvidia.com/category/accelerated-computing/)
+*   [Accelerated Computing Blog](https://developer.nvidia.com/blog/?tags=accelerated-computing)
 
+## Attributions
+
+*   Teapot image is obtained from [Wikimedia](https://en.wikipedia.org/wiki/File:Original_Utah_Teapot.jpg) and is licensed under the Creative Commons [Attribution-Share Alike 2.0](https://creativecommons.org/licenses/by-sa/2.0/deed.en) Generic license. The image is modified for samples use cases.

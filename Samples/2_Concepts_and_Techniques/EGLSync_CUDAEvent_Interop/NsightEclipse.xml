@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
+<entry>
+  <name>EGLSync_CUDAEvent_Interop</name>
+  <cuda_api_list>
+    <driver>cuGraphicsEGLRegisterImage</driver>
+    <driver>cuStreamCreate</driver>
+    <driver>cuEventCreate</driver>
+    <driver>cuCtxCreate</driver>
+    <driver>cuGraphicsSubResourceGetMappedArray</driver>
+    <driver>cuGraphicsUnregisterResource</driver>
+    <driver>cuCtxSynchronize</driver>
+    <driver>cuEventCreateFromEGLSync</driver>
+    <driver>cuEventDestroy</driver>
+    <driver>cuStreamWaitEvent</driver>
+    <driver>cuCtxPushCurrent</driver>
+    <driver>cuSurfObjectCreate</driver>
+    <driver>cuInit</driver>
+    <driver>cuEventRecord</driver>
+    <driver>cuDeviceGetAttribute</driver>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaDeviceSynchronize</toolkit>
+    <toolkit>cudaGetValueMismatch</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaMemcpy</toolkit>
+    <toolkit>cudaGetErrorString</toolkit>
+  </cuda_api_list>
+  <description><![CDATA[Demonstrates interoperability between CUDA Event and EGL Sync/EGL Image using which one can achieve synchronization on GPU itself for GL-EGL-CUDA operations instead of blocking CPU for synchronization.]]></description>
+  <devicecompilation>whole</devicecompilation>
+  <includepaths>
+    <path>./</path>
+    <path>../</path>
+    <path>../../../Common</path>
+  </includepaths>
+  <keyconcepts>
+    <concept level="basic">EGLSync-CUDAEvent Interop</concept>
+    <concept level="basic">EGLImage-CUDA Interop</concept>
+  </keyconcepts>
+  <keywords>
+    <keyword>EGL Sync</keyword>
+  </keywords>
+  <libraries>
+    <library os="linux">cuda</library>
+    <library framework="true" os="macosx">CUDA</library>
+    <library>X11</library>
+    <library>GLESv2</library>
+  </libraries>
+  <librarypaths>
+  </librarypaths>
+  <nsight_eclipse>true</nsight_eclipse>
+  <primary_file>EGLSync_CUDAEvent_Interop.cu</primary_file>
+  <required_dependencies>
+    <dependency>EGL</dependency>
+    <dependency>EGLSync</dependency>
+    <dependency>X11</dependency>
+    <dependency>GLES</dependency>
+  </required_dependencies>
+  <scopes>
+    <scope>1:CUDA Basic Topics</scope>
+    <scope>2:Graphics Interop</scope>
+  </scopes>
+  <sm-arch>sm35</sm-arch>
+  <sm-arch>sm37</sm-arch>
+  <sm-arch>sm50</sm-arch>
+  <sm-arch>sm52</sm-arch>
+  <sm-arch>sm53</sm-arch>
+  <sm-arch>sm60</sm-arch>
+  <sm-arch>sm61</sm-arch>
+  <sm-arch>sm70</sm-arch>
+  <sm-arch>sm72</sm-arch>
+  <sm-arch>sm75</sm-arch>
+  <sm-arch>sm80</sm-arch>
+  <sm-arch>sm86</sm-arch>
+  <sm-arch>sm87</sm-arch>
+  <supported_envs>
+    <env>
+      <arch>arm</arch>
+    </env>
+  </supported_envs>
+  <supported_sm_architectures>
+    <include>all</include>
+  </supported_sm_architectures>
+  <title>EGLSync CUDA Event Interop</title>
+  <type>exe</type>
+</entry>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
+<entry>
+  <name>bilateralFilter</name>
+  <cuda_api_list>
+    <toolkit>cudaMemcpyToSymbol</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaGraphicsMapResources</toolkit>
+    <toolkit>cudaGraphicsGLRegisterBuffer</toolkit>
+    <toolkit>cudaGraphicsResourceGetMappedPointer</toolkit>
+    <toolkit>cudaDeviceSynchronize</toolkit>
+    <toolkit>cudaDestroyTextureObject</toolkit>
+    <toolkit>cudaMallocPitch</toolkit>
+    <toolkit>cudaCreateTextureObject</toolkit>
+    <toolkit>cudaGraphicsUnregisterResource</toolkit>
+    <toolkit>cudaGraphicsUnmapResources</toolkit>
+    <toolkit>cudaRuntimeGetVersion</toolkit>
+    <toolkit>cudaGetDeviceProperties</toolkit>
+  </cuda_api_list>
+  <description><![CDATA[Bilateral filter is an edge-preserving non-linear smoothing filter that is implemented with CUDA with OpenGL rendering. It can be used in image recovery and denoising. Each pixel is weight by considering both the spatial distance and color distance between its neighbors. Reference:"C. Tomasi, R. Manduchi, Bilateral Filtering for Gray and Color Images, proceeding of the ICCV, 1998, http://users.soe.ucsc.edu/~manduchi/Papers/ICCV98.pdf"]]></description>
+  <devicecompilation>whole</devicecompilation>
+  <files>
+    <file>data\nature_monte.bmp</file>
+    <file>data\ref_05.ppm</file>
+    <file>data\ref_06.ppm</file>
+    <file>data\ref_07.ppm</file>
+    <file>data\ref_08.ppm</file>
+  </files>
+  <includepaths>
+    <path>./</path>
+    <path>../</path>
+    <path>../../../Common</path>
+  </includepaths>
+  <keyconcepts>
+    <concept level="basic">Graphics Interop</concept>
+    <concept level="basic">Image Processing</concept>
+  </keyconcepts>
+  <keywords>
+    <keyword>GPGPU</keyword>
+    <keyword>CUDA</keyword>
+    <keyword>Image Processing</keyword>
+    <keyword>box filter</keyword>
+    <keyword>opengl</keyword>
+    <keyword>openGL</keyword>
+  </keywords>
+  <libraries>
+    <library>GLU</library>
+    <library>GL</library>
+    <library framework="true" os="macosx">GLUT</library>
+    <library os="linux">GLEW</library>
+    <library os="linux">glut</library>
+    <library os="linux">X11</library>
+  </libraries>
+  <librarypaths>
+    <path arch="x86_64" os="linux">../../../common/lib/linux/x86_64</path>
+    <path arch="armv7l" os="linux">../../../common/lib/linux/armv7l</path>
+    <path os="macosx">../../../common/lib/darwin</path>
+  </librarypaths>
+  <nsight_eclipse>true</nsight_eclipse>
+  <primary_file>bilateralFilter.cpp</primary_file>
+  <qatests>
+    <qatest>-radius=5 -file=ref_05.ppm</qatest>
+    <qatest>-radius=6 -file=ref_06.ppm</qatest>
+    <qatest>-radius=7 -file=ref_07.ppm</qatest>
+    <qatest>-radius=7 -file=ref_08.ppm</qatest>
+  </qatests>
+  <required_dependencies>
+    <dependency>X11</dependency>
+    <dependency>GL</dependency>
+  </required_dependencies>
+  <scopes>
+    <scope>2:Graphics Interop</scope>
+    <scope>2:Image Processing</scope>
+    <scope>2:Computer Vision</scope>
+  </scopes>
+  <sm-arch>sm35</sm-arch>
+  <sm-arch>sm37</sm-arch>
+  <sm-arch>sm50</sm-arch>
+  <sm-arch>sm52</sm-arch>
+  <sm-arch>sm53</sm-arch>
+  <sm-arch>sm60</sm-arch>
+  <sm-arch>sm61</sm-arch>
+  <sm-arch>sm70</sm-arch>
+  <sm-arch>sm72</sm-arch>
+  <sm-arch>sm75</sm-arch>
+  <sm-arch>sm80</sm-arch>
+  <sm-arch>sm86</sm-arch>
+  <sm-arch>sm87</sm-arch>
+  <supported_envs>
+    <env>
+      <arch>x86_64</arch>
+      <platform>linux</platform>
+    </env>
+    <env>
+      <platform>windows7</platform>
+    </env>
+    <env>
+      <arch>x86_64</arch>
+      <platform>macosx</platform>
+    </env>
+    <env>
+      <arch>arm</arch>
+    </env>
+    <env>
+      <arch>sbsa</arch>
+    </env>
+  </supported_envs>
+  <supported_sm_architectures>
+    <include>all</include>
+  </supported_sm_architectures>
+  <title>Bilateral Filter</title>
+  <type>exe</type>
+</entry>

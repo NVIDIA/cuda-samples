@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
+<entry>
+  <name>conjugateGradientMultiBlockCG</name>
+  <cflags>
+    <flag>--std=c++11</flag>
+  </cflags>
+  <cuda_api_list>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaEventRecord</toolkit>
+    <toolkit>cudaMallocManaged</toolkit>
+    <toolkit>cudaOccupancyMaxActiveBlocksPerMultiprocessor</toolkit>
+    <toolkit>cudaEventCreate</toolkit>
+    <toolkit>cudaEventElapsedTime</toolkit>
+    <toolkit>cudaDeviceSynchronize</toolkit>
+    <toolkit>cudaEventDestroy</toolkit>
+    <toolkit>cudaLaunchCooperativeKernel</toolkit>
+    <toolkit>cudaGetDeviceProperties</toolkit>
+  </cuda_api_list>
+  <description><![CDATA[This sample implements a conjugate gradient solver on GPU using Multi Block Cooperative Groups, also uses Unified Memory.]]></description>
+  <devicecompilation>whole</devicecompilation>
+  <includepaths>
+    <path>./</path>
+    <path>../</path>
+    <path>../../../Common</path>
+  </includepaths>
+  <keyconcepts>
+    <concept level="basic">Unified Memory</concept>
+    <concept level="advanced">Linear Algebra</concept>
+    <concept level="basic">Cooperative Groups</concept>
+    <concept level="advanced">MultiBlock Cooperative Groups</concept>
+    <concept level="advanced">CUBLAS Library</concept>
+    <concept level="advanced">CUSPARSE Library</concept>
+  </keyconcepts>
+  <keywords>
+    <keyword>CUDA</keyword>
+    <keyword>Sparse Matrix</keyword>
+    <keyword>Unified Memory</keyword>
+    <keyword>CPP11</keyword>
+  </keywords>
+  <libraries>
+  </libraries>
+  <librarypaths>
+  </librarypaths>
+  <nsight_eclipse>true</nsight_eclipse>
+  <primary_file>conjugateGradientMultiBlockCG.cu</primary_file>
+  <required_dependencies>
+    <dependency>UVM</dependency>
+    <dependency>MBCG</dependency>
+  </required_dependencies>
+  <scopes>
+    <scope>1:CUDA Advanced Topics</scope>
+    <scope>3:Linear Algebra</scope>
+  </scopes>
+  <sm-arch>sm60</sm-arch>
+  <sm-arch>sm61</sm-arch>
+  <sm-arch>sm70</sm-arch>
+  <sm-arch>sm72</sm-arch>
+  <sm-arch>sm75</sm-arch>
+  <sm-arch>sm80</sm-arch>
+  <sm-arch>sm86</sm-arch>
+  <sm-arch>sm87</sm-arch>
+  <supported_envs>
+    <env>
+      <arch>x86_64</arch>
+      <platform>linux</platform>
+    </env>
+    <env>
+      <arch>ppc64le</arch>
+      <platform>linux</platform>
+    </env>
+    <env>
+      <platform>windows7</platform>
+    </env>
+    <env>
+      <platform>aarch64</platform>
+    </env>
+    <env>
+      <platform>sbsa</platform>
+    </env>
+  </supported_envs>
+  <supported_sm_architectures>
+    <from>6.0</from>
+  </supported_sm_architectures>
+  <title>conjugateGradient using MultiBlock Cooperative Groups</title>
+  <type>exe</type>
+</entry>

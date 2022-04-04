@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
+<entry>
+  <name>MersenneTwisterGP11213</name>
+  <cuda_api_list>
+    <toolkit>cudaStreamDestroy</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaMallocHost</toolkit>
+    <toolkit>cudaFreeHost</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaStreamCreateWithFlags</toolkit>
+    <toolkit>cudaStreamSynchronize</toolkit>
+    <toolkit>cudaMemcpyAsync</toolkit>
+  </cuda_api_list>
+  <description><![CDATA[This sample demonstrates the Mersenne Twister random number generator GP11213 in cuRAND.]]></description>
+  <devicecompilation>whole</devicecompilation>
+  <fallback_min_ptx>true</fallback_min_ptx>
+  <includepaths>
+    <path>./</path>
+    <path>../</path>
+    <path>../../../Common</path>
+  </includepaths>
+  <keyconcepts>
+    <concept level="basic">CURAND Library</concept>
+  </keyconcepts>
+  <keywords>
+    <keyword>CUDA</keyword>
+    <keyword>CURAND</keyword>
+    <keyword>Monte-Carlo</keyword>
+    <keyword>random number generation</keyword>
+    <keyword>GSFR</keyword>
+    <keyword>Mersenne Twister</keyword>
+  </keywords>
+  <libraries>
+    <library>curand_static</library>
+    <library>culibos</library>
+  </libraries>
+  <librarypaths>
+  </librarypaths>
+  <nsight_eclipse>true</nsight_eclipse>
+  <primary_file>MersenneTwister.cpp</primary_file>
+  <required_dependencies>
+    <dependency>CURAND</dependency>
+  </required_dependencies>
+  <scopes>
+    <scope>1:CUDA Advanced Topics</scope>
+  </scopes>
+  <sm-arch>sm35</sm-arch>
+  <sm-arch>sm37</sm-arch>
+  <sm-arch>sm50</sm-arch>
+  <sm-arch>sm52</sm-arch>
+  <sm-arch>sm53</sm-arch>
+  <sm-arch>sm60</sm-arch>
+  <sm-arch>sm61</sm-arch>
+  <sm-arch>sm70</sm-arch>
+  <sm-arch>sm72</sm-arch>
+  <sm-arch>sm75</sm-arch>
+  <sm-arch>sm80</sm-arch>
+  <sm-arch>sm86</sm-arch>
+  <sm-arch>sm87</sm-arch>
+  <supported_envs>
+    <env>
+      <arch>x86_64</arch>
+      <platform>linux</platform>
+    </env>
+    <env>
+      <platform>windows7</platform>
+    </env>
+    <env>
+      <arch>x86_64</arch>
+      <platform>macosx</platform>
+    </env>
+    <env>
+      <arch>arm</arch>
+    </env>
+    <env>
+      <arch>sbsa</arch>
+    </env>
+    <env>
+      <arch>ppc64le</arch>
+      <platform>linux</platform>
+    </env>
+  </supported_envs>
+  <supported_sm_architectures>
+    <include>all</include>
+  </supported_sm_architectures>
+  <title>MersenneTwisterGP11213</title>
+  <type>exe</type>
+</entry>

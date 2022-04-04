@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
+<entry>
+  <name>ptxjit</name>
+  <cuda_api_list>
+    <driver>cuModuleGetFunction</driver>
+    <driver>cuLinkAddData</driver>
+    <driver>cuModuleLoadData</driver>
+    <driver>cuLaunchKernel</driver>
+    <driver>cuModuleUnload</driver>
+    <driver>cuLinkComplete</driver>
+    <driver>cuLinkCreate</driver>
+    <driver>cuLinkDestroy</driver>
+    <toolkit>cudaDriverGetVersion</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaMemcpy</toolkit>
+  </cuda_api_list>
+  <description><![CDATA[This sample uses the Driver API to just-in-time compile (JIT) a Kernel from PTX code. Additionally, this sample demonstrates the seamless interoperability capability of the CUDA Runtime and CUDA Driver API calls.  For CUDA 5.5, this sample shows how to use cuLink* functions to link PTX assembly using the CUDA driver at runtime.]]></description>
+  <devicecompilation>separate</devicecompilation>
+  <fallback_min_ptx>true</fallback_min_ptx>
+  <includepaths>
+    <path>./</path>
+    <path>../</path>
+    <path>../../../Common</path>
+  </includepaths>
+  <keyconcepts>
+    <concept level="advanced">CUDA Driver API</concept>
+  </keyconcepts>
+  <keywords>
+    <keyword>CUDA</keyword>
+    <keyword>Advanced Topics</keyword>
+  </keywords>
+  <libraries>
+    <library os="linux">cuda</library>
+    <library framework="true" os="macosx">CUDA</library>
+    <library>cudart_static</library>
+  </libraries>
+  <librarypaths>
+  </librarypaths>
+  <nsight_eclipse>true</nsight_eclipse>
+  <primary_file>ptxjit.cpp</primary_file>
+  <ptx>ptxjit_kernel</ptx>
+  <scopes>
+    <scope>1:CUDA Advanced Topics</scope>
+  </scopes>
+  <sm-arch>sm35</sm-arch>
+  <sm-arch>sm37</sm-arch>
+  <sm-arch>sm50</sm-arch>
+  <sm-arch>sm52</sm-arch>
+  <sm-arch>sm53</sm-arch>
+  <sm-arch>sm60</sm-arch>
+  <sm-arch>sm61</sm-arch>
+  <sm-arch>sm70</sm-arch>
+  <sm-arch>sm72</sm-arch>
+  <sm-arch>sm75</sm-arch>
+  <sm-arch>sm80</sm-arch>
+  <sm-arch>sm86</sm-arch>
+  <sm-arch>sm87</sm-arch>
+  <supported_envs>
+    <env>
+      <arch>x86_64</arch>
+      <platform>linux</platform>
+    </env>
+    <env>
+      <platform>windows7</platform>
+    </env>
+    <env>
+      <arch>x86_64</arch>
+      <platform>macosx</platform>
+    </env>
+    <env>
+      <arch>arm</arch>
+    </env>
+    <env>
+      <arch>sbsa</arch>
+    </env>
+    <env>
+      <arch>ppc64le</arch>
+      <platform>linux</platform>
+    </env>
+  </supported_envs>
+  <supported_sm_architectures>
+    <include>all</include>
+  </supported_sm_architectures>
+  <title>PTX Just-in-Time compilation</title>
+  <type>exe</type>
+</entry>

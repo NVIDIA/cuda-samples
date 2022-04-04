@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
+<entry>
+  <name>streamOrderedAllocationIPC</name>
+  <cflags>
+    <flag>--std=c++11</flag>
+  </cflags>
+  <cuda_api_list>
+    <driver>cuDeviceGetAttribute</driver>
+    <driver>cuDeviceGet</driver>
+    <toolkit>cudaDeviceEnablePeerAccess</toolkit>
+    <toolkit>cudaMemPoolImportPointer</toolkit>
+    <toolkit>cudaOccupancyMaxActiveBlocksPerMultiprocessor</toolkit>
+    <toolkit>cudaMemPoolDestroy</toolkit>
+    <toolkit>cudaMallocAsync</toolkit>
+    <toolkit>cudaStreamCreateWithFlags</toolkit>
+    <toolkit>cudaDeviceCanAccessPeer</toolkit>
+    <toolkit>cudaMemcpyAsync</toolkit>
+    <toolkit>cudaStreamDestroy</toolkit>
+    <toolkit>cudaSetDevice</toolkit>
+    <toolkit>cudaGetDeviceProperties</toolkit>
+    <toolkit>cudaMemPoolSetAccess</toolkit>
+    <toolkit>cudaGetDeviceCount</toolkit>
+    <toolkit>cudaDeviceGetAttribute</toolkit>
+    <toolkit>cudaMemPoolExportPointer</toolkit>
+    <toolkit>cudaMemPoolImportFromShareableHandle</toolkit>
+    <toolkit>cudaMemPoolCreate</toolkit>
+    <toolkit>cudaGetLastError</toolkit>
+    <toolkit>cudaStreamSynchronize</toolkit>
+    <toolkit>cudaMemPoolGetAccess</toolkit>
+    <toolkit>cudaMemPoolExportToShareableHandle</toolkit>
+    <toolkit>cudaFreeAsync</toolkit>
+  </cuda_api_list>
+  <description><![CDATA[This sample demonstrates IPC pools of stream ordered memory allocated using cudaMallocAsync and cudaMemPool family of APIs.]]></description>
+  <devicecompilation>whole</devicecompilation>
+  <includepaths>
+    <path>./</path>
+    <path>../</path>
+    <path>../../../Common</path>
+  </includepaths>
+  <keyconcepts>
+    <concept level="basic">Performance Strategies</concept>
+  </keyconcepts>
+  <keywords>
+  </keywords>
+  <libraries>
+    <library os="linux">cuda</library>
+    <library framework="true" os="macosx">CUDA</library>
+  </libraries>
+  <librarypaths>
+  </librarypaths>
+  <nsight_eclipse>true</nsight_eclipse>
+  <primary_file>streamOrderedAllocationIPC.cu</primary_file>
+  <scopes>
+    <scope>1:CUDA Basic Topics</scope>
+    <scope>1:Performance Strategies</scope>
+  </scopes>
+  <sm-arch>sm60</sm-arch>
+  <sm-arch>sm61</sm-arch>
+  <sm-arch>sm70</sm-arch>
+  <sm-arch>sm72</sm-arch>
+  <sm-arch>sm75</sm-arch>
+  <sm-arch>sm80</sm-arch>
+  <sm-arch>sm86</sm-arch>
+  <sm-arch>sm87</sm-arch>
+  <sources>
+    <extracompilation>../../../Common/helper_multiprocess.cpp</extracompilation>
+    <extraheader>../../../Common/helper_multiprocess.h</extraheader>
+  </sources>
+  <supported_envs>
+    <env>
+      <arch>x86_64</arch>
+      <platform>linux</platform>
+    </env>
+  </supported_envs>
+  <supported_sm_architectures>
+    <from>6.0</from>
+  </supported_sm_architectures>
+  <title>stream Ordered Allocation IPC Pools</title>
+  <type>exe</type>
+</entry>

@@ -1,0 +1,35 @@
+For Windows:
+Follow these steps once you have installed Vulkan SDK for Windows from https://www.lunarg.com/vulkan-sdk/
+-- Install GLFW3 library at suitable location
+-- Open the simpleVulkan VS project file.
+To add the GLFW3 library path
+-- Right click on Project name "simpleVulkan" click on "Properties"
+-- In Property pages window go to Linker -> General. Here in "Additional Libraries Directories" edit and add path to glfw3dll.lib
+To add the GLFW3 headers path
+-- Right click on Project name "simpleVulkan" click on "Properties"
+-- In Property pages window go to "VC++ Directories" section. Here in "Include Directories" edit and add path to GLFW3 headers include directory location.
+** Make sure to add path to glfw3.dll in your PATH environment variable**
+
+
+For Linux:
+-- Install the Vulkan SDK from https://www.lunarg.com/vulkan-sdk/  and follow environment setup instructions.
+-- Install GLFW3 library through your OS package repository. For example: apt-get for Ubuntu and dnf for RHEL/CentOS. Below is for Ubuntu:
+    sudo apt-get install libglfw3
+    sudo apt-get install libglfw3-dev
+-- Install "libxcb1-dev" and "xorg-dev" as GLFW3 is depended on it
+-- Add Vulkan and GLFW3 libraries directories to LD_LIBRARY_PATH
+
+
+For Linux aarch64(L4T):
+-- Install GLFW3 library using "sudo apt-get install libglfw3-dev" this will provide glfw3 
+-- install above will also provide libvulkan-dev as dependencies
+-- Add Vulkan and GLFW3 libraries directories to LD_LIBRARY_PATH
+-- Pass path to vulkan sdk while building 'make VULKAN_SDK_PATH=<PATH_TO_VULKAN_SDK>', VULKAN_SDK_PATH in this scenario is typically "/usr"
+
+
+For Shader changes:
+-- Update the montecarlo.vert and/or montecarlo.frag shader source file as required
+-- Use the glslc shader compiler from the installed Vulkan SDK's bin directory to compile shaders as:
+    glslc montecarlo.vert -o vert.spv
+    glslc montecarlo.frag -o frag.spv
+** Make sure to add glslc's path in your PATH environment variable **
