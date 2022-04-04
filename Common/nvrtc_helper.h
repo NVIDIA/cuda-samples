@@ -49,11 +49,6 @@
 
 void compileFileToCUBIN(char *filename, int argc, char **argv, char **cubinResult,
                       size_t *cubinResultSize, int requiresCGheaders) {
-  if (!filename) {
-    std::cerr << "\nerror: filename is empty for compileFileToCUBIN()!\n";
-    exit(1);
-  }
-
   std::ifstream inputFile(filename,
                           std::ios::in | std::ios::binary | std::ios::ate);
 
@@ -116,12 +111,7 @@ void compileFileToCUBIN(char *filename, int argc, char **argv, char **cubinResul
 
     compileOptions = "--include-path=";
 
-    char *strPath = sdkFindFilePath(HeaderNames, argv[0]);
-    if (!strPath) {
-      std::cerr << "\nerror: header file " << HeaderNames << " not found!\n";
-      exit(1);
-    }
-    std::string path = strPath;
+    std::string path = sdkFindFilePath(HeaderNames, argv[0]);
     if (!path.empty()) {
       std::size_t found = path.find(HeaderNames);
       path.erase(found);
@@ -130,7 +120,6 @@ void compileFileToCUBIN(char *filename, int argc, char **argv, char **cubinResul
           "\nCooperativeGroups headers not found, please install it in %s "
           "sample directory..\n Exiting..\n",
           argv[0]);
-      exit(1);
     }
     compileOptions += path.c_str();
     compileParams[numCompileOptions] = reinterpret_cast<char *>(
