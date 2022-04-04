@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
+<entry>
+  <name>marchingCubes</name>
+  <cflags>
+    <flag>--std=c++14</flag>
+  </cflags>
+  <cuda_api_list>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaGraphicsMapResources</toolkit>
+    <toolkit>cudaGraphicsUnregisterResource</toolkit>
+    <toolkit>cudaGraphicsGLRegisterBuffer</toolkit>
+    <toolkit>cudaGLUnregisterBufferObject</toolkit>
+    <toolkit>cudaGraphicsResourceGetMappedPointer</toolkit>
+    <toolkit>cudaGLUnmapBufferObject</toolkit>
+    <toolkit>cudaDestroyTextureObject</toolkit>
+    <toolkit>cudaGLMapBufferObject</toolkit>
+    <toolkit>cudaCreateTextureObject</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaCreateChannelDesc</toolkit>
+    <toolkit>cudaGLRegisterBufferObject</toolkit>
+    <toolkit>cudaGraphicsUnmapResources</toolkit>
+    <toolkit>cudaMemcpy</toolkit>
+  </cuda_api_list>
+  <description><![CDATA[This sample extracts a geometric isosurface from a volume dataset using the marching cubes algorithm. It uses the scan (prefix sum) function from the Thrust library to perform stream compaction.]]></description>
+  <devicecompilation>whole</devicecompilation>
+  <files>
+    <file>..\..\doc\Thrust_license.txt</file>
+    <file>data\Bucky.raw</file>
+    <file>data\ref_march_cubes.ppm</file>
+    <file>data\posArray.bin</file>
+    <file>data\normalArray.bin</file>
+    <file>data\compVoxelArray.bin</file>
+  </files>
+  <includepaths>
+    <path>./</path>
+    <path>../</path>
+    <path>../../../Common</path>
+  </includepaths>
+  <keyconcepts>
+    <concept level="advanced">OpenGL Graphics Interop</concept>
+    <concept level="advanced">Vertex Buffers</concept>
+    <concept level="advanced">3D Graphics</concept>
+    <concept level="advanced">Physically Based Simulation</concept>
+  </keyconcepts>
+  <keywords>
+    <keyword>OpenGL</keyword>
+    <keyword>isosurface</keyword>
+    <keyword>marching cubes</keyword>
+    <keyword>openGL</keyword>
+    <keyword>CPP14</keyword>
+  </keywords>
+  <libraries>
+    <library>GLU</library>
+    <library>GL</library>
+    <library framework="true" os="macosx">GLUT</library>
+    <library os="linux">GLEW</library>
+    <library os="linux">glut</library>
+    <library os="linux">X11</library>
+  </libraries>
+  <librarypaths>
+    <path arch="x86_64" os="linux">../../../common/lib/linux/x86_64</path>
+    <path arch="armv7l" os="linux">../../../common/lib/linux/armv7l</path>
+    <path os="macosx">../../../common/lib/darwin</path>
+  </librarypaths>
+  <nsight_eclipse>true</nsight_eclipse>
+  <primary_file>marchingCubes.cpp</primary_file>
+  <qatests>
+    <qatest>-dump=0 -file=posArray.bin</qatest>
+    <qatest>-dump=1 -file=normalArray.bin</qatest>
+    <qatest>-dump=2 -file=compVoxelArray.bin</qatest>
+  </qatests>
+  <required_dependencies>
+    <dependency>X11</dependency>
+    <dependency>GL</dependency>
+  </required_dependencies>
+  <scopes>
+    <scope>2:Graphics Interop</scope>
+    <scope>1:CUDA Advanced Topics</scope>
+    <scope>3:Physically-Based Simulation</scope>
+  </scopes>
+  <sm-arch>sm35</sm-arch>
+  <sm-arch>sm37</sm-arch>
+  <sm-arch>sm50</sm-arch>
+  <sm-arch>sm52</sm-arch>
+  <sm-arch>sm53</sm-arch>
+  <sm-arch>sm60</sm-arch>
+  <sm-arch>sm61</sm-arch>
+  <sm-arch>sm70</sm-arch>
+  <sm-arch>sm72</sm-arch>
+  <sm-arch>sm75</sm-arch>
+  <sm-arch>sm80</sm-arch>
+  <sm-arch>sm86</sm-arch>
+  <sm-arch>sm87</sm-arch>
+  <supported_envs>
+    <env>
+      <arch>x86_64</arch>
+      <platform>linux</platform>
+    </env>
+    <env>
+      <platform>windows7</platform>
+    </env>
+    <env>
+      <arch>x86_64</arch>
+      <platform>macosx</platform>
+    </env>
+    <env>
+      <arch>arm</arch>
+    </env>
+    <env>
+      <arch>sbsa</arch>
+    </env>
+  </supported_envs>
+  <supported_sm_architectures>
+    <include>all</include>
+  </supported_sm_architectures>
+  <title>Marching Cubes Isosurfaces</title>
+  <type>exe</type>
+</entry>

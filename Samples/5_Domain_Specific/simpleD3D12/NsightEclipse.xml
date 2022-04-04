@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
+<entry>
+  <name>simpleD3D12</name>
+  <cuda_api_list>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaSignalExternalSemaphoresAsync</toolkit>
+    <toolkit>cudaStreamCreate</toolkit>
+    <toolkit>cudaGetDeviceCount</toolkit>
+    <toolkit>cudaImportExternalSemaphore</toolkit>
+    <toolkit>cudaGetDeviceProperties</toolkit>
+    <toolkit>cudaImportExternalMemory</toolkit>
+    <toolkit>cudaExternalMemoryGetMappedBuffer</toolkit>
+    <toolkit>cudaDestroyExternalSemaphore</toolkit>
+    <toolkit>cudaSetDevice</toolkit>
+    <toolkit>cudaWaitExternalSemaphoresAsync</toolkit>
+    <toolkit>cudaStreamSynchronize</toolkit>
+    <toolkit>cudaDestroyExternalMemory</toolkit>
+  </cuda_api_list>
+  <description><![CDATA[A program which demonstrates Direct3D12 interoperability with CUDA.  The program creates a sinewave in DX12 vertex buffer which is created using CUDA kernels. DX12 and CUDA synchronizes using DirectX12 Fences. Direct3D then renders the results on the screen.  A DirectX12 Capable NVIDIA GPU is required on Windows10 or higher OS.]]></description>
+  <devicecompilation>whole</devicecompilation>
+  <includepaths>
+    <path>./</path>
+    <path>../</path>
+    <path>../../../Common</path>
+  </includepaths>
+  <keyconcepts>
+    <concept level="basic">Graphics Interop</concept>
+    <concept level="advanced">CUDA DX12 Interop</concept>
+    <concept level="basic">Image Processing</concept>
+  </keyconcepts>
+  <keywords>
+    <keyword>D3D</keyword>
+    <keyword>d3d12</keyword>
+  </keywords>
+  <libraries>
+  </libraries>
+  <librarypaths>
+  </librarypaths>
+  <nsight_eclipse>true</nsight_eclipse>
+  <primary_file>simpleD3D12.cpp</primary_file>
+  <required_dependencies>
+    <dependency>DirectX12</dependency>
+  </required_dependencies>
+  <scopes>
+    <scope>1:CUDA Basic Topics</scope>
+    <scope>2:Graphics Interop</scope>
+  </scopes>
+  <sm-arch>sm35</sm-arch>
+  <sm-arch>sm37</sm-arch>
+  <sm-arch>sm50</sm-arch>
+  <sm-arch>sm52</sm-arch>
+  <sm-arch>sm53</sm-arch>
+  <sm-arch>sm60</sm-arch>
+  <sm-arch>sm61</sm-arch>
+  <sm-arch>sm70</sm-arch>
+  <sm-arch>sm72</sm-arch>
+  <sm-arch>sm75</sm-arch>
+  <sm-arch>sm80</sm-arch>
+  <sm-arch>sm86</sm-arch>
+  <sm-arch>sm87</sm-arch>
+  <supported_envs>
+    <env>
+      <platform>windows10</platform>
+    </env>
+  </supported_envs>
+  <supported_sm_architectures>
+    <include>all</include>
+  </supported_sm_architectures>
+  <title>Simple D3D12 CUDA Interop</title>
+  <type>exe</type>
+</entry>

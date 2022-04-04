@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
+<entry>
+  <name>nvJPEG</name>
+  <cuda_api_list>
+    <toolkit>cudaStreamDestroy</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaEventRecord</toolkit>
+    <toolkit>cudaHostAlloc</toolkit>
+    <toolkit>cudaEventCreate</toolkit>
+    <toolkit>cudaEventElapsedTime</toolkit>
+    <toolkit>cudaEventSynchronize</toolkit>
+    <toolkit>cudaFreeHost</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaStreamCreateWithFlags</toolkit>
+    <toolkit>cudaStreamSynchronize</toolkit>
+    <toolkit>cudaGetDeviceProperties</toolkit>
+  </cuda_api_list>
+  <description><![CDATA[A CUDA Sample that demonstrates single and batched decoding of jpeg images using NVJPEG Library.]]></description>
+  <devicecompilation>whole</devicecompilation>
+  <includepaths>
+    <path>./</path>
+    <path>../</path>
+    <path>../../../Common</path>
+  </includepaths>
+  <keyconcepts>
+    <concept level="basic">Image Decoding</concept>
+    <concept level="basic">NVJPEG Library</concept>
+  </keyconcepts>
+  <keywords>
+    <keyword>NVJPEG</keyword>
+    <keyword>JPEG Decoding</keyword>
+  </keywords>
+  <libraries>
+    <library>nvjpeg</library>
+  </libraries>
+  <librarypaths>
+  </librarypaths>
+  <nsight_eclipse>true</nsight_eclipse>
+  <primary_file>nvJPEG.cpp</primary_file>
+  <required_dependencies>
+    <dependency>NVJPEG</dependency>
+  </required_dependencies>
+  <scopes>
+    <scope>1:CUDA Basic Topics</scope>
+    <scope>3:JPEG Decoding</scope>
+  </scopes>
+  <sm-arch>sm35</sm-arch>
+  <sm-arch>sm37</sm-arch>
+  <sm-arch>sm50</sm-arch>
+  <sm-arch>sm52</sm-arch>
+  <sm-arch>sm53</sm-arch>
+  <sm-arch>sm60</sm-arch>
+  <sm-arch>sm61</sm-arch>
+  <sm-arch>sm70</sm-arch>
+  <sm-arch>sm72</sm-arch>
+  <sm-arch>sm75</sm-arch>
+  <sm-arch>sm80</sm-arch>
+  <sm-arch>sm86</sm-arch>
+  <sm-arch>sm87</sm-arch>
+  <supported_envs>
+    <env>
+      <arch>x86_64</arch>
+      <platform>linux</platform>
+    </env>
+    <env>
+      <platform>windows</platform>
+    </env>
+    <env>
+      <arch>ppc64le</arch>
+      <platform>linux</platform>
+    </env>
+    <env>
+      <platform>qnx</platform>
+    </env>
+  </supported_envs>
+  <supported_sm_architectures>
+    <from>3.5</from>
+  </supported_sm_architectures>
+  <title>NVJPEG simple</title>
+  <type>exe</type>
+</entry>
