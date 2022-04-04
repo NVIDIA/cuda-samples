@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
+<entry>
+  <name>UnifiedMemoryStreams</name>
+  <cuda_api_list>
+    <toolkit>cudaStreamDestroy</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaMallocManaged</toolkit>
+    <toolkit>cudaStreamCreate</toolkit>
+    <toolkit>cudaDeviceSynchronize</toolkit>
+    <toolkit>cudaStreamAttachMemAsync</toolkit>
+    <toolkit>cudaSetDevice</toolkit>
+    <toolkit>cudaStreamSynchronize</toolkit>
+    <toolkit>cudaGetDeviceProperties</toolkit>
+  </cuda_api_list>
+  <description><![CDATA[This sample demonstrates the use of OpenMP and streams with Unified Memory on a single GPU.]]></description>
+  <devicecompilation>whole</devicecompilation>
+  <includepaths>
+    <path>./</path>
+    <path>../</path>
+    <path>../../../Common</path>
+  </includepaths>
+  <keyconcepts>
+    <concept level="basic">CUDA Systems Integration</concept>
+    <concept level="basic">OpenMP</concept>
+    <concept level="basic">CUBLAS</concept>
+    <concept level="basic">Multithreading</concept>
+    <concept level="basic">Unified Memory</concept>
+    <concept level="basic">CUDA Streams and Events</concept>
+  </keyconcepts>
+  <keywords>
+    <keyword>CUDA</keyword>
+    <keyword>CUBLAS</keyword>
+    <keyword>OpenMP</keyword>
+    <keyword>cluster</keyword>
+    <keyword>multi-GPU Support</keyword>
+    <keyword>Unified Memory</keyword>
+    <keyword>UVM</keyword>
+    <keyword>openMP</keyword>
+    <keyword>Streams</keyword>
+    <keyword>pthreads</keyword>
+  </keywords>
+  <libraries>
+    <library>cublas</library>
+  </libraries>
+  <librarypaths>
+  </librarypaths>
+  <nsight_eclipse>true</nsight_eclipse>
+  <primary_file>UnifiedMemoryStreams.cu</primary_file>
+  <required_dependencies>
+    <dependency>OpenMP</dependency>
+    <dependency>UVM</dependency>
+    <dependency>CUBLAS</dependency>
+  </required_dependencies>
+  <scopes>
+    <scope>1:CUDA Basic Topics</scope>
+    <scope>1:CUDA Systems Integration</scope>
+    <scope>1:Unified Memory</scope>
+  </scopes>
+  <sm-arch>sm35</sm-arch>
+  <sm-arch>sm37</sm-arch>
+  <sm-arch>sm50</sm-arch>
+  <sm-arch>sm52</sm-arch>
+  <sm-arch>sm53</sm-arch>
+  <sm-arch>sm60</sm-arch>
+  <sm-arch>sm61</sm-arch>
+  <sm-arch>sm70</sm-arch>
+  <sm-arch>sm72</sm-arch>
+  <sm-arch>sm75</sm-arch>
+  <sm-arch>sm80</sm-arch>
+  <sm-arch>sm86</sm-arch>
+  <sm-arch>sm87</sm-arch>
+  <supported_envs>
+    <env>
+      <arch>x86_64</arch>
+      <platform>linux</platform>
+    </env>
+    <env>
+      <arch>x86_64</arch>
+      <platform>macosx</platform>
+    </env>
+    <env>
+      <platform>windows7</platform>
+    </env>
+    <env>
+      <arch>arm</arch>
+    </env>
+    <env>
+      <arch>sbsa</arch>
+    </env>
+    <env>
+      <arch>ppc64le</arch>
+      <platform>linux</platform>
+    </env>
+  </supported_envs>
+  <supported_sm_architectures>
+    <from>3.5</from>
+  </supported_sm_architectures>
+  <title>Unified Memory Streams</title>
+  <type>exe</type>
+</entry>

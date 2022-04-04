@@ -1,53 +1,24 @@
 # CUDA Samples
 
-Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This version supports [CUDA Toolkit 10.1](https://developer.nvidia.com/cuda-downloads).
+Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This version supports [CUDA Toolkit 11.6](https://developer.nvidia.com/cuda-downloads).
 
 ## Release Notes
 
 This section describes the release notes for the CUDA Samples on GitHub only.
 
-### CUDA 10.1
-*  Added `immaTensorCoreGemm`. Demonstrates integer GEMM computation using the Warp Matrix Multiply and Accumulate (WMMA) API for integers employing the Tensor Cores.
-*  Added `simpleIPC`. Demonstrates Inter Process Communication with one process per GPU for computation.
-*  Added `nvJPEG`. Demonstrates single and batched decoding of jpeg images using NVJPEG Library.
-*  Added `bandwidthTest`. It measures the memcopy bandwidth of the GPU and memcpy bandwidth across PCI-e.
-*  Added `reduction`. Demonstrates several important optimization strategies for Data-Parallel Algorithms like reduction.
-*  Update all the samples to support CUDA 10.1.
+### CUDA 11.6
+* Added new folder structure for samples
+* Added support of Visual Studio 2022 to all samples supported on [Windows](#windows-1).
+* All CUDA samples are now only available on [GitHub](https://github.com/nvidia/cuda-samples). They are no longer available via CUDA toolkit.
 
-### CUDA 10.0
-*  Added `simpleCudaGraphs`. Demonstrates CUDA Graphs creation, instantiation and launch using Graphs APIs and Stream Capture APIs.
-*  Added `conjugateGradientCudaGraphs`. Demonstrates conjugate gradient solver on GPU using CUBLAS and CUSPARSE library calls captured and called using CUDA Graph APIs.
-*  Added `simpleVulkan`. Demonstrates Vulkan - CUDA Interop.
-*  Added `simpleD3D12`. Demonstrates DX12 - CUDA Interop.
-*  Added `UnifiedMemoryPerf`. Demonstrates performance comparision of various memory types involved in system.
-*  Added `p2pBandwidthLatencyTest`. Demonstrates Peer-To-Peer (P2P) data transfers between pairs of GPUs and computes latency and bandwidth.
-*  Added `systemWideAtomics`. Demonstrates system wide atomic instructions.
-*  Added `simpleCUBLASXT`. Demonstrates CUBLAS-XT library which performs GEMM operations over multiple GPUs.
-*  Added Windows OS support to `conjugateGradientMultiDeviceCG` sample.
-*  Removed support of Visual Studio 2010 from all samples.
-
-### CUDA 9.2
-
-This is the first release of CUDA Samples on GitHub:
-*  Added `vectorAdd_nvrtc`. Demonstrates runtime compilation library using NVRTC of a simple vectorAdd kernel.
-*  Added `warpAggregatedAtomicsCG`. Demonstrates warp aggregated atomics using Cooperative Groups.
-*  Added `deviceQuery`. Enumerates the properties of the CUDA devices present in the system.
-*  Added `matrixMul`. Demonstrates a matrix multiplication using shared memory through tiled approach.
-*  Added `matrixMulDrv`. Demonstrates a matrix multiplication using shared memory through tiled approach, uses CUDA Driver API.
-*  Added `cudaTensorCoreGemm`. Demonstrates a GEMM computation using the Warp Matrix Multiply and Accumulate (WMMA) API introduced in CUDA 9, as well as the new Tensor Cores introduced in the Volta chip family.
-*  Added `simpleVoteIntrinsics` which uses *_sync equivalent of the vote intrinsics _any, _all added since CUDA 9.0.
-*  Added `shfl_scan` which uses *_sync equivalent of the shfl intrinsics added since CUDA 9.0.
-*  Added `conjugateGradientMultiBlockCG`. Demonstrates a conjugate gradient solver on GPU using Multi Block Cooperative Groups.
-*  Added `conjugateGradientMultiDeviceCG`. Demonstrates a conjugate gradient solver on multiple GPUs using Multi Device Cooperative Groups, also uses unified memory prefetching and usage hints APIs.
-*  Added `simpleCUBLAS`. Demonstrates how perform GEMM operations using CUBLAS library.
-*  Added `simpleCUFFT`. Demonstrates how perform FFT operations using CUFFT library.
+### [older versions...](./CHANGELOG.md)
 
 ## Getting Started
 
 ### Prerequisites
 
-Download and install the [CUDA Toolkit 10.1](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
-For system requirements and installation instructions of cuda toolkit, please refer to the [Linux Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/), the [Windows Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html), and the [Mac Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-mac-os-x/index.html).
+Download and install the [CUDA Toolkit 11.6](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+For system requirements and installation instructions of cuda toolkit, please refer to the [Linux Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/), and the [Windows Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html).
 
 ### Getting the CUDA Samples
 
@@ -72,7 +43,6 @@ Each individual sample has its own set of solution files at:
 `<CUDA_SAMPLES_REPO>\Samples\<sample_dir>\`
 
 To build/examine all the samples at once, the complete solution files should be used. To build/examine a single sample, the individual sample solution files should be used.
-> **Note:** Some samples require that the Microsoft DirectX SDK (June 2010 or newer) be installed and that the VC++ directory paths are properly set up (**Tools > Options...**). Check [DirectX Dependencies](#directx) section for details."
 
 ### Linux
 The Linux samples are built using makefiles. To use the makefiles, change the current directory to the sample directory you wish to build, and run make:
@@ -99,58 +69,28 @@ The samples makefiles can take advantage of certain options:
     $ make HOST_COMPILER=g++
     ```
 
-### Mac
-The Mac samples are built using makefiles. To use the makefiles, change directory into the sample directory you wish to build, and run make:
-```
-$ cd <sample_dir>
-$ make
-```
-
-The samples makefiles can take advantage of certain options:
-
-*  **dbg=1** - build with debug symbols
-    ```
-    $ make dbg=1
-    ```
-
-*  **SMS="A B ..."** - override the SM architectures for which the sample will be built, where "A B ..." is a space-delimited list of SM architectures. For example, to generate SASS for SM 50 and SM 60, use SMS="50 60".
-    ```
-    $ make SMS="A B ..."
-    ```
-
-*  **HOST_COMPILER=<host_compiler>** - override the default clang host compiler. See the [Mac Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-mac-os-x/index.html#system-requirements) for a list of supported host compilers.
-    ```
-    $ make HOST_COMPILER=clang
-    ```
-
 ## Samples list
 
-### Samples by OS
+### [0. Introduction](./Samples/0_Introduction/README.md)
+Basic CUDA samples for beginners that illustrate key concepts with using CUDA and CUDA runtime APIs.
 
-#### Linux
-**[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[conjugateGradientMultiBlockCG](./Samples/conjugateGradientMultiBlockCG)** | **[simpleIPC](./Samples/simpleIPC)** | **[shfl_scan](./Samples/shfl_scan)** |
----|---|---|---|
-**[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** | **[nvJPEG](./Samples/nvJPEG)** | **[simpleCudaGraphs](./Samples/simpleCudaGraphs)** | **[deviceQuery](./Samples/deviceQuery)** |
-**[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[simpleCUBLASXT](./Samples/simpleCUBLASXT)** | **[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** |
-**[matrixMulDrv](./Samples/matrixMulDrv)** | **[simpleCUFFT](./Samples/simpleCUFFT)** | **[reduction](./Samples/reduction)** | **[immaTensorCoreGemm](./Samples/immaTensorCoreGemm)** |
-**[bandwidthTest](./Samples/bandwidthTest)** | **[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[simpleVulkan](./Samples/simpleVulkan)** |
-**[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** | **[matrixMul](./Samples/matrixMul)** | **[systemWideAtomics](./Samples/systemWideAtomics)** |
+### [1. Utilities](./Samples/1_Utilities/README.md)
+Utility samples that demonstrate how to query device capabilities and measure GPU/CPU bandwidth.
 
-#### Windows
-**[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[conjugateGradientMultiBlockCG](./Samples/conjugateGradientMultiBlockCG)** | **[simpleIPC](./Samples/simpleIPC)** | **[shfl_scan](./Samples/shfl_scan)** |
----|---|---|---|
-**[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** | **[simpleD3D12](./Samples/simpleD3D12)** | **[simpleCudaGraphs](./Samples/simpleCudaGraphs)** | **[deviceQuery](./Samples/deviceQuery)** |
-**[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[simpleCUBLASXT](./Samples/simpleCUBLASXT)** | **[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** | **[conjugateGradientMultiDeviceCG](./Samples/conjugateGradientMultiDeviceCG)** |
-**[matrixMulDrv](./Samples/matrixMulDrv)** | **[simpleCUFFT](./Samples/simpleCUFFT)** | **[reduction](./Samples/reduction)** | **[immaTensorCoreGemm](./Samples/immaTensorCoreGemm)** |
-**[bandwidthTest](./Samples/bandwidthTest)** | **[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[cudaTensorCoreGemm](./Samples/cudaTensorCoreGemm)** | **[simpleVulkan](./Samples/simpleVulkan)** |
-**[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** | **[matrixMul](./Samples/matrixMul)** |
+### [2. Concepts and Techniques](./Samples/2_Concepts_and_Techniques/README.md)
+Samples that demonstrate CUDA related concepts and common problem solving techniques.
 
-#### Mac OSX
-**[warpAggregatedAtomicsCG](./Samples/warpAggregatedAtomicsCG)** | **[shfl_scan](./Samples/shfl_scan)** | **[conjugateGradientCudaGraphs](./Samples/conjugateGradientCudaGraphs)** | **[simpleCudaGraphs](./Samples/simpleCudaGraphs)** |
----|---|---|---|
-**[deviceQuery](./Samples/deviceQuery)** | **[simpleVoteIntrinsics](./Samples/simpleVoteIntrinsics)** | **[simpleCUBLASXT](./Samples/simpleCUBLASXT)** | **[UnifiedMemoryPerf](./Samples/UnifiedMemoryPerf)** |
-**[matrixMulDrv](./Samples/matrixMulDrv)** | **[simpleCUFFT](./Samples/simpleCUFFT)** | **[reduction](./Samples/reduction)** | **[bandwidthTest](./Samples/bandwidthTest)** |
-**[simpleCUBLAS](./Samples/simpleCUBLAS)** | **[vectorAdd_nvrtc](./Samples/vectorAdd_nvrtc)** | **[p2pBandwidthLatencyTest](./Samples/p2pBandwidthLatencyTest)** | **[matrixMul](./Samples/matrixMul)** |
+### [3. CUDA Features](./Samples/3_CUDA_Features/README.md)
+Samples that demonstrate CUDA Features (Cooperative Groups, CUDA Dynamic Parallelism, CUDA Graphs etc).
+
+### [4. CUDA Libraries](./Samples/4_CUDA_Libraries/README.md)
+Samples that demonstrate how to use CUDA platform libraries (NPP, NVJPEG, NVGRAPH cuBLAS, cuFFT, cuSPARSE, cuSOLVER and cuRAND).
+
+### [5. Domain Specific](./Samples/5_Domain_Specific/README.md)
+Samples that are specific to domain (Graphics, Finance, Image Processing).
+
+### [6. Performance](./Samples/6_Performance/README.md)
+Samples that demonstrate performance optimization.
 
 ## Dependencies
 
@@ -166,7 +106,9 @@ These third-party dependencies are required by some CUDA samples. If available, 
 
 #### FreeImage
 
-FreeImage is an open source imaging library. FreeImage can usually be installed on Linux using your distribution's package manager system. FreeImage can also be downloaded from the [FreeImage website](http://freeimage.sourceforge.net/). FreeImage is also redistributed with the CUDA Samples.
+FreeImage is an open source imaging library. FreeImage can usually be installed on Linux using your distribution's package manager system. FreeImage can also be downloaded from the FreeImage website.
+
+To set up FreeImage on a Windows system, extract the FreeImage DLL distribution into the folder `../../../Common/FreeImage/Dist/x64` such that it contains the .h and .lib files. Copy the .dll file to root level `bin/win64/Debug` and `bin/win64/Release` folder.
 
 #### Message Passing Interface
 
@@ -178,7 +120,7 @@ Some samples can only be run on a 64-bit operating system.
 
 #### DirectX
 
-DirectX is a collection of APIs designed to allow development of multimedia applications on Microsoft platforms. For Microsoft platforms, NVIDIA's CUDA Driver supports DirectX. Several CUDA Samples for Windows demonstrates CUDA-DirectX Interoperability, for building such samples one needs to install [Direct X SDK (June 2010 or newer)](http://www.microsoft.com/en-us/download/details.aspx?id=6812) , this is required to be installed on Windows 7, Windows 10 and Windows Server 2008, Other Windows OSes do not need to explicitly install the DirectX SDK.
+DirectX is a collection of APIs designed to allow development of multimedia applications on Microsoft platforms. For Microsoft platforms, NVIDIA's CUDA Driver supports DirectX. Several CUDA Samples for Windows demonstrates CUDA-DirectX Interoperability, for building such samples one needs to install Microsoft Visual Studio 2012 or higher which provides Microsoft Windows SDK for Windows 8.
 
 #### DirectX12
 
@@ -219,6 +161,14 @@ EGLOutput is a set of EGL extensions which allow EGL to render directly to the d
 #### EGLSync
 
 EGLSync is a set of EGL extensions which provides sync objects that are synchronization primitive, representing events whose completion can be tested or waited upon.
+
+#### NVSCI
+
+NvSci is a set of communication interface libraries out of which CUDA interops with NvSciBuf and NvSciSync. NvSciBuf allows applications to allocate and exchange buffers in memory. NvSciSync allows applications to manage synchronization objects which coordinate when sequences of operations begin and end.
+
+#### NvMedia
+
+NvMedia provides powerful processing of multimedia data for true hardware acceleration across NVIDIA Tegra devices. Applications leverage the NvMedia Application Programming Interface (API) to process the image and video data.
 
 ### CUDA Features
 
@@ -309,5 +259,8 @@ Answers to frequently asked questions about CUDA can be found at http://develope
 ## References
 
 *   [CUDA Programming Guide](http://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html)
-*   [Accelerated Computing Blog](https://devblogs.nvidia.com/category/accelerated-computing/)
+*   [Accelerated Computing Blog](https://developer.nvidia.com/blog/?tags=accelerated-computing)
 
+## Attributions
+
+*   Teapot image is obtained from [Wikimedia](https://en.wikipedia.org/wiki/File:Original_Utah_Teapot.jpg) and is licensed under the Creative Commons [Attribution-Share Alike 2.0](https://creativecommons.org/licenses/by-sa/2.0/deed.en) Generic license. The image is modified for samples use cases.

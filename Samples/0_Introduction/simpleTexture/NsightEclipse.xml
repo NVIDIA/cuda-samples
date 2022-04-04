@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
+<entry>
+  <name>simpleTexture</name>
+  <cleanextras>
+    <clean>./data/teapot512_bw_out.pgm</clean>
+  </cleanextras>
+  <cuda_api_list>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaMemcpyToArray</toolkit>
+    <toolkit>cudaFreeArray</toolkit>
+    <toolkit>cudaDeviceSynchronize</toolkit>
+    <toolkit>cudaDestroyTextureObject</toolkit>
+    <toolkit>cudaCreateTextureObject</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaMallocArray</toolkit>
+    <toolkit>cudaCreateChannelDesc</toolkit>
+    <toolkit>cudaMemcpy</toolkit>
+  </cuda_api_list>
+  <description><![CDATA[Simple example that demonstrates use of Textures in CUDA.]]></description>
+  <devicecompilation>whole</devicecompilation>
+  <files>
+    <file>data\teapot512.pgm</file>
+    <file>data\ref_rotated.pgm</file>
+  </files>
+  <includepaths>
+    <path>./</path>
+    <path>../</path>
+    <path>../../../Common</path>
+  </includepaths>
+  <keyconcepts>
+    <concept level="basic">CUDA Runtime API</concept>
+    <concept level="basic">Texture</concept>
+    <concept level="basic">Image Processing</concept>
+  </keyconcepts>
+  <keywords>
+  </keywords>
+  <libraries>
+  </libraries>
+  <librarypaths>
+  </librarypaths>
+  <nsight_eclipse>true</nsight_eclipse>
+  <primary_file>simpleTexture.cu</primary_file>
+  <scopes>
+    <scope>1:CUDA Basic Topics</scope>
+    <scope>2:Texture</scope>
+    <scope>2:Image Processing</scope>
+  </scopes>
+  <sm-arch>sm35</sm-arch>
+  <sm-arch>sm37</sm-arch>
+  <sm-arch>sm50</sm-arch>
+  <sm-arch>sm52</sm-arch>
+  <sm-arch>sm53</sm-arch>
+  <sm-arch>sm60</sm-arch>
+  <sm-arch>sm61</sm-arch>
+  <sm-arch>sm70</sm-arch>
+  <sm-arch>sm72</sm-arch>
+  <sm-arch>sm75</sm-arch>
+  <sm-arch>sm80</sm-arch>
+  <sm-arch>sm86</sm-arch>
+  <sm-arch>sm87</sm-arch>
+  <supported_envs>
+    <env>
+      <arch>x86_64</arch>
+      <platform>linux</platform>
+    </env>
+    <env>
+      <platform>windows7</platform>
+    </env>
+    <env>
+      <arch>x86_64</arch>
+      <platform>macosx</platform>
+    </env>
+    <env>
+      <arch>arm</arch>
+    </env>
+    <env>
+      <arch>sbsa</arch>
+    </env>
+    <env>
+      <arch>ppc64le</arch>
+      <platform>linux</platform>
+    </env>
+  </supported_envs>
+  <supported_sm_architectures>
+    <include>all</include>
+  </supported_sm_architectures>
+  <title>Simple Texture</title>
+  <type>exe</type>
+</entry>

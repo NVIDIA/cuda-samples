@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
+<entry>
+  <name>nbody_opengles</name>
+  <cflags>
+    <flag>-ftz=true</flag>
+  </cflags>
+  <cuda_api_list>
+    <toolkit>cudaMemcpyToSymbol</toolkit>
+    <toolkit>cudaGraphicsMapResources</toolkit>
+    <toolkit>cudaEventRecord</toolkit>
+    <toolkit>cudaStreamQuery</toolkit>
+    <toolkit>cudaEventCreate</toolkit>
+    <toolkit>cudaGraphicsResourceGetMappedPointer</toolkit>
+    <toolkit>cudaGetDeviceCount</toolkit>
+    <toolkit>cudaEventElapsedTime</toolkit>
+    <toolkit>cudaDeviceSynchronize</toolkit>
+    <toolkit>cudaEventSynchronize</toolkit>
+    <toolkit>cudaGraphicsResourceSetMapFlags</toolkit>
+    <toolkit>cudaSetDeviceFlags</toolkit>
+    <toolkit>cudaEventDestroy</toolkit>
+    <toolkit>cudaSetDevice</toolkit>
+    <toolkit>cudaGraphicsUnmapResources</toolkit>
+    <toolkit>cudaGetDeviceProperties</toolkit>
+    <toolkit>cudaGetDevice</toolkit>
+  </cuda_api_list>
+  <description><![CDATA[This sample demonstrates efficient all-pairs simulation of a gravitational n-body simulation in CUDA. Unlike the OpenGL nbody sample, there is no user interaction.]]></description>
+  <devicecompilation>whole</devicecompilation>
+  <files>
+    <file>./galaxy_20K.bin</file>
+  </files>
+  <includepaths>
+    <path>./</path>
+    <path>../</path>
+    <path>../../../Common</path>
+  </includepaths>
+  <keyconcepts>
+    <concept level="advanced">Graphics Interop</concept>
+    <concept level="advanced">Data Parallel Algorithms</concept>
+    <concept level="advanced">Physically-Based Simulation</concept>
+  </keyconcepts>
+  <keywords>
+    <keyword>CUDA</keyword>
+    <keyword>GPGPU</keyword>
+    <keyword>n-body</keyword>
+    <keyword>simulation</keyword>
+    <keyword>astrophysics</keyword>
+    <keyword>OpenGL ES</keyword>
+    <keyword>EGL</keyword>
+    <keyword>X11</keyword>
+  </keywords>
+  <libraries>
+  </libraries>
+  <librarypaths>
+  </librarypaths>
+  <nsight_eclipse>true</nsight_eclipse>
+  <primary_file>nbody_opengles.cpp</primary_file>
+  <qatests>
+    <qatest>-benchmark -compare -cpu</qatest>
+  </qatests>
+  <required_dependencies>
+    <dependency>X11</dependency>
+    <dependency>GLES</dependency>
+  </required_dependencies>
+  <scopes>
+    <scope>2:Graphics Interop</scope>
+    <scope>1:CUDA Advanced Topics</scope>
+    <scope>1:Data-Parallel Algorithms</scope>
+    <scope>3:Physically-Based Simulation</scope>
+  </scopes>
+  <sm-arch>sm35</sm-arch>
+  <sm-arch>sm37</sm-arch>
+  <sm-arch>sm50</sm-arch>
+  <sm-arch>sm52</sm-arch>
+  <sm-arch>sm53</sm-arch>
+  <sm-arch>sm60</sm-arch>
+  <sm-arch>sm61</sm-arch>
+  <sm-arch>sm70</sm-arch>
+  <sm-arch>sm72</sm-arch>
+  <sm-arch>sm75</sm-arch>
+  <sm-arch>sm80</sm-arch>
+  <sm-arch>sm86</sm-arch>
+  <sm-arch>sm87</sm-arch>
+  <supported_envs>
+    <env>
+      <arch>arm</arch>
+    </env>
+  </supported_envs>
+  <supported_sm_architectures>
+    <include>all</include>
+  </supported_sm_architectures>
+  <title>CUDA N-Body Simulation with GLES</title>
+  <type>exe</type>
+</entry>

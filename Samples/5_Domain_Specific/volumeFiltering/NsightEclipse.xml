@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
+<entry>
+  <name>volumeFiltering</name>
+  <cuda_api_list>
+    <toolkit>cudaGraphicsMapResources</toolkit>
+    <toolkit>cudaGraphicsResourceGetMappedPointer</toolkit>
+    <toolkit>cudaMemcpy</toolkit>
+    <toolkit>cudaMemcpyToSymbol</toolkit>
+    <toolkit>cudaDestroySurfaceObject</toolkit>
+    <toolkit>cudaPitchedPtr</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaGraphicsUnregisterResource</toolkit>
+    <toolkit>cudaDeviceSynchronize</toolkit>
+    <toolkit>cudaDestroyTextureObject</toolkit>
+    <toolkit>cudaMemset</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaFreeArray</toolkit>
+    <toolkit>cudaGraphicsGLRegisterBuffer</toolkit>
+    <toolkit>cudaExtent</toolkit>
+    <toolkit>cudaCreateSurfaceObject</toolkit>
+    <toolkit>cudaCreateTextureObject</toolkit>
+    <toolkit>cudaMallocArray</toolkit>
+    <toolkit>cudaGraphicsUnmapResources</toolkit>
+  </cuda_api_list>
+  <description><![CDATA[This sample demonstrates 3D Volumetric Filtering using 3D Textures and 3D Surface Writes.]]></description>
+  <devicecompilation>whole</devicecompilation>
+  <files>
+    <file>data\Bucky.raw</file>
+    <file>data\ref_volumefilter.ppm</file>
+  </files>
+  <includepaths>
+    <path>./</path>
+    <path>../</path>
+    <path>../../../Common</path>
+  </includepaths>
+  <keyconcepts>
+    <concept level="advanced">Graphics Interop</concept>
+    <concept level="advanced">Image Processing</concept>
+    <concept level="advanced">3D Textures</concept>
+    <concept level="advanced">Surface Writes</concept>
+  </keyconcepts>
+  <keywords>
+    <keyword>CUDA 3D Volume Filtering</keyword>
+    <keyword>openGL</keyword>
+  </keywords>
+  <libraries>
+    <library>GLU</library>
+    <library>GL</library>
+    <library framework="true" os="macosx">GLUT</library>
+    <library os="linux">GLEW</library>
+    <library os="linux">glut</library>
+    <library os="linux">X11</library>
+  </libraries>
+  <librarypaths>
+    <path arch="x86_64" os="linux">../../../common/lib/linux/x86_64</path>
+    <path arch="armv7l" os="linux">../../../common/lib/linux/armv7l</path>
+    <path os="macosx">../../../common/lib/darwin</path>
+  </librarypaths>
+  <nsight_eclipse>true</nsight_eclipse>
+  <primary_file>volumeFiltering.cpp</primary_file>
+  <qatests>
+    <qatest>-file=ref_volumefilter.ppm</qatest>
+  </qatests>
+  <required_dependencies>
+    <dependency>X11</dependency>
+    <dependency>GL</dependency>
+  </required_dependencies>
+  <scopes>
+    <scope>1:CUDA Basic Topics</scope>
+    <scope>2:Texture</scope>
+    <scope>2:Graphics Interop</scope>
+    <scope>2:Image Processing</scope>
+    <scope>3:Volume Processing</scope>
+  </scopes>
+  <sm-arch>sm35</sm-arch>
+  <sm-arch>sm37</sm-arch>
+  <sm-arch>sm50</sm-arch>
+  <sm-arch>sm52</sm-arch>
+  <sm-arch>sm53</sm-arch>
+  <sm-arch>sm60</sm-arch>
+  <sm-arch>sm61</sm-arch>
+  <sm-arch>sm70</sm-arch>
+  <sm-arch>sm72</sm-arch>
+  <sm-arch>sm75</sm-arch>
+  <sm-arch>sm80</sm-arch>
+  <sm-arch>sm86</sm-arch>
+  <sm-arch>sm87</sm-arch>
+  <supported_envs>
+    <env>
+      <arch>x86_64</arch>
+      <platform>linux</platform>
+    </env>
+    <env>
+      <platform>windows7</platform>
+    </env>
+    <env>
+      <arch>x86_64</arch>
+      <platform>macosx</platform>
+    </env>
+    <env>
+      <arch>arm</arch>
+    </env>
+    <env>
+      <arch>sbsa</arch>
+    </env>
+  </supported_envs>
+  <supported_sm_architectures>
+    <include>all</include>
+  </supported_sm_architectures>
+  <title>Volumetric Filtering with 3D Textures and Surface Writes</title>
+  <type>exe</type>
+</entry>

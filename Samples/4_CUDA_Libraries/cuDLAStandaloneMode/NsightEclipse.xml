@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
+<entry>
+  <name>cuDLAStandaloneMode</name>
+  <cflags>
+    <flag>--std=c++11</flag>
+  </cflags>
+  <description><![CDATA[This sample demonstrates cuDLA standalone mode wherein DLA can be programmed without using CUDA.]]></description>
+  <devicecompilation>whole</devicecompilation>
+  <includepaths>
+    <path>./</path>
+    <path>../</path>
+    <path>../../../Common</path>
+  </includepaths>
+  <keyconcepts>
+    <concept level="basic">cuDLA</concept>
+    <concept level="advanced">Data Parallel Algorithms</concept>
+    <concept level="advanced">Image Processing</concept>
+  </keyconcepts>
+  <keywords>
+    <keyword>CUDA</keyword>
+    <keyword>CPP11</keyword>
+  </keywords>
+  <libraries>
+    <library>cudla</library>
+    <library>nvscibuf</library>
+    <library>nvscisync</library>
+  </libraries>
+  <librarypaths>
+  </librarypaths>
+  <nsight_eclipse>true</nsight_eclipse>
+  <primary_file>main.cpp</primary_file>
+  <required_dependencies>
+    <dependency>NVSCI</dependency>
+  </required_dependencies>
+  <scopes>
+    <scope>1:CUDA Advanced Topics</scope>
+    <scope>1:cuDLA</scope>
+  </scopes>
+  <sm-arch>sm60</sm-arch>
+  <sm-arch>sm61</sm-arch>
+  <sm-arch>sm70</sm-arch>
+  <sm-arch>sm72</sm-arch>
+  <sm-arch>sm75</sm-arch>
+  <sm-arch>sm80</sm-arch>
+  <sm-arch>sm86</sm-arch>
+  <sm-arch>sm87</sm-arch>
+  <supported_envs>
+    <env>
+      <arch>aarch64</arch>
+      <platform>linux</platform>
+    </env>
+    <env>
+      <arch>aarch64</arch>
+      <platform>qnx</platform>
+    </env>
+  </supported_envs>
+  <supported_sm_architectures>
+    <from>6.0</from>
+  </supported_sm_architectures>
+  <title>cuDLA Standalone Mode</title>
+  <type>exe</type>
+</entry>

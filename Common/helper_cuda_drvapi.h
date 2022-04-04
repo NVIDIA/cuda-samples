@@ -1,4 +1,4 @@
-/* Copyright (c) 2018, NVIDIA CORPORATION. All rights reserved.
+/* Copyright (c) 2022, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -33,8 +33,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <iostream>
+#include <cstring>
+#include <sstream>
 
-#include <drvapi_error_string.h>
 #include <helper_string.h>
 
 #ifndef MAX
@@ -66,48 +68,22 @@ inline int ftoi(float value) {
 // These are the inline versions for all of the SDK helper functions
 inline void __checkCudaErrors(CUresult err, const char *file, const int line) {
   if (CUDA_SUCCESS != err) {
+    const char *errorStr = NULL;
+    cuGetErrorString(err, &errorStr);
     fprintf(stderr,
             "checkCudaErrors() Driver API error = %04d \"%s\" from file <%s>, "
             "line %i.\n",
-            err, getCudaDrvErrorString(err), file, line);
+            err, errorStr, file, line);
     exit(EXIT_FAILURE);
   }
 }
 #endif
-
-#ifdef getLastCudaDrvErrorMsg
-#undef getLastCudaDrvErrorMsg
-#endif
-
-#define getLastCudaDrvErrorMsg(msg) \
-  __getLastCudaDrvErrorMsg(msg, __FILE__, __LINE__)
-
-inline void __getLastCudaDrvErrorMsg(const char *msg, const char *file,
-                                     const int line) {
-  CUresult err = cuCtxSynchronize();
-
-  if (CUDA_SUCCESS != err) {
-    fprintf(stderr, "getLastCudaDrvErrorMsg -> %s", msg);
-    fprintf(stderr,
-            "getLastCudaDrvErrorMsg -> cuCtxSynchronize API error = %04d "
-            "\"%s\" in file <%s>, line %i.\n",
-            err, getCudaDrvErrorString(err), file, line);
-    exit(EXIT_FAILURE);
-  }
-}
 
 // This function wraps the CUDA Driver API into a template function
 template <class T>
 inline void getCudaAttribute(T *attribute, CUdevice_attribute device_attribute,
                              int device) {
-  CUresult error_result =
-      cuDeviceGetAttribute(attribute, device_attribute, device);
-
-  if (error_result != CUDA_SUCCESS) {
-    printf("cuDeviceGetAttribute returned %d\n-> %s\n",
-           static_cast<int>(error_result), getCudaDrvErrorString(error_result));
-    exit(EXIT_SUCCESS);
-  }
+  checkCudaErrors(cuDeviceGetAttribute(attribute, device_attribute, device));
 }
 #endif
 
@@ -135,6 +111,9 @@ inline int _ConvertSMVer2CoresDRV(int major, int minor) {
       {0x70,  64},
       {0x72,  64},
       {0x75,  64},
+      {0x80,  64},
+      {0x86, 128},
+      {0x87, 128},
       {-1, -1}};
 
   int index = 0;
@@ -161,11 +140,9 @@ inline int _ConvertSMVer2CoresDRV(int major, int minor) {
 inline int gpuDeviceInitDRV(int ARGC, const char **ARGV) {
   int cuDevice = 0;
   int deviceCount = 0;
-  CUresult err = cuInit(0);
+  checkCudaErrors(cuInit(0));
 
-  if (CUDA_SUCCESS == err) {
-    checkCudaErrors(cuDeviceGetCount(&deviceCount));
-  }
+  checkCudaErrors(cuDeviceGetCount(&deviceCount));
 
   if (deviceCount == 0) {
     fprintf(stderr, "cudaDeviceInit error: no devices supporting CUDA\n");
@@ -192,7 +169,7 @@ inline int gpuDeviceInitDRV(int ARGC, const char **ARGV) {
 
   checkCudaErrors(cuDeviceGet(&cuDevice, dev));
   char name[100];
-  cuDeviceGetName(name, 100, cuDevice);
+  checkCudaErrors(cuDeviceGetName(name, 100, cuDevice));
 
   int computeMode;
   getCudaAttribute<int>(&computeMode, CU_DEVICE_ATTRIBUTE_COMPUTE_MODE, dev);
@@ -218,7 +195,6 @@ inline int gpuGetMaxGflopsDeviceIdDRV() {
   int device_count = 0;
   int sm_per_multiproc = 0;
   unsigned long long max_compute_perf = 0;
-  int best_SM_arch = 0;
   int major = 0;
   int minor = 0;
   int multiProcessorCount;
@@ -232,19 +208,6 @@ inline int gpuGetMaxGflopsDeviceIdDRV() {
     fprintf(stderr,
             "gpuGetMaxGflopsDeviceIdDRV error: no devices supporting CUDA\n");
     exit(EXIT_FAILURE);
-  }
-
-  // Find the best major SM Architecture GPU device
-  while (current_device < device_count) {
-    checkCudaErrors(cuDeviceGetAttribute(
-        &major, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, current_device));
-    checkCudaErrors(cuDeviceGetAttribute(
-        &minor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, current_device));
-    if (major > 0 && major < 9999) {
-      best_SM_arch = MAX(best_SM_arch, major);
-    }
-
-    current_device++;
   }
 
   // Find the best CUDA capable GPU device
@@ -277,17 +240,8 @@ inline int gpuGetMaxGflopsDeviceIdDRV() {
                                clockRate);
 
       if (compute_perf > max_compute_perf) {
-        // If we find GPU with SM major > 2, search only these
-        if (best_SM_arch > 2) {
-          // If our device==dest_SM_arch, choose this, or else pass
-          if (major == best_SM_arch) {
-            max_compute_perf = compute_perf;
-            max_perf_device = current_device;
-          }
-        } else {
           max_compute_perf = compute_perf;
           max_perf_device = current_device;
-        }
       }
     } else {
       devices_prohibited++;
@@ -414,7 +368,39 @@ inline bool checkCudaCapabilitiesDRV(int major_version, int minor_version,
   }
 }
 #endif
+bool inline findFatbinPath(const char *module_file, std::string &module_path, char **argv, std::ostringstream &ostrm)
+{
+    char *actual_path = sdkFindFilePath(module_file, argv[0]);
 
-// end of CUDA Helper Functions
+    if (actual_path)
+    {
+        module_path = actual_path;
+    }
+    else
+    {
+        printf("> findModulePath file not found: <%s> \n", module_file);
+        return false;
+    }
+
+    if (module_path.empty())
+    {
+        printf("> findModulePath could not find file: <%s> \n", module_file);
+        return false;
+    }
+    else
+    {
+        printf("> findModulePath found file at <%s>\n", module_path.c_str());
+        if (module_path.rfind("fatbin") != std::string::npos)
+        {
+            std::ifstream fileIn(module_path.c_str(), std::ios::binary);
+            ostrm << fileIn.rdbuf();
+            fileIn.close();
+        }
+        return true;
+    }
+}
+
+  // end of CUDA Helper Functions
 
 #endif  // COMMON_HELPER_CUDA_DRVAPI_H_
+

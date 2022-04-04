@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# Copyright (c) 2018, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2022, NVIDIA CORPORATION. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -44,6 +44,9 @@ PROJECTS := $(filter-out $(FILTER_OUT),$(PROJECTS))
 %.ph_build :
 	+@$(MAKE) -C $(dir $*) $(MAKECMDGOALS)
 
+%.ph_test :
+	+@$(MAKE) -C $(dir $*) testrun
+
 %.ph_clean : 
 	+@$(MAKE) -C $(dir $*) clean $(USE_DEVICE)
 
@@ -54,6 +57,8 @@ all:  $(addsuffix .ph_build,$(PROJECTS))
 	@echo "Finished building CUDA samples"
 
 build: $(addsuffix .ph_build,$(PROJECTS))
+
+test : $(addsuffix .ph_test,$(PROJECTS))
 
 tidy:
 	@find * | egrep "#" | xargs rm -f

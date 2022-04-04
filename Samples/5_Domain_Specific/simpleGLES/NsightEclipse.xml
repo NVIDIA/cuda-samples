@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
+<entry>
+  <name>simpleGLES</name>
+  <cflags>
+    <flag>-DUSE_CUDAINTEROP</flag>
+    <flag>-DGRAPHICS_SETUP_EGL</flag>
+    <flag>-DUSE_GLES</flag>
+  </cflags>
+  <cuda_api_list>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaGraphicsMapResources</toolkit>
+    <toolkit>cudaGraphicsGLRegisterBuffer</toolkit>
+    <toolkit>cudaGraphicsResourceGetMappedPointer</toolkit>
+    <toolkit>cudaDeviceSynchronize</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaGraphicsUnregisterResource</toolkit>
+    <toolkit>cudaGraphicsUnmapResources</toolkit>
+    <toolkit>cudaMemcpy</toolkit>
+  </cuda_api_list>
+  <description><![CDATA[Demonstrates data exchange between CUDA and OpenGL ES (aka Graphics interop). The program modifies vertex positions with CUDA and uses OpenGL ES to render the geometry.]]></description>
+  <devicecompilation>whole</devicecompilation>
+  <files>
+    <file>data\ref_simpleGLES.bin</file>
+  </files>
+  <includepaths>
+    <path>./</path>
+    <path>../</path>
+    <path>../../../Common</path>
+  </includepaths>
+  <keyconcepts>
+    <concept level="basic">Graphics Interop</concept>
+    <concept level="basic">Vertex Buffers</concept>
+    <concept level="basic">3D Graphics</concept>
+  </keyconcepts>
+  <keywords>
+    <keyword>OpenGL ES</keyword>
+  </keywords>
+  <libraries>
+  </libraries>
+  <librarypaths>
+  </librarypaths>
+  <nsight_eclipse>true</nsight_eclipse>
+  <primary_file>simpleGLES.cu</primary_file>
+  <qatests>
+    <qatest>-file=ref_simpleGLES.bin</qatest>
+  </qatests>
+  <required_dependencies>
+    <dependency>X11</dependency>
+    <dependency>GLES</dependency>
+  </required_dependencies>
+  <scopes>
+    <scope>1:CUDA Basic Topics</scope>
+    <scope>2:Graphics Interop</scope>
+  </scopes>
+  <sm-arch>sm35</sm-arch>
+  <sm-arch>sm37</sm-arch>
+  <sm-arch>sm50</sm-arch>
+  <sm-arch>sm52</sm-arch>
+  <sm-arch>sm53</sm-arch>
+  <sm-arch>sm60</sm-arch>
+  <sm-arch>sm61</sm-arch>
+  <sm-arch>sm70</sm-arch>
+  <sm-arch>sm72</sm-arch>
+  <sm-arch>sm75</sm-arch>
+  <sm-arch>sm80</sm-arch>
+  <sm-arch>sm86</sm-arch>
+  <sm-arch>sm87</sm-arch>
+  <sources>
+    <ignore>graphics_interface.c</ignore>
+  </sources>
+  <supported_envs>
+    <env>
+      <arch>arm</arch>
+    </env>
+  </supported_envs>
+  <supported_sm_architectures>
+    <include>all</include>
+  </supported_sm_architectures>
+  <title>Simple OpenGLES</title>
+  <type>exe</type>
+</entry>

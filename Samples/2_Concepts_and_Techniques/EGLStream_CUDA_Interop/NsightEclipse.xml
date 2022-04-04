@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
+<entry>
+  <name>EGLStream_CUDA_Interop</name>
+  <cuda_api_list>
+    <driver>cuDeviceGet</driver>
+    <driver>cuDeviceGetAttribute</driver>
+    <driver>cuDeviceComputeCapability</driver>
+    <driver>cuDeviceGetCount</driver>
+    <driver>cuDeviceGetName</driver>
+    <driver>cuGraphicsResourceGetMappedEglFrame</driver>
+    <driver>cuEGLStreamConsumerAcquireFrame</driver>
+    <driver>cuEGLStreamConsumerReleaseFrame</driver>
+    <driver>cuEGLStreamProducerPresentFrame</driver>
+    <driver>cuCtxCreate</driver>
+    <driver>cuMemAlloc</driver>
+    <driver>cuMemFree</driver>
+    <driver>cuMemcpy3D</driver>
+    <driver>cuStreamCreate</driver>
+    <driver>cuCtxPushCurrent</driver>
+    <driver>cuCtxPopCurrent</driver>
+    <driver>cuCtxDestroy</driver>
+  </cuda_api_list>
+  <description><![CDATA[Demonstrates data exchange between CUDA and EGL Streams.]]></description>
+  <devicecompilation>whole</devicecompilation>
+  <includepaths>
+    <path>./</path>
+    <path>../</path>
+    <path>../../../Common</path>
+  </includepaths>
+  <keyconcepts>
+    <concept level="basic">EGLStreams Interop</concept>
+  </keyconcepts>
+  <keywords>
+    <keyword>EGL Streams</keyword>
+  </keywords>
+  <libraries>
+    <library os="linux">cuda</library>
+    <library framework="true" os="macosx">CUDA</library>
+  </libraries>
+  <librarypaths>
+  </librarypaths>
+  <nsight_eclipse>true</nsight_eclipse>
+  <primary_file>main.cpp</primary_file>
+  <required_dependencies>
+    <dependency>EGL</dependency>
+  </required_dependencies>
+  <scopes>
+    <scope>1:CUDA Basic Topics</scope>
+    <scope>2:Graphics Interop</scope>
+  </scopes>
+  <sm-arch>sm35</sm-arch>
+  <sm-arch>sm37</sm-arch>
+  <sm-arch>sm50</sm-arch>
+  <sm-arch>sm52</sm-arch>
+  <sm-arch>sm60</sm-arch>
+  <sm-arch>sm61</sm-arch>
+  <sm-arch>sm70</sm-arch>
+  <sm-arch>sm72</sm-arch>
+  <sm-arch>sm75</sm-arch>
+  <sm-arch>sm80</sm-arch>
+  <sm-arch>sm86</sm-arch>
+  <supported_envs>
+    <env>
+      <arch>x86_64</arch>
+      <platform>linux</platform>
+    </env>
+    <env>
+      <arch>aarch64</arch>
+    </env>
+    <env>
+      <arch>sbsa</arch>
+    </env>
+  </supported_envs>
+  <supported_sm_architectures>
+    <include>all</include>
+  </supported_sm_architectures>
+  <title>EGLStream CUDA Interop</title>
+  <type>exe</type>
+</entry>
