@@ -27,7 +27,7 @@ cudaFree, cudaEventRecord, cudaEventCreate, cudaEventElapsedTime, cudaEventSynch
 
 ## Prerequisites
 
-Download and install the [CUDA Toolkit 11.6](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit 11.7](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 
 ## Build and Run
 
