@@ -36,6 +36,7 @@
  *    Tree Pyramid Segmentation Method".
  */
 
+#define THRUST_IGNORE_CUB_VERSION_CHECK
 // System includes.
 #include <stdlib.h>
 #include <stdio.h>
