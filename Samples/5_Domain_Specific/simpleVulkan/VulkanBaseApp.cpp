@@ -1539,7 +1539,7 @@ void *VulkanBaseApp::getMemHandle(
   fpGetMemoryFdKHR =
       (PFN_vkGetMemoryFdKHR)vkGetDeviceProcAddr(m_device, "vkGetMemoryFdKHR");
   if (!fpGetMemoryFdKHR) {
-    throw std::runtime_error("Failed to retrieve vkGetMemoryWin32HandleKHR!");
+    throw std::runtime_error("Failed to retrieve vkGetMemoryFdKHR!");
   }
   if (fpGetMemoryFdKHR(m_device, &vkMemoryGetFdInfoKHR, &fd) != VK_SUCCESS) {
     throw std::runtime_error("Failed to retrieve handle for buffer!");
@@ -1565,11 +1565,11 @@ void *VulkanBaseApp::getSemaphoreHandle(
       (PFN_vkGetSemaphoreWin32HandleKHR)vkGetDeviceProcAddr(
           m_device, "vkGetSemaphoreWin32HandleKHR");
   if (!fpGetSemaphoreWin32HandleKHR) {
-    throw std::runtime_error("Failed to retrieve vkGetMemoryWin32HandleKHR!");
+    throw std::runtime_error("Failed to retrieve vkGetSemaphoreWin32HandleKHR!");
   }
   if (fpGetSemaphoreWin32HandleKHR(m_device, &semaphoreGetWin32HandleInfoKHR,
                                    &handle) != VK_SUCCESS) {
-    throw std::runtime_error("Failed to retrieve handle for buffer!");
+    throw std::runtime_error("Failed to retrieve handle for semaphore!");
   }
 
   return (void *)handle;
@@ -1586,11 +1586,11 @@ void *VulkanBaseApp::getSemaphoreHandle(
   fpGetSemaphoreFdKHR = (PFN_vkGetSemaphoreFdKHR)vkGetDeviceProcAddr(
       m_device, "vkGetSemaphoreFdKHR");
   if (!fpGetSemaphoreFdKHR) {
-    throw std::runtime_error("Failed to retrieve vkGetMemoryWin32HandleKHR!");
+    throw std::runtime_error("Failed to retrieve vkGetSemaphoreFdKHR!");
   }
   if (fpGetSemaphoreFdKHR(m_device, &semaphoreGetFdInfoKHR, &fd) !=
       VK_SUCCESS) {
-    throw std::runtime_error("Failed to retrieve handle for buffer!");
+    throw std::runtime_error("Failed to retrieve handle for semaphore!");
   }
 
   return (void *)(uintptr_t)fd;
