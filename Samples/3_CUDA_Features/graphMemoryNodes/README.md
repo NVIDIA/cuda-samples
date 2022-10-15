@@ -10,7 +10,7 @@ CUDA Graphs, Stream Capture
 
 ## Supported SM Architectures
 
-[SM 6.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.1 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.6 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.7 ](https://developer.nvidia.com/cuda-gpus)
+[SM 6.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.1 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.6 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.7 ](https://developer.nvidia.com/cuda-gpus)  [SM 9.0 ](https://developer.nvidia.com/cuda-gpus)
 
 ## Supported OSes
 
@@ -23,11 +23,11 @@ x86_64, ppc64le, armv7l
 ## CUDA APIs involved
 
 ### [CUDA Runtime API](http://docs.nvidia.com/cuda/cuda-runtime-api/index.html)
-cudaMallocAsync, cudaStreamCreateWithFlags, cudaMemcpy, cudaMemcpyAsync, cudaStreamDestroy, cudaMallocManaged, cudaEventCreate, cudaDriverGetVersion, cudaGraphCreate, cudaGraphAddMemAllocNode, cudaMalloc, cudaEventDestroy, cudaStreamEndCapture, cudaGraphExecDestroy, cudaStreamBeginCapture, cudaDeviceGetAttribute, cudaStreamSynchronize, cudaGraphDestroy, cudaGraphLaunch, cudaGraphAddMemFreeNode, cudaStreamWaitEvent, cudaFree, cudaEventRecord, cudaGraphInstantiate, cudaGraphAddKernelNode, cudaFreeAsync
+cudaMemcpy, cudaDeviceGetAttribute, cudaDriverGetVersion, cudaGraphLaunch, cudaEventDestroy, cudaMallocAsync, cudaStreamEndCapture, cudaMallocManaged, cudaGraphCreate, cudaMemcpyAsync, cudaFreeAsync, cudaStreamCreateWithFlags, cudaGraphInstantiate, cudaStreamDestroy, cudaStreamBeginCapture, cudaStreamWaitEvent, cudaEventCreate, cudaGraphAddMemAllocNode, cudaFree, cudaGraphAddKernelNode, cudaGraphAddMemFreeNode, cudaGraphDestroy, cudaEventRecord, cudaStreamSynchronize, cudaMalloc, cudaGraphExecDestroy
 
 ## Prerequisites
 
-Download and install the [CUDA Toolkit 11.6](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit 11.8](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 
 ## Build and Run
 

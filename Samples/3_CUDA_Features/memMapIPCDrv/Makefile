@@ -274,24 +274,6 @@ ifeq ($(TARGET_OS),darwin)
   SAMPLE_ENABLED := 0
 endif
 
-# This sample is not supported on ARMv7
-ifeq ($(TARGET_ARCH),armv7l)
-  $(info >>> WARNING - memMapIPCDrv is not supported on ARMv7 - waiving sample <<<)
-  SAMPLE_ENABLED := 0
-endif
-
-# This sample is not supported on aarch64
-ifeq ($(TARGET_ARCH),aarch64)
-  $(info >>> WARNING - memMapIPCDrv is not supported on aarch64 - waiving sample <<<)
-  SAMPLE_ENABLED := 0
-endif
-
-# This sample is not supported on sbsa
-ifeq ($(TARGET_ARCH),sbsa)
-  $(info >>> WARNING - memMapIPCDrv is not supported on sbsa - waiving sample <<<)
-  SAMPLE_ENABLED := 0
-endif
-
 ALL_LDFLAGS :=
 ALL_LDFLAGS += $(ALL_CCFLAGS)
 ALL_LDFLAGS += $(addprefix -Xlinker ,$(LDFLAGS))

@@ -4,8 +4,8 @@
   <name>simpleCUFFT</name>
   <cuda_api_list>
     <toolkit>cudaMalloc</toolkit>
-    <toolkit>cudaFree</toolkit>
     <toolkit>cudaMemcpy</toolkit>
+    <toolkit>cudaFree</toolkit>
   </cuda_api_list>
   <description><![CDATA[Example of using CUFFT. In this example, CUFFT is used to compute the 1D-convolution of some signal with some filter by transforming both into frequency domain, multiplying them together, and transforming the signal back to time domain. cuFFT plans are created using simple and advanced API functions.]]></description>
   <devicecompilation>whole</devicecompilation>
@@ -49,6 +49,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

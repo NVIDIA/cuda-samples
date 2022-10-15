@@ -6,11 +6,11 @@
     <flag>--std=c++14</flag>
   </cflags>
   <cuda_api_list>
+    <toolkit>cudaCreateChannelDesc</toolkit>
+    <toolkit>cudaMallocArray</toolkit>
     <toolkit>cudaFreeArray</toolkit>
     <toolkit>cudaDeviceSynchronize</toolkit>
     <toolkit>cudaCreateTextureObject</toolkit>
-    <toolkit>cudaMallocArray</toolkit>
-    <toolkit>cudaCreateChannelDesc</toolkit>
   </cuda_api_list>
   <description><![CDATA[This sample is an implementation of a simple line-of-sight algorithm: Given a height map and a ray originating at some observation point, it computes all the points along the ray that are visible from the observation point. The implementation is based on the Thrust library.]]></description>
   <devicecompilation>whole</devicecompilation>
@@ -57,6 +57,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

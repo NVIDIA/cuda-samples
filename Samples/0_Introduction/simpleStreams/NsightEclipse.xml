@@ -4,25 +4,25 @@
   <name>simpleStreams</name>
   <cuda_api_list>
     <toolkit>cudaMemcpy</toolkit>
-    <toolkit>cudaMemcpyAsync</toolkit>
-    <toolkit>cudaStreamDestroy</toolkit>
-    <toolkit>cudaMallocHost</toolkit>
-    <toolkit>cudaHostAlloc</toolkit>
-    <toolkit>cudaHostRegister</toolkit>
-    <toolkit>cudaMalloc</toolkit>
-    <toolkit>cudaEventCreateWithFlags</toolkit>
-    <toolkit>cudaEventDestroy</toolkit>
     <toolkit>cudaSetDeviceFlags</toolkit>
     <toolkit>cudaSetDevice</toolkit>
-    <toolkit>cudaGetDeviceProperties</toolkit>
-    <toolkit>cudaGetDeviceCount</toolkit>
-    <toolkit>cudaEventElapsedTime</toolkit>
-    <toolkit>cudaMemset</toolkit>
-    <toolkit>cudaFree</toolkit>
-    <toolkit>cudaEventRecord</toolkit>
+    <toolkit>cudaEventDestroy</toolkit>
     <toolkit>cudaStreamCreate</toolkit>
-    <toolkit>cudaEventSynchronize</toolkit>
+    <toolkit>cudaMallocHost</toolkit>
+    <toolkit>cudaEventCreateWithFlags</toolkit>
     <toolkit>cudaFreeHost</toolkit>
+    <toolkit>cudaMemcpyAsync</toolkit>
+    <toolkit>cudaGetDeviceCount</toolkit>
+    <toolkit>cudaStreamDestroy</toolkit>
+    <toolkit>cudaMemset</toolkit>
+    <toolkit>cudaEventElapsedTime</toolkit>
+    <toolkit>cudaHostAlloc</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaHostRegister</toolkit>
+    <toolkit>cudaEventSynchronize</toolkit>
+    <toolkit>cudaEventRecord</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaGetDeviceProperties</toolkit>
     <toolkit>cudaHostUnregister</toolkit>
   </cuda_api_list>
   <description><![CDATA[This sample uses CUDA streams to overlap kernel executions with memory copies between the host and a GPU device.  This sample uses a new CUDA 4.0 feature that supports pinning of generic host memory.  Requires Compute Capability 2.0 or higher.]]></description>
@@ -61,6 +61,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

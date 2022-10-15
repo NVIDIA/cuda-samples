@@ -10,7 +10,7 @@ Cooperative Groups, MultiBlock Cooperative Groups
 
 ## Supported SM Architectures
 
-[SM 6.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.1 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.6 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.7 ](https://developer.nvidia.com/cuda-gpus)
+[SM 6.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.1 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.6 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.7 ](https://developer.nvidia.com/cuda-gpus)  [SM 9.0 ](https://developer.nvidia.com/cuda-gpus)
 
 ## Supported OSes
 
@@ -23,14 +23,14 @@ x86_64, ppc64le, aarch64
 ## CUDA APIs involved
 
 ### [CUDA Runtime API](http://docs.nvidia.com/cuda/cuda-runtime-api/index.html)
-cudaFree, cudaOccupancyMaxActiveBlocksPerMultiprocessor, cudaOccupancyMaxPotentialBlockSize, cudaDeviceSynchronize, cudaSetDevice, cudaMalloc, cudaLaunchCooperativeKernel, cudaMemcpy, cudaGetDeviceProperties
+cudaMemcpy, cudaFree, cudaSetDevice, cudaDeviceSynchronize, cudaLaunchCooperativeKernel, cudaMalloc, cudaOccupancyMaxActiveBlocksPerMultiprocessor, cudaGetDeviceProperties, cudaOccupancyMaxPotentialBlockSize
 
 ## Dependencies needed to build/run
 [MBCG](../../../README.md#mbcg), [CPP11](../../../README.md#cpp11)
 
 ## Prerequisites
 
-Download and install the [CUDA Toolkit 11.6](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit 11.8](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 Make sure the dependencies mentioned in [Dependencies]() section above are installed.
 
 ## Build and Run

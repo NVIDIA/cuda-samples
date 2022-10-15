@@ -3,19 +3,19 @@
 <entry>
   <name>imageDenoising</name>
   <cuda_api_list>
-    <toolkit>cudaFree</toolkit>
-    <toolkit>cudaGraphicsMapResources</toolkit>
-    <toolkit>cudaGraphicsUnregisterResource</toolkit>
-    <toolkit>cudaFreeArray</toolkit>
-    <toolkit>cudaGraphicsGLRegisterBuffer</toolkit>
-    <toolkit>cudaGraphicsResourceGetMappedPointer</toolkit>
-    <toolkit>cudaDeviceSynchronize</toolkit>
-    <toolkit>cudaCreateTextureObject</toolkit>
-    <toolkit>cudaMalloc</toolkit>
-    <toolkit>cudaMallocArray</toolkit>
-    <toolkit>cudaGLRegisterBufferObject</toolkit>
     <toolkit>cudaGraphicsUnmapResources</toolkit>
     <toolkit>cudaMemcpy</toolkit>
+    <toolkit>cudaMallocArray</toolkit>
+    <toolkit>cudaFreeArray</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaGraphicsResourceGetMappedPointer</toolkit>
+    <toolkit>cudaGraphicsMapResources</toolkit>
+    <toolkit>cudaDeviceSynchronize</toolkit>
+    <toolkit>cudaCreateTextureObject</toolkit>
+    <toolkit>cudaGLRegisterBufferObject</toolkit>
+    <toolkit>cudaGraphicsUnregisterResource</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaGraphicsGLRegisterBuffer</toolkit>
   </cuda_api_list>
   <description><![CDATA[This sample demonstrates two adaptive image denoising techniques: KNN and NLM, based on computation of both geometric and color distance between texels. While both techniques are implemented in the DirectX SDK using shaders, massively speeded up variation of the latter technique, taking advantage of shared memory, is implemented in addition to DirectX counterparts.]]></description>
   <devicecompilation>whole</devicecompilation>
@@ -83,6 +83,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

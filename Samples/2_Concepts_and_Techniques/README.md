@@ -19,7 +19,7 @@ This sample demonstrates how Discrete Cosine Transform (DCT) for blocks of 8 by 
 ### [EGLStream_CUDA_CrossGPU](./EGLStream_CUDA_CrossGPU)
 Demonstrates CUDA and EGL Streams interop, where consumer's EGL Stream is on one GPU and producer's on other and both consumer-producer are different processes.
 
-### [EGLStreams_CUDA_Interop](./EGLStreams_CUDA_Interop)
+### [EGLStream_CUDA_Interop](./EGLStream_CUDA_Interop)
 Demonstrates data exchange between CUDA and EGL Streams.
 
 ### [EGLSync_CUDAEvent_Interop](./EGLSync_CUDAEvent_Interop)

@@ -3,19 +3,19 @@
 <entry>
   <name>fluidsGL</name>
   <cuda_api_list>
-    <toolkit>cudaFree</toolkit>
-    <toolkit>cudaGraphicsMapResources</toolkit>
-    <toolkit>cudaFreeArray</toolkit>
-    <toolkit>cudaGraphicsGLRegisterBuffer</toolkit>
-    <toolkit>cudaGraphicsResourceGetMappedPointer</toolkit>
-    <toolkit>cudaDestroyTextureObject</toolkit>
-    <toolkit>cudaMallocPitch</toolkit>
-    <toolkit>cudaCreateTextureObject</toolkit>
-    <toolkit>cudaMalloc</toolkit>
-    <toolkit>cudaMallocArray</toolkit>
-    <toolkit>cudaGraphicsUnregisterResource</toolkit>
     <toolkit>cudaGraphicsUnmapResources</toolkit>
     <toolkit>cudaMemcpy</toolkit>
+    <toolkit>cudaMallocArray</toolkit>
+    <toolkit>cudaFreeArray</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaMallocPitch</toolkit>
+    <toolkit>cudaGraphicsResourceGetMappedPointer</toolkit>
+    <toolkit>cudaGraphicsMapResources</toolkit>
+    <toolkit>cudaDestroyTextureObject</toolkit>
+    <toolkit>cudaCreateTextureObject</toolkit>
+    <toolkit>cudaGraphicsUnregisterResource</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaGraphicsGLRegisterBuffer</toolkit>
     <toolkit>cudaGetDeviceProperties</toolkit>
   </cuda_api_list>
   <description><![CDATA[An example of fluid simulation using CUDA and CUFFT, with OpenGL rendering.]]></description>
@@ -83,6 +83,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

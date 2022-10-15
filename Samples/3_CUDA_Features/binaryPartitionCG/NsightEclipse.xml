@@ -6,15 +6,15 @@
     <flag>--std=c++11</flag>
   </cflags>
   <cuda_api_list>
+    <toolkit>cudaStreamCreateWithFlags</toolkit>
     <toolkit>cudaFree</toolkit>
     <toolkit>cudaMallocHost</toolkit>
-    <toolkit>cudaOccupancyMaxPotentialBlockSize</toolkit>
-    <toolkit>cudaMemsetAsync</toolkit>
     <toolkit>cudaFreeHost</toolkit>
-    <toolkit>cudaMalloc</toolkit>
-    <toolkit>cudaStreamCreateWithFlags</toolkit>
     <toolkit>cudaStreamSynchronize</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaMemsetAsync</toolkit>
     <toolkit>cudaMemcpyAsync</toolkit>
+    <toolkit>cudaOccupancyMaxPotentialBlockSize</toolkit>
   </cuda_api_list>
   <description><![CDATA[This sample is a simple code that illustrates binary partition cooperative groups and reduce within the thread block.]]></description>
   <devicecompilation>whole</devicecompilation>
@@ -54,6 +54,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

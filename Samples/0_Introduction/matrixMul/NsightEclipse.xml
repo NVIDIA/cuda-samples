@@ -3,20 +3,20 @@
 <entry>
   <name>matrixMul</name>
   <cuda_api_list>
+    <toolkit>cudaStreamCreateWithFlags</toolkit>
+    <toolkit>cudaProfilerStop</toolkit>
+    <toolkit>cudaMalloc</toolkit>
     <toolkit>cudaFree</toolkit>
-    <toolkit>cudaEventRecord</toolkit>
     <toolkit>cudaMallocHost</toolkit>
     <toolkit>cudaProfilerStart</toolkit>
-    <toolkit>cudaEventCreate</toolkit>
-    <toolkit>cudaEventElapsedTime</toolkit>
     <toolkit>cudaEventSynchronize</toolkit>
+    <toolkit>cudaEventRecord</toolkit>
     <toolkit>cudaFreeHost</toolkit>
-    <toolkit>cudaMalloc</toolkit>
-    <toolkit>cudaProfilerStop</toolkit>
-    <toolkit>cudaStreamCreateWithFlags</toolkit>
-    <toolkit>cudaEventDestroy</toolkit>
     <toolkit>cudaStreamSynchronize</toolkit>
+    <toolkit>cudaEventDestroy</toolkit>
+    <toolkit>cudaEventElapsedTime</toolkit>
     <toolkit>cudaMemcpyAsync</toolkit>
+    <toolkit>cudaEventCreate</toolkit>
   </cuda_api_list>
   <description><![CDATA[This sample implements matrix multiplication and is exactly the same as Chapter 6 of the programming guide. It has been written for clarity of exposition to illustrate various CUDA programming principles, not with the goal of providing the most performant generic kernel for matrix multiplication.  To illustrate GPU performance for matrix multiply, this sample also shows how to use the new CUDA 4.0 interface for CUBLAS to demonstrate high-performance performance for matrix multiplication.]]></description>
   <devicecompilation>whole</devicecompilation>
@@ -56,6 +56,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

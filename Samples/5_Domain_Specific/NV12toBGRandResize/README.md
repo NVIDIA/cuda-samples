@@ -10,7 +10,7 @@ Graphics Interop, Image Processing, Video Processing
 
 ## Supported SM Architectures
 
-[SM 3.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 3.7 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.3 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.1 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.6 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.7 ](https://developer.nvidia.com/cuda-gpus)
+[SM 3.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 3.7 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.3 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.1 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.6 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.7 ](https://developer.nvidia.com/cuda-gpus)  [SM 9.0 ](https://developer.nvidia.com/cuda-gpus)
 
 ## Supported OSes
 
@@ -23,11 +23,11 @@ x86_64, ppc64le, aarch64
 ## CUDA APIs involved
 
 ### [CUDA Runtime API](http://docs.nvidia.com/cuda/cuda-runtime-api/index.html)
-cudaStreamDestroy, cudaFree, cudaEventRecord, cudaMallocManaged, cudaStreamCreate, cudaEventCreate, cudaEventElapsedTime, cudaDeviceSynchronize, cudaDestroyTextureObject, cudaEventSynchronize, cudaStreamAttachMemAsync, cudaCreateTextureObject, cudaMalloc, cudaEventDestroy, cudaMemcpy
+cudaMemcpy, cudaStreamDestroy, cudaMalloc, cudaFree, cudaMallocManaged, cudaStreamAttachMemAsync, cudaDestroyTextureObject, cudaEventSynchronize, cudaDeviceSynchronize, cudaCreateTextureObject, cudaEventRecord, cudaEventDestroy, cudaEventElapsedTime, cudaStreamCreate, cudaEventCreate
 
 ## Prerequisites
 
-Download and install the [CUDA Toolkit 11.6](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit 11.8](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 
 ## Build and Run
 

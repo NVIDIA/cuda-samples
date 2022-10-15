@@ -10,7 +10,7 @@ cuMemMap IPC, MMAP, Graphics Interop, CUDA Vulkan Interop, Data Parallel Algorit
 
 ## Supported SM Architectures
 
-[SM 3.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 3.7 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.3 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.1 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.6 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.7 ](https://developer.nvidia.com/cuda-gpus)
+[SM 3.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 3.7 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.3 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.1 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.6 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.7 ](https://developer.nvidia.com/cuda-gpus)  [SM 9.0 ](https://developer.nvidia.com/cuda-gpus)
 
 ## Supported OSes
 
@@ -23,17 +23,17 @@ x86_64, aarch64
 ## CUDA APIs involved
 
 ### [CUDA Driver API](http://docs.nvidia.com/cuda/cuda-driver-api/index.html)
-cuMemRelease, cuMemExportToShareableHandle, cuMemSetAccess, cuMemMap, cuMemCreate, cuMemAddressFree, cuMemGetAllocationGranularity, cuMemUnmap, cuMemAddressReserve
+cuMemCreate, cuMemAddressReserve, cuMemGetAllocationGranularity, cuMemAddressFree, cuMemUnmap, cuMemMap, cuMemRelease, cuMemExportToShareableHandle, cuMemSetAccess
 
 ### [CUDA Runtime API](http://docs.nvidia.com/cuda/cuda-runtime-api/index.html)
-cudaOccupancyMaxActiveBlocksPerMultiprocessor, cudaImportExternalSemaphore, cudaStreamCreateWithFlags, cudaMemcpyAsync, cudaStreamDestroy, cudaSignalExternalSemaphoresAsync, cudaMallocHost, cudaMalloc, cudaSetDevice, cudaGetDeviceProperties, cudaGetDeviceCount, cudaDeviceGetAttribute, cudaSignalSemaphore, cudaWaitSemaphore, cudaDestroyExternalSemaphore, cudaStreamSynchronize, cudaFree, cudaLaunchHostFunc, cudaMemsetAsync, cudaFreeHost, cudaWaitExternalSemaphoresAsync
+cudaWaitExternalSemaphoresAsync, cudaImportExternalSemaphore, cudaDeviceGetAttribute, cudaSetDevice, cudaLaunchHostFunc, cudaMallocHost, cudaSignalExternalSemaphoresAsync, cudaFreeHost, cudaMemsetAsync, cudaMemcpyAsync, cudaGetDeviceCount, cudaStreamCreateWithFlags, cudaStreamDestroy, cudaDestroyExternalSemaphore, cudaSignalSemaphore, cudaWaitSemaphore, cudaFree, cudaStreamSynchronize, cudaMalloc, cudaOccupancyMaxActiveBlocksPerMultiprocessor, cudaGetDeviceProperties
 
 ## Dependencies needed to build/run
 [X11](../../../README.md#x11), [VULKAN](../../../README.md#vulkan)
 
 ## Prerequisites
 
-Download and install the [CUDA Toolkit 11.6](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit 11.8](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 Make sure the dependencies mentioned in [Dependencies]() section above are installed.
 
 ## Build and Run

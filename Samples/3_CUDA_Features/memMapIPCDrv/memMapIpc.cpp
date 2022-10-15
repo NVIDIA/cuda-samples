@@ -595,10 +595,6 @@ static void parentProcess(char *app) {
 
 // Host code
 int main(int argc, char **argv) {
-#if defined(__arm__) || defined(__aarch64__)
-  printf("Not supported on ARM\n");
-  return EXIT_WAIVED;
-#else
   // Initialize
   checkCudaErrors(cuInit(0));
 
@@ -608,7 +604,6 @@ int main(int argc, char **argv) {
     childProcess(atoi(argv[1]), atoi(argv[2]), argv);
   }
   return EXIT_SUCCESS;
-#endif
 }
 
 bool inline findModulePath(const char *module_file, string &module_path,

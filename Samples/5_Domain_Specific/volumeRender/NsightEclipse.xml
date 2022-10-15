@@ -3,24 +3,24 @@
 <entry>
   <name>volumeRender</name>
   <cuda_api_list>
-    <toolkit>cudaMemcpyToSymbol</toolkit>
-    <toolkit>cudaMemset</toolkit>
-    <toolkit>cudaFree</toolkit>
-    <toolkit>cudaGraphicsMapResources</toolkit>
-    <toolkit>cudaFreeArray</toolkit>
-    <toolkit>cudaGraphicsGLRegisterBuffer</toolkit>
-    <toolkit>cudaGraphicsResourceGetMappedPointer</toolkit>
-    <toolkit>cudaExtent</toolkit>
-    <toolkit>cudaDeviceSynchronize</toolkit>
-    <toolkit>cudaDestroyTextureObject</toolkit>
-    <toolkit>cudaPitchedPtr</toolkit>
-    <toolkit>cudaCreateTextureObject</toolkit>
-    <toolkit>cudaMalloc</toolkit>
     <toolkit>cudaProfilerStop</toolkit>
-    <toolkit>cudaMallocArray</toolkit>
-    <toolkit>cudaGraphicsUnregisterResource</toolkit>
     <toolkit>cudaGraphicsUnmapResources</toolkit>
     <toolkit>cudaMemcpy</toolkit>
+    <toolkit>cudaMallocArray</toolkit>
+    <toolkit>cudaFreeArray</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaPitchedPtr</toolkit>
+    <toolkit>cudaGraphicsResourceGetMappedPointer</toolkit>
+    <toolkit>cudaGraphicsMapResources</toolkit>
+    <toolkit>cudaDestroyTextureObject</toolkit>
+    <toolkit>cudaExtent</toolkit>
+    <toolkit>cudaDeviceSynchronize</toolkit>
+    <toolkit>cudaCreateTextureObject</toolkit>
+    <toolkit>cudaMemset</toolkit>
+    <toolkit>cudaMemcpyToSymbol</toolkit>
+    <toolkit>cudaGraphicsUnregisterResource</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaGraphicsGLRegisterBuffer</toolkit>
   </cuda_api_list>
   <description><![CDATA[This sample demonstrates basic volume rendering using 3D Textures.]]></description>
   <devicecompilation>whole</devicecompilation>
@@ -84,6 +84,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

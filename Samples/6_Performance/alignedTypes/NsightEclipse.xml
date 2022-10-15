@@ -3,11 +3,11 @@
 <entry>
   <name>alignedTypes</name>
   <cuda_api_list>
-    <toolkit>cudaMemset</toolkit>
+    <toolkit>cudaMemcpy</toolkit>
     <toolkit>cudaFree</toolkit>
     <toolkit>cudaDeviceSynchronize</toolkit>
+    <toolkit>cudaMemset</toolkit>
     <toolkit>cudaMalloc</toolkit>
-    <toolkit>cudaMemcpy</toolkit>
     <toolkit>cudaGetDeviceProperties</toolkit>
   </cuda_api_list>
   <description><![CDATA[A simple test, showing huge access speed gap between aligned and misaligned structures. It measures per-element copy throughput for aligned and misaligned structures on big chunks of data.]]></description>
@@ -46,6 +46,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

@@ -3,22 +3,22 @@
 <entry>
   <name>postProcessGL</name>
   <cuda_api_list>
-    <toolkit>cudaFree</toolkit>
-    <toolkit>cudaGraphicsMapResources</toolkit>
-    <toolkit>cudaGraphicsUnregisterResource</toolkit>
-    <toolkit>cudaMemcpyToArray</toolkit>
-    <toolkit>cudaGraphicsGLRegisterBuffer</toolkit>
     <toolkit>cudaHostAlloc</toolkit>
-    <toolkit>cudaGraphicsResourceGetMappedPointer</toolkit>
-    <toolkit>cudaProcess</toolkit>
-    <toolkit>cudaDeviceSynchronize</toolkit>
-    <toolkit>cudaDestroyTextureObject</toolkit>
-    <toolkit>cudaCreateTextureObject</toolkit>
-    <toolkit>cudaGraphicsSubResourceGetMappedArray</toolkit>
-    <toolkit>cudaGetChannelDesc</toolkit>
-    <toolkit>cudaMalloc</toolkit>
-    <toolkit>cudaGraphicsGLRegisterImage</toolkit>
     <toolkit>cudaGraphicsUnmapResources</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaGetChannelDesc</toolkit>
+    <toolkit>cudaGraphicsResourceGetMappedPointer</toolkit>
+    <toolkit>cudaGraphicsMapResources</toolkit>
+    <toolkit>cudaDestroyTextureObject</toolkit>
+    <toolkit>cudaMemcpyToArray</toolkit>
+    <toolkit>cudaDeviceSynchronize</toolkit>
+    <toolkit>cudaCreateTextureObject</toolkit>
+    <toolkit>cudaProcess</toolkit>
+    <toolkit>cudaGraphicsUnregisterResource</toolkit>
+    <toolkit>cudaGraphicsSubResourceGetMappedArray</toolkit>
+    <toolkit>cudaGraphicsGLRegisterBuffer</toolkit>
+    <toolkit>cudaGraphicsGLRegisterImage</toolkit>
   </cuda_api_list>
   <description><![CDATA[This sample shows how to post-process an image rendered in OpenGL using CUDA.]]></description>
   <devicecompilation>whole</devicecompilation>
@@ -85,6 +85,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

@@ -3,29 +3,29 @@
 <entry>
   <name>simpleIPC</name>
   <cuda_api_list>
-    <toolkit>cudaDeviceEnablePeerAccess</toolkit>
-    <toolkit>cudaIpcOpenEventHandle</toolkit>
-    <toolkit>cudaOccupancyMaxActiveBlocksPerMultiprocessor</toolkit>
-    <toolkit>cudaStreamCreateWithFlags</toolkit>
-    <toolkit>cudaDeviceCanAccessPeer</toolkit>
-    <toolkit>cudaMemcpyAsync</toolkit>
-    <toolkit>cudaStreamDestroy</toolkit>
-    <toolkit>cudaEventCreate</toolkit>
-    <toolkit>cudaMalloc</toolkit>
-    <toolkit>cudaEventDestroy</toolkit>
     <toolkit>cudaSetDevice</toolkit>
-    <toolkit>cudaIpcOpenMemHandle</toolkit>
-    <toolkit>cudaGetDeviceProperties</toolkit>
-    <toolkit>cudaGetDeviceCount</toolkit>
-    <toolkit>cudaIpcGetEventHandle</toolkit>
-    <toolkit>cudaGetLastError</toolkit>
-    <toolkit>cudaStreamSynchronize</toolkit>
-    <toolkit>cudaStreamWaitEvent</toolkit>
-    <toolkit>cudaFree</toolkit>
     <toolkit>cudaIpcCloseMemHandle</toolkit>
+    <toolkit>cudaEventDestroy</toolkit>
+    <toolkit>cudaGetDeviceCount</toolkit>
+    <toolkit>cudaMemcpyAsync</toolkit>
+    <toolkit>cudaDeviceCanAccessPeer</toolkit>
+    <toolkit>cudaStreamCreateWithFlags</toolkit>
+    <toolkit>cudaStreamDestroy</toolkit>
+    <toolkit>cudaGetLastError</toolkit>
+    <toolkit>cudaIpcOpenEventHandle</toolkit>
+    <toolkit>cudaIpcOpenMemHandle</toolkit>
+    <toolkit>cudaIpcGetEventHandle</toolkit>
+    <toolkit>cudaStreamWaitEvent</toolkit>
+    <toolkit>cudaEventCreate</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaEventSynchronize</toolkit>
     <toolkit>cudaEventRecord</toolkit>
     <toolkit>cudaIpcGetMemHandle</toolkit>
-    <toolkit>cudaEventSynchronize</toolkit>
+    <toolkit>cudaStreamSynchronize</toolkit>
+    <toolkit>cudaDeviceEnablePeerAccess</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaOccupancyMaxActiveBlocksPerMultiprocessor</toolkit>
+    <toolkit>cudaGetDeviceProperties</toolkit>
   </cuda_api_list>
   <description><![CDATA[This CUDA Runtime API sample is a very basic sample that demonstrates Inter Process Communication with one process per GPU for computation.  Requires Compute Capability 3.0 or higher and a Linux Operating System, or a Windows Operating System.]]></description>
   <devicecompilation>whole</devicecompilation>
@@ -71,6 +71,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <sources>
     <extracompilation>../../../Common/helper_multiprocess.cpp</extracompilation>
     <extraheader>../../../Common/helper_multiprocess.h</extraheader>

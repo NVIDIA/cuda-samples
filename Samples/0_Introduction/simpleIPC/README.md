@@ -10,7 +10,7 @@ CUDA Systems Integration, Peer to Peer, InterProcess Communication
 
 ## Supported SM Architectures
 
-[SM 3.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 3.7 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.3 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.1 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.6 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.7 ](https://developer.nvidia.com/cuda-gpus)
+[SM 3.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 3.7 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.3 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.1 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.6 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.7 ](https://developer.nvidia.com/cuda-gpus)  [SM 9.0 ](https://developer.nvidia.com/cuda-gpus)
 
 ## Supported OSes
 
@@ -23,14 +23,14 @@ x86_64, ppc64le
 ## CUDA APIs involved
 
 ### [CUDA Runtime API](http://docs.nvidia.com/cuda/cuda-runtime-api/index.html)
-cudaDeviceEnablePeerAccess, cudaIpcOpenEventHandle, cudaOccupancyMaxActiveBlocksPerMultiprocessor, cudaStreamCreateWithFlags, cudaDeviceCanAccessPeer, cudaMemcpyAsync, cudaStreamDestroy, cudaEventCreate, cudaMalloc, cudaEventDestroy, cudaSetDevice, cudaIpcOpenMemHandle, cudaGetDeviceProperties, cudaGetDeviceCount, cudaIpcGetEventHandle, cudaGetLastError, cudaStreamSynchronize, cudaStreamWaitEvent, cudaFree, cudaIpcCloseMemHandle, cudaEventRecord, cudaIpcGetMemHandle, cudaEventSynchronize
+cudaSetDevice, cudaIpcCloseMemHandle, cudaEventDestroy, cudaGetDeviceCount, cudaMemcpyAsync, cudaDeviceCanAccessPeer, cudaStreamCreateWithFlags, cudaStreamDestroy, cudaGetLastError, cudaIpcOpenEventHandle, cudaIpcOpenMemHandle, cudaIpcGetEventHandle, cudaStreamWaitEvent, cudaEventCreate, cudaFree, cudaEventSynchronize, cudaEventRecord, cudaIpcGetMemHandle, cudaStreamSynchronize, cudaDeviceEnablePeerAccess, cudaMalloc, cudaOccupancyMaxActiveBlocksPerMultiprocessor, cudaGetDeviceProperties
 
 ## Dependencies needed to build/run
 [IPC](../../../README.md#ipc)
 
 ## Prerequisites
 
-Download and install the [CUDA Toolkit 11.6](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit 11.8](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 Make sure the dependencies mentioned in [Dependencies]() section above are installed.
 
 ## Build and Run

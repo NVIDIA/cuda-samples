@@ -7,11 +7,11 @@
     <flag>--std=c++14</flag>
   </cflags>
   <cuda_api_list>
-    <toolkit>cudaDeviceSetLimit</toolkit>
-    <toolkit>cudaFree</toolkit>
-    <toolkit>cudaMalloc</toolkit>
-    <toolkit>cudaGetLastError</toolkit>
     <toolkit>cudaMemcpy</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaGetLastError</toolkit>
+    <toolkit>cudaDeviceSetLimit</toolkit>
+    <toolkit>cudaMalloc</toolkit>
     <toolkit>cudaGetDeviceProperties</toolkit>
   </cuda_api_list>
   <description><![CDATA[This sample demonstrates Quad Trees implemented using CUDA Dynamic Parallelism. This sample requires devices with compute capability 3.5 or higher.]]></description>
@@ -54,6 +54,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

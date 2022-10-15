@@ -310,9 +310,9 @@ endif
 
 # Gencode arguments
 ifeq ($(TARGET_ARCH),$(filter $(TARGET_ARCH),armv7l aarch64 sbsa))
-SMS ?= 53 61 70 72 75 80 86 87
+SMS ?= 53 61 70 72 75 80 86 87 90
 else
-SMS ?= 35 37 50 52 60 61 70 75 80 86
+SMS ?= 35 37 50 52 60 61 70 75 80 86 90
 endif
 
 ifeq ($(SMS),)
@@ -363,7 +363,6 @@ run: build
 	$(EXEC) ./c++11_cuda
 
 testrun: build
-	$(EXEC) ./c++11_cuda --dummy-test-param
 
 clean:
 	rm -f c++11_cuda c++11_cuda.o

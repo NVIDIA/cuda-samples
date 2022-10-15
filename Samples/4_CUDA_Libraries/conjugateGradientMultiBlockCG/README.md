@@ -10,7 +10,7 @@ Unified Memory, Linear Algebra, Cooperative Groups, MultiBlock Cooperative Group
 
 ## Supported SM Architectures
 
-[SM 6.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.1 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.6 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.7 ](https://developer.nvidia.com/cuda-gpus)
+[SM 6.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.1 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.6 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.7 ](https://developer.nvidia.com/cuda-gpus)  [SM 9.0 ](https://developer.nvidia.com/cuda-gpus)
 
 ## Supported OSes
 
@@ -23,14 +23,14 @@ x86_64, ppc64le, aarch64
 ## CUDA APIs involved
 
 ### [CUDA Runtime API](http://docs.nvidia.com/cuda/cuda-runtime-api/index.html)
-cudaFree, cudaEventRecord, cudaMallocManaged, cudaOccupancyMaxActiveBlocksPerMultiprocessor, cudaEventCreate, cudaEventElapsedTime, cudaDeviceSynchronize, cudaEventDestroy, cudaLaunchCooperativeKernel, cudaGetDeviceProperties
+cudaFree, cudaMallocManaged, cudaDeviceSynchronize, cudaEventRecord, cudaLaunchCooperativeKernel, cudaEventDestroy, cudaEventElapsedTime, cudaOccupancyMaxActiveBlocksPerMultiprocessor, cudaGetDeviceProperties, cudaEventCreate
 
 ## Dependencies needed to build/run
 [UVM](../../../README.md#uvm), [MBCG](../../../README.md#mbcg)
 
 ## Prerequisites
 
-Download and install the [CUDA Toolkit 11.6](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit 11.8](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 Make sure the dependencies mentioned in [Dependencies]() section above are installed.
 
 ## Build and Run

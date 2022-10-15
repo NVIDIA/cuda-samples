@@ -301,7 +301,7 @@ CUresult cudaDeviceCreateProducer(test_cuda_producer_s *cudaProducer,
 
   if (major < 6) {
     printf(
-        "EGLStreams_CUDA_Interop requires SM 6.0 or higher arch GPU.  "
+        "EGLStream_CUDA_Interop requires SM 6.0 or higher arch GPU.  "
         "Exiting...\n");
     exit(2);  // EXIT_WAIVED
   }

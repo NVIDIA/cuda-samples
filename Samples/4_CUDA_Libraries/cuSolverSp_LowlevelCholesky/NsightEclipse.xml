@@ -5,11 +5,11 @@
   <cuda_api_list>
     <driver>cuDoubleComplex</driver>
     <driver>cuComplex</driver>
+    <toolkit>cudaMemcpy</toolkit>
     <toolkit>cudaStreamDestroy</toolkit>
     <toolkit>cudaFree</toolkit>
-    <toolkit>cudaStreamCreate</toolkit>
     <toolkit>cudaMalloc</toolkit>
-    <toolkit>cudaMemcpy</toolkit>
+    <toolkit>cudaStreamCreate</toolkit>
   </cuda_api_list>
   <description><![CDATA[A CUDA Sample that demonstrates Cholesky factorization using cuSolverSP's low level APIs.]]></description>
   <devicecompilation>whole</devicecompilation>
@@ -59,6 +59,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

@@ -3,21 +3,21 @@
 <entry>
   <name>NV12toBGRandResize</name>
   <cuda_api_list>
+    <toolkit>cudaMemcpy</toolkit>
     <toolkit>cudaStreamDestroy</toolkit>
+    <toolkit>cudaMalloc</toolkit>
     <toolkit>cudaFree</toolkit>
-    <toolkit>cudaEventRecord</toolkit>
     <toolkit>cudaMallocManaged</toolkit>
-    <toolkit>cudaStreamCreate</toolkit>
-    <toolkit>cudaEventCreate</toolkit>
-    <toolkit>cudaEventElapsedTime</toolkit>
-    <toolkit>cudaDeviceSynchronize</toolkit>
+    <toolkit>cudaStreamAttachMemAsync</toolkit>
     <toolkit>cudaDestroyTextureObject</toolkit>
     <toolkit>cudaEventSynchronize</toolkit>
-    <toolkit>cudaStreamAttachMemAsync</toolkit>
+    <toolkit>cudaDeviceSynchronize</toolkit>
     <toolkit>cudaCreateTextureObject</toolkit>
-    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaEventRecord</toolkit>
     <toolkit>cudaEventDestroy</toolkit>
-    <toolkit>cudaMemcpy</toolkit>
+    <toolkit>cudaEventElapsedTime</toolkit>
+    <toolkit>cudaStreamCreate</toolkit>
+    <toolkit>cudaEventCreate</toolkit>
   </cuda_api_list>
   <description><![CDATA[This code shows two ways to convert and resize NV12 frames to BGR 3 planars frames using CUDA in batch. Way-1, Convert NV12 Input to BGR @ Input Resolution-1, then Resize to Resolution#2. Way-2, resize NV12 Input to Resolution#2 then convert it to BGR Output. NVIDIA HW Decoder, both dGPU and Tegra, normally outputs NV12 pitch format frames. For the inference using TensorRT, the input frame needs to be BGR planar format with possibly different size. So, conversion and resizing from NV12 to BGR planar is usually required for the inference following decoding. This CUDA code provides a reference implementation for conversion and resizing.]]></description>
   <devicecompilation>whole</devicecompilation>
@@ -58,6 +58,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

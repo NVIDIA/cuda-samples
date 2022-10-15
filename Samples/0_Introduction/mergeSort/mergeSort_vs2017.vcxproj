@@ -38,7 +38,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-    <Import Project="$(CUDAPropsPath)\CUDA 11.6.props" />
+    <Import Project="$(CUDAPropsPath)\CUDA 11.8.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets">
     <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" />
@@ -67,7 +67,7 @@
       <OutputFile>$(OutDir)/mergeSort.exe</OutputFile>
     </Link>
     <CudaCompile>
-      <CodeGeneration>compute_35,sm_35;compute_37,sm_37;compute_50,sm_50;compute_52,sm_52;compute_60,sm_60;compute_61,sm_61;compute_70,sm_70;compute_75,sm_75;compute_80,sm_80;compute_86,sm_86;</CodeGeneration>
+      <CodeGeneration>compute_35,sm_35;compute_37,sm_37;compute_50,sm_50;compute_52,sm_52;compute_60,sm_60;compute_61,sm_61;compute_70,sm_70;compute_75,sm_75;compute_80,sm_80;compute_86,sm_86;compute_90,sm_90;</CodeGeneration>
       <AdditionalOptions>-Xcompiler "/wd 4819"  --threads 0 </AdditionalOptions>
       <Include>./;../../../Common</Include>
       <Defines>WIN32</Defines>
@@ -111,6 +111,6 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(CUDAPropsPath)\CUDA 11.6.targets" />
+    <Import Project="$(CUDAPropsPath)\CUDA 11.8.targets" />
   </ImportGroup>
 </Project>

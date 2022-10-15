@@ -3,17 +3,17 @@
 <entry>
   <name>simpleOccupancy</name>
   <cuda_api_list>
-    <toolkit>cudaFree</toolkit>
-    <toolkit>cudaEventRecord</toolkit>
-    <toolkit>cudaOccupancyMaxActiveBlocksPerMultiprocessor</toolkit>
-    <toolkit>cudaEventCreate</toolkit>
-    <toolkit>cudaOccupancyMaxPotentialBlockSize</toolkit>
-    <toolkit>cudaEventElapsedTime</toolkit>
-    <toolkit>cudaDeviceSynchronize</toolkit>
-    <toolkit>cudaMalloc</toolkit>
     <toolkit>cudaMemcpy</toolkit>
-    <toolkit>cudaGetDeviceProperties</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaDeviceSynchronize</toolkit>
+    <toolkit>cudaEventRecord</toolkit>
     <toolkit>cudaGetDevice</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaEventElapsedTime</toolkit>
+    <toolkit>cudaOccupancyMaxActiveBlocksPerMultiprocessor</toolkit>
+    <toolkit>cudaGetDeviceProperties</toolkit>
+    <toolkit>cudaOccupancyMaxPotentialBlockSize</toolkit>
+    <toolkit>cudaEventCreate</toolkit>
   </cuda_api_list>
   <description><![CDATA[This sample demonstrates the basic usage of the CUDA occupancy calculator and occupancy-based launch configurator APIs by launching a kernel with the launch configurator, and measures the utilization difference against a manually configured launch.]]></description>
   <devicecompilation>whole</devicecompilation>
@@ -52,6 +52,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

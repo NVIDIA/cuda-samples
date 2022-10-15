@@ -6,21 +6,21 @@
     <flag>--std=c++14</flag>
   </cflags>
   <cuda_api_list>
-    <toolkit>cudaFree</toolkit>
-    <toolkit>cudaGraphicsMapResources</toolkit>
-    <toolkit>cudaGraphicsUnregisterResource</toolkit>
-    <toolkit>cudaGraphicsGLRegisterBuffer</toolkit>
-    <toolkit>cudaGLUnregisterBufferObject</toolkit>
-    <toolkit>cudaGraphicsResourceGetMappedPointer</toolkit>
     <toolkit>cudaGLUnmapBufferObject</toolkit>
-    <toolkit>cudaDestroyTextureObject</toolkit>
-    <toolkit>cudaGLMapBufferObject</toolkit>
-    <toolkit>cudaCreateTextureObject</toolkit>
-    <toolkit>cudaMalloc</toolkit>
-    <toolkit>cudaCreateChannelDesc</toolkit>
-    <toolkit>cudaGLRegisterBufferObject</toolkit>
     <toolkit>cudaGraphicsUnmapResources</toolkit>
+    <toolkit>cudaCreateChannelDesc</toolkit>
     <toolkit>cudaMemcpy</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaGLMapBufferObject</toolkit>
+    <toolkit>cudaGraphicsResourceGetMappedPointer</toolkit>
+    <toolkit>cudaGraphicsMapResources</toolkit>
+    <toolkit>cudaDestroyTextureObject</toolkit>
+    <toolkit>cudaGLUnregisterBufferObject</toolkit>
+    <toolkit>cudaCreateTextureObject</toolkit>
+    <toolkit>cudaGLRegisterBufferObject</toolkit>
+    <toolkit>cudaGraphicsUnregisterResource</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaGraphicsGLRegisterBuffer</toolkit>
   </cuda_api_list>
   <description><![CDATA[This sample extracts a geometric isosurface from a volume dataset using the marching cubes algorithm. It uses the scan (prefix sum) function from the Thrust library to perform stream compaction.]]></description>
   <devicecompilation>whole</devicecompilation>
@@ -92,6 +92,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

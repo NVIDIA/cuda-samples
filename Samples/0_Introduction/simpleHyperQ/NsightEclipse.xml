@@ -3,20 +3,20 @@
 <entry>
   <name>simpleHyperQ</name>
   <cuda_api_list>
-    <toolkit>cudaStreamDestroy</toolkit>
-    <toolkit>cudaFree</toolkit>
-    <toolkit>cudaEventRecord</toolkit>
-    <toolkit>cudaMallocHost</toolkit>
-    <toolkit>cudaStreamCreate</toolkit>
-    <toolkit>cudaEventCreate</toolkit>
-    <toolkit>cudaEventElapsedTime</toolkit>
-    <toolkit>cudaEventSynchronize</toolkit>
-    <toolkit>cudaFreeHost</toolkit>
-    <toolkit>cudaMalloc</toolkit>
-    <toolkit>cudaEventDestroy</toolkit>
     <toolkit>cudaMemcpy</toolkit>
-    <toolkit>cudaGetDeviceProperties</toolkit>
+    <toolkit>cudaStreamDestroy</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaMallocHost</toolkit>
+    <toolkit>cudaEventSynchronize</toolkit>
+    <toolkit>cudaEventRecord</toolkit>
+    <toolkit>cudaFreeHost</toolkit>
     <toolkit>cudaGetDevice</toolkit>
+    <toolkit>cudaEventDestroy</toolkit>
+    <toolkit>cudaEventElapsedTime</toolkit>
+    <toolkit>cudaStreamCreate</toolkit>
+    <toolkit>cudaGetDeviceProperties</toolkit>
+    <toolkit>cudaEventCreate</toolkit>
   </cuda_api_list>
   <description><![CDATA[This sample demonstrates the use of CUDA streams for concurrent execution of several kernels on devices which provide HyperQ (SM 3.5).  Devices without HyperQ (SM 2.0 and SM 3.0) will run a maximum of two kernels concurrently.]]></description>
   <devicecompilation>whole</devicecompilation>
@@ -62,6 +62,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

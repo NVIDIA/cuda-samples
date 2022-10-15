@@ -10,7 +10,7 @@ CUDA NvSci Interop, Data Parallel Algorithms, Image Processing
 
 ## Supported SM Architectures
 
-[SM 6.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.1 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.6 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.7 ](https://developer.nvidia.com/cuda-gpus)
+[SM 6.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.1 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.6 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.7 ](https://developer.nvidia.com/cuda-gpus)  [SM 9.0 ](https://developer.nvidia.com/cuda-gpus)
 
 ## Supported OSes
 
@@ -26,14 +26,14 @@ aarch64
 cuDeviceGetUuid
 
 ### [CUDA Runtime API](http://docs.nvidia.com/cuda/cuda-runtime-api/index.html)
-cudaGetMipmappedArrayLevel, cudaImportNvSciImage, cudaImportExternalSemaphore, cudaStreamCreateWithFlags, cudaExternalMemoryGetMappedMipmappedArray, cudaDestroyExternalMemory, cudaMemcpyAsync, cudaStreamDestroy, cudaSignalExternalSemaphoresAsync, cudaDeviceGetNvSciSyncAttributes, cudaFreeMipmappedArray, cudaMallocHost, cudaDestroySurfaceObject, cudaImportExternalMemory, cudaMalloc, cudaSetDevice, cudaDestroyExternalSemaphore, cudaCreateChannelDesc, cudaStreamSynchronize, cudaFree, cudaFreeArray, cudaCreateSurfaceObject, cudaFreeHost, cudaMallocArray, cudaWaitExternalSemaphoresAsync, cudaImportNvSciSync
+cudaImportExternalSemaphore, cudaGetMipmappedArrayLevel, cudaSetDevice, cudaDestroySurfaceObject, cudaCreateSurfaceObject, cudaImportNvSciImage, cudaCreateChannelDesc, cudaMallocHost, cudaSignalExternalSemaphoresAsync, cudaFreeHost, cudaMemcpyAsync, cudaStreamCreateWithFlags, cudaExternalMemoryGetMappedMipmappedArray, cudaMallocArray, cudaFreeArray, cudaStreamDestroy, cudaDeviceGetNvSciSyncAttributes, cudaDestroyExternalMemory, cudaImportExternalMemory, cudaDestroyExternalSemaphore, cudaFreeMipmappedArray, cudaImportNvSciSync, cudaFree, cudaStreamSynchronize, cudaMalloc, cudaWaitExternalSemaphoresAsync
 
 ## Dependencies needed to build/run
 [NVSCI](../../../README.md#nvsci), [NvMedia](../../../README.md#nvmedia)
 
 ## Prerequisites
 
-Download and install the [CUDA Toolkit 11.6](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit 11.8](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 Make sure the dependencies mentioned in [Dependencies]() section above are installed.
 
 ## Build and Run

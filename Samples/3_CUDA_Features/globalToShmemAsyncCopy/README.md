@@ -10,7 +10,7 @@ CUDA Runtime API, Linear Algebra, CPP11 CUDA
 
 ## Supported SM Architectures
 
-[SM 7.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.6 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.7 ](https://developer.nvidia.com/cuda-gpus)
+[SM 7.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.6 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.7 ](https://developer.nvidia.com/cuda-gpus)  [SM 9.0 ](https://developer.nvidia.com/cuda-gpus)
 
 ## Supported OSes
 
@@ -23,14 +23,14 @@ x86_64, ppc64le, armv7l, aarch64
 ## CUDA APIs involved
 
 ### [CUDA Runtime API](http://docs.nvidia.com/cuda/cuda-runtime-api/index.html)
-cudaFree, cudaEventRecord, cudaMallocHost, cudaEventCreate, cudaMemsetAsync, cudaEventElapsedTime, cudaEventSynchronize, cudaDeviceGetAttribute, cudaFreeHost, cudaMalloc, cudaStreamCreateWithFlags, cudaEventDestroy, cudaStreamSynchronize, cudaMemcpyAsync
+cudaStreamCreateWithFlags, cudaMalloc, cudaDeviceGetAttribute, cudaFree, cudaMallocHost, cudaEventSynchronize, cudaEventRecord, cudaFreeHost, cudaStreamSynchronize, cudaEventDestroy, cudaEventElapsedTime, cudaMemsetAsync, cudaMemcpyAsync, cudaEventCreate
 
 ## Dependencies needed to build/run
 [CPP11](../../../README.md#cpp11)
 
 ## Prerequisites
 
-Download and install the [CUDA Toolkit 11.6](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit 11.8](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 Make sure the dependencies mentioned in [Dependencies]() section above are installed.
 
 ## Build and Run

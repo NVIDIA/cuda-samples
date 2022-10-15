@@ -3,9 +3,9 @@
 <entry>
   <name>simpleCUBLASXT</name>
   <cuda_api_list>
-    <toolkit>cudaFree</toolkit>
-    <toolkit>cudaGetDeviceCount</toolkit>
     <toolkit>cudaGetDeviceProperties</toolkit>
+    <toolkit>cudaGetDeviceCount</toolkit>
+    <toolkit>cudaFree</toolkit>
   </cuda_api_list>
   <description><![CDATA[Example of using CUBLAS-XT library which performs GEMM operations over Multiple GPUs.]]></description>
   <devicecompilation>whole</devicecompilation>
@@ -50,6 +50,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

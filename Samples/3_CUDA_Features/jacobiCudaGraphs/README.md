@@ -10,7 +10,7 @@ CUDA Graphs, Stream Capture, Instantiated CUDA Graph Update, Cooperative Groups
 
 ## Supported SM Architectures
 
-[SM 3.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 3.7 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.3 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.1 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.6 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.7 ](https://developer.nvidia.com/cuda-gpus)
+[SM 3.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 3.7 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 5.3 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.1 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.6 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.7 ](https://developer.nvidia.com/cuda-gpus)  [SM 9.0 ](https://developer.nvidia.com/cuda-gpus)
 
 ## Supported OSes
 
@@ -23,11 +23,11 @@ x86_64, ppc64le, armv7l
 ## CUDA APIs involved
 
 ### [CUDA Runtime API](http://docs.nvidia.com/cuda/cuda-runtime-api/index.html)
-cudaGraphAddMemsetNode, cudaStreamCreateWithFlags, cudaMemcpyAsync, cudaMallocHost, cudaPitchedPtr, cudaGraphCreate, cudaMalloc, cudaPos, cudaGraphAddMemcpyNode, cudaStreamEndCapture, cudaGraphExecDestroy, cudaStreamBeginCapture, cudaGraphExecKernelNodeSetParams, cudaStreamSynchronize, cudaGraphLaunch, cudaFree, cudaGraphInstantiate, cudaExtent, cudaMemsetAsync, cudaFreeHost, cudaGraphAddKernelNode, cudaGraphExecUpdate
+cudaExtent, cudaGraphLaunch, cudaGraphAddMemcpyNode, cudaMallocHost, cudaPitchedPtr, cudaStreamEndCapture, cudaGraphCreate, cudaFreeHost, cudaMemsetAsync, cudaMemcpyAsync, cudaGraphExecKernelNodeSetParams, cudaStreamCreateWithFlags, cudaGraphInstantiate, cudaStreamBeginCapture, cudaFree, cudaGraphExecUpdate, cudaGraphAddKernelNode, cudaPos, cudaStreamSynchronize, cudaGraphAddMemsetNode, cudaMalloc, cudaGraphExecDestroy
 
 ## Prerequisites
 
-Download and install the [CUDA Toolkit 11.6](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit 11.8](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 
 ## Build and Run
 

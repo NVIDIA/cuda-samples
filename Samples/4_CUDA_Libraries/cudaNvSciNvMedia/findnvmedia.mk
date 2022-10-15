@@ -56,6 +56,7 @@ ifeq ("$(TARGET_OS)","linux")
     RHEL   = $(shell echo $(DISTRO) | grep -i 'red\|rhel' >/dev/null 2>&1; echo $$?)
     CENTOS = $(shell echo $(DISTRO) | grep -i centos      >/dev/null 2>&1; echo $$?)
     SUSE   = $(shell echo $(DISTRO) | grep -i 'suse\|sles' >/dev/null 2>&1; echo $$?)
+    KYLIN  = $(shell echo $(DISTRO) | grep -i kylin        >/dev/null 2>&1; echo $$?)
     ifeq ("$(UBUNTU)","0")
       ifeq ($(HOST_ARCH)-$(TARGET_ARCH),x86_64-armv7l)
         GLPATH := /usr/arm-linux-gnueabihf/lib
@@ -97,6 +98,11 @@ ifeq ("$(TARGET_OS)","linux")
       DFLT_PATH ?= /usr/lib64
     endif
     ifeq ("$(CENTOS)","0")
+      GLPATH    ?= /usr/lib64/nvidia
+      GLLINK    ?= -L/usr/lib64/nvidia
+      DFLT_PATH ?= /usr/lib64
+    endif
+    ifeq ("$(KYLIN)","0")
       GLPATH    ?= /usr/lib64/nvidia
       GLLINK    ?= -L/usr/lib64/nvidia
       DFLT_PATH ?= /usr/lib64

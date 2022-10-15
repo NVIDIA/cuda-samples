@@ -6,13 +6,13 @@
     <flag>--std=c++14</flag>
   </cflags>
   <cuda_api_list>
-    <toolkit>cudaEventRecord</toolkit>
-    <toolkit>cudaEventCreate</toolkit>
-    <toolkit>cudaEventElapsedTime</toolkit>
     <toolkit>cudaEventSynchronize</toolkit>
-    <toolkit>cudaEventDestroy</toolkit>
-    <toolkit>cudaGetDeviceProperties</toolkit>
+    <toolkit>cudaEventRecord</toolkit>
     <toolkit>cudaGetDevice</toolkit>
+    <toolkit>cudaEventDestroy</toolkit>
+    <toolkit>cudaEventElapsedTime</toolkit>
+    <toolkit>cudaGetDeviceProperties</toolkit>
+    <toolkit>cudaEventCreate</toolkit>
   </cuda_api_list>
   <description><![CDATA[This sample demonstrates a very fast and efficient parallel radix sort uses Thrust library. The included RadixSort class can sort either key-value pairs (with float or unsigned integer keys) or keys only.]]></description>
   <devicecompilation>whole</devicecompilation>
@@ -58,6 +58,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

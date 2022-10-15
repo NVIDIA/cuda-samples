@@ -6,18 +6,18 @@
     <flag>--std=c++11</flag>
   </cflags>
   <cuda_api_list>
-    <toolkit>cudaMemset</toolkit>
-    <toolkit>cudaFree</toolkit>
-    <toolkit>cudaEventRecord</toolkit>
-    <toolkit>cudaEventCreate</toolkit>
-    <toolkit>cudaFuncSetAttribute</toolkit>
-    <toolkit>cudaEventElapsedTime</toolkit>
-    <toolkit>cudaEventSynchronize</toolkit>
-    <toolkit>cudaMalloc</toolkit>
-    <toolkit>cudaGetLastError</toolkit>
     <toolkit>cudaMemcpy</toolkit>
+    <toolkit>cudaFree</toolkit>
     <toolkit>cudaGetErrorString</toolkit>
+    <toolkit>cudaGetLastError</toolkit>
+    <toolkit>cudaEventSynchronize</toolkit>
+    <toolkit>cudaFuncSetAttribute</toolkit>
+    <toolkit>cudaEventRecord</toolkit>
+    <toolkit>cudaMemset</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaEventElapsedTime</toolkit>
     <toolkit>cudaGetDeviceProperties</toolkit>
+    <toolkit>cudaEventCreate</toolkit>
   </cuda_api_list>
   <description><![CDATA[A CUDA sample demonstrating __nv_bfloat16 (e8m7) GEMM computation using the Warp Matrix Multiply and Accumulate (WMMA) API introduced with CUDA 11 in Ampere chip family tensor cores for faster matrix operations. This sample also uses async copy provided by cuda pipeline interface for gmem to shmem async loads which improves kernel performance and reduces register presssure.]]></description>
   <devicecompilation>whole</devicecompilation>
@@ -52,6 +52,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

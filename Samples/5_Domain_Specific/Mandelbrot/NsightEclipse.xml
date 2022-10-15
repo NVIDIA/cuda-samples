@@ -3,19 +3,19 @@
 <entry>
   <name>Mandelbrot</name>
   <cuda_api_list>
-    <toolkit>cudaFree</toolkit>
-    <toolkit>cudaGraphicsMapResources</toolkit>
-    <toolkit>cudaGraphicsUnregisterResource</toolkit>
-    <toolkit>cudaGraphicsGLRegisterBuffer</toolkit>
-    <toolkit>cudaGLUnregisterBufferObject</toolkit>
-    <toolkit>cudaGraphicsResourceGetMappedPointer</toolkit>
     <toolkit>cudaGLUnmapBufferObject</toolkit>
-    <toolkit>cudaDeviceSynchronize</toolkit>
-    <toolkit>cudaGLMapBufferObject</toolkit>
-    <toolkit>cudaMalloc</toolkit>
-    <toolkit>cudaGLRegisterBufferObject</toolkit>
     <toolkit>cudaGraphicsUnmapResources</toolkit>
     <toolkit>cudaMemcpy</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaGLMapBufferObject</toolkit>
+    <toolkit>cudaGraphicsResourceGetMappedPointer</toolkit>
+    <toolkit>cudaGraphicsMapResources</toolkit>
+    <toolkit>cudaGLUnregisterBufferObject</toolkit>
+    <toolkit>cudaDeviceSynchronize</toolkit>
+    <toolkit>cudaGLRegisterBufferObject</toolkit>
+    <toolkit>cudaGraphicsUnregisterResource</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaGraphicsGLRegisterBuffer</toolkit>
     <toolkit>cudaGetDeviceProperties</toolkit>
   </cuda_api_list>
   <description><![CDATA[This sample uses CUDA to compute and display the Mandelbrot or Julia sets interactively. It also illustrates the use of "double single" arithmetic to improve precision when zooming a long way into the pattern. This sample uses double precision.  Thanks to Mark Granger of NewTek who submitted this code sample.!]]></description>
@@ -79,6 +79,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

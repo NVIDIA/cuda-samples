@@ -3,13 +3,13 @@
 <entry>
   <name>convolutionFFT2D</name>
   <cuda_api_list>
-    <toolkit>cudaMemset</toolkit>
-    <toolkit>cudaFree</toolkit>
-    <toolkit>cudaDeviceSynchronize</toolkit>
-    <toolkit>cudaDestroyTextureObject</toolkit>
-    <toolkit>cudaCreateTextureObject</toolkit>
-    <toolkit>cudaMalloc</toolkit>
     <toolkit>cudaMemcpy</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaDestroyTextureObject</toolkit>
+    <toolkit>cudaDeviceSynchronize</toolkit>
+    <toolkit>cudaCreateTextureObject</toolkit>
+    <toolkit>cudaMemset</toolkit>
+    <toolkit>cudaMalloc</toolkit>
   </cuda_api_list>
   <description><![CDATA[This sample demonstrates how 2D convolutions with very large kernel sizes can be efficiently implemented using FFT transformations.]]></description>
   <devicecompilation>whole</devicecompilation>
@@ -58,6 +58,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

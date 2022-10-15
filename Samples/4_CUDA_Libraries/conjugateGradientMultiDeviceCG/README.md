@@ -10,7 +10,7 @@ Unified Memory, Linear Algebra, Cooperative Groups, MultiDevice Cooperative Grou
 
 ## Supported SM Architectures
 
-[SM 6.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.1 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.6 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.7 ](https://developer.nvidia.com/cuda-gpus)
+[SM 6.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 6.1 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.2 ](https://developer.nvidia.com/cuda-gpus)  [SM 7.5 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.0 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.6 ](https://developer.nvidia.com/cuda-gpus)  [SM 8.7 ](https://developer.nvidia.com/cuda-gpus)  [SM 9.0 ](https://developer.nvidia.com/cuda-gpus)
 
 ## Supported OSes
 
@@ -23,14 +23,14 @@ x86_64, ppc64le, aarch64
 ## CUDA APIs involved
 
 ### [CUDA Runtime API](http://docs.nvidia.com/cuda/cuda-runtime-api/index.html)
-cudaDeviceEnablePeerAccess, cudaMemset, cudaFree, cudaMallocManaged, cudaMemPrefetchAsync, cudaHostAlloc, cudaOccupancyMaxActiveBlocksPerMultiprocessor, cudaStreamCreate, cudaGetDeviceCount, cudaFreeHost, cudaSetDevice, cudaDeviceCanAccessPeer, cudaLaunchCooperativeKernel, cudaStreamSynchronize, cudaMemAdvise, cudaGetDeviceProperties
+cudaHostAlloc, cudaMemPrefetchAsync, cudaFree, cudaLaunchCooperativeKernel, cudaMallocManaged, cudaSetDevice, cudaGetDeviceCount, cudaGetDeviceProperties, cudaFreeHost, cudaMemset, cudaStreamCreate, cudaStreamSynchronize, cudaDeviceEnablePeerAccess, cudaMemAdvise, cudaOccupancyMaxActiveBlocksPerMultiprocessor, cudaDeviceCanAccessPeer
 
 ## Dependencies needed to build/run
 [UVM](../../../README.md#uvm), [MDCG](../../../README.md#mdcg), [CPP11](../../../README.md#cpp11)
 
 ## Prerequisites
 
-Download and install the [CUDA Toolkit 11.6](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit 11.8](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 Make sure the dependencies mentioned in [Dependencies]() section above are installed.
 
 ## Build and Run

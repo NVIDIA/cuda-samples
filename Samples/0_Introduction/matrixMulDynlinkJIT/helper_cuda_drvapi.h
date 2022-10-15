@@ -95,6 +95,7 @@ inline int _ConvertSMVer2CoresDRV(int major, int minor) {
       {0x80,  64},
       {0x86, 128},
       {0x87, 128},
+      {0x90, 128},
       {-1, -1}};
 
   int index = 0;

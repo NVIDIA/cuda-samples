@@ -3,13 +3,13 @@
 <entry>
   <name>dct8x8</name>
   <cuda_api_list>
-    <toolkit>cudaFree</toolkit>
-    <toolkit>cudaFreeArray</toolkit>
-    <toolkit>cudaDeviceSynchronize</toolkit>
-    <toolkit>cudaDestroyTextureObject</toolkit>
-    <toolkit>cudaMallocPitch</toolkit>
-    <toolkit>cudaCreateTextureObject</toolkit>
     <toolkit>cudaMallocArray</toolkit>
+    <toolkit>cudaFreeArray</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaMallocPitch</toolkit>
+    <toolkit>cudaDestroyTextureObject</toolkit>
+    <toolkit>cudaDeviceSynchronize</toolkit>
+    <toolkit>cudaCreateTextureObject</toolkit>
   </cuda_api_list>
   <description><![CDATA[This sample demonstrates how Discrete Cosine Transform (DCT) for blocks of 8 by 8 pixels can be performed using CUDA: a naive implementation by definition and a more traditional approach used in many libraries. As opposed to implementing DCT in a fragment shader, CUDA allows for an easier and more efficient implementation.]]></description>
   <devicecompilation>whole</devicecompilation>
@@ -57,6 +57,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

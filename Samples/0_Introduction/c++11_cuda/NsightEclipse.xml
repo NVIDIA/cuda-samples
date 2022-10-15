@@ -7,9 +7,9 @@
   </cflags>
   <cuda_api_list>
     <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaMemcpy</toolkit>
     <toolkit>cudaMemset</toolkit>
     <toolkit>cudaFree</toolkit>
-    <toolkit>cudaMemcpy</toolkit>
   </cuda_api_list>
   <description><![CDATA[This sample demonstrates C++11 feature support in CUDA. It scans a input text file and prints no. of occurrences of x, y, z, w characters. ]]></description>
   <devicecompilation>whole</devicecompilation>
@@ -31,9 +31,6 @@
   </librarypaths>
   <nsight_eclipse>true</nsight_eclipse>
   <primary_file>c++11_cuda.cu</primary_file>
-  <qatests>
-    <qatest>--dummy-test-param</qatest>
-  </qatests>
   <required_dependencies>
     <dependency>CPP11</dependency>
   </required_dependencies>
@@ -54,6 +51,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

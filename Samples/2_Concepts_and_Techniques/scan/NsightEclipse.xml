@@ -4,9 +4,9 @@
   <name>scan</name>
   <cuda_api_list>
     <toolkit>cudaMalloc</toolkit>
-    <toolkit>cudaFree</toolkit>
     <toolkit>cudaDeviceSynchronize</toolkit>
     <toolkit>cudaMemcpy</toolkit>
+    <toolkit>cudaFree</toolkit>
   </cuda_api_list>
   <description><![CDATA[This example demonstrates an efficient CUDA implementation of parallel prefix sum, also known as "scan".  Given an array of numbers, scan computes a new array in which each element is the sum of all the elements before it in the input array.]]></description>
   <devicecompilation>whole</devicecompilation>
@@ -50,6 +50,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

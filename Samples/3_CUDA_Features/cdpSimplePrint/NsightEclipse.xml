@@ -6,10 +6,10 @@
     <flag>-dc</flag>
   </cflags>
   <cuda_api_list>
-    <toolkit>cudaDeviceSetLimit</toolkit>
-    <toolkit>cudaGetLastError</toolkit>
     <toolkit>cudaDeviceSynchronize</toolkit>
+    <toolkit>cudaGetLastError</toolkit>
     <toolkit>cudaGetDeviceProperties</toolkit>
+    <toolkit>cudaDeviceSetLimit</toolkit>
   </cuda_api_list>
   <description><![CDATA[This sample demonstrates simple printf implemented using CUDA Dynamic Parallelism.  This sample requires devices with compute capability 3.5 or higher.]]></description>
   <includepaths>
@@ -51,6 +51,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

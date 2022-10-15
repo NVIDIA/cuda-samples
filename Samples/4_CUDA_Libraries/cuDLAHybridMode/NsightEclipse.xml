@@ -6,14 +6,14 @@
     <flag>--std=c++11</flag>
   </cflags>
   <cuda_api_list>
+    <toolkit>cudaStreamCreateWithFlags</toolkit>
     <toolkit>cudaStreamDestroy</toolkit>
     <toolkit>cudaFree</toolkit>
-    <toolkit>cudaStreamSynchronize</toolkit>
-    <toolkit>cudaMemsetAsync</toolkit>
-    <toolkit>cudaMalloc</toolkit>
-    <toolkit>cudaStreamCreateWithFlags</toolkit>
-    <toolkit>cudaSetDevice</toolkit>
     <toolkit>cudaGetErrorName</toolkit>
+    <toolkit>cudaSetDevice</toolkit>
+    <toolkit>cudaStreamSynchronize</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaMemsetAsync</toolkit>
     <toolkit>cudaMemcpyAsync</toolkit>
   </cuda_api_list>
   <description><![CDATA[This sample demonstrates cuDLA hybrid mode wherein DLA can be programmed using CUDA.]]></description>
@@ -51,6 +51,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>aarch64</arch>

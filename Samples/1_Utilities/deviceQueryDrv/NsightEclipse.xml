@@ -3,13 +3,14 @@
 <entry>
   <name>deviceQueryDrv</name>
   <cuda_api_list>
-    <driver>cuDeviceCanAccessPeer</driver>
-    <driver>cuDriverGetVersion</driver>
-    <driver>cuDeviceGetCount</driver>
     <driver>cuDeviceGetName</driver>
-    <driver>cuDeviceTotalMem</driver>
-    <driver>cuInit</driver>
     <driver>cuDeviceGetAttribute</driver>
+    <driver>cuDeviceTotalMem</driver>
+    <driver>cuDeviceCanAccessPeer</driver>
+    <driver>cuDeviceGetCount</driver>
+    <driver>cuDriverGetVersion</driver>
+    <driver>cuInit</driver>
+    <toolkit>cudaSetDevice</toolkit>
   </cuda_api_list>
   <description><![CDATA[This sample enumerates the properties of the CUDA devices present using CUDA Driver API calls]]></description>
   <devicecompilation>whole</devicecompilation>
@@ -49,6 +50,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

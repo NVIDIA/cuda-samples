@@ -3,32 +3,32 @@
 <entry>
   <name>graphMemoryNodes</name>
   <cuda_api_list>
-    <toolkit>cudaMallocAsync</toolkit>
-    <toolkit>cudaStreamCreateWithFlags</toolkit>
     <toolkit>cudaMemcpy</toolkit>
-    <toolkit>cudaMemcpyAsync</toolkit>
-    <toolkit>cudaStreamDestroy</toolkit>
-    <toolkit>cudaMallocManaged</toolkit>
-    <toolkit>cudaEventCreate</toolkit>
-    <toolkit>cudaDriverGetVersion</toolkit>
-    <toolkit>cudaGraphCreate</toolkit>
-    <toolkit>cudaGraphAddMemAllocNode</toolkit>
-    <toolkit>cudaMalloc</toolkit>
-    <toolkit>cudaEventDestroy</toolkit>
-    <toolkit>cudaStreamEndCapture</toolkit>
-    <toolkit>cudaGraphExecDestroy</toolkit>
-    <toolkit>cudaStreamBeginCapture</toolkit>
     <toolkit>cudaDeviceGetAttribute</toolkit>
-    <toolkit>cudaStreamSynchronize</toolkit>
-    <toolkit>cudaGraphDestroy</toolkit>
+    <toolkit>cudaDriverGetVersion</toolkit>
     <toolkit>cudaGraphLaunch</toolkit>
-    <toolkit>cudaGraphAddMemFreeNode</toolkit>
-    <toolkit>cudaStreamWaitEvent</toolkit>
-    <toolkit>cudaFree</toolkit>
-    <toolkit>cudaEventRecord</toolkit>
-    <toolkit>cudaGraphInstantiate</toolkit>
-    <toolkit>cudaGraphAddKernelNode</toolkit>
+    <toolkit>cudaEventDestroy</toolkit>
+    <toolkit>cudaMallocAsync</toolkit>
+    <toolkit>cudaStreamEndCapture</toolkit>
+    <toolkit>cudaMallocManaged</toolkit>
+    <toolkit>cudaGraphCreate</toolkit>
+    <toolkit>cudaMemcpyAsync</toolkit>
     <toolkit>cudaFreeAsync</toolkit>
+    <toolkit>cudaStreamCreateWithFlags</toolkit>
+    <toolkit>cudaGraphInstantiate</toolkit>
+    <toolkit>cudaStreamDestroy</toolkit>
+    <toolkit>cudaStreamBeginCapture</toolkit>
+    <toolkit>cudaStreamWaitEvent</toolkit>
+    <toolkit>cudaEventCreate</toolkit>
+    <toolkit>cudaGraphAddMemAllocNode</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaGraphAddKernelNode</toolkit>
+    <toolkit>cudaGraphAddMemFreeNode</toolkit>
+    <toolkit>cudaGraphDestroy</toolkit>
+    <toolkit>cudaEventRecord</toolkit>
+    <toolkit>cudaStreamSynchronize</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaGraphExecDestroy</toolkit>
   </cuda_api_list>
   <description><![CDATA[A demonstration of memory allocations and frees within CUDA graphs using Graph APIs and Stream Capture APIs.]]></description>
   <devicecompilation>whole</devicecompilation>
@@ -67,6 +67,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

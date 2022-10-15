@@ -3,13 +3,13 @@
 <entry>
   <name>MersenneTwisterGP11213</name>
   <cuda_api_list>
+    <toolkit>cudaStreamCreateWithFlags</toolkit>
     <toolkit>cudaStreamDestroy</toolkit>
     <toolkit>cudaFree</toolkit>
     <toolkit>cudaMallocHost</toolkit>
     <toolkit>cudaFreeHost</toolkit>
-    <toolkit>cudaMalloc</toolkit>
-    <toolkit>cudaStreamCreateWithFlags</toolkit>
     <toolkit>cudaStreamSynchronize</toolkit>
+    <toolkit>cudaMalloc</toolkit>
     <toolkit>cudaMemcpyAsync</toolkit>
   </cuda_api_list>
   <description><![CDATA[This sample demonstrates the Mersenne Twister random number generator GP11213 in cuRAND.]]></description>
@@ -58,6 +58,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

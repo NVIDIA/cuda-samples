@@ -3,11 +3,11 @@
 <entry>
   <name>vectorAdd</name>
   <cuda_api_list>
-    <toolkit>cudaFree</toolkit>
-    <toolkit>cudaMalloc</toolkit>
-    <toolkit>cudaGetLastError</toolkit>
     <toolkit>cudaMemcpy</toolkit>
     <toolkit>cudaGetErrorString</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaGetLastError</toolkit>
+    <toolkit>cudaMalloc</toolkit>
   </cuda_api_list>
   <description><![CDATA[This CUDA Runtime API sample is a very basic sample that implements element by element vector addition. It is the same as the sample illustrating Chapter 3 of the programming guide with some additions like error checking.]]></description>
   <devicecompilation>whole</devicecompilation>
@@ -46,6 +46,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

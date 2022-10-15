@@ -3,28 +3,28 @@
 <entry>
   <name>jacobiCudaGraphs</name>
   <cuda_api_list>
-    <toolkit>cudaGraphAddMemsetNode</toolkit>
-    <toolkit>cudaStreamCreateWithFlags</toolkit>
-    <toolkit>cudaMemcpyAsync</toolkit>
+    <toolkit>cudaExtent</toolkit>
+    <toolkit>cudaGraphLaunch</toolkit>
+    <toolkit>cudaGraphAddMemcpyNode</toolkit>
     <toolkit>cudaMallocHost</toolkit>
     <toolkit>cudaPitchedPtr</toolkit>
-    <toolkit>cudaGraphCreate</toolkit>
-    <toolkit>cudaMalloc</toolkit>
-    <toolkit>cudaPos</toolkit>
-    <toolkit>cudaGraphAddMemcpyNode</toolkit>
     <toolkit>cudaStreamEndCapture</toolkit>
-    <toolkit>cudaGraphExecDestroy</toolkit>
-    <toolkit>cudaStreamBeginCapture</toolkit>
-    <toolkit>cudaGraphExecKernelNodeSetParams</toolkit>
-    <toolkit>cudaStreamSynchronize</toolkit>
-    <toolkit>cudaGraphLaunch</toolkit>
-    <toolkit>cudaFree</toolkit>
-    <toolkit>cudaGraphInstantiate</toolkit>
-    <toolkit>cudaExtent</toolkit>
-    <toolkit>cudaMemsetAsync</toolkit>
+    <toolkit>cudaGraphCreate</toolkit>
     <toolkit>cudaFreeHost</toolkit>
-    <toolkit>cudaGraphAddKernelNode</toolkit>
+    <toolkit>cudaMemsetAsync</toolkit>
+    <toolkit>cudaMemcpyAsync</toolkit>
+    <toolkit>cudaGraphExecKernelNodeSetParams</toolkit>
+    <toolkit>cudaStreamCreateWithFlags</toolkit>
+    <toolkit>cudaGraphInstantiate</toolkit>
+    <toolkit>cudaStreamBeginCapture</toolkit>
+    <toolkit>cudaFree</toolkit>
     <toolkit>cudaGraphExecUpdate</toolkit>
+    <toolkit>cudaGraphAddKernelNode</toolkit>
+    <toolkit>cudaPos</toolkit>
+    <toolkit>cudaStreamSynchronize</toolkit>
+    <toolkit>cudaGraphAddMemsetNode</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaGraphExecDestroy</toolkit>
   </cuda_api_list>
   <description><![CDATA[Demonstrates Instantiated CUDA Graph Update with Jacobi Iterative Method using cudaGraphExecKernelNodeSetParams() and cudaGraphExecUpdate() approach.]]></description>
   <devicecompilation>whole</devicecompilation>
@@ -66,6 +66,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

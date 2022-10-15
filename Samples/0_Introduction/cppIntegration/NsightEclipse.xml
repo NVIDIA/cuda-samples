@@ -4,8 +4,8 @@
   <name>cppIntegration</name>
   <cuda_api_list>
     <toolkit>cudaMalloc</toolkit>
-    <toolkit>cudaFree</toolkit>
     <toolkit>cudaMemcpy</toolkit>
+    <toolkit>cudaFree</toolkit>
   </cuda_api_list>
   <description><![CDATA[This example demonstrates how to integrate CUDA into an existing C++ application, i.e. the CUDA entry point on host side is only a function which is called from C++ code and only the file containing this function is compiled with nvcc. It also demonstrates that vector types can be used from cpp.]]></description>
   <devicecompilation>whole</devicecompilation>
@@ -41,6 +41,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

@@ -1,5 +1,10 @@
 ## Changelog
 
+### CUDA 11.6
+* Added new folder structure for samples
+* Added support of Visual Studio 2022 to all samples supported on [Windows](#windows-1).
+* All CUDA samples are now only available on [GitHub](https://github.com/nvidia/cuda-samples). They are no longer available via CUDA toolkit.
+
 ### CUDA 11.5
 * Added `cuDLAHybridMode`. Demonstrate usage of cuDLA in hybrid mode.
 * Added `cuDLAStandaloneMode`. Demonstrate usage of cuDLA in standalone mode.

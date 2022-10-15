@@ -3,23 +3,23 @@
 <entry>
   <name>conjugateGradientCudaGraphs</name>
   <cuda_api_list>
-    <toolkit>cudaStreamDestroy</toolkit>
-    <toolkit>cudaFree</toolkit>
-    <toolkit>cudaGraphExecDestroy</toolkit>
-    <toolkit>cudaMallocHost</toolkit>
-    <toolkit>cudaStreamCreate</toolkit>
     <toolkit>cudaGraphInstantiate</toolkit>
-    <toolkit>cudaOccupancyMaxPotentialBlockSize</toolkit>
+    <toolkit>cudaStreamDestroy</toolkit>
     <toolkit>cudaStreamBeginCapture</toolkit>
-    <toolkit>cudaMemsetAsync</toolkit>
+    <toolkit>cudaFree</toolkit>
+    <toolkit>cudaMallocHost</toolkit>
     <toolkit>cudaStreamEndCapture</toolkit>
-    <toolkit>cudaFreeHost</toolkit>
-    <toolkit>cudaMalloc</toolkit>
-    <toolkit>cudaStreamSynchronize</toolkit>
-    <toolkit>cudaMemcpyAsync</toolkit>
     <toolkit>cudaGraphDestroy</toolkit>
-    <toolkit>cudaGetDeviceProperties</toolkit>
+    <toolkit>cudaFreeHost</toolkit>
     <toolkit>cudaGraphLaunch</toolkit>
+    <toolkit>cudaStreamCreate</toolkit>
+    <toolkit>cudaStreamSynchronize</toolkit>
+    <toolkit>cudaOccupancyMaxPotentialBlockSize</toolkit>
+    <toolkit>cudaMalloc</toolkit>
+    <toolkit>cudaMemcpyAsync</toolkit>
+    <toolkit>cudaMemsetAsync</toolkit>
+    <toolkit>cudaGetDeviceProperties</toolkit>
+    <toolkit>cudaGraphExecDestroy</toolkit>
   </cuda_api_list>
   <description><![CDATA[This sample implements a conjugate gradient solver on GPU using CUBLAS and CUSPARSE library calls captured and called using CUDA Graph APIs.]]></description>
   <devicecompilation>whole</devicecompilation>
@@ -71,6 +71,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>
