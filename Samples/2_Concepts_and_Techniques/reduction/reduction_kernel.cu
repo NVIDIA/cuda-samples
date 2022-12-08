@@ -32,7 +32,6 @@
 #ifndef _REDUCE_KERNEL_H_
 #define _REDUCE_KERNEL_H_
 
-#define _CG_ABI_EXPERIMENTAL
 #include <cooperative_groups.h>
 #include <cooperative_groups/reduce.h>
 #include <stdio.h>
@@ -555,12 +554,12 @@ template <class T, size_t BlockSize, size_t MultiWarpGroupSize>
 __global__ void multi_warp_cg_reduce(T *g_idata, T *g_odata, unsigned int n) {
   // Shared memory for intermediate steps
   T *sdata = SharedMemory<T>();
-  __shared__ cg::experimental::block_tile_memory<sizeof(T), BlockSize> scratch;
+  __shared__ cg::block_tile_memory<BlockSize> scratch;
 
   // Handle to thread block group
-  auto cta = cg::experimental::this_thread_block(scratch);
+  auto cta = cg::this_thread_block(scratch);
   // Handle to multiWarpTile in thread block
-  auto multiWarpTile = cg::experimental::tiled_partition<MultiWarpGroupSize>(cta);
+  auto multiWarpTile = cg::tiled_partition<MultiWarpGroupSize>(cta);
 
   unsigned int gridSize = BlockSize * gridDim.x;
   T threadVal = 0;

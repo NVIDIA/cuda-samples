@@ -1,5 +1,9 @@
 ## Changelog
 
+### CUDA 12.0
+* Added new flags for JIT compiling 
+* Removed deprecated APIs in Hopper Architecture
+
 ### CUDA 11.6
 * Added new folder structure for samples
 * Added support of Visual Studio 2022 to all samples supported on [Windows](#windows-1).

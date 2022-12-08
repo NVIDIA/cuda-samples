@@ -66,8 +66,6 @@
     <scope>2:Texture</scope>
     <scope>3:Physically-Based Simulation</scope>
   </scopes>
-  <sm-arch>sm35</sm-arch>
-  <sm-arch>sm37</sm-arch>
   <sm-arch>sm50</sm-arch>
   <sm-arch>sm52</sm-arch>
   <sm-arch>sm53</sm-arch>

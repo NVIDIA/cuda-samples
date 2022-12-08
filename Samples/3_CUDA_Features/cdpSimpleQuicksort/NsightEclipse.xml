@@ -42,20 +42,6 @@
   <scopes>
     <scope>1:CUDA Basic Topics</scope>
   </scopes>
-  <sm-arch>sm35</sm-arch>
-  <sm-arch>sm37</sm-arch>
-  <sm-arch>sm50</sm-arch>
-  <sm-arch>sm52</sm-arch>
-  <sm-arch>sm53</sm-arch>
-  <sm-arch>sm60</sm-arch>
-  <sm-arch>sm61</sm-arch>
-  <sm-arch>sm70</sm-arch>
-  <sm-arch>sm72</sm-arch>
-  <sm-arch>sm75</sm-arch>
-  <sm-arch>sm80</sm-arch>
-  <sm-arch>sm86</sm-arch>
-  <sm-arch>sm87</sm-arch>
-  <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>
       <arch>x86_64</arch>

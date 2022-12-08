@@ -285,7 +285,7 @@ LIBRARIES :=
 ifeq ($(TARGET_ARCH),$(filter $(TARGET_ARCH),armv7l aarch64 sbsa))
 SMS ?= 53 61 70 72 75 80 86 87 90
 else
-SMS ?= 35 37 50 52 60 61 70 75 80 86 90
+SMS ?= 50 52 60 61 70 75 80 86 90
 endif
 
 ifeq ($(SMS),)
@@ -306,7 +306,7 @@ endif
 
 ALL_CCFLAGS += --threads 0 --std=c++11
 
-LIBRARIES += -lcusolver -lcublas -lcusparse
+LIBRARIES += -lcusolver -lnvJitLink -lcublas -lcusparse
 
 ifeq ($(SAMPLE_ENABLED),0)
 EXEC ?= @echo "[@]"

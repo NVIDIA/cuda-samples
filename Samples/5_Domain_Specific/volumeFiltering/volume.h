@@ -60,7 +60,7 @@ template <>
 struct VolumeTypeInfo<unsigned char> {
   static const cudaTextureReadMode readMode = cudaReadModeNormalizedFloat;
   static __inline__ __device__ unsigned char convert(float sampled) {
-    return (unsigned char)(saturate(sampled) * 255.0);
+    return (unsigned char)(__saturatef(sampled) * 255.0);
   }
 };
 
@@ -68,7 +68,7 @@ template <>
 struct VolumeTypeInfo<unsigned short> {
   static const cudaTextureReadMode readMode = cudaReadModeNormalizedFloat;
   static __inline__ __device__ unsigned short convert(float sampled) {
-    return (unsigned short)(saturate(sampled) * 65535.0);
+    return (unsigned short)(__saturatef(sampled) * 65535.0);
   }
 };
 

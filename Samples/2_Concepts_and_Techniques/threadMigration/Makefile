@@ -285,7 +285,7 @@ FATBIN_FILE := threadMigration_kernel${TARGET_SIZE}.fatbin
 ifeq ($(TARGET_ARCH),$(filter $(TARGET_ARCH),armv7l aarch64 sbsa))
 SMS ?= 53 61 70 72 75 80 86 87 90
 else
-SMS ?= 35 37 50 52 60 61 70 75 80 86 90
+SMS ?= 50 52 60 61 70 75 80 86 90
 endif
 
 ifeq ($(GENCODE_FLAGS),)
@@ -297,8 +297,8 @@ ifeq ($(TARGET_ARCH),$(filter $(TARGET_ARCH),armv7l aarch64 sbsa))
 # Generate PTX code from SM 53
 GENCODE_FLAGS += -gencode arch=compute_53,code=compute_53
 else
-# Generate PTX code from SM 35
-GENCODE_FLAGS += -gencode arch=compute_35,code=compute_35
+# Generate PTX code from SM 50
+GENCODE_FLAGS += -gencode arch=compute_50,code=compute_50
 endif
 endif
 

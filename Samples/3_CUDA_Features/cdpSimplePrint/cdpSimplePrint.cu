@@ -157,9 +157,6 @@ int main(int argc, char **argv) {
       "************************************************************************"
       "***\n\n");
 
-  // We set the recursion limit for CDP to max_depth.
-  cudaDeviceSetLimit(cudaLimitDevRuntimeSyncDepth, max_depth);
-
   // Launch the kernel from the CPU.
   printf("Launching cdp_kernel() with CUDA Dynamic Parallelism:\n\n");
   cdp_kernel<<<2, 2>>>(max_depth, 0, 0, -1);

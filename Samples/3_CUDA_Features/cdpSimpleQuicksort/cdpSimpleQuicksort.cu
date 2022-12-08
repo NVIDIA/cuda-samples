@@ -129,7 +129,6 @@ __global__ void cdp_simple_quicksort(unsigned int *data, int left, int right,
 ////////////////////////////////////////////////////////////////////////////////
 void run_qsort(unsigned int *data, unsigned int nitems) {
   // Prepare CDP for the max depth 'MAX_DEPTH'.
-  checkCudaErrors(cudaDeviceSetLimit(cudaLimitDevRuntimeSyncDepth, MAX_DEPTH));
 
   // Launch on device
   int left = 0;

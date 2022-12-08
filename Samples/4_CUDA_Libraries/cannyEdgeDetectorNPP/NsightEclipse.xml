@@ -53,8 +53,6 @@
     <scope>2:Image Processing</scope>
     <scope>2:Computer Vision</scope>
   </scopes>
-  <sm-arch>sm35</sm-arch>
-  <sm-arch>sm37</sm-arch>
   <sm-arch>sm50</sm-arch>
   <sm-arch>sm52</sm-arch>
   <sm-arch>sm53</sm-arch>

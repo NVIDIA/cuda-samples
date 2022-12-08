@@ -62,8 +62,6 @@ $ sudo modprobe nvidia-drm modeset=1
     <scope>1:CUDA Basic Topics</scope>
     <scope>2:Graphics Interop</scope>
   </scopes>
-  <sm-arch>sm35</sm-arch>
-  <sm-arch>sm37</sm-arch>
   <sm-arch>sm50</sm-arch>
   <sm-arch>sm52</sm-arch>
   <sm-arch>sm53</sm-arch>

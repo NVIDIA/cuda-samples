@@ -673,9 +673,6 @@ bool cdpQuadtree(int warp_size) {
   checkCudaErrors(
       cudaMemcpy(nodes, &root, sizeof(Quadtree_node), cudaMemcpyHostToDevice));
 
-  // We set the recursion limit for CDP to max_depth.
-  cudaDeviceSetLimit(cudaLimitDevRuntimeSyncDepth, max_depth);
-
   // Build the quadtree.
   Parameters params(max_depth, min_points_per_node);
   std::cout << "Launching CDP kernel to build the quadtree" << std::endl;
