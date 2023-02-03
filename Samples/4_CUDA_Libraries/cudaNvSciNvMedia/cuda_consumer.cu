@@ -158,6 +158,12 @@ static void cudaImportNvSciImage(cudaExternalResInterop &cudaExtResObj,
   pairArrayOut[numAttrs++].key = NvSciBufImageAttrKey_Layout;
   pairArrayOut[numAttrs++].key = NvSciBufImageAttrKey_PlaneBitsPerPixel;
   pairArrayOut[numAttrs++].key = NvSciBufImageAttrKey_PlaneOffset;
+  pairArrayOut[numAttrs++].key = NvSciBufImageAttrKey_PlanePitch;
+  pairArrayOut[numAttrs++].key = NvSciBufImageAttrKey_PlaneAlignedHeight;
+
+  uint32_t planePitchs[10];
+  uint32_t planePixel[10];
+  uint32_t planeAlignedHeight[10];
 
   checkNvSciErrors(NvSciBufAttrListGetAttrs(attrlist, pairArrayOut, numAttrs));
 
@@ -177,6 +183,13 @@ static void cudaImportNvSciImage(cudaExternalResInterop &cudaExtResObj,
          cudaExtResObj.planeCount * sizeof(int32_t));
   memcpy(cudaExtResObj.planeOffset, (uint64_t *)pairArrayOut[7].value,
          cudaExtResObj.planeCount * sizeof(uint64_t));
+  memcpy(planePixel, (uint32_t *)pairArrayOut[6].value,
+         cudaExtResObj.planeCount * sizeof(uint32_t));
+  memcpy(planePitchs, (uint32_t *)pairArrayOut[8].value,
+         cudaExtResObj.planeCount * sizeof(uint32_t));
+  memcpy(planeAlignedHeight, (uint32_t *)pairArrayOut[9].value,
+         cudaExtResObj.planeCount * sizeof(uint32_t));
+  
 
   NvSciBufAttrValImageLayoutType layout =
       *(NvSciBufAttrValImageLayoutType *)pairArrayOut[5].value;
@@ -201,8 +214,8 @@ static void cudaImportNvSciImage(cudaExternalResInterop &cudaExtResObj,
   for (int i = 0; i < cudaExtResObj.planeCount; i++) {
     cudaExtent extent = {};
     memset(&extent, 0, sizeof(extent));
-    extent.width = cudaExtResObj.imageWidth[i];
-    extent.height = cudaExtResObj.imageHeight[i];
+    extent.width = planePitchs[i] / (planePixel[i] / 8);
+    extent.height = planeAlignedHeight[i];
     extent.depth = 0;
     cudaChannelFormatDesc desc;
     switch (channelCount) {
