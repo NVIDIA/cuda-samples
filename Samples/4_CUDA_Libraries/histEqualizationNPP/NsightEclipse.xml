@@ -69,6 +69,7 @@
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm89</sm-arch>
   <sm-arch>sm90</sm-arch>
   <supported_envs>
     <env>

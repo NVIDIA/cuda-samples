@@ -4,7 +4,7 @@
             "name": "CUDA C++: Launch",
             "type": "cuda-gdb",
             "request": "launch",
-            "program": "${workspaceFolder}/jitlto"
+            "program": "${workspaceFolder}/jitLto"
         }
     ]
 }

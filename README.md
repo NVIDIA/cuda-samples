@@ -7,8 +7,9 @@ Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This ve
 This section describes the release notes for the CUDA Samples on GitHub only.
 
 ### CUDA 12.0
-* Added new flags for JIT compiling
-* Removed deprecated APIs in Hopper Architecture
+* Added new folder structure for samples
+* Added support of Visual Studio 2022 to all samples supported on [Windows](#windows-1).
+* All CUDA samples are now only available on [GitHub](https://github.com/nvidia/cuda-samples). They are no longer available via CUDA toolkit.
 
 ### [older versions...](./CHANGELOG.md)
 

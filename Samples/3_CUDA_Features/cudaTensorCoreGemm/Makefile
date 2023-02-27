@@ -293,7 +293,7 @@ LIBRARIES :=
 ifeq ($(TARGET_ARCH),$(filter $(TARGET_ARCH),armv7l aarch64 sbsa))
 SMS ?= 70 72 75 80 86 87 90
 else
-SMS ?= 70 75 80 86 90
+SMS ?= 70 75 80 86 89 90
 endif
 
 ifeq ($(SMS),)

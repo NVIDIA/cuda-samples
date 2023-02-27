@@ -270,19 +270,19 @@ SAMPLE_ENABLED := 1
 
 # This sample is not supported on ARMv7
 ifeq ($(TARGET_ARCH),armv7l)
-  $(info >>> WARNING - jitlto is not supported on ARMv7 - waiving sample <<<)
+  $(info >>> WARNING - jitLto is not supported on ARMv7 - waiving sample <<<)
   SAMPLE_ENABLED := 0
 endif
 
 # This sample is not supported on sbsa
 ifeq ($(TARGET_ARCH),sbsa)
-  $(info >>> WARNING - jitlto is not supported on sbsa - waiving sample <<<)
+  $(info >>> WARNING - jitLto is not supported on sbsa - waiving sample <<<)
   SAMPLE_ENABLED := 0
 endif
 
 # This sample is not supported on QNX
 ifeq ($(TARGET_OS),qnx)
-  $(info >>> WARNING - jitlto is not supported on QNX - waiving sample <<<)
+  $(info >>> WARNING - jitLto is not supported on QNX - waiving sample <<<)
   SAMPLE_ENABLED := 0
 endif
 
@@ -375,7 +375,7 @@ endif
 # Target rules
 all: build
 
-build: jitlto
+build: jitLto
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -387,18 +387,18 @@ endif
 jitlto.o:jitlto.cpp
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-jitlto: jitlto.o
+jitLto: jitlto.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 	$(EXEC) mkdir -p ../../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 	$(EXEC) cp $@ ../../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
 run: build
-	$(EXEC) ./jitlto
+	$(EXEC) ./jitLto
 
 testrun: build
 
 clean:
-	rm -f jitlto jitlto.o
-	rm -rf ../../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/jitlto
+	rm -f jitLto jitlto.o
+	rm -rf ../../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/jitLto
 
 clobber: clean

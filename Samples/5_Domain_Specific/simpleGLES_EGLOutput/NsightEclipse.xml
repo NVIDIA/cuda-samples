@@ -73,6 +73,7 @@ $ sudo modprobe nvidia-drm modeset=1
   <sm-arch>sm80</sm-arch>
   <sm-arch>sm86</sm-arch>
   <sm-arch>sm87</sm-arch>
+  <sm-arch>sm89</sm-arch>
   <sm-arch>sm90</sm-arch>
   <sources>
     <ignore>graphics_interface_egloutput_via_egl.c</ignore>
