@@ -1,0 +1,34 @@
+[./BlackScholes_nvrtc] - Starting...
+Initializing data...
+...allocating CPU memory for options.
+> Using CUDA Device [0]: NVIDIA H100 PCIe
+> Using CUDA Device [0]: NVIDIA H100 PCIe
+> GPU Device has SM 9.0 compute capability
+...allocating GPU memory for options.
+...generating input data in CPU mem.
+...copying input data to GPU mem.
+Data init done.
+
+Executing Black-Scholes GPU kernel (512 iterations)...
+Options count             : 8000000     
+BlackScholesGPU() time    : 0.047896 msec
+Effective memory bandwidth: 1670.268678 GB/s
+Gigaoptions per second    : 167.026868     
+
+BlackScholes, Throughput = 167.0269 GOptions/s, Time = 0.00005 s, Size = 8000000 options, NumDevsUsed = 1, Workgroup = 128
+
+Reading back GPU results...
+Checking the results...
+...running CPU calculations.
+
+Comparing the results...
+L1 norm: 1.741792E-07
+Max absolute error: 1.192093E-05
+
+Shutting down...
+...releasing GPU memory.
+...releasing CPU memory.
+Shutdown done.
+
+[./BlackScholes_nvrtc] - Test Summary
+Test passed

@@ -1,0 +1,16 @@
+> runTest<float,32>
+GPU Device 0: "Hopper" with compute capability 9.0
+
+CUDA device [NVIDIA H100 PCIe] has 114 Multi-Processors
+Processing time: 17.730000 (ms)
+Compare OK
+
+> runTest<int,64>
+GPU Device 0: "Hopper" with compute capability 9.0
+
+CUDA device [NVIDIA H100 PCIe] has 114 Multi-Processors
+Processing time: 0.080000 (ms)
+Compare OK
+
+
+[simpleTemplates] -> Test Results: 0 Failures

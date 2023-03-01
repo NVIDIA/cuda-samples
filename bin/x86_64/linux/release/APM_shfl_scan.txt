@@ -1,0 +1,24 @@
+Starting shfl_scan
+GPU Device 0: "Hopper" with compute capability 9.0
+
+> Detected Compute SM 9.0 hardware with 114 multi-processors
+Starting shfl_scan
+GPU Device 0: "Hopper" with compute capability 9.0
+
+> Detected Compute SM 9.0 hardware with 114 multi-processors
+Computing Simple Sum test
+---------------------------------------------------
+Initialize test data [1, 1, 1...]
+Scan summation for 65536 elements, 256 partial sums
+Partial summing 256 elements with 1 blocks of size 256
+Test Sum: 65536
+Time (ms): 0.021504
+65536 elements scanned in 0.021504 ms -> 3047.619141 MegaElements/s
+CPU verify result diff (GPUvsCPU) = 0
+CPU sum (naive) took 0.017810 ms
+
+Computing Integral Image Test on size 1920 x 1080 synthetic data
+---------------------------------------------------
+Method: Fast  Time (GPU Timer): 0.008032 ms Diff = 0
+Method: Vertical Scan  Time (GPU Timer): 0.068576 ms 
+CheckSum: 2073600, (expect 1920x1080=2073600)

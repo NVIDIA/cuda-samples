@@ -1,5 +1,8 @@
 ## Changelog
 
+### CUDA 12.1
+* Added new sample for Large Kernels
+
 ### CUDA 12.0
 * Added new flags for JIT compiling 
 * Removed deprecated APIs in Hopper Architecture

@@ -1,0 +1,19 @@
+NPP Library Version 12.0.0
+CUDA Driver  Version: 12.0
+CUDA Runtime Version: 12.0
+
+Input file load succeeded.
+teapot_Segments_8Way_512x512_8u succeeded.
+teapot_CompressedSegmentLabels_8Way_512x512_32u succeeded.
+teapot_SegmentBoundaries_8Way_512x512_8u succeeded.
+teapot_SegmentsWithContrastingBoundaries_8Way_512x512_8u succeeded.
+Input file load succeeded.
+CT_Skull_Segments_8Way_512x512_8u succeeded.
+CT_Skull_CompressedSegmentLabels_8Way_512x512_32u succeeded.
+CT_Skull_SegmentBoundaries_8Way_512x512_8u succeeded.
+CT_Skull_SegmentsWithContrastingBoundaries_8Way_512x512_8u succeeded.
+Input file load succeeded.
+Rocks_Segments_8Way_512x512_8u succeeded.
+Rocks_CompressedSegmentLabels_8Way_512x512_32u succeeded.
+Rocks_SegmentBoundaries_8Way_512x512_8u succeeded.
+Rocks_SegmentsWithContrastingBoundaries_8Way_512x512_8u succeeded.

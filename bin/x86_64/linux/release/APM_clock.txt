@@ -1,0 +1,4 @@
+CUDA Clock sample
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Average clocks/block = 1904.875000

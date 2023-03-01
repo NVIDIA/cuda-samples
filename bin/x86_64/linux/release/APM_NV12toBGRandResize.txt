@@ -1,0 +1,10 @@
+GPU Device 0: "Hopper" with compute capability 9.0
+
+
+TEST#1:
+  CUDA resize nv12(1920x1080 --> 640x480), batch: 24, average time: 0.024 ms ==> 0.001 ms/frame
+  CUDA convert nv12(640x480) to bgr(640x480), batch: 24, average time: 0.061 ms ==> 0.003 ms/frame
+
+TEST#2:
+  CUDA convert nv12(1920x1080) to bgr(1920x1080), batch: 24, average time: 0.405 ms ==> 0.017 ms/frame
+  CUDA resize bgr(1920x1080 --> 640x480), batch: 24, average time: 0.318 ms ==> 0.013 ms/frame

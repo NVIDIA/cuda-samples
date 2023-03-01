@@ -1,0 +1,6 @@
+Starting [./StreamPriorities]...
+GPU Device 0: "Hopper" with compute capability 9.0
+
+CUDA stream priority range: LOW: 0 to HIGH: -5
+elapsed time of kernels launched to LOW priority stream: 0.661 ms
+elapsed time of kernels launched to HI  priority stream: 0.523 ms

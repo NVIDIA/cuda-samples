@@ -1,0 +1,5 @@
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Result native operators	: 644622.000000 
+Result intrinsics	: 644622.000000 
+&&&& fp16ScalarProduct PASSED

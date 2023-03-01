@@ -1,0 +1,7 @@
+./segmentationTreeThrust Starting...
+
+GPU Device 0: "Hopper" with compute capability 9.0
+
+* Building segmentation tree... done in 24.6388 (ms)
+* Dumping levels for each tree...
+

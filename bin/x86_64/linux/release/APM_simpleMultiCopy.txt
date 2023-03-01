@@ -1,0 +1,32 @@
+[simpleMultiCopy] - Starting...
+> Using CUDA device [0]: NVIDIA H100 PCIe
+[NVIDIA H100 PCIe] has 114 MP(s) x 128 (Cores/MP) = 14592 (Cores)
+> Device name: NVIDIA H100 PCIe
+> CUDA Capability 9.0 hardware with 114 multi-processors
+> scale_factor = 1.00
+> array_size   = 4194304
+
+
+Relevant properties of this CUDA device
+(X) Can overlap one CPU<>GPU data transfer with GPU kernel execution (device property "deviceOverlap")
+(X) Can overlap two CPU<>GPU data transfers with GPU kernel execution
+    (Compute Capability >= 2.0 AND (Tesla product OR Quadro 4000/5000/6000/K5000)
+
+Measured timings (throughput):
+ Memcpy host to device	: 0.610592 ms (27.476966 GB/s)
+ Memcpy device to host	: 0.694048 ms (24.172991 GB/s)
+ Kernel			: 0.033408 ms (5021.915549 GB/s)
+
+Theoretical limits for speedup gained from overlapped data transfers:
+No overlap at all (transfer-kernel-transfer): 1.338048 ms 
+Compute can overlap with one transfer: 1.304640 ms
+Compute can overlap with both data transfers: 0.694048 ms
+
+Average measured timings over 10 repetitions:
+ Avg. time when execution fully serialized	: 1.325424 ms
+ Avg. time when overlapped using 4 streams	: 1.203120 ms
+ Avg. speedup gained (serialized - overlapped)	: 0.122304 ms
+
+Measured throughput:
+ Fully serialized execution		: 25.315998 GB/s
+ Overlapped using 4 streams		: 27.889513 GB/s

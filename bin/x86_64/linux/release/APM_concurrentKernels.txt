@@ -1,0 +1,8 @@
+[./concurrentKernels] - Starting...
+GPU Device 0: "Hopper" with compute capability 9.0
+
+> Detected Compute SM 9.0 hardware with 114 multi-processors
+Expected time for serial execution of 8 kernels = 0.080s
+Expected time for concurrent execution of 8 kernels = 0.010s
+Measured time for sample = 0.010s
+Test passed

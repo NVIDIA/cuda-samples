@@ -1,0 +1,12 @@
+simpleAssert_nvrtc starting...
+Launch kernel to generate assertion failures
+> Using CUDA Device [0]: NVIDIA H100 PCIe
+> Using CUDA Device [0]: NVIDIA H100 PCIe
+> GPU Device has SM 9.0 compute capability
+
+-- Begin assert output
+
+
+-- End assert output
+
+Device assert failed as expected

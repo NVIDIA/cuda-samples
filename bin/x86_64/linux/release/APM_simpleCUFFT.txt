@@ -1,0 +1,7 @@
+[simpleCUFFT] is starting...
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Temporary buffer size 8 bytes
+Transforming signal cufftExecC2C
+Launching ComplexPointwiseMulAndScale<<< >>>
+Transforming signal back cufftExecC2C

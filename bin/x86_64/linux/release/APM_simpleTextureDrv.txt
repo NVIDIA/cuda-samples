@@ -1,0 +1,11 @@
+> Using CUDA Device [0]: NVIDIA H100 PCIe
+> GPU Device has SM 9.0 compute capability
+> findModulePath found file at <./simpleTexture_kernel64.fatbin>
+> initCUDA loading module: <./simpleTexture_kernel64.fatbin>
+Loaded 'teapot512.pgm', 512 x 512 pixels
+Processing time: 0.015000 (ms)
+17476.27 Mpixels/sec
+Wrote '../../../../Samples/0_Introduction/simpleTextureDrv/data/teapot512_out.pgm'
+Comparing files
+	output:    <../../../../Samples/0_Introduction/simpleTextureDrv/data/teapot512_out.pgm>
+	reference: <../../../../Samples/0_Introduction/simpleTextureDrv/data/ref_rotated.pgm>

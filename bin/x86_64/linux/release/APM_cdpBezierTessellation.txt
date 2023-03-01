@@ -1,0 +1,2 @@
+Running on GPU 0 (NVIDIA H100 PCIe)
+Computing Bezier Lines (CUDA Dynamic Parallelism Version) ... Done!

@@ -1,0 +1,14 @@
+Monte Carlo Estimate Pi (with batch QRNG)
+=========================================
+
+Estimating Pi on GPU (NVIDIA H100 PCIe)
+
+Precision:      single
+Number of sims: 100000
+Tolerance:      1.000000e-02
+GPU result:     3.141840e+00
+Expected:       3.141593e+00
+Absolute error: 2.472401e-04
+Relative error: 7.869895e-05
+
+MonteCarloEstimatePiQ, Performance = 821146.16 sims/s, Time = 121.78(ms), NumDevsUsed = 1, Blocksize = 128

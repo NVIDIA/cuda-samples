@@ -1,0 +1,9 @@
+[Matrix Multiply Using CUDA] - Starting...
+MatrixA(320,320), MatrixB(640,320)
+> Using CUDA Device [0]: NVIDIA H100 PCIe
+> Using CUDA Device [0]: NVIDIA H100 PCIe
+> GPU Device has SM 9.0 compute capability
+Computing result using CUDA Kernel...
+Checking computed result for correctness: Result = PASS
+
+NOTE: The CUDA Samples are not meant for performance measurements. Results may vary when GPU Boost is enabled.

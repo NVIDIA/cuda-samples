@@ -1,0 +1,15 @@
+[PTX Just In Time (JIT) Compilation (no-qatest)] - Starting...
+> Using CUDA Device [0]: NVIDIA H100 PCIe
+> findModulePath <./ptxjit_kernel64.ptx>
+> initCUDA loading module: <./ptxjit_kernel64.ptx>
+Loading ptxjit_kernel[] program
+CUDA Link Completed in 0.000000ms. Linker Output:
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function 'myKernel' for 'sm_90a'
+ptxas info    : Function properties for myKernel
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 8 registers
+info    : 0 bytes gmem
+info    : Function properties for 'myKernel':
+info    : used 8 registers, 0 stack, 0 bytes smem, 536 bytes cmem[0], 0 bytes lmem
+CUDA kernel launched

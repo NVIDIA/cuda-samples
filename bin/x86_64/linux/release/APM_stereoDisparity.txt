@@ -1,0 +1,15 @@
+[stereoDisparity] Starting...
+
+GPU Device 0: "Hopper" with compute capability 9.0
+
+> GPU device has 114 Multi-Processors, SM 9.0 compute capabilities
+
+Loaded <../../../../Samples/5_Domain_Specific/stereoDisparity/data/stereo.im0.640x533.ppm> as image 0
+Loaded <../../../../Samples/5_Domain_Specific/stereoDisparity/data/stereo.im1.640x533.ppm> as image 1
+Launching CUDA stereoDisparityKernel()
+Input Size  [640x533], Kernel size [17x17], Disparities [-16:0]
+GPU processing time : 0.1064 (ms)
+Pixel throughput    : 3206.015 Mpixels/sec
+GPU Checksum = 4293895789, GPU image: <output_GPU.pgm>
+Computing CPU reference...
+CPU Checksum = 4293895789, CPU image: <output_CPU.pgm>

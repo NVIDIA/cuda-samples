@@ -1,0 +1,5 @@
+GPU Device 0: "Hopper" with compute capability 9.0
+
+GPU device NVIDIA H100 PCIe has compute capabilities (SM 9.0)
+Launching CDP kernel to build the quadtree
+Results: OK

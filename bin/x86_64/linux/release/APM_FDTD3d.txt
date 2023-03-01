@@ -1,0 +1,37 @@
+./FDTD3d Starting...
+
+Set-up, based upon target device GMEM size...
+ getTargetDeviceGlobalMemSize
+ cudaGetDeviceCount
+GPU Device 0: "Hopper" with compute capability 9.0
+
+ cudaGetDeviceProperties
+ generateRandomData
+
+FDTD on 376 x 376 x 376 volume with symmetric filter radius 4 for 5 timesteps...
+
+fdtdReference...
+ calloc intermediate
+ Host FDTD loop
+	t = 0
+	t = 1
+	t = 2
+	t = 3
+	t = 4
+
+fdtdReference complete
+fdtdGPU...
+GPU Device 0: "Hopper" with compute capability 9.0
+
+ set block size to 32x16
+ set grid size to 12x24
+ GPU FDTD loop
+	t = 0 launch kernel
+	t = 1 launch kernel
+	t = 2 launch kernel
+	t = 3 launch kernel
+	t = 4 launch kernel
+
+fdtdGPU complete
+
+CompareData (tolerance 0.000100)...

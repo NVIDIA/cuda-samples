@@ -1,0 +1,18 @@
+Starting threadMigration
+[ threadMigration ] API test...
+> 1 CUDA device(s), 2 Thread(s)/device to launched
+
+Device 0: "NVIDIA H100 PCIe" (Compute 9.0)
+	sharedMemPerBlock: 49152
+	constantMemory   : 65536
+	regsPerBlock     : 65536
+	clockRate        : 1650000
+
+> findModulePath found file at <./threadMigration_kernel64.fatbin>
+> initCUDA loading module: <./threadMigration_kernel64.fatbin>
+<CUDA Device=0, Context=0x564dc26bc230, Thread=0> - ThreadProc() Launched...
+<CUDA Device=0, Context=0x564dc26bc230, Thread=1> - ThreadProc() Launched...
+<CUDA Device=0, Context=0x564dc26bc230, Thread=1> - ThreadProc() Finished!
+
+<CUDA Device=0, Context=0x564dc26bc230, Thread=0> - ThreadProc() Finished!
+

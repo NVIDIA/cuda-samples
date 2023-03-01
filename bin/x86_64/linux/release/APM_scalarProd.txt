@@ -1,0 +1,19 @@
+./scalarProd Starting...
+
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Initializing data...
+...allocating CPU memory.
+...allocating GPU memory.
+...generating input data in CPU mem.
+...copying input data to GPU mem.
+Data init done.
+Executing GPU kernel...
+GPU time: 0.042000 msecs.
+Reading back GPU result...
+Checking GPU results...
+..running CPU scalar product calculation
+...comparing the results
+Shutting down...
+L1 error: 2.745062E-08
+Test passed

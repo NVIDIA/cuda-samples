@@ -1,0 +1,4 @@
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Hello World.
+Hello World.

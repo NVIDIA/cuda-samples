@@ -1,0 +1,19 @@
+conjugateGradientPrecond starting...
+GPU Device 0: "Hopper" with compute capability 9.0
+
+GPU selected Device ID = 0 
+> GPU device has 114 Multi-Processors, SM 9.0 compute capabilities
+
+laplace dimension = 128
+Convergence of CG without preconditioning: 
+  iteration = 564, residual = 9.174634e-13 
+  Convergence Test: OK 
+
+Convergence of CG using ILU(0) preconditioning: 
+  iteration = 188, residual = 9.084683e-13 
+  Convergence Test: OK 
+
+Test Summary:
+   Counted total of 0 errors
+   qaerr1 = 0.000005 qaerr2 = 0.000003
+

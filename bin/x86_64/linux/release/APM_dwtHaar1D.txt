@@ -1,0 +1,11 @@
+./dwtHaar1D Starting...
+
+GPU Device 0: "Hopper" with compute capability 9.0
+
+source file    = "../../../../Samples/5_Domain_Specific/dwtHaar1D/data/signal.dat"
+reference file = "result.dat"
+gold file      = "../../../../Samples/5_Domain_Specific/dwtHaar1D/data/regression.gold.dat"
+Reading signal from "../../../../Samples/5_Domain_Specific/dwtHaar1D/data/signal.dat"
+Writing result to "result.dat"
+Reading reference result from "../../../../Samples/5_Domain_Specific/dwtHaar1D/data/regression.gold.dat"
+Test success!

@@ -1,0 +1,31 @@
+C++ Function Overloading starting...
+Device Count: 1
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Shared Size:   1024
+Constant Size: 0
+Local Size:    0
+Max Threads Per Block: 1024
+Number of Registers: 12
+PTX Version: 90
+Binary Version: 90
+simple_kernel(const int *pIn, int *pOut, int a) PASSED
+
+Shared Size:   2048
+Constant Size: 0
+Local Size:    0
+Max Threads Per Block: 1024
+Number of Registers: 14
+PTX Version: 90
+Binary Version: 90
+simple_kernel(const int2 *pIn, int *pOut, int a) PASSED
+
+Shared Size:   2048
+Constant Size: 0
+Local Size:    0
+Max Threads Per Block: 1024
+Number of Registers: 14
+PTX Version: 90
+Binary Version: 90
+simple_kernel(const int *pIn1, const int *pIn2, int *pOut, int a) PASSED
+

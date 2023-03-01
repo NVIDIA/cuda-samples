@@ -1,0 +1,13 @@
+Starting eigenvalues
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Matrix size: 2048 x 2048
+Precision: 0.000010
+Iterations to be timed: 100
+Result filename: 'eigenvalues.dat'
+Gerschgorin interval: -2.894310 / 2.923303
+Average time step 1: 1.032310 ms
+Average time step 2, one intervals: 1.228451 ms
+Average time step 2, mult intervals: 2.694728 ms
+Average time TOTAL: 4.970180 ms
+Test Succeeded!

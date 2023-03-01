@@ -1,0 +1,59 @@
+batchCUBLAS Starting...
+
+GPU Device 0: "Hopper" with compute capability 9.0
+
+
+ ==== Running single kernels ==== 
+
+Testing sgemm
+#### args: ta=0 tb=0 m=128 n=128 k=128  alpha = (0xbf800000, -1) beta= (0x40000000, 2)
+#### args: lda=128 ldb=128 ldc=128
+^^^^ elapsed = 0.00195909 sec  GFLOPS=2.14095
+@@@@ sgemm test OK
+Testing dgemm
+#### args: ta=0 tb=0 m=128 n=128 k=128  alpha = (0x0000000000000000, 0) beta= (0x0000000000000000, 0)
+#### args: lda=128 ldb=128 ldc=128
+^^^^ elapsed = 0.00003910 sec  GFLOPS=107.269
+@@@@ dgemm test OK
+
+ ==== Running N=10 without streams ==== 
+
+Testing sgemm
+#### args: ta=0 tb=0 m=128 n=128 k=128  alpha = (0xbf800000, -1) beta= (0x00000000, 0)
+#### args: lda=128 ldb=128 ldc=128
+^^^^ elapsed = 0.00016713 sec  GFLOPS=250.958
+@@@@ sgemm test OK
+Testing dgemm
+#### args: ta=0 tb=0 m=128 n=128 k=128  alpha = (0xbff0000000000000, -1) beta= (0x0000000000000000, 0)
+#### args: lda=128 ldb=128 ldc=128
+^^^^ elapsed = 0.00144100 sec  GFLOPS=29.1069
+@@@@ dgemm test OK
+
+ ==== Running N=10 with streams ==== 
+
+Testing sgemm
+#### args: ta=0 tb=0 m=128 n=128 k=128  alpha = (0x40000000, 2) beta= (0x40000000, 2)
+#### args: lda=128 ldb=128 ldc=128
+^^^^ elapsed = 0.00017214 sec  GFLOPS=243.659
+@@@@ sgemm test OK
+Testing dgemm
+#### args: ta=0 tb=0 m=128 n=128 k=128  alpha = (0xbff0000000000000, -1) beta= (0x0000000000000000, 0)
+#### args: lda=128 ldb=128 ldc=128
+^^^^ elapsed = 0.00014997 sec  GFLOPS=279.685
+@@@@ dgemm test OK
+
+ ==== Running N=10 batched ==== 
+
+Testing sgemm
+#### args: ta=0 tb=0 m=128 n=128 k=128  alpha = (0x3f800000, 1) beta= (0xbf800000, -1)
+#### args: lda=128 ldb=128 ldc=128
+^^^^ elapsed = 0.00004101 sec  GFLOPS=1022.8
+@@@@ sgemm test OK
+Testing dgemm
+#### args: ta=0 tb=0 m=128 n=128 k=128  alpha = (0xbff0000000000000, -1) beta= (0x4000000000000000, 2)
+#### args: lda=128 ldb=128 ldc=128
+^^^^ elapsed = 0.00004506 sec  GFLOPS=930.803
+@@@@ dgemm test OK
+
+Test Summary
+0 error(s)

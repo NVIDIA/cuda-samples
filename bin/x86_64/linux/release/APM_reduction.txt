@@ -1,0 +1,18 @@
+./reduction Starting...
+
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Using Device 0: NVIDIA H100 PCIe
+
+Reducing array of type int
+
+16777216 elements
+256 threads (max)
+64 blocks
+
+Reduction, Throughput = 49.0089 GB/s, Time = 0.00137 s, Size = 16777216 Elements, NumDevsUsed = 1, Workgroup = 256
+
+GPU result = 2139353471
+CPU result = 2139353471
+
+Test passed

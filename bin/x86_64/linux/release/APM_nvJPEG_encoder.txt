@@ -1,0 +1,62 @@
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Using GPU 0 (NVIDIA H100 PCIe, 114 SMs, 2048 th/SM max, CC 9.0, ECC on)
+Processing file: ../../../../Samples/4_CUDA_Libraries/nvJPEG_encoder/images/img1.jpg
+Image is 3 channels.
+Channel #0 size: 480 x 640
+Channel #1 size: 240 x 320
+Channel #2 size: 240 x 320
+YUV 4:2:0 chroma subsampling
+Writing JPEG file: encode_output/img1.jpg
+Processing file: ../../../../Samples/4_CUDA_Libraries/nvJPEG_encoder/images/img2.jpg
+Image is 3 channels.
+Channel #0 size: 480 x 640
+Channel #1 size: 240 x 320
+Channel #2 size: 240 x 320
+YUV 4:2:0 chroma subsampling
+Writing JPEG file: encode_output/img2.jpg
+Processing file: ../../../../Samples/4_CUDA_Libraries/nvJPEG_encoder/images/img3.jpg
+Image is 3 channels.
+Channel #0 size: 640 x 426
+Channel #1 size: 320 x 213
+Channel #2 size: 320 x 213
+YUV 4:2:0 chroma subsampling
+Writing JPEG file: encode_output/img3.jpg
+Processing file: ../../../../Samples/4_CUDA_Libraries/nvJPEG_encoder/images/img4.jpg
+Image is 3 channels.
+Channel #0 size: 640 x 426
+Channel #1 size: 320 x 213
+Channel #2 size: 320 x 213
+YUV 4:2:0 chroma subsampling
+Writing JPEG file: encode_output/img4.jpg
+Processing file: ../../../../Samples/4_CUDA_Libraries/nvJPEG_encoder/images/img5.jpg
+Image is 3 channels.
+Channel #0 size: 640 x 480
+Channel #1 size: 320 x 240
+Channel #2 size: 320 x 240
+YUV 4:2:0 chroma subsampling
+Writing JPEG file: encode_output/img5.jpg
+Processing file: ../../../../Samples/4_CUDA_Libraries/nvJPEG_encoder/images/img6.jpg
+Image is 3 channels.
+Channel #0 size: 640 x 480
+Channel #1 size: 320 x 240
+Channel #2 size: 320 x 240
+YUV 4:2:0 chroma subsampling
+Writing JPEG file: encode_output/img6.jpg
+Processing file: ../../../../Samples/4_CUDA_Libraries/nvJPEG_encoder/images/img7.jpg
+Image is 3 channels.
+Channel #0 size: 480 x 640
+Channel #1 size: 240 x 320
+Channel #2 size: 240 x 320
+YUV 4:2:0 chroma subsampling
+Writing JPEG file: encode_output/img7.jpg
+Processing file: ../../../../Samples/4_CUDA_Libraries/nvJPEG_encoder/images/img8.jpg
+Image is 3 channels.
+Channel #0 size: 480 x 640
+Channel #1 size: 240 x 320
+Channel #2 size: 240 x 320
+YUV 4:2:0 chroma subsampling
+Writing JPEG file: encode_output/img8.jpg
+Total images processed: 8
+Total time spent on encoding: 1.9711
+Avg time/image: 0.246388

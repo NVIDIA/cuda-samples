@@ -1,0 +1,11 @@
+simpleTexture starting...
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Loaded 'teapot512.pgm', 512 x 512 pixels
+Processing time: 0.016000 (ms)
+16384.00 Mpixels/sec
+Wrote '../../../../Samples/0_Introduction/simpleTexture/data/teapot512_out.pgm'
+Comparing files
+	output:    <../../../../Samples/0_Introduction/simpleTexture/data/teapot512_out.pgm>
+	reference: <../../../../Samples/0_Introduction/simpleTexture/data/ref_rotated.pgm>
+simpleTexture completed, returned OK

@@ -1,0 +1,20 @@
+Transpose Starting...
+
+GPU Device 0: "Hopper" with compute capability 9.0
+
+> Device 0: "NVIDIA H100 PCIe"
+> SM Capability 9.0 detected:
+> [NVIDIA H100 PCIe] has 114 MP(s) x 128 (Cores/MP) = 14592 (Cores)
+> Compute performance scaling factor = 1.00
+
+Matrix size: 1024x1024 (64x64 tiles), tile size: 16x16, block size: 16x16
+
+transpose simple copy       , Throughput = 1530.1826 GB/s, Time = 0.00511 ms, Size = 1048576 fp32 elements, NumDevsUsed = 1, Workgroup = 256
+transpose shared memory copy, Throughput = 1489.9342 GB/s, Time = 0.00524 ms, Size = 1048576 fp32 elements, NumDevsUsed = 1, Workgroup = 256
+transpose naive             , Throughput = 721.3705 GB/s, Time = 0.01083 ms, Size = 1048576 fp32 elements, NumDevsUsed = 1, Workgroup = 256
+transpose coalesced         , Throughput = 1346.6855 GB/s, Time = 0.00580 ms, Size = 1048576 fp32 elements, NumDevsUsed = 1, Workgroup = 256
+transpose optimized         , Throughput = 1510.6776 GB/s, Time = 0.00517 ms, Size = 1048576 fp32 elements, NumDevsUsed = 1, Workgroup = 256
+transpose coarse-grained    , Throughput = 1514.5199 GB/s, Time = 0.00516 ms, Size = 1048576 fp32 elements, NumDevsUsed = 1, Workgroup = 256
+transpose fine-grained      , Throughput = 1509.3702 GB/s, Time = 0.00518 ms, Size = 1048576 fp32 elements, NumDevsUsed = 1, Workgroup = 256
+transpose diagonal          , Throughput = 1308.4336 GB/s, Time = 0.00597 ms, Size = 1048576 fp32 elements, NumDevsUsed = 1, Workgroup = 256
+Test passed

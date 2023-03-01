@@ -1,0 +1,11 @@
+[ matrixMulDrv (Driver API) ]
+> Using CUDA Device [0]: NVIDIA H100 PCIe
+> GPU Device has SM 9.0 compute capability
+  Total amount of global memory:     85021163520 bytes
+> findModulePath found file at <./matrixMul_kernel64.fatbin>
+> initCUDA loading module: <./matrixMul_kernel64.fatbin>
+> 32 block size selected
+Processing time: 0.058000 (ms)
+Checking computed result for correctness: Result = PASS
+
+NOTE: The CUDA Samples are not meant for performance measurements. Results may vary when GPU Boost is enabled.

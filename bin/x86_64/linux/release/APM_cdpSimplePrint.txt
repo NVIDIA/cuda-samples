@@ -1,0 +1,23 @@
+starting Simple Print (CUDA Dynamic Parallelism)
+GPU Device 0: "Hopper" with compute capability 9.0
+
+***************************************************************************
+The CPU launches 2 blocks of 2 threads each. On the device each thread will
+launch 2 blocks of 2 threads each. The GPU we will do that recursively
+until it reaches max_depth=2
+
+In total 2+8=10 blocks are launched!!! (8 from the GPU)
+***************************************************************************
+
+Launching cdp_kernel() with CUDA Dynamic Parallelism:
+
+BLOCK 1 launched by the host
+BLOCK 0 launched by the host
+|  BLOCK 3 launched by thread 0 of block 1
+|  BLOCK 2 launched by thread 0 of block 1
+|  BLOCK 4 launched by thread 0 of block 0
+|  BLOCK 5 launched by thread 0 of block 0
+|  BLOCK 7 launched by thread 1 of block 0
+|  BLOCK 6 launched by thread 1 of block 0
+|  BLOCK 9 launched by thread 1 of block 1
+|  BLOCK 8 launched by thread 1 of block 1

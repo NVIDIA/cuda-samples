@@ -1,0 +1,34 @@
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Driver version is: 12.0
+Setting up sample.
+Setup complete.
+
+Running negateSquares in a stream.
+Validating negateSquares in a stream...
+Validation PASSED!
+
+Running negateSquares in a stream-captured graph.
+Validating negateSquares in a stream-captured graph...
+Validation PASSED!
+
+Running negateSquares in an explicitly constructed graph.
+Check verified that d_negSquare and d_input share a virtual address.
+Validating negateSquares in an explicitly constructed graph...
+Validation PASSED!
+
+Running negateSquares with d_negSquare freed outside the stream.
+Check verified that d_negSquare and d_input share a virtual address.
+Validating negateSquares with d_negSquare freed outside the stream...
+Validation PASSED!
+
+Running negateSquares with d_negSquare freed outside the graph.
+Validating negateSquares with d_negSquare freed outside the graph...
+Validation PASSED!
+
+Running negateSquares with d_negSquare freed in a different graph.
+Validating negateSquares with d_negSquare freed in a different graph...
+Validation PASSED!
+
+Cleaning up sample.
+Cleanup complete. Exiting sample.

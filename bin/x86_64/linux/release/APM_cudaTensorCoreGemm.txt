@@ -1,0 +1,11 @@
+Initializing...
+GPU Device 0: "Hopper" with compute capability 9.0
+
+M: 4096 (16 x 256)
+N: 4096 (16 x 256)
+K: 4096 (16 x 256)
+Preparing data for GPU...
+Required shared memory size: 64 Kb
+Computing... using high performance kernel compute_gemm 
+Time: 1.223904 ms
+TFLOPS: 112.30

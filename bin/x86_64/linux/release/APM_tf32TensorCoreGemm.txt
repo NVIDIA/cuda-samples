@@ -1,0 +1,11 @@
+Initializing...
+GPU Device 0: "Hopper" with compute capability 9.0
+
+M: 8192 (16 x 512)
+N: 8192 (16 x 512)
+K: 4096 (8 x 512)
+Preparing data for GPU...
+Required shared memory size: 72 Kb
+Computing using high performance kernel = 0 - compute_tf32gemm_async_copy
+Time: 69.720161 ms
+TFLOPS: 7.89

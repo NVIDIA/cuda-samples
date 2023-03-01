@@ -1,0 +1,6 @@
+simpleDrvRuntime..
+GPU Device 0: "Hopper" with compute capability 9.0
+
+> findModulePath found file at <./vectorAdd_kernel64.fatbin>
+> initCUDA loading module: <./vectorAdd_kernel64.fatbin>
+Result = PASS

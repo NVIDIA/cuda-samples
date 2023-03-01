@@ -1,0 +1,9 @@
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Starting basicStreamOrderedAllocation()
+> Checking the results from vectorAddGPU() ...
+basicStreamOrderedAllocation PASSED
+Starting streamOrderedAllocationPostSync()
+Total elapsed time = 14.231936 ms over 20 iterations
+> Checking the results from vectorAddGPU() ...
+streamOrderedAllocationPostSync PASSED

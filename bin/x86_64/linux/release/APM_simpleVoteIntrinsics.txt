@@ -1,0 +1,17 @@
+[simpleVoteIntrinsics]
+GPU Device 0: "Hopper" with compute capability 9.0
+
+> GPU device has 114 Multi-Processors, SM 9.0 compute capabilities
+
+[VOTE Kernel Test 1/3]
+	Running <<Vote.Any>> kernel1 ...
+	OK
+
+[VOTE Kernel Test 2/3]
+	Running <<Vote.All>> kernel2 ...
+	OK
+
+[VOTE Kernel Test 3/3]
+	Running <<Vote.Any>> kernel3 ...
+	OK
+	Shutting down...

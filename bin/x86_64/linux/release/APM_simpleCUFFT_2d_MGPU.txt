@@ -1,0 +1,5 @@
+
+Poisson equation using CUFFT library on Multiple GPUs is starting...
+
+No. of GPU on node 1
+Two GPUs are required to run simpleCUFFT_2d_MGPU sample code

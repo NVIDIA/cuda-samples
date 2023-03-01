@@ -1,0 +1,12 @@
+[Matrix Multiply CUBLAS] - Starting...
+GPU Device 0: "Hopper" with compute capability 9.0
+
+GPU Device 0: "NVIDIA H100 PCIe" with compute capability 9.0
+
+MatrixA(640,480), MatrixB(480,320), MatrixC(640,320)
+Computing result using CUBLAS...done.
+Performance= 10873.05 GFlop/s, Time= 0.018 msec, Size= 196608000 Ops
+Computing result using host CPU...done.
+Comparing CUBLAS Matrix Multiply with CPU results: PASS
+
+NOTE: The CUDA Samples are not meant for performance measurements. Results may vary when GPU Boost is enabled.

@@ -1,0 +1,7 @@
+Starting simpleCallback
+Found 1 CUDA capable GPUs
+GPU[0] NVIDIA H100 PCIe supports SM 9.0, capable GPU Callback Functions
+1 GPUs available to run Callback Functions
+Starting 8 heterogeneous computing workloads
+Total of 8 workloads finished:
+Success

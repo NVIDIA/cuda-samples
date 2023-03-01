@@ -1,0 +1,38 @@
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Using default input file [../../../../Samples/4_CUDA_Libraries/cuSolverSp_LinearSolver/lap2D_5pt_n100.mtx]
+step 1: read matrix market format
+sparse matrix A is 10000 x 10000 with 49600 nonzeros, base=1
+step 2: reorder the matrix A to minimize zero fill-in
+        if the user choose a reordering by -P=symrcm, -P=symamd or -P=metis
+step 2.1: no reordering is chosen, Q = 0:n-1 
+step 2.2: B = A(Q,Q) 
+step 3: b(j) = 1 + j/n 
+step 4: prepare data on device
+step 5: solve A*x = b on CPU 
+step 6: evaluate residual r = b - A*x (result on CPU)
+(CPU) |b - A*x| = 5.393685E-12 
+(CPU) |A| = 8.000000E+00 
+(CPU) |x| = 1.136492E+03 
+(CPU) |b| = 1.999900E+00 
+(CPU) |b - A*x|/(|A|*|x| + |b|) = 5.931079E-16 
+step 7: solve A*x = b on GPU
+step 8: evaluate residual r = b - A*x (result on GPU)
+(GPU) |b - A*x| = 1.970424E-12 
+(GPU) |A| = 8.000000E+00 
+(GPU) |x| = 1.136492E+03 
+(GPU) |b| = 1.999900E+00 
+(GPU) |b - A*x|/(|A|*|x| + |b|) = 2.166745E-16 
+timing chol: CPU =   0.097956 sec , GPU =   0.103812 sec
+show last 10 elements of solution vector (GPU) 
+consistent result for different reordering and solver 
+x[9990] = 3.000016E+01
+x[9991] = 2.807343E+01
+x[9992] = 2.601354E+01
+x[9993] = 2.380285E+01
+x[9994] = 2.141866E+01
+x[9995] = 1.883070E+01
+x[9996] = 1.599668E+01
+x[9997] = 1.285365E+01
+x[9998] = 9.299423E+00
+x[9999] = 5.147265E+00

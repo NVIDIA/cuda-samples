@@ -1,0 +1,8 @@
+./cudaOpenMP Starting...
+
+number of host CPUs:	32
+number of CUDA devices:	1
+   0: NVIDIA H100 PCIe
+---------------------------
+CPU thread 0 (of 1) uses CUDA device 0
+---------------------------

@@ -1,0 +1,13 @@
+> runTest<float,32>
+> Using CUDA Device [0]: NVIDIA H100 PCIe
+> Using CUDA Device [0]: NVIDIA H100 PCIe
+> GPU Device has SM 9.0 compute capability
+Processing time: 0.102000 (ms)
+Compare OK
+
+> runTest<int,64>
+Processing time: 0.077000 (ms)
+Compare OK
+
+
+[simpleTemplates_nvrtc] -> Test Results: 0 Failures

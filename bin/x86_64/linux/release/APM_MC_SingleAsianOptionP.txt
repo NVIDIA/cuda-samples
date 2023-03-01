@@ -1,0 +1,13 @@
+Monte Carlo Single Asian Option (with PRNG)
+===========================================
+
+Pricing option on GPU (NVIDIA H100 PCIe)
+
+Precision:      single
+Number of sims: 100000
+
+   Spot    |   Strike   |     r      |   sigma    |   tenor    |  Call/Put  |   Value    |  Expected  |
+-----------|------------|------------|------------|------------|------------|------------|------------|
+        40 |         35 |       0.03 |        0.2 |   0.333333 |       Call |    5.17083 |    5.16253 |
+
+MonteCarloSingleAsianOptionP, Performance = 824402.28 sims/s, Time = 121.30(ms), NumDevsUsed = 1, Blocksize = 128

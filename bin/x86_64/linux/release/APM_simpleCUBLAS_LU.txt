@@ -1,0 +1,11 @@
+> initializing..
+GPU Device 0: "Hopper" with compute capability 9.0
+
+> using DOUBLE precision..
+> pivot ENABLED..
+> generating random matrices..
+> copying data from host memory to GPU memory..
+> performing LU decomposition..
+> copying data from GPU memory to host memory..
+> verifying the result..
+> TEST SUCCESSFUL, with precision: 1e-15

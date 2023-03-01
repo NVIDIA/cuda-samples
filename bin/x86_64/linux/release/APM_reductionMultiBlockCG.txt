@@ -1,0 +1,14 @@
+reductionMultiBlockCG Starting...
+
+GPU Device 0: "Hopper" with compute capability 9.0
+
+33554432 elements
+numThreads: 1024
+numBlocks: 228
+
+Launching SinglePass Multi Block Cooperative Groups kernel
+Average time: 0.102750 ms
+Bandwidth:    1306.254555 GB/s
+
+GPU result = 1.992401599884
+CPU result = 1.992401361465

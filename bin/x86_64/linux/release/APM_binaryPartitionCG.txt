@@ -1,0 +1,9 @@
+GPU Device 0: "Hopper" with compute capability 9.0
+
+
+Launching 228 blocks with 1024 threads...
+
+Array size = 102400 Num of Odds = 50945 Sum of Odds = 1272565 Sum of Evens 1233938
+
+...Done.
+

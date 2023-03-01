@@ -1,0 +1,14 @@
+Monte Carlo Estimate Pi (with batch PRNG)
+=========================================
+
+Estimating Pi on GPU (NVIDIA H100 PCIe)
+
+Precision:      single
+Number of sims: 100000
+Tolerance:      1.000000e-02
+GPU result:     3.136320e+00
+Expected:       3.141593e+00
+Absolute error: 5.272627e-03
+Relative error: 1.678329e-03
+
+MonteCarloEstimatePiP, Performance = 652941.82 sims/s, Time = 153.15(ms), NumDevsUsed = 1, Blocksize = 128

@@ -1,0 +1,11 @@
+Initializing...
+GPU Device 0: "Hopper" with compute capability 9.0
+
+M: 8192 (8 x 1024)
+N: 8192 (8 x 1024)
+K: 4096 (4 x 1024)
+Preparing data for GPU...
+Required shared memory size: 68 Kb
+Computing using high performance kernel = 0 - compute_dgemm_async_copy
+Time: 30.856800 ms
+FP64 TFLOPS: 17.82

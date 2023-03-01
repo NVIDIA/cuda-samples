@@ -1,0 +1,48 @@
+[[histogram]] - Starting...
+GPU Device 0: "Hopper" with compute capability 9.0
+
+CUDA device [NVIDIA H100 PCIe] has 114 Multi-Processors, Compute 9.0
+Initializing data...
+...allocating CPU memory.
+...generating input data
+...allocating GPU memory and copying input data
+
+Starting up 64-bin histogram...
+
+Running 64-bin GPU histogram for 67108864 bytes (16 runs)...
+
+histogram64() time (average) : 0.00007 sec, 916944.3386 MB/sec
+
+histogram64, Throughput = 916944.3386 MB/s, Time = 0.00007 s, Size = 67108864 Bytes, NumDevsUsed = 1, Workgroup = 64
+
+Validating GPU results...
+ ...reading back GPU results
+ ...histogram64CPU()
+ ...comparing the results...
+ ...64-bin histograms match
+
+Shutting down 64-bin histogram...
+
+
+Initializing 256-bin histogram...
+Running 256-bin GPU histogram for 67108864 bytes (16 runs)...
+
+histogram256() time (average) : 0.00018 sec, 379951.1088 MB/sec
+
+histogram256, Throughput = 379951.1088 MB/s, Time = 0.00018 s, Size = 67108864 Bytes, NumDevsUsed = 1, Workgroup = 192
+
+Validating GPU results...
+ ...reading back GPU results
+ ...histogram256CPU()
+ ...comparing the results
+ ...256-bin histograms match
+
+Shutting down 256-bin histogram...
+
+
+Shutting down...
+
+NOTE: The CUDA Samples are not meant for performance measurements. Results may vary when GPU Boost is enabled.
+
+[histogram] - Test Summary
+Test passed

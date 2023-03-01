@@ -1,0 +1,4 @@
+GPU Device 0: "Hopper" with compute capability 9.0
+
+CANNOT access pageable memory
+systemWideAtomics completed, returned OK 

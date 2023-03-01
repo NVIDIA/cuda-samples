@@ -1,0 +1,25 @@
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Using default input file [../../../../Samples/4_CUDA_Libraries/cuSolverSp_LowlevelQR/lap2D_5pt_n32.mtx]
+step 1: read matrix market format
+sparse matrix A is 1024 x 1024 with 3008 nonzeros, base=1
+step 2: create opaque info structure
+step 3: analyze qr(A) to know structure of L
+step 4: workspace for qr(A)
+step 5: compute A = L*L^T 
+step 6: check if the matrix is singular 
+step 7: solve A*x = b 
+step 8: evaluate residual r = b - A*x (result on CPU)
+(CPU) |b - A*x| = 5.329071E-15 
+(CPU) |A| = 6.000000E+00 
+(CPU) |x| = 5.000000E-01 
+(CPU) |b - A*x|/(|A|*|x|) = 1.776357E-15 
+step 9: create opaque info structure
+step 10: analyze qr(A) to know structure of L
+step 11: workspace for qr(A)
+GPU buffer size = 3751424 bytes
+step 12: compute A = L*L^T 
+step 13: check if the matrix is singular 
+step 14: solve A*x = b 
+(GPU) |b - A*x| = 4.218847E-15 
+(GPU) |b - A*x|/(|A|*|x|) = 1.406282E-15 

@@ -1,0 +1,12 @@
+simpleSurfaceWrite starting...
+GPU Device 0: "Hopper" with compute capability 9.0
+
+CUDA device [NVIDIA H100 PCIe] has 114 Multi-Processors, SM 9.0
+Loaded 'teapot512.pgm', 512 x 512 pixels
+Processing time: 0.016000 (ms)
+16384.00 Mpixels/sec
+Wrote 'output.pgm'
+Comparing files
+	output:    <output.pgm>
+	reference: <../../../../Samples/0_Introduction/simpleSurfaceWrite/data/ref_rotated.pgm>
+simpleSurfaceWrite completed, returned OK

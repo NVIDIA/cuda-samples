@@ -1,0 +1,16 @@
+./dxtc Starting...
+
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Image Loaded '../../../../Samples/5_Domain_Specific/dxtc/data/teapot512_std.ppm', 512 x 512 pixels
+
+Running DXT Compression on 512 x 512 image...
+
+16384 Blocks, 64 Threads per Block, 1048576 Threads in Grid...
+
+dxtc, Throughput = 442.8108 MPixels/s, Time = 0.00059 s, Size = 262144 Pixels, NumDevsUsed = 1, Workgroup = 64
+
+Checking accuracy...
+RMS(reference, result) = 0.000000
+
+Test passed

@@ -1,0 +1,56 @@
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Using GPU 0 (NVIDIA H100 PCIe, 114 SMs, 2048 th/SM max, CC 9.0, ECC on)
+Decoding images in directory: ../../../../Samples/4_CUDA_Libraries/nvJPEG/images/, total 8, batchsize 1
+Processing: ../../../../Samples/4_CUDA_Libraries/nvJPEG/images/img1.jpg
+Image is 3 channels.
+Channel #0 size: 480 x 640
+Channel #1 size: 240 x 320
+Channel #2 size: 240 x 320
+YUV 4:2:0 chroma subsampling
+Processing: ../../../../Samples/4_CUDA_Libraries/nvJPEG/images/img2.jpg
+Image is 3 channels.
+Channel #0 size: 480 x 640
+Channel #1 size: 240 x 320
+Channel #2 size: 240 x 320
+YUV 4:2:0 chroma subsampling
+Processing: ../../../../Samples/4_CUDA_Libraries/nvJPEG/images/img3.jpg
+Image is 3 channels.
+Channel #0 size: 640 x 426
+Channel #1 size: 320 x 213
+Channel #2 size: 320 x 213
+YUV 4:2:0 chroma subsampling
+Processing: ../../../../Samples/4_CUDA_Libraries/nvJPEG/images/img4.jpg
+Image is 3 channels.
+Channel #0 size: 640 x 426
+Channel #1 size: 320 x 213
+Channel #2 size: 320 x 213
+YUV 4:2:0 chroma subsampling
+Processing: ../../../../Samples/4_CUDA_Libraries/nvJPEG/images/img5.jpg
+Image is 3 channels.
+Channel #0 size: 640 x 480
+Channel #1 size: 320 x 240
+Channel #2 size: 320 x 240
+YUV 4:2:0 chroma subsampling
+Processing: ../../../../Samples/4_CUDA_Libraries/nvJPEG/images/img6.jpg
+Image is 3 channels.
+Channel #0 size: 640 x 480
+Channel #1 size: 320 x 240
+Channel #2 size: 320 x 240
+YUV 4:2:0 chroma subsampling
+Processing: ../../../../Samples/4_CUDA_Libraries/nvJPEG/images/img7.jpg
+Image is 3 channels.
+Channel #0 size: 480 x 640
+Channel #1 size: 240 x 320
+Channel #2 size: 240 x 320
+YUV 4:2:0 chroma subsampling
+Processing: ../../../../Samples/4_CUDA_Libraries/nvJPEG/images/img8.jpg
+Image is 3 channels.
+Channel #0 size: 480 x 640
+Channel #1 size: 240 x 320
+Channel #2 size: 240 x 320
+YUV 4:2:0 chroma subsampling
+Total decoding time: 3.19197
+Avg decoding time per image: 0.398996
+Avg images per sec: 2.50629
+Avg decoding time per batch: 0.398996

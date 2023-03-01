@@ -1,0 +1,13 @@
+GPU Device 0: "Hopper" with compute capability 9.0
+
+> GPU device has 114 Multi-Processors, SM 9.0 compute capabilities
+
+iteration =   1, residual = 4.449882e+01
+iteration =   2, residual = 3.245218e+00
+iteration =   3, residual = 2.690220e-01
+iteration =   4, residual = 2.307639e-02
+iteration =   5, residual = 1.993140e-03
+iteration =   6, residual = 1.846193e-04
+iteration =   7, residual = 1.693379e-05
+iteration =   8, residual = 1.600115e-06
+Test Summary:  Error amount = 0.000000

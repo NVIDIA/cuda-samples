@@ -1,0 +1,6 @@
+GPU Device 0: "Hopper" with compute capability 9.0
+
+GPU device NVIDIA H100 PCIe has compute capabilities (SM 9.0)
+Running qsort on 1000000 elements with seed 0, on NVIDIA H100 PCIe
+    cdpAdvancedQuicksort PASSED
+Sorted 1000000 elems in 5.015 ms (199.389 Melems/sec)

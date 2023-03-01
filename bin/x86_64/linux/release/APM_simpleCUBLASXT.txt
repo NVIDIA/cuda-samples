@@ -1,0 +1,4 @@
+Using 1 GPUs
+GPU ID = 0, Name = NVIDIA H100 PCIe 
+simpleCUBLASXT test running..
+simpleCUBLASXT test passed.

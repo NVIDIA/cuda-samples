@@ -1,0 +1,5 @@
+./simpleAttributes Starting...
+
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Processing time: 3934.539062 (ms)

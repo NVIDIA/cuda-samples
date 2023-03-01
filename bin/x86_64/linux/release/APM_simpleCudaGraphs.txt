@@ -1,0 +1,23 @@
+GPU Device 0: "Hopper" with compute capability 9.0
+
+16777216 elements
+threads per block  = 512
+Graph Launch iterations = 3
+
+Num of nodes in the graph created manually = 7
+[cudaGraphsManual] Host callback final reduced sum = 0.996214
+[cudaGraphsManual] Host callback final reduced sum = 0.996214
+[cudaGraphsManual] Host callback final reduced sum = 0.996214
+Cloned Graph Output.. 
+[cudaGraphsManual] Host callback final reduced sum = 0.996214
+[cudaGraphsManual] Host callback final reduced sum = 0.996214
+[cudaGraphsManual] Host callback final reduced sum = 0.996214
+
+Num of nodes in the graph created using stream capture API = 7
+[cudaGraphsUsingStreamCapture] Host callback final reduced sum = 0.996214
+[cudaGraphsUsingStreamCapture] Host callback final reduced sum = 0.996214
+[cudaGraphsUsingStreamCapture] Host callback final reduced sum = 0.996214
+Cloned Graph Output.. 
+[cudaGraphsUsingStreamCapture] Host callback final reduced sum = 0.996214
+[cudaGraphsUsingStreamCapture] Host callback final reduced sum = 0.996214
+[cudaGraphsUsingStreamCapture] Host callback final reduced sum = 0.996214

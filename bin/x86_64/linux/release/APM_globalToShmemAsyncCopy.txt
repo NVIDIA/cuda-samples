@@ -1,0 +1,11 @@
+[globalToShmemAsyncCopy] - Starting...
+GPU Device 0: "Hopper" with compute capability 9.0
+
+MatrixA(1280,1280), MatrixB(1280,1280)
+Running kernel = 0 - AsyncCopyMultiStageLargeChunk
+Computing result using CUDA Kernel...
+done
+Performance= 5289.33 GFlop/s, Time= 0.793 msec, Size= 4194304000 Ops, WorkgroupSize= 256 threads/block
+Checking computed result for correctness: Result = PASS
+
+NOTE: The CUDA Samples are not meant for performance measurements. Results may vary when GPU Boost is enabled.

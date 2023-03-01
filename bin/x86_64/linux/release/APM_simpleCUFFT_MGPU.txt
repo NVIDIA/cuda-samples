@@ -1,0 +1,5 @@
+
+[simpleCUFFT_MGPU] is starting...
+
+No. of GPU on node 1
+Two GPUs are required to run simpleCUFFT_MGPU sample code

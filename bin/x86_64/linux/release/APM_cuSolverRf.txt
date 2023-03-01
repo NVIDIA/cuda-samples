@@ -1,0 +1,58 @@
+step 1.1: preparation
+step 1.1: read matrix market format
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Using default input file [../../../../Samples/4_CUDA_Libraries/cuSolverRf/lap2D_5pt_n100.mtx]
+WARNING: cusolverRf only works for base-0 
+sparse matrix A is 10000 x 10000 with 49600 nonzeros, base=0
+step 1.2: set right hand side vector (b) to 1
+step 2: reorder the matrix to reduce zero fill-in
+        Q = symrcm(A) or Q = symamd(A) 
+step 3: B = Q*A*Q^T
+step 4: solve A*x = b by LU(B) in cusolverSp
+step 4.1: create opaque info structure
+step 4.2: analyze LU(B) to know structure of Q and R, and upper bound for nnz(L+U)
+step 4.3: workspace for LU(B)
+step 4.4: compute Ppivot*B = L*U 
+step 4.5: check if the matrix is singular 
+step 4.6: solve A*x = b 
+    i.e.  solve B*(Qx) = Q*b 
+step 4.7: evaluate residual r = b - A*x (result on CPU)
+(CPU) |b - A*x| = 4.547474E-12 
+(CPU) |A| = 8.000000E+00 
+(CPU) |x| = 7.513384E+02 
+(CPU) |b - A*x|/(|A|*|x|) = 7.565621E-16 
+step 5: extract P, Q, L and U from P*B*Q^T = L*U 
+        L has implicit unit diagonal
+nnzL = 671550, nnzU = 681550
+step 6: form P*A*Q^T = L*U
+step 6.1: P = Plu*Qreroder
+step 6.2: Q = Qlu*Qreorder 
+step 7: create cusolverRf handle
+step 8: set parameters for cusolverRf 
+step 9: assemble P*A*Q = L*U 
+step 10: analyze to extract parallelism 
+step 11: import A to cusolverRf 
+step 12: refactorization 
+step 13: solve A*x = b 
+step 14: evaluate residual r = b - A*x (result on GPU)
+(GPU) |b - A*x| = 4.320100E-12 
+(GPU) |A| = 8.000000E+00 
+(GPU) |x| = 7.513384E+02 
+(GPU) |b - A*x|/(|A|*|x|) = 7.187340E-16 
+===== statistics 
+ nnz(A) = 49600, nnz(L+U) = 1353100, zero fill-in ratio = 27.280242
+
+===== timing profile 
+ reorder A   : 0.003304 sec
+ B = Q*A*Q^T : 0.000761 sec
+
+ cusolverSp LU analysis: 0.000188 sec
+ cusolverSp LU factor  : 0.069354 sec
+ cusolverSp LU solve   : 0.001780 sec
+ cusolverSp LU extract : 0.005654 sec
+
+ cusolverRf assemble : 0.002426 sec
+ cusolverRf reset    : 0.000021 sec
+ cusolverRf refactor : 0.097122 sec
+ cusolverRf solve    : 0.123813 sec

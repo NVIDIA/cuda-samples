@@ -1,0 +1,14 @@
+starting Simple Occupancy
+
+[ Manual configuration with 32 threads per block ]
+Potential occupancy: 50%
+Elapsed time: 0.0376ms
+
+[ Automatic, occupancy-based configuration ]
+Suggested block size: 1024
+Minimum grid size for maximum occupancy: 228
+Potential occupancy: 100%
+Elapsed time: 0.012384ms
+
+Test PASSED
+

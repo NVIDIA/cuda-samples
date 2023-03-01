@@ -1,0 +1,5 @@
+[simpleCUFFT_callback] is starting...
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Transforming signal cufftExecC2C
+Transforming signal back cufftExecC2C

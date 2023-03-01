@@ -1,0 +1,8 @@
+Starting [conjugateGradientMultiBlockCG]...
+GPU Device 0: "Hopper" with compute capability 9.0
+
+> GPU device has 114 Multi-Processors, SM 9.0 compute capabilities
+
+GPU Final, residual = 1.600115e-06, kernel execution time = 16.014656 ms
+Test Summary:  Error amount = 0.000000 
+&&&& conjugateGradientMultiBlockCG PASSED

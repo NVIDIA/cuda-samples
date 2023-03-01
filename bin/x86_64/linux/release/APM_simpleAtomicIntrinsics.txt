@@ -1,0 +1,5 @@
+simpleAtomicIntrinsics starting...
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Processing time: 2.438000 (ms)
+simpleAtomicIntrinsics completed, returned OK

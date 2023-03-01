@@ -1,0 +1,6 @@
+./simpleAWBarrier starting...
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Launching normVecByDotProductAWBarrier kernel with numBlocks = 228 blockSize = 576
+Result = PASSED
+./simpleAWBarrier completed, returned OK

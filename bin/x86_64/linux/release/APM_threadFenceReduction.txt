@@ -1,0 +1,14 @@
+threadFenceReduction Starting...
+
+GPU Device 0: "Hopper" with compute capability 9.0
+
+GPU Device supports SM 9.0 compute capability
+
+1048576 elements
+128 threads (max)
+64 blocks
+Average time: 0.024780 ms
+Bandwidth:    169.261640 GB/s
+
+GPU result = 0.062298238277
+CPU result = 0.062298242003

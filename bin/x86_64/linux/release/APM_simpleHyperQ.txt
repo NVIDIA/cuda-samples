@@ -1,0 +1,7 @@
+starting hyperQ...
+GPU Device 0: "Hopper" with compute capability 9.0
+
+> Detected Compute SM 9.0 hardware with 114 multi-processors
+Expected time for serial execution of 32 sets of kernels is between approx. 0.330s and 0.640s
+Expected time for fully concurrent execution of 32 sets of kernels is approx. 0.020s
+Measured time for sample = 0.053s

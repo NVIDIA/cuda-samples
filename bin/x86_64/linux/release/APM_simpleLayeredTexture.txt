@@ -1,0 +1,8 @@
+[simpleLayeredTexture] - Starting...
+GPU Device 0: "Hopper" with compute capability 9.0
+
+CUDA device [NVIDIA H100 PCIe] has 114 Multi-Processors SM 9.0
+Covering 2D data array of 512 x 512: Grid size is 64 x 64, each block has 8 x 8 threads
+Processing time: 0.039 msec
+33608.20 Mtexlookups/sec
+Comparing kernel output to expected data

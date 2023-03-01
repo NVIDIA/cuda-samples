@@ -1,0 +1,6 @@
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Initializing data:
+Running quicksort on 128 elements
+Launching kernel on the GPU
+Validating results: OK

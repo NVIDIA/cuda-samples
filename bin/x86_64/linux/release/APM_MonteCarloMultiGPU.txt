@@ -1,0 +1,29 @@
+./MonteCarloMultiGPU Starting...
+
+Using single CPU thread for multiple GPUs
+MonteCarloMultiGPU
+==================
+Parallelization method  = streamed
+Problem scaling         = weak
+Number of GPUs          = 1
+Total number of options = 8192
+Number of paths         = 262144
+main(): generating input data...
+main(): starting 1 host threads...
+main(): GPU statistics, streamed
+GPU Device #0: NVIDIA H100 PCIe
+Options         : 8192
+Simulation paths: 262144
+
+Total time (ms.): 5.516000
+	Note: This is elapsed time for all to compute.
+Options per sec.: 1485134.210647
+main(): comparing Monte Carlo and Black-Scholes results...
+Shutting down...
+Test Summary...
+L1 norm        : 4.869781E-04
+Average reserve: 14.607882
+
+NOTE: The CUDA Samples are not meant for performance measurements. Results may vary when GPU Boost is enabled.
+
+Test passed

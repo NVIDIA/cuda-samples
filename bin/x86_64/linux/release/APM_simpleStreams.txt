@@ -1,0 +1,23 @@
+[ simpleStreams ]
+
+Device synchronization method set to = 0 (Automatic Blocking)
+Setting reps to 100 to demonstrate steady state
+
+> GPU Device 0: "Hopper" with compute capability 9.0
+
+Device: <NVIDIA H100 PCIe> canMapHostMemory: Yes
+> CUDA Capable: SM 9.0 hardware
+> 114 Multiprocessor(s) x 128 (Cores/Multiprocessor) = 14592 (Cores)
+> scale_factor = 1.0000
+> array_size   = 16777216
+
+> Using CPU/GPU Device Synchronization method (cudaDeviceScheduleAuto)
+> mmap() allocating 64.00 Mbytes (generic page-aligned system memory)
+> cudaHostRegister() registering 64.00 Mbytes of generic allocated system memory
+
+Starting Test
+memcopy:	2.45
+kernel:		0.12
+non-streamed:	2.80
+4 streams:	2.66
+-------------------------------

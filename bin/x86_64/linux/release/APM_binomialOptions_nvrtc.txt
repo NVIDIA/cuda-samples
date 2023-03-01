@@ -1,0 +1,23 @@
+[./binomialOptions_nvrtc] - Starting...
+Generating input data...
+Running GPU binomial tree...
+> Using CUDA Device [0]: NVIDIA H100 PCIe
+> Using CUDA Device [0]: NVIDIA H100 PCIe
+> GPU Device has SM 9.0 compute capability
+Options count            : 1024     
+Time steps               : 2048     
+binomialOptionsGPU() time: 3021.375000 msec
+Options per second       : 338.918539     
+Running CPU binomial tree...
+Comparing the results...
+GPU binomial vs. Black-Scholes
+L1 norm: 2.216577E-04
+CPU binomial vs. Black-Scholes
+L1 norm: 9.435265E-05
+CPU binomial vs. GPU binomial
+L1 norm: 1.513570E-04
+Shutting down...
+
+NOTE: The CUDA Samples are not meant for performance measurements. Results may vary when GPU Boost is enabled.
+
+Test passed

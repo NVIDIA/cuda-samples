@@ -1,0 +1,10 @@
+simplePitchLinearTexture starting...
+
+GPU Device 0: "Hopper" with compute capability 9.0
+
+
+Bandwidth (GB/s) for pitch linear: 1.59e+03; for array: 1.69e+03
+
+Texture fetch rate (Mpix/s) for pitch linear: 1.99e+05; for array: 2.12e+05
+
+simplePitchLinearTexture completed, returned OK

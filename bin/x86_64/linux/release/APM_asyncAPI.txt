@@ -1,0 +1,7 @@
+[./asyncAPI] - Starting...
+GPU Device 0: "Hopper" with compute capability 9.0
+
+CUDA device [NVIDIA H100 PCIe]
+time spent executing by the GPU: 5.34
+time spent by CPU in CUDA calls: 0.03
+CPU executed 55200 iterations while waiting for GPU to finish

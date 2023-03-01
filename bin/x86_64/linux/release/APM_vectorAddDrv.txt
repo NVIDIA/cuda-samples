@@ -1,0 +1,5 @@
+Vector Addition (Driver API)
+> Using CUDA Device [0]: NVIDIA H100 PCIe
+> findModulePath found file at <./vectorAdd_kernel64.fatbin>
+> initCUDA loading module: <./vectorAdd_kernel64.fatbin>
+Result = PASS

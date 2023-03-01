@@ -1,0 +1,14 @@
+Starting simpleMultiGPU
+CUDA-capable device count: 1
+Generating input data...
+
+Computing with 1 GPUs...
+  GPU Processing time: 6.047000 (ms)
+
+Computing with Host CPU...
+
+Comparing GPU and Host CPU results...
+  GPU sum: 16777296.000000
+  CPU sum: 16777294.395033
+  Relative difference: 9.566307E-08 
+

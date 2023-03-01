@@ -1,0 +1,9 @@
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Generic memory compression support is available
+Running saxpy on 167772160 bytes of Compressible memory
+Running saxpy with 228 blocks x 1024 threads = 0.084 ms 5.960 TB/s
+Running saxpy on 167772160 bytes of Non-Compressible memory
+Running saxpy with 228 blocks x 1024 threads = 0.345 ms 1.460 TB/s
+
+NOTE: The CUDA Samples are not meant for performance measurements. Results may vary when GPU Boost is enabled.

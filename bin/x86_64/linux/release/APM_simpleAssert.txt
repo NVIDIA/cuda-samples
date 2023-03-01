@@ -1,0 +1,16 @@
+simpleAssert starting...
+OS_System_Type.release = 5.4.0-131-generic
+OS Info: <#147-Ubuntu SMP Fri Oct 14 17:07:22 UTC 2022>
+
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Launch kernel to generate assertion failures
+
+-- Begin assert output
+
+
+-- End assert output
+
+Device assert failed as expected, CUDA error message is: device-side assert triggered
+
+simpleAssert completed, returned OK

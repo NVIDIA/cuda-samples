@@ -1,0 +1,4 @@
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Read 3223503 byte corpus from ../../../../Samples/0_Introduction/c++11_cuda/warandpeace.txt
+counted 107310 instances of 'x', 'y', 'z', or 'w' in "../../../../Samples/0_Introduction/c++11_cuda/warandpeace.txt"

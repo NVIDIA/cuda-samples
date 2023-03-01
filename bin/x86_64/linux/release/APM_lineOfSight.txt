@@ -1,0 +1,7 @@
+[./lineOfSight] - Starting...
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Line of sight
+Average time: 0.020620 ms
+
+Test passed

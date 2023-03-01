@@ -1,0 +1,16 @@
+[Interval Computing]  starting ...
+
+GPU Device 0: "Hopper" with compute capability 9.0
+
+> GPU Device has Compute Capabilities SM 9.0
+
+GPU naive implementation
+Searching for roots in [0.01, 4]...
+Found 2 intervals that may contain the root(s)
+ i[0] = [0.999655515093009, 1.00011722206639]
+ i[1] = [1.00011907576551, 1.00044661086269]
+Number of equations solved: 65536
+Time per equation: 0.616870105266571 us
+
+Check against Host computation...
+

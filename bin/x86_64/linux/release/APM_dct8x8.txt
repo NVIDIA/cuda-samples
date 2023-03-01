@@ -1,0 +1,32 @@
+./dct8x8 Starting...
+
+GPU Device 0: "Hopper" with compute capability 9.0
+
+CUDA sample DCT/IDCT implementation
+===================================
+Loading test image: teapot512.bmp... [512 x 512]... Success
+Running Gold 1 (CPU) version... Success
+Running Gold 2 (CPU) version... Success
+Running CUDA 1 (GPU) version... Success
+Running CUDA 2 (GPU) version... 82435.220134 MPix/s //0.003180 ms
+Success
+Running CUDA short (GPU) version... Success
+Dumping result to teapot512_gold1.bmp... Success
+Dumping result to teapot512_gold2.bmp... Success
+Dumping result to teapot512_cuda1.bmp... Success
+Dumping result to teapot512_cuda2.bmp... Success
+Dumping result to teapot512_cuda_short.bmp... Success
+Processing time (CUDA 1)    : 0.021800 ms 
+Processing time (CUDA 2)    : 0.003180 ms 
+Processing time (CUDA short): 0.033000 ms 
+PSNR Original    <---> CPU(Gold 1)    : 32.527462
+PSNR Original    <---> CPU(Gold 2)    : 32.527309
+PSNR Original    <---> GPU(CUDA 1)    : 32.527184
+PSNR Original    <---> GPU(CUDA 2)    : 32.527054
+PSNR Original    <---> GPU(CUDA short): 32.501888
+PSNR CPU(Gold 1) <---> GPU(CUDA 1)    : 62.845787
+PSNR CPU(Gold 2) <---> GPU(CUDA 2)    : 66.982300
+PSNR CPU(Gold 2) <---> GPU(CUDA short): 40.958466
+
+Test Summary...
+Test passed

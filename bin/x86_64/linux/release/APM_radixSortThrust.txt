@@ -1,0 +1,9 @@
+./radixSortThrust Starting...
+
+GPU Device 0: "Hopper" with compute capability 9.0
+
+
+Sorting 1048576 32-bit unsigned int keys and values
+
+radixSortThrust, Throughput = 2276.9744 MElements/s, Time = 0.00046 s, Size = 1048576 elements
+Test passed

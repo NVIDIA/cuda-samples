@@ -1,0 +1,89 @@
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Driver version is: 12.0
+Running sample.
+================================
+Running virtual address reuse example.
+Sequential allocations & frees within a single graph enable CUDA to reuse virtual addresses.
+
+Check confirms that d_a and d_b share a virtual address.
+    FOOTPRINT: 67108864 bytes
+
+Cleaning up example by trimming device memory.
+    FOOTPRINT: 0 bytes
+
+================================
+Running physical memory reuse example.
+CUDA reuses the same physical memory for allocations from separate graphs when the allocation lifetimes don't overlap.
+
+Creating the graph execs does not reserve any physical memory.
+    FOOTPRINT: 0 bytes
+
+The first graph launched reserves the memory it needs.
+    FOOTPRINT: 67108864 bytes
+A subsequent launch of the same graph in the same stream reuses the same physical memory. Thus the memory footprint does not grow here.
+    FOOTPRINT: 67108864 bytes
+
+Subsequent launches of other graphs in the same stream also reuse the physical memory. Thus the memory footprint does not grow here.
+01:     FOOTPRINT: 67108864 bytes
+02:     FOOTPRINT: 67108864 bytes
+03:     FOOTPRINT: 67108864 bytes
+04:     FOOTPRINT: 67108864 bytes
+05:     FOOTPRINT: 67108864 bytes
+06:     FOOTPRINT: 67108864 bytes
+07:     FOOTPRINT: 67108864 bytes
+
+Check confirms all graphs use a different virtual address.
+
+Cleaning up example by trimming device memory.
+    FOOTPRINT: 0 bytes
+
+================================
+Running simultaneous streams example.
+Graphs that can run concurrently need separate physical memory. In this example, each graph launched in a separate stream increases the total memory footprint.
+
+When launching a new graph, CUDA may reuse physical memory from a graph whose execution has already finished -- even if the new graph is being launched in a different stream from the completed graph. Therefore, a kernel node is added to the graphs to increase runtime.
+
+Initial footprint:
+    FOOTPRINT: 0 bytes
+
+Each graph launch in a seperate stream grows the memory footprint:
+01:     FOOTPRINT: 67108864 bytes
+02:     FOOTPRINT: 134217728 bytes
+03:     FOOTPRINT: 201326592 bytes
+04:     FOOTPRINT: 268435456 bytes
+05:     FOOTPRINT: 335544320 bytes
+06:     FOOTPRINT: 402653184 bytes
+07:     FOOTPRINT: 402653184 bytes
+
+Cleaning up example by trimming device memory.
+    FOOTPRINT: 0 bytes
+
+================================
+Running unfreed streams example.
+CUDA cannot reuse phyiscal memory from graphs which do not free their allocations.
+
+Despite being launched in the same stream, each graph launch grows the memory footprint. Since the allocation is not freed, CUDA keeps the memory valid for use.
+00:     FOOTPRINT: 67108864 bytes
+01:     FOOTPRINT: 134217728 bytes
+02:     FOOTPRINT: 201326592 bytes
+03:     FOOTPRINT: 268435456 bytes
+04:     FOOTPRINT: 335544320 bytes
+05:     FOOTPRINT: 402653184 bytes
+06:     FOOTPRINT: 469762048 bytes
+07:     FOOTPRINT: 536870912 bytes
+
+Trimming does not impact the memory footprint since the un-freed allocations are still holding onto the memory.
+    FOOTPRINT: 536870912 bytes
+
+Freeing the allocations does not shrink the footprint.
+    FOOTPRINT: 536870912 bytes
+
+Since the allocations are now freed, trimming does reduce the footprint even when the graph execs are not yet destroyed.
+    FOOTPRINT: 0 bytes
+
+Cleaning up example by trimming device memory.
+    FOOTPRINT: 0 bytes
+
+================================
+Sample complete.

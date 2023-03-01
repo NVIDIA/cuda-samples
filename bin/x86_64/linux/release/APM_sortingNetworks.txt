@@ -1,0 +1,163 @@
+./sortingNetworks Starting...
+
+Starting up CUDA context...
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Allocating and initializing host arrays...
+
+Allocating and initializing CUDA arrays...
+
+Running GPU bitonic sort (1 identical iterations)...
+
+Testing array length 64 (16384 arrays per batch)...
+Average time: 0.055000 ms
+
+
+Validating the results...
+...reading back GPU results
+...inspecting keys array: OK
+...inspecting keys and values array: OK
+...stability property: NOT stable
+
+Testing array length 128 (8192 arrays per batch)...
+Average time: 0.062000 ms
+
+
+Validating the results...
+...reading back GPU results
+...inspecting keys array: OK
+...inspecting keys and values array: OK
+...stability property: NOT stable
+
+Testing array length 256 (4096 arrays per batch)...
+Average time: 0.067000 ms
+
+
+Validating the results...
+...reading back GPU results
+...inspecting keys array: OK
+...inspecting keys and values array: OK
+...stability property: NOT stable
+
+Testing array length 512 (2048 arrays per batch)...
+Average time: 0.076000 ms
+
+
+Validating the results...
+...reading back GPU results
+...inspecting keys array: OK
+...inspecting keys and values array: OK
+...stability property: NOT stable
+
+Testing array length 1024 (1024 arrays per batch)...
+Average time: 0.088000 ms
+
+
+Validating the results...
+...reading back GPU results
+...inspecting keys array: OK
+...inspecting keys and values array: OK
+...stability property: NOT stable
+
+Testing array length 2048 (512 arrays per batch)...
+Average time: 0.100000 ms
+
+
+Validating the results...
+...reading back GPU results
+...inspecting keys array: OK
+...inspecting keys and values array: OK
+...stability property: NOT stable
+
+Testing array length 4096 (256 arrays per batch)...
+Average time: 0.127000 ms
+
+
+Validating the results...
+...reading back GPU results
+...inspecting keys array: OK
+...inspecting keys and values array: OK
+...stability property: NOT stable
+
+Testing array length 8192 (128 arrays per batch)...
+Average time: 0.157000 ms
+
+
+Validating the results...
+...reading back GPU results
+...inspecting keys array: OK
+...inspecting keys and values array: OK
+...stability property: NOT stable
+
+Testing array length 16384 (64 arrays per batch)...
+Average time: 0.197000 ms
+
+
+Validating the results...
+...reading back GPU results
+...inspecting keys array: OK
+...inspecting keys and values array: OK
+...stability property: NOT stable
+
+Testing array length 32768 (32 arrays per batch)...
+Average time: 0.244000 ms
+
+
+Validating the results...
+...reading back GPU results
+...inspecting keys array: OK
+...inspecting keys and values array: OK
+...stability property: NOT stable
+
+Testing array length 65536 (16 arrays per batch)...
+Average time: 0.296000 ms
+
+
+Validating the results...
+...reading back GPU results
+...inspecting keys array: OK
+...inspecting keys and values array: OK
+...stability property: NOT stable
+
+Testing array length 131072 (8 arrays per batch)...
+Average time: 0.350000 ms
+
+
+Validating the results...
+...reading back GPU results
+...inspecting keys array: OK
+...inspecting keys and values array: OK
+...stability property: NOT stable
+
+Testing array length 262144 (4 arrays per batch)...
+Average time: 0.416000 ms
+
+
+Validating the results...
+...reading back GPU results
+...inspecting keys array: OK
+...inspecting keys and values array: OK
+...stability property: NOT stable
+
+Testing array length 524288 (2 arrays per batch)...
+Average time: 0.483000 ms
+
+
+Validating the results...
+...reading back GPU results
+...inspecting keys array: OK
+...inspecting keys and values array: OK
+...stability property: NOT stable
+
+Testing array length 1048576 (1 arrays per batch)...
+Average time: 0.561000 ms
+
+sortingNetworks-bitonic, Throughput = 1869.1195 MElements/s, Time = 0.00056 s, Size = 1048576 elements, NumDevsUsed = 1, Workgroup = 512
+
+Validating the results...
+...reading back GPU results
+...inspecting keys array: OK
+...inspecting keys and values array: OK
+...stability property: NOT stable
+
+Shutting down...

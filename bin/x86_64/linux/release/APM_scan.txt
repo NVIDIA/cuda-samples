@@ -1,0 +1,138 @@
+./scan Starting...
+
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Allocating and initializing host arrays...
+Allocating and initializing CUDA arrays...
+Initializing CUDA-C scan...
+
+*** Running GPU scan for short arrays (100 identical iterations)...
+
+Running scan for 4 elements (1703936 arrays)...
+Validating the results...
+...reading back GPU results
+ ...scanExclusiveHost()
+ ...comparing the results
+ ...Results Match
+
+Running scan for 8 elements (851968 arrays)...
+Validating the results...
+...reading back GPU results
+ ...scanExclusiveHost()
+ ...comparing the results
+ ...Results Match
+
+Running scan for 16 elements (425984 arrays)...
+Validating the results...
+...reading back GPU results
+ ...scanExclusiveHost()
+ ...comparing the results
+ ...Results Match
+
+Running scan for 32 elements (212992 arrays)...
+Validating the results...
+...reading back GPU results
+ ...scanExclusiveHost()
+ ...comparing the results
+ ...Results Match
+
+Running scan for 64 elements (106496 arrays)...
+Validating the results...
+...reading back GPU results
+ ...scanExclusiveHost()
+ ...comparing the results
+ ...Results Match
+
+Running scan for 128 elements (53248 arrays)...
+Validating the results...
+...reading back GPU results
+ ...scanExclusiveHost()
+ ...comparing the results
+ ...Results Match
+
+Running scan for 256 elements (26624 arrays)...
+Validating the results...
+...reading back GPU results
+ ...scanExclusiveHost()
+ ...comparing the results
+ ...Results Match
+
+Running scan for 512 elements (13312 arrays)...
+Validating the results...
+...reading back GPU results
+ ...scanExclusiveHost()
+ ...comparing the results
+ ...Results Match
+
+Running scan for 1024 elements (6656 arrays)...
+Validating the results...
+...reading back GPU results
+ ...scanExclusiveHost()
+ ...comparing the results
+ ...Results Match
+
+
+scan, Throughput = 35.1769 MElements/s, Time = 0.00003 s, Size = 1024 Elements, NumDevsUsed = 1, Workgroup = 256
+
+***Running GPU scan for large arrays (100 identical iterations)...
+
+Running scan for 2048 elements (3328 arrays)...
+Validating the results...
+...reading back GPU results
+...scanExclusiveHost()
+ ...comparing the results
+ ...Results Match
+
+Running scan for 4096 elements (1664 arrays)...
+Validating the results...
+...reading back GPU results
+...scanExclusiveHost()
+ ...comparing the results
+ ...Results Match
+
+Running scan for 8192 elements (832 arrays)...
+Validating the results...
+...reading back GPU results
+...scanExclusiveHost()
+ ...comparing the results
+ ...Results Match
+
+Running scan for 16384 elements (416 arrays)...
+Validating the results...
+...reading back GPU results
+...scanExclusiveHost()
+ ...comparing the results
+ ...Results Match
+
+Running scan for 32768 elements (208 arrays)...
+Validating the results...
+...reading back GPU results
+...scanExclusiveHost()
+ ...comparing the results
+ ...Results Match
+
+Running scan for 65536 elements (104 arrays)...
+Validating the results...
+...reading back GPU results
+...scanExclusiveHost()
+ ...comparing the results
+ ...Results Match
+
+Running scan for 131072 elements (52 arrays)...
+Validating the results...
+...reading back GPU results
+...scanExclusiveHost()
+ ...comparing the results
+ ...Results Match
+
+Running scan for 262144 elements (26 arrays)...
+Validating the results...
+...reading back GPU results
+...scanExclusiveHost()
+ ...comparing the results
+ ...Results Match
+
+
+scan, Throughput = 5146.1328 MElements/s, Time = 0.00005 s, Size = 262144 Elements, NumDevsUsed = 1, Workgroup = 256
+
+Shutting down...

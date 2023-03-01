@@ -1,0 +1,2 @@
+No Two or more GPUs with same architecture capable of cuda Memory Pools found.
+Waiving the sample

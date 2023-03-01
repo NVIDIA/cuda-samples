@@ -1,0 +1,9 @@
+GPU Device 0: "Hopper" with compute capability 9.0
+
+CPU iterations : 2954
+CPU error : 4.988e-03
+CPU Processing time: 2525.311035 (ms)
+GPU iterations : 2954
+GPU error : 4.988e-03
+GPU Processing time: 57.967999 (ms)
+&&&& jacobiCudaGraphs PASSED

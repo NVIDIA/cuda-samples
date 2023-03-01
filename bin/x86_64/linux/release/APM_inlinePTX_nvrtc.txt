@@ -1,0 +1,5 @@
+CUDA inline PTX assembler sample
+> Using CUDA Device [0]: NVIDIA H100 PCIe
+> Using CUDA Device [0]: NVIDIA H100 PCIe
+> GPU Device has SM 9.0 compute capability
+Test Successful.

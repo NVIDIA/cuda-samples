@@ -1,0 +1,6 @@
+simpleAtomicIntrinsics_nvrtc starting...
+> Using CUDA Device [0]: NVIDIA H100 PCIe
+> Using CUDA Device [0]: NVIDIA H100 PCIe
+> GPU Device has SM 9.0 compute capability
+Processing time: 0.171000 (ms)
+simpleAtomicIntrinsics_nvrtc completed, returned OK

@@ -1,0 +1,5 @@
+CUDA Clock sample
+> Using CUDA Device [0]: NVIDIA H100 PCIe
+> Using CUDA Device [0]: NVIDIA H100 PCIe
+> GPU Device has SM 9.0 compute capability
+Average clocks/block = 1839.750000

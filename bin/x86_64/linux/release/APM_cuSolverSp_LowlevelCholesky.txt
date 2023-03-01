@@ -1,0 +1,24 @@
+GPU Device 0: "Hopper" with compute capability 9.0
+
+Using default input file [../../../../Samples/4_CUDA_Libraries/cuSolverSp_LowlevelCholesky/lap2D_5pt_n100.mtx]
+step 1: read matrix market format
+sparse matrix A is 10000 x 10000 with 49600 nonzeros, base=1
+step 2: create opaque info structure
+step 3: analyze chol(A) to know structure of L
+step 4: workspace for chol(A)
+step 5: compute A = L*L^T 
+step 6: check if the matrix is singular 
+step 7: solve A*x = b 
+step 8: evaluate residual r = b - A*x (result on CPU)
+(CPU) |b - A*x| = 3.637979E-12 
+(CPU) |A| = 8.000000E+00 
+(CPU) |x| = 7.513384E+02 
+(CPU) |b - A*x|/(|A|*|x|) = 6.052497E-16 
+step 9: create opaque info structure
+step 10: analyze chol(A) to know structure of L
+step 11: workspace for chol(A)
+step 12: compute A = L*L^T 
+step 13: check if the matrix is singular 
+step 14: solve A*x = b 
+(GPU) |b - A*x| = 1.477929E-12 
+(GPU) |b - A*x|/(|A|*|x|) = 2.458827E-16 

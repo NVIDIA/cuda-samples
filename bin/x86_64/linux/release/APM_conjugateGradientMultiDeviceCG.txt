@@ -1,0 +1,4 @@
+Starting [conjugateGradientMultiDeviceCG]...
+GPU Device 0: "NVIDIA H100 PCIe" with compute capability 9.0
+No two or more GPUs with same architecture capable of concurrentManagedAccess found. 
+Waiving the sample

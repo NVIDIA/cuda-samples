@@ -1,0 +1,7 @@
+GPU Device 0: "Hopper" with compute capability 9.0
+
+CUDA device [NVIDIA H100 PCIe] has 114 Multi-Processors SM 9.0
+Covering Cubemap data array of 64~3 x 1: Grid size is 8 x 8, each block has 8 x 8 threads
+Processing time: 0.009 msec
+2730.67 Mtexlookups/sec
+Comparing kernel output to expected data
