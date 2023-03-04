@@ -38,6 +38,7 @@
 #include <functional>
 #include <set>
 #include <string.h>
+#include <limits>
 
 #include "VulkanBaseApp.h"
 #include "VulkanCudaInterop.h"
