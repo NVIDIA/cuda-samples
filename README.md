@@ -7,6 +7,8 @@ Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This ve
 This section describes the release notes for the CUDA Samples on GitHub only.
 
 ### CUDA 12.1
+* Added JIT LTO Sample
+* Adding Large Kernel Sample
 
 ### [older versions...](./CHANGELOG.md)
 

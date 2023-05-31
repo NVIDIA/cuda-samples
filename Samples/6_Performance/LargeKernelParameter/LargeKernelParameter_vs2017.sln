@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2019
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "jitlto", "jitlto_vs2019.vcxproj", "{997E0757-EA74-4A4E-A0FC-47D8C8831A15}"
+# Visual Studio 2017
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LargeKernelParameter", "LargeKernelParameter_vs2017.vcxproj", "{997E0757-EA74-4A4E-A0FC-47D8C8831A15}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

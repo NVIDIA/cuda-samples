@@ -264,27 +264,7 @@ ALL_CCFLAGS += $(EXTRA_NVCCFLAGS)
 ALL_CCFLAGS += $(addprefix -Xcompiler ,$(CCFLAGS))
 ALL_CCFLAGS += $(addprefix -Xcompiler ,$(EXTRA_CCFLAGS))
 
-UBUNTU = $(shell lsb_release -i -s 2>/dev/null | grep -i ubuntu)
-
 SAMPLE_ENABLED := 1
-
-# This sample is not supported on ARMv7
-ifeq ($(TARGET_ARCH),armv7l)
-  $(info >>> WARNING - jitLto is not supported on ARMv7 - waiving sample <<<)
-  SAMPLE_ENABLED := 0
-endif
-
-# This sample is not supported on sbsa
-ifeq ($(TARGET_ARCH),sbsa)
-  $(info >>> WARNING - jitLto is not supported on sbsa - waiving sample <<<)
-  SAMPLE_ENABLED := 0
-endif
-
-# This sample is not supported on QNX
-ifeq ($(TARGET_OS),qnx)
-  $(info >>> WARNING - jitLto is not supported on QNX - waiving sample <<<)
-  SAMPLE_ENABLED := 0
-endif
 
 ALL_LDFLAGS :=
 ALL_LDFLAGS += $(ALL_CCFLAGS)
@@ -297,74 +277,30 @@ LIBRARIES :=
 
 ################################################################################
 
-# libNVRTC specific libraries
-ifeq ($(TARGET_OS),darwin)
- LDFLAGS += -L$(CUDA_PATH)/lib -F/Library/Frameworks -framework CUDA
-endif
-
-ifeq ($(TARGET_OS),darwin)
-  ALL_LDFLAGS += -Xcompiler -F/Library/Frameworks -Xlinker -framework -Xlinker CUDA
+# Gencode arguments
+ifeq ($(TARGET_ARCH),$(filter $(TARGET_ARCH),armv7l aarch64 sbsa))
+SMS ?= 70 72 75 80 86 87 90
 else
-  ifeq ($(TARGET_ARCH),x86_64)
-    CUDA_SEARCH_PATH ?= $(CUDA_PATH)/lib64/stubs
-    CUDA_SEARCH_PATH += $(CUDA_PATH)/lib/stubs
-    CUDA_SEARCH_PATH += $(CUDA_PATH)/targets/x86_64-linux/lib/stubs
-  endif
-
-  ifeq ($(TARGET_ARCH)-$(TARGET_OS),armv7l-linux)
-    CUDA_SEARCH_PATH ?= $(CUDA_PATH)/targets/armv7-linux-gnueabihf/lib/stubs
-  endif
-
-  ifeq ($(TARGET_ARCH)-$(TARGET_OS),aarch64-linux)
-    CUDA_SEARCH_PATH ?= $(CUDA_PATH)/targets/aarch64-linux/lib/stubs
-  endif
-
-  ifeq ($(TARGET_ARCH)-$(TARGET_OS),sbsa-linux)
-    CUDA_SEARCH_PATH ?= $(CUDA_PATH)/targets/sbsa-linux/lib/stubs
-  endif
-
-  ifeq ($(TARGET_ARCH)-$(TARGET_OS),armv7l-android)
-    CUDA_SEARCH_PATH ?= $(CUDA_PATH)/targets/armv7-linux-androideabi/lib/stubs
-  endif
-
-  ifeq ($(TARGET_ARCH)-$(TARGET_OS),aarch64-android)
-    CUDA_SEARCH_PATH ?= $(CUDA_PATH)/targets/aarch64-linux-androideabi/lib/stubs
-  endif
-
-  ifeq ($(TARGET_ARCH)-$(TARGET_OS),armv7l-qnx)
-    CUDA_SEARCH_PATH ?= $(CUDA_PATH)/targets/ARMv7-linux-QNX/lib/stubs
-  endif
-
-  ifeq ($(TARGET_ARCH)-$(TARGET_OS),aarch64-qnx)
-    CUDA_SEARCH_PATH ?= $(CUDA_PATH)/targets/aarch64-qnx/lib/stubs
-    ifdef TARGET_OVERRIDE
-        CUDA_SEARCH_PATH := $(CUDA_PATH)/targets/$(TARGET_OVERRIDE)/lib/stubs
-    endif
-  endif
-
-  ifeq ($(TARGET_ARCH),ppc64le)
-    CUDA_SEARCH_PATH ?= $(CUDA_PATH)/targets/ppc64le-linux/lib/stubs
-  endif
-
-  ifeq ($(HOST_ARCH),ppc64le)
-    CUDA_SEARCH_PATH += $(CUDA_PATH)/lib64/stubs
-  endif
-
-  CUDALIB ?= $(shell find -L $(CUDA_SEARCH_PATH) -maxdepth 1 -name libcuda.so 2> /dev/null)
-  ifeq ("$(CUDALIB)","")
-    $(info >>> WARNING - libcuda.so not found, CUDA Driver is not installed.  Please re-install the driver. <<<)
-    SAMPLE_ENABLED := 0
-  else
-    CUDALIB := $(shell echo $(CUDALIB) | sed "s/ .*//" | sed "s/\/libcuda.so//" )
-    LIBRARIES += -L$(CUDALIB) -lcuda
-  endif
+SMS ?= 70 75 80 86 89 90
 endif
 
-ALL_CCFLAGS += --threads 0 --std=c++11
+ifeq ($(SMS),)
+$(info >>> WARNING - no SM architectures have been specified - waiving sample <<<)
+SAMPLE_ENABLED := 0
+endif
 
-INCLUDES += -I$(CUDA_PATH)/include
+ifeq ($(GENCODE_FLAGS),)
+# Generate SASS code for each SM architecture listed in $(SMS)
+$(foreach sm,$(SMS),$(eval GENCODE_FLAGS += -gencode arch=compute_$(sm),code=sm_$(sm)))
 
-LIBRARIES += -lnvrtc -lnvJitLink
+# Generate PTX code from the highest SM architecture in $(SMS) to guarantee forward-compatibility
+HIGHEST_SM := $(lastword $(sort $(SMS)))
+ifneq ($(HIGHEST_SM),)
+GENCODE_FLAGS += -gencode arch=compute_$(HIGHEST_SM),code=compute_$(HIGHEST_SM)
+endif
+endif
+
+ALL_CCFLAGS += --std=c++11 --threads 0
 
 ifeq ($(SAMPLE_ENABLED),0)
 EXEC ?= @echo "[@]"
@@ -375,7 +311,7 @@ endif
 # Target rules
 all: build
 
-build: jitLto
+build: LargeKernelParameter
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -384,21 +320,21 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-jitLto.o:jitLto.cpp
+LargeKernelParameter.o:LargeKernelParameter.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-jitLto: jitLto.o
+LargeKernelParameter: LargeKernelParameter.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 	$(EXEC) mkdir -p ../../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 	$(EXEC) cp $@ ../../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
 run: build
-	$(EXEC) ./jitLto
+	$(EXEC) ./LargeKernelParameter
 
 testrun: build
 
 clean:
-	rm -f jitLto jitLto.o
-	rm -rf ../../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/jitLto
+	rm -f LargeKernelParameter LargeKernelParameter.o
+	rm -rf ../../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/LargeKernelParameter
 
 clobber: clean
