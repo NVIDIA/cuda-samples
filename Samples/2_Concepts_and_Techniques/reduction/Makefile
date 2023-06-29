@@ -113,6 +113,10 @@ ifeq (,$(filter $(TARGET_OS),linux darwin qnx android))
 endif
 
 # host compiler
+ifdef HOST_COMPILER
+ CUSTOM_HOST_COMPILER = 1
+endif
+
 ifeq ($(TARGET_OS),darwin)
     ifeq ($(shell expr `xcodebuild -version | grep -i xcode | awk '{print $$2}' | cut -d'.' -f1` \>= 5),1)
         HOST_COMPILER ?= clang++
@@ -299,13 +303,16 @@ ifeq ($(TARGET_OS),linux)
 #$(warning $(GCCVERSION))
 
     IS_MIN_VERSION := $(shell expr `echo $(GCCVERSION)` \>= 47000)
-
+ ifneq ($(CUSTOM_HOST_COMPILER), 1)
     ifeq ($(IS_MIN_VERSION), 1)
         $(info >>> GCC Version is greater or equal to 4.7.0 <<<)
     else
         $(info >>> Waiving build. Minimum GCC version required is 4.7.0<<<)
         SAMPLE_ENABLED := 0
     endif
+ else
+    $(warning >>> Custom HOST_COMPILER set; skipping GCC version check. This may lead to unintended behavior. Please note the minimum equivalent GCC version is 4.7.0 <<<)
+ endif
 endif
 
 # Gencode arguments

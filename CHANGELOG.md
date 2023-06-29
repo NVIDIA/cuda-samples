@@ -1,6 +1,11 @@
 ## Changelog
 
 ### CUDA 12.1
+* libNVVM samples received updates
+* Fixed jitLto Case issues
+* Enabled HOST_COMPILER flag to the makefiles for GCC which is untested but may still work.
+
+### CUDA 12.1
 * Added new sample for Large Kernels
 
 ### CUDA 12.0

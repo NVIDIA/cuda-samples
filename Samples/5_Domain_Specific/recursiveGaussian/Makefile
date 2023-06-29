@@ -113,6 +113,10 @@ ifeq (,$(filter $(TARGET_OS),linux darwin qnx android))
 endif
 
 # host compiler
+ifdef HOST_COMPILER
+ CUSTOM_HOST_COMPILER = 1
+endif
+
 ifeq ($(TARGET_OS),darwin)
     ifeq ($(shell expr `xcodebuild -version | grep -i xcode | awk '{print $$2}' | cut -d'.' -f1` \>= 5),1)
         HOST_COMPILER ?= clang++
