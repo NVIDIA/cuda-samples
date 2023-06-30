@@ -37,6 +37,7 @@
 #define NOMINMAX
 #endif
 
+#define THRUST_IGNORE_CUB_VERSION_CHECK
 // includes, system
 #include <stdlib.h>
 #include <stdio.h>
