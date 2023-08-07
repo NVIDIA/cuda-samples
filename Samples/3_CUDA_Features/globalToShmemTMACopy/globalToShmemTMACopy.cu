@@ -337,9 +337,10 @@ int main(int argc, char **argv) {
   CUDA_CHECK(cudaDeviceSynchronize());
 
   printf(
+    "\n**NOTE**: The following code will fail.\n "
     "\nCare must be taken to ensure that the coordinates result in a memory offset\n"
     "that is aligned to 16 bytes. With 32 bit integer elements, x coordinates\n"
-    "that are not a multiple of 4 result in a non-recoverable error:\n"
+    "that are not a multiple of 4 result in a non-recoverable error:\n\n"
   );
   kernel<<<grid, block>>>(tma_desc, 1, 0);
   CUDA_REPORT(cudaDeviceSynchronize());
@@ -348,6 +349,6 @@ int main(int argc, char **argv) {
   kernel<<<grid, block>>>(tma_desc, 3, 0);
   CUDA_REPORT(cudaDeviceSynchronize());
 
-  CUDA_CHECK(cudaFree(tensor));
+  CUDA_REPORT(cudaFree(tensor));
   return 0;
 }

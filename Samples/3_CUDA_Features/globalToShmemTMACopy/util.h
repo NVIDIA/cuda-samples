@@ -58,7 +58,7 @@ inline void gpuReport(cudaError_t code, const char *file, int line)
 {
     if (code != cudaSuccess)
     {
-        fprintf(stderr, "CUDA error: %s %s %d\n", cudaGetErrorString(code), file,
+        fprintf(stderr, "CUDA error (as expected): %s %s %d\n", cudaGetErrorString(code), file,
                 line);
     }
 }
