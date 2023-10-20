@@ -108,7 +108,7 @@ endif
 # operating system
 HOST_OS   := $(shell uname -s 2>/dev/null | tr "[:upper:]" "[:lower:]")
 TARGET_OS ?= $(HOST_OS)
-ifeq (,$(filter $(TARGET_OS),linux darwin qnx android))
+ifeq (,$(filter $(TARGET_OS),linux qnx android))
     $(error ERROR - unsupported value $(TARGET_OS) for TARGET_OS!)
 endif
 
@@ -117,11 +117,7 @@ ifdef HOST_COMPILER
  CUSTOM_HOST_COMPILER = 1
 endif
 
-ifeq ($(TARGET_OS),darwin)
-    ifeq ($(shell expr `xcodebuild -version | grep -i xcode | awk '{print $$2}' | cut -d'.' -f1` \>= 5),1)
-        HOST_COMPILER ?= clang++
-    endif
-else ifneq ($(TARGET_ARCH),$(HOST_ARCH))
+ifneq ($(TARGET_ARCH),$(HOST_ARCH))
     ifeq ($(HOST_ARCH)-$(TARGET_ARCH),x86_64-armv7l)
         ifeq ($(TARGET_OS),linux)
             HOST_COMPILER ?= arm-linux-gnueabihf-g++
@@ -169,10 +165,7 @@ CCFLAGS     :=
 LDFLAGS     :=
 
 # build flags
-ifeq ($(TARGET_OS),darwin)
-    LDFLAGS += -rpath $(CUDA_PATH)/lib
-    CCFLAGS += -arch $(HOST_ARCH)
-else ifeq ($(HOST_ARCH)-$(TARGET_ARCH)-$(TARGET_OS),x86_64-armv7l-linux)
+ifeq ($(HOST_ARCH)-$(TARGET_ARCH)-$(TARGET_OS),x86_64-armv7l-linux)
     LDFLAGS += --dynamic-linker=/lib/ld-linux-armhf.so.3
     CCFLAGS += -mfloat-abi=hard
 else ifeq ($(TARGET_OS),android)
@@ -269,12 +262,6 @@ ALL_CCFLAGS += $(addprefix -Xcompiler ,$(CCFLAGS))
 ALL_CCFLAGS += $(addprefix -Xcompiler ,$(EXTRA_CCFLAGS))
 
 SAMPLE_ENABLED := 1
-
-# This sample is not supported on Mac OSX
-ifeq ($(TARGET_OS),darwin)
-  $(info >>> WARNING - graphMemoryNodes is not supported on Mac OSX - waiving sample <<<)
-  SAMPLE_ENABLED := 0
-endif
 
 ALL_LDFLAGS :=
 ALL_LDFLAGS += $(ALL_CCFLAGS)
