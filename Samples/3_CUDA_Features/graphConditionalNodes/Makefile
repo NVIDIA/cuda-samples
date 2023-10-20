@@ -157,7 +157,7 @@ ifneq ($(TARGET_ARCH),$(HOST_ARCH))
     endif
 endif
 HOST_COMPILER ?= g++
-NVCC          := $(CUDA_PATH)/bin/nvcc -ccbin $(HOST_COMPILER)
+NVCC          ?= $(CUDA_PATH)/bin/nvcc -ccbin $(HOST_COMPILER)
 
 # internal flags
 NVCCFLAGS   := -m${TARGET_SIZE}
@@ -308,7 +308,7 @@ endif
 # Target rules
 all: build
 
-build: graphMemoryNodes
+build: graphConditionalNodes
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -317,21 +317,21 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-graphMemoryNodes.o:graphMemoryNodes.cu
+graphConditionalNodes.o:graphConditionalNodes.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-graphMemoryNodes: graphMemoryNodes.o
+graphConditionalNodes: graphConditionalNodes.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 	$(EXEC) mkdir -p ../../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 	$(EXEC) cp $@ ../../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
 run: build
-	$(EXEC) ./graphMemoryNodes
+	$(EXEC) ./graphConditionalNodes
 
 testrun: build
 
 clean:
-	rm -f graphMemoryNodes graphMemoryNodes.o
-	rm -rf ../../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/graphMemoryNodes
+	rm -f graphConditionalNodes graphConditionalNodes.o
+	rm -rf ../../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/graphConditionalNodes
 
 clobber: clean
