@@ -39,9 +39,6 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include <climits>
-#include <vector>
-
 // CUDA runtime
 #include <cuda_runtime.h>
 
