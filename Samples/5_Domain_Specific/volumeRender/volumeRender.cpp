@@ -553,8 +553,8 @@ int main(int argc, char **argv) {
     // This is necessary in order to achieve optimal performance with
     // OpenGL/CUDA interop.
     initGL(&argc, argv);
-    
-	 findCudaDevice(argc, (const char **)argv);
+
+    findCudaDevice(argc, (const char **)argv);
   }
 
   // parse arguments

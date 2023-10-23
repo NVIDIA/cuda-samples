@@ -388,10 +388,10 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-jitLto.o:jitLto.cpp
+jitlto.o:jitlto.cpp
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-jitLto: jitLto.o
+jitLto: jitlto.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 	$(EXEC) mkdir -p ../../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 	$(EXEC) cp $@ ../../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
@@ -402,7 +402,7 @@ run: build
 testrun: build
 
 clean:
-	rm -f jitLto jitLto.o
+	rm -f jitLto jitlto.o
 	rm -rf ../../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/jitLto
 
 clobber: clean
