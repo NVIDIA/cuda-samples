@@ -131,6 +131,16 @@ static void getLTOIR (const char *code, const char *name,
 
 int main(int argc, char *argv[])
 {
+  unsigned int cuda_major = 0;
+  unsigned int cuda_minor = 0;
+  nvJitLinkResult res = nvJitLinkVersion(&cuda_major, &cuda_minor);
+  if (res != NVJITLINK_SUCCESS) {
+    std::cerr << "Version check failed" << '\n';
+  } else {
+    std::cout << "CUDA " << cuda_major << "." << cuda_minor << '\n';
+  }
+
+
   char *ltoIR1;
   char *ltoIR2;
   size_t ltoIR1Size;

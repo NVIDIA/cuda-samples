@@ -34,6 +34,12 @@
 #include <string.h>
 #include <sys/stat.h>
 
+#define ERROR_IF(expr)                                              \
+  if (expr) {                                                       \
+    fprintf(stderr, "Failed check at %s:%d\n", __FILE__, __LINE__); \
+    exit(EXIT_FAILURE);                                             \
+  }
+
 // If 'err' is non-zero, emit an error message and exit.
 #define checkCudaErrors(err) __checkCudaErrors(err, __FILE__, __LINE__)
 static void __checkCudaErrors(CUresult err, const char *filename, int line) {
@@ -221,7 +227,7 @@ static CUresult buildKernel(CUcontext *phContext, CUdevice *phDevice,
   return CUDA_SUCCESS;
 }
 
-int main(int argc, char **argv) {
+int main(void) {
   const unsigned int nThreads = 1;
   const unsigned int nBlocks = 1;
 
@@ -245,7 +251,7 @@ int main(int argc, char **argv) {
     int attrVal;
     checkCudaErrors(cuDeviceGetAttribute(
         &attrVal, CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, hDevice));
-    assert(attrVal == 1);
+    ERROR_IF(attrVal != 1);
   }
 
   // Get the address of the variable xxx, yyy in the managed memory.
@@ -260,23 +266,10 @@ int main(int argc, char **argv) {
 
     checkCudaErrors(cuPointerGetAttribute(
         &attrVal, CU_POINTER_ATTRIBUTE_IS_MANAGED, devp_xxx));
-    assert(attrVal == 1);
+    ERROR_IF(attrVal != 1);
     checkCudaErrors(cuPointerGetAttribute(
         &attrVal, CU_POINTER_ATTRIBUTE_IS_MANAGED, devp_yyy));
-    assert(attrVal == 1);
-  }
-
-  // The "physical" memory location of the memory that the devp_yyy addresses is
-  // the device memory type.
-  {
-    unsigned int attrVal;
-
-    checkCudaErrors(cuPointerGetAttribute(
-        &attrVal, CU_POINTER_ATTRIBUTE_MEMORY_TYPE, devp_xxx));
-    assert(attrVal == CU_MEMORYTYPE_DEVICE);
-    checkCudaErrors(cuPointerGetAttribute(
-        &attrVal, CU_POINTER_ATTRIBUTE_MEMORY_TYPE, devp_yyy));
-    assert(attrVal == CU_MEMORYTYPE_DEVICE);
+    ERROR_IF(attrVal != 1);
   }
 
   // Since CUdeviceptr is opaque, it is safe to use cuPointerGetAttribute to get
@@ -296,8 +289,8 @@ int main(int argc, char **argv) {
   printf("The initial value of xxx initialized by the device = %d\n", *p_xxx);
   printf("The initial value of yyy initialized by the device = %d\n", *p_yyy);
 
-  assert(*p_xxx == 10);
-  assert(*p_yyy == 100);
+  ERROR_IF(*p_xxx != 10);
+  ERROR_IF(*p_yyy != 100);
 
   // The host adds 1 and 11 to xxx and yyy.
   *p_xxx += 1;

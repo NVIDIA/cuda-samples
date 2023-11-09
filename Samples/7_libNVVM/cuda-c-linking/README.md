@@ -23,8 +23,9 @@ Files
 Building
 --------
 
-This sample is built as part of the libnvvm samples tree.  Please see the
-README file at the root of the libnvvm samples tree for build instructions.
+This sample is optionally built as part of the libnvvm samples from the CUDA
+samples tree.  Please see the README file at the root of the libnvvm samples
+for build instructions.
 
 Usage
 -----

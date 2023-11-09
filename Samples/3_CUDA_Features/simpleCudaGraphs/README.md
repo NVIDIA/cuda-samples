@@ -25,7 +25,7 @@ cudaGraphClone, cudaExtent, cudaGraphLaunch, cudaStreamCreate, cudaLaunchHostFun
 
 ## Prerequisites
 
-Download and install the [CUDA Toolkit 12.2](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit 12.3](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 
 ## Build and Run
 

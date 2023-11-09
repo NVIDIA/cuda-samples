@@ -87,7 +87,7 @@ message(STATUS "Using rpath: ${CMAKE_INSTALL_RPATH}")
 # On Windows, locate the nvvm.dll so we can install it.
 if (WIN32)
   find_file(NVVM_DLL nvvm64_40_0.dll PATHS "${LIBNVVM_HOME}/bin")
-  if(NOT NVVM_DLL)
+  if (NOT NVVM_DLL)
     message(FATAL_ERROR "Found nvvm .h/.lib, but not .dll")
   endif()
   install(FILES ${NVVM_DLL} DESTINATION bin)
@@ -98,10 +98,18 @@ add_definitions(-DLIBDEVICE_MAJOR_VERSION=1)
 add_definitions(-DLIBDEVICE_MINOR_VERSION=0)
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/common/include")
 
-# Include the LLVM dev package which is required to build cuda-c-linking.
-find_package(LLVM CONFIG PATHS "$ENV{LLVM_HOME}")
-if (LLVM_FOUND)
-  add_subdirectory(cuda-c-linking)
+# If you wish to build the cuda-c-linking sample and have the LLVM dependencies
+# met, then set the ENABLE_CUDA_C_LINKING_SAMPLE variable. This variable can be
+# set locally or by adding "-DENABLE_CUDA_C_LINKING_SAMPLE=1" to your cmake
+# invocation. See the note about "cuda-c-linking" in README.md.
+if (ENABLE_CUDA_C_LINKING_SAMPLE)
+  # Include the LLVM dev package which is required to build cuda-c-linking.
+  find_package(LLVM CONFIG PATHS "$ENV{LLVM_HOME}")
+  if (LLVM_FOUND)
+    add_subdirectory(cuda-c-linking)
+  else ()
+    message(STATUS "Skipping the build of the cuda-c-linking sample: Failed to locate the LLVM package.")
+  endif ()
 else ()
   message(STATUS "Skipping the build of the cuda-c-linking sample.")
 endif ()

@@ -1,5 +1,9 @@
 ## Changelog
 
+### CUDA 12.3
+* Added cuDLA samples
+* Fixed jitLto regression
+
 ### CUDA 12.2
 * libNVVM samples received updates
 * Fixed jitLto Case issues

@@ -44,7 +44,7 @@ identify all of these paths.
                locally.  This is only required for building the cuda-c-linking
                sample (see the cuda-c-linking note below).
 
-After setting the environment variables and adding the path to the cmake tool
+After setting the environment variables and adding the path to the CMake tool
 via the PATH environment variable, sample script utils/build.sh (for Linux) or
 utils/build.bat (for Windows) may be executed. This script will use build
 directory "build" to build the samples, and then install them in the "install"
@@ -70,6 +70,11 @@ cuda-c-linking sample and have a locally built copy of LLVM that they wish to
 use.  That sample requires the development package of LLVM with the LLVM header
 files and libraries.
 
+If the LLVM dependencies are met, the user can enable the building of this
+sample by setting the CMake variable "ENABLE_CUDA_C_LINKING_SAMPLE" from either
+the command line invocation of CMake or by modifying the CMakeLists.txt in this
+directory.
+
 Windows users should download LLVM 14 sources from llvm.org and build+install
 LLVM locally.  Using the llvm.org provided Windows installer lacks some of
 the required components the cuda-c-linking sample depends on.
@@ -78,8 +83,8 @@ For Ubuntu users, the "llvm-dev" package contains the LLVM headers and libraries
 this sample requires, the user should not have to explicitly define an LLVM_HOME
 in this case.
 
-Windows users will want to build this sample using the same cmake build mode
+Windows users will want to build this sample using the same CMake build mode
 as they built LLVM with.  For instance if they built LLVM in Release mode,
 then this sample should also be built in Release mode. The utils/build.bat can
-be updated to reflect this: Add "-DCMAKE_BUILD_TYPE=Release" to the cmake
+be updated to reflect this: Add "-DCMAKE_BUILD_TYPE=Release" to the CMake
 invocation.

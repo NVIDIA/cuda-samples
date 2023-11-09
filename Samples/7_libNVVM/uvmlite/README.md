@@ -40,7 +40,7 @@ retrieve a device pointer first, which can be done using cuModuleGetGlobal().
     size_t      size_xxx; // size of xxx
     result = cuModuleGetGlobal(&devp_xxx, &size_xxx, hModule, "xxx");
 
-Whether of not the pointer points to a managed memory may be queried
+Whether or not the pointer points to managed memory may be queried
 by calling cuPointerGetAttribute() with the pointer attribute
 CU_POINTER_ATTRIBUTE_IS_MANAGED.
 
