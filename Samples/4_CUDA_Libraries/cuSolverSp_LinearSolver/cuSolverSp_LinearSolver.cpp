@@ -552,7 +552,6 @@ int main(int argc, char *argv[]) {
   checkCudaErrors(cusparseScatter(cusparseHandle, vecz, vecx));
   checkCudaErrors(cusparseDestroySpVec(vecz));
 
-  
   checkCudaErrors(cudaDeviceSynchronize());
 
   stop = second();
