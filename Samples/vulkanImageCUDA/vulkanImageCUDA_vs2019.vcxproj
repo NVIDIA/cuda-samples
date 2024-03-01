@@ -42,7 +42,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <IntDir>$(Platform)/$(Configuration)/</IntDir>
-    <IncludePath>$(IncludePath)</IncludePath>
+    <IncludePath>$(IncludePath);C:\VulkanSDK\1.3.275.0\Include;C:\projC\cuda\glfw-3.3.9.bin.WIN64\include;</IncludePath>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules />
     <CodeAnalysisRuleAssemblies />
@@ -59,7 +59,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies>cudart_static.lib;vulkan-1.lib;glfw3dll.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(CudaToolkitLibDir);../../common/lib/$(PlatformName);$(VULKAN_SDK)/Lib;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(CudaToolkitLibDir);../../common/lib/$(PlatformName);$(VULKAN_SDK)/Lib;C:\VulkanSDK\1.3.275.0\Lib;C:\projC\cuda\glfw-3.3.9.bin.WIN64\lib-vc2019;</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)/vulkanImageCUDA.exe</OutputFile>
     </Link>
     <CudaCompile>
@@ -97,18 +97,10 @@
       <TargetMachinePlatform>64</TargetMachinePlatform>
     </CudaCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
-    <Link>
-      
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Platform)'=='x64'">
-    <Link>
-      
-    </Link>
-  </ItemDefinitionGroup>
   <ItemGroup>
-    <CudaCompile Include="vulkanImageCUDA.cu" />
+    <CudaCompile Include="vulkanImageCUDA.cu">
+      <FileType>Document</FileType>
+    </CudaCompile>
     <ClInclude Include="linmath.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

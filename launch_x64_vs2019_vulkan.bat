@@ -1,0 +1,2 @@
+call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvars64.bat"
+call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\Common7\IDE\devenv.exe" /useenv %~dp0\Samples\vulkanImageCUDA\vulkanImageCUDA_vs2019.sln
