@@ -8,6 +8,21 @@ This section describes the release notes for the CUDA Samples on GitHub only.
 
 ### CUDA 12.4
 
+- Hopper Confidential Computing Modes do not support Video samples, nor do they support host-pinned memory due to the restrictions created by CPU IOMMUs. The following Samples are affected:
+  - convolutionTexture
+  - cudaNvSci
+  - dct8x8
+  - lineOfSight
+  - simpleCubemapTexture
+  - simpleIPC
+  - simpleLayeredTexture
+  - simplePitchLinearTexture
+  - simpleStream
+  - simpleTexture
+  - simpleTextureDrv
+  - watershedSegmentationNPP
+
+
 ### [older versions...](./CHANGELOG.md)
 
 ## Getting Started
