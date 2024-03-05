@@ -1,5 +1,8 @@
 ## Changelog
 
+### CUDA 12.4
+* Added graphConditionalNodes Sample
+
 ### CUDA 12.3
 * Added cuDLA samples
 * Fixed jitLto regression

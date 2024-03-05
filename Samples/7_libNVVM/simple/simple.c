@@ -49,7 +49,8 @@ static void __checkCudaErrors(CUresult err, const char *filename, int line) {
 }
 
 // Return a CUDA capable device or exit if one cannot be found.
-static CUdevice cudaDeviceInit(void) {
+static CUdevice cudaDeviceInit(int *devMajor, int *devMinor) {
+  assert(devMajor && devMinor);
   CUresult err = cuInit(0);
   int deviceCount = 0;
   if (CUDA_SUCCESS == err)
@@ -67,13 +68,15 @@ static CUdevice cudaDeviceInit(void) {
   printf("Using CUDA Device [0]: %s\n", name);
 
   // Obtain the device's compute capability.
-  int major = 0;
   checkCudaErrors(cuDeviceGetAttribute(
-      &major, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, cuDevice));
-  if (major < 5) {
+      devMajor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, cuDevice));
+  if (*devMajor < 5) {
     fprintf(stderr, "Device 0 is not sm_50 or later\n");
     exit(EXIT_FAILURE);
   }
+  checkCudaErrors(cuDeviceGetAttribute(
+      devMinor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, cuDevice));
+
   return cuDevice;
 }
 
@@ -81,9 +84,6 @@ static CUresult initCUDA(CUcontext *phContext, CUdevice *phDevice,
                          CUmodule *phModule, CUfunction *phKernel,
                          const char *ptx) {
   assert(phContext && phDevice && phModule && phKernel && ptx);
-
-  // Initialize.
-  *phDevice = cudaDeviceInit();
 
   // Create a CUDA context on the device.
   checkCudaErrors(cuCtxCreate(phContext, 0, *phDevice));
@@ -117,7 +117,8 @@ static char *loadProgramSource(const char *filename, size_t *size) {
   return source;
 }
 
-static char *generatePTX(const char *ir, size_t size, const char *filename) {
+static char *generatePTX(const char *ir, size_t size, const char *filename,
+                         int devMajor, int devMinor) {
   assert(ir && filename);
 
   // Create a program instance for use with libNVVM.
@@ -135,8 +136,13 @@ static char *generatePTX(const char *ir, size_t size, const char *filename) {
     exit(EXIT_FAILURE);
   }
 
-  // Compile the NVVM IR into PTX.
-  result = nvvmCompileProgram(program, 0, NULL);
+  // Dynamically construct the compute capability.
+  char arch[32] = {0};
+  snprintf(arch, sizeof(arch) - 1, "-arch=compute_%d%d", devMajor, devMinor);
+
+  // Compile the IR into PTX.
+  const char *options[] = {arch};
+  result = nvvmCompileProgram(program, 1, options);
   if (result != NVVM_SUCCESS) {
     fprintf(stderr, "nvvmCompileProgram: Failed\n");
     size_t logSize;
@@ -187,14 +193,17 @@ int main(int argc, char **argv) {
   char *ir = loadProgramSource(filename, &size);
   fprintf(stdout, "NVVM IR (.ll) file loaded\n");
 
+  // Initialize the device and obtain the compute capability.
+  int devMajor = 0, devMinor = 0;
+  CUdevice hDevice = cudaDeviceInit(&devMajor, &devMinor);
+
   // Use libNVVM to generate PTX from the NVVM IR.
-  char *ptx = generatePTX(ir, size, filename);
+  char *ptx = generatePTX(ir, size, filename, devMajor, devMinor);
   fprintf(stdout, "PTX generated:\n");
   fprintf(stdout, "%s\n", ptx);
 
   // Initialize the device and get a handle to the kernel.
   CUcontext hContext = 0;
-  CUdevice hDevice = 0;
   CUmodule hModule = 0;
   CUfunction hKernel = 0;
   checkCudaErrors(initCUDA(&hContext, &hDevice, &hModule, &hKernel, ptx));

@@ -74,3 +74,6 @@ A CUDA sample demonstrating tf32 (e8m10) GEMM computation using the Warp Matrix 
 ### [warpAggregatedAtomicsCG](./warpAggregatedAtomicsCG)
 This sample demonstrates how using Cooperative Groups (CG) to perform warp aggregated atomics to single and multiple counters, a useful technique to improve performance when many threads atomically add to a single or multiple counters.
 
+### [graphConditionalNodes](./graphConditionalNodes)
+Demonstrate the use of CUDA Graph conditional nodes available starting in CUDA 12.4.
+
