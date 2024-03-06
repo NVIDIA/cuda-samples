@@ -579,6 +579,8 @@ static const char *_cudaGetErrorEnum(NppStatus error) {
 }
 #endif
 
+namespace helper_cuda {
+namespace detail {
 template <typename T>
 void check(T result, char const *const func, const char *const file,
            int const line) {
@@ -588,11 +590,13 @@ void check(T result, char const *const func, const char *const file,
     exit(EXIT_FAILURE);
   }
 }
+} // namespace detail
+} // namespace helper_cuda
 
 #ifdef __DRIVER_TYPES_H__
 // This will output the proper CUDA error strings in the event
 // that a CUDA host call returns an error
-#define checkCudaErrors(val) check((val), #val, __FILE__, __LINE__)
+#define checkCudaErrors(val) ::helper_cuda::detail::check((val), #val, __FILE__, __LINE__)
 
 // This will output the proper error string when calling cudaGetLastError
 #define getLastCudaError(msg) __getLastCudaError(msg, __FILE__, __LINE__)
