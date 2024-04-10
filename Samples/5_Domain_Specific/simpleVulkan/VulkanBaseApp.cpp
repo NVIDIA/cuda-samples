@@ -39,6 +39,7 @@
 #include <set>
 #include <stdexcept>
 #include <string.h>
+#include <limits>
 
 
 #include "VulkanBaseApp.h"
