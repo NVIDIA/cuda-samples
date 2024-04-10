@@ -11,5 +11,5 @@ This sample enumerates the properties of the CUDA devices present in the system.
 This sample enumerates the properties of the CUDA devices present using CUDA Driver API calls
 
 ### [topologyQuery](./topologyQuery)
-A simple exemple on how to query the topology of a system with multiple GPU
+A simple example on how to query the topology of a system with multiple GPU
 
