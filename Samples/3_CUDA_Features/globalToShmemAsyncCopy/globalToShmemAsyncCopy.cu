@@ -128,7 +128,7 @@ __global__ void MatrixMulAsyncCopyMultiStageLargeChunk(
        a <= aEnd; a += aStep, b += bStep, ++i) {
     // Load the matrices from device memory to shared memory; each thread loads
     // one element of each matrix
-    for (; aStage <= a + aStep * maxPipelineStages;
+    for (; aStage < a + aStep * maxPipelineStages;
          aStage += aStep, bStage += bStep, ++iStage) {
       pipe.producer_acquire();
       if (aStage <= aEnd && t4x < BLOCK_SIZE) {
@@ -137,7 +137,7 @@ __global__ void MatrixMulAsyncCopyMultiStageLargeChunk(
         cuda::memcpy_async(&As[j][threadIdx.y][t4x],
                            &A[aStage + wA * threadIdx.y + t4x], shape4, pipe);
         cuda::memcpy_async(&Bs[j][threadIdx.y][t4x],
-                           &B[aStage + wA * threadIdx.y + t4x], shape4, pipe);
+                           &B[bStage + wB * threadIdx.y + t4x], shape4, pipe);
       }
       pipe.producer_commit();
     }
@@ -222,7 +222,7 @@ __global__ void MatrixMulAsyncCopyLargeChunk(float *__restrict__ C,
 
       cuda::memcpy_async(&As[threadIdx.y][t4x], &A[a + wA * threadIdx.y + t4x],
                          shape4, pipe);
-      cuda::memcpy_async(&Bs[threadIdx.y][t4x], &B[a + wA * threadIdx.y + t4x],
+      cuda::memcpy_async(&Bs[threadIdx.y][t4x], &B[b + wB * threadIdx.y + t4x],
                          shape4, pipe);
 
       pipe.producer_commit();
