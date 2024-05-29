@@ -103,7 +103,7 @@ __global__ void copySharedMem(float *odata, float *idata, int width,
 
   for (int i = 0; i < TILE_DIM; i += BLOCK_ROWS) {
     if (xIndex < width && yIndex < height) {
-      tile[threadIdx.y][threadIdx.x] = idata[index];
+      tile[threadIdx.y + i][threadIdx.x] = idata[index + i * width];
     }
   }
 
@@ -111,7 +111,7 @@ __global__ void copySharedMem(float *odata, float *idata, int width,
 
   for (int i = 0; i < TILE_DIM; i += BLOCK_ROWS) {
     if (xIndex < height && yIndex < width) {
-      odata[index] = tile[threadIdx.y][threadIdx.x];
+      odata[index + i * width] = tile[threadIdx.y + i][threadIdx.x];
     }
   }
 }
