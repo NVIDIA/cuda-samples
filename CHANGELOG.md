@@ -1,5 +1,7 @@
 ## Changelog
 
+### CUDA 12.5
+
 ### CUDA 12.4
 * Added graphConditionalNodes Sample
 

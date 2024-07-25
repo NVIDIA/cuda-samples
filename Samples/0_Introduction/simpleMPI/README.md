@@ -18,7 +18,7 @@ Linux, Windows
 
 ## Supported CPU Architecture
 
-x86_64, ppc64le
+x86_64, ppc64le, aarch64
 
 ## CUDA APIs involved
 
@@ -30,7 +30,7 @@ cudaMalloc, cudaGetLastError, cudaMemcpy, cudaFree
 
 ## Prerequisites
 
-Download and install the [CUDA Toolkit 12.4](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit 12.5](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 Make sure the dependencies mentioned in [Dependencies]() section above are installed.
 
 ## Build and Run
@@ -52,9 +52,9 @@ $ cd <sample_dir>
 $ make
 ```
 The samples makefiles can take advantage of certain options:
-*  **TARGET_ARCH=<arch>** - cross-compile targeting a specific architecture. Allowed architectures are x86_64, ppc64le.
+*  **TARGET_ARCH=<arch>** - cross-compile targeting a specific architecture. Allowed architectures are x86_64, ppc64le, aarch64.
     By default, TARGET_ARCH is set to HOST_ARCH. On a x86_64 machine, not setting TARGET_ARCH is the equivalent of setting TARGET_ARCH=x86_64.<br/>
-`$ make TARGET_ARCH=x86_64` <br/> `$ make TARGET_ARCH=ppc64le` <br/>
+`$ make TARGET_ARCH=x86_64` <br/> `$ make TARGET_ARCH=ppc64le` <br/> `$ make TARGET_ARCH=aarch64` <br/>
     See [here](http://docs.nvidia.com/cuda/cuda-samples/index.html#cross-samples) for more details.
 *   **dbg=1** - build with debug symbols
     ```

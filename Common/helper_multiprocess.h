@@ -84,7 +84,7 @@ int waitProcess(Process *process);
 #define checkIpcErrors(ipcFuncResult) \
     if (ipcFuncResult == -1) { fprintf(stderr, "Failure at %u %s\n", __LINE__, __FILE__); exit(EXIT_FAILURE); }
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__QNX__)
 struct ipcHandle_st {
     int socket;
     char *socketName;

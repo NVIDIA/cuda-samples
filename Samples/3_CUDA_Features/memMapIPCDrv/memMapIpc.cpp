@@ -80,14 +80,14 @@ bool findModulePath(const char *, string &, char **, string &);
 // CU_MEM_HANDLE_TYPE_WIN32 meaning that NT HANDLEs will be used. The
 // ipcHandleTypeFlag variable is a convenience variable and is passed by value
 // to individual requests.
-#if defined(__linux__)
+#if defined(__linux__) || defined(__QNX__)
 CUmemAllocationHandleType ipcHandleTypeFlag =
     CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR;
 #else
 CUmemAllocationHandleType ipcHandleTypeFlag = CU_MEM_HANDLE_TYPE_WIN32;
 #endif
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__QNX__)
 #define cpu_atomic_add32(a, x) __sync_add_and_fetch(a, x)
 #elif defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
 #define cpu_atomic_add32(a, x) InterlockedAdd((volatile LONG *)a, x)
@@ -121,7 +121,7 @@ static void barrierWait(volatile int *barrier, volatile int *sense,
 
 // Windows-specific LPSECURITYATTRIBUTES
 void getDefaultSecurityDescriptor(CUmemAllocationProp *prop) {
-#if defined(__linux__)
+#if defined(__linux__) || defined(__QNX__)
   return;
 #elif defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
   static const char sddl[] = "D:P(OA;;GARCSDWDWOCCDCLCSWLODTWPRPCRFA;;;WD)";
@@ -456,7 +456,7 @@ static void parentProcess(char *app) {
     checkCudaErrors(cuDeviceGetAttribute(
         &attributeVal, CU_DEVICE_ATTRIBUTE_VIRTUAL_ADDRESS_MANAGEMENT_SUPPORTED,
         devices[i]));
-#if defined(__linux__)
+#if defined(__linux__) || defined(__QNX__)
     checkCudaErrors(cuDeviceGetAttribute(
         &deviceSupportsIpcHandle,
         CU_DEVICE_ATTRIBUTE_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR_SUPPORTED,

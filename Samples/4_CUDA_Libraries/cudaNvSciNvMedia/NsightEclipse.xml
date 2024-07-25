@@ -58,6 +58,7 @@
     <library>nvmedia</library>
   </libraries>
   <librarypaths>
+    <path>$(TARGET_FS)/usr/lib/aarch64-linux-gnu/nvidia</path>
   </librarypaths>
   <nsight_eclipse>true</nsight_eclipse>
   <primary_file>main.cpp</primary_file>

@@ -169,6 +169,19 @@ CCFLAGS     :=
 LDFLAGS     :=
 
 # build flags
+
+# Link flag for customized HOST_COMPILER with gcc realpath
+GCC_PATH := $(shell which gcc)
+ifeq ($(CUSTOM_HOST_COMPILER),1)
+    ifneq ($(filter /%,$(HOST_COMPILER)),)
+        ifneq ($(findstring gcc,$(HOST_COMPILER)),)
+            ifneq ($(GCC_PATH),$(HOST_COMPILER))
+                LDFLAGS += -lstdc++
+            endif
+        endif
+    endif
+endif
+
 ifeq ($(TARGET_OS),darwin)
     LDFLAGS += -rpath $(CUDA_PATH)/lib
     CCFLAGS += -arch $(HOST_ARCH)
@@ -426,7 +439,7 @@ endif
 
 ALL_CCFLAGS += --std=c++11 --threads 0
 
-LIBRARIES += -lnvscibuf -lnvscisync -lnvmedia
+LIBRARIES += -L$(TARGET_FS)/usr/lib/aarch64-linux-gnu/nvidia -lnvscibuf -lnvscisync -lnvmedia
 
 ifeq ($(SAMPLE_ENABLED),0)
 EXEC ?= @echo "[@]"

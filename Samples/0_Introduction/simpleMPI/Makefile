@@ -169,6 +169,19 @@ CCFLAGS     :=
 LDFLAGS     :=
 
 # build flags
+
+# Link flag for customized HOST_COMPILER with gcc realpath
+GCC_PATH := $(shell which gcc)
+ifeq ($(CUSTOM_HOST_COMPILER),1)
+    ifneq ($(filter /%,$(HOST_COMPILER)),)
+        ifneq ($(findstring gcc,$(HOST_COMPILER)),)
+            ifneq ($(GCC_PATH),$(HOST_COMPILER))
+                LDFLAGS += -lstdc++
+            endif
+        endif
+    endif
+endif
+
 ifeq ($(TARGET_OS),darwin)
     LDFLAGS += -rpath $(CUDA_PATH)/lib
     CCFLAGS += -arch $(HOST_ARCH)
@@ -277,15 +290,9 @@ ifeq ($(TARGET_ARCH),armv7l)
   SAMPLE_ENABLED := 0
 endif
 
-# This sample is not supported on aarch64
-ifeq ($(TARGET_ARCH),aarch64)
-  $(info >>> WARNING - simpleMPI is not supported on aarch64 - waiving sample <<<)
-  SAMPLE_ENABLED := 0
-endif
-
-# This sample is not supported on sbsa
-ifeq ($(TARGET_ARCH),sbsa)
-  $(info >>> WARNING - simpleMPI is not supported on sbsa - waiving sample <<<)
+# This sample is not supported on QNX
+ifeq ($(TARGET_OS),qnx)
+  $(info >>> WARNING - simpleMPI is not supported on QNX - waiving sample <<<)
   SAMPLE_ENABLED := 0
 endif
 

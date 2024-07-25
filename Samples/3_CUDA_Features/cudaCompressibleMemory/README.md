@@ -30,7 +30,7 @@ cudaMemcpy, cudaEventSynchronize, cudaEventRecord, cudaEventElapsedTime, cudaOcc
 
 ## Prerequisites
 
-Download and install the [CUDA Toolkit 12.4](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit 12.5](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 
 ## Build and Run
 

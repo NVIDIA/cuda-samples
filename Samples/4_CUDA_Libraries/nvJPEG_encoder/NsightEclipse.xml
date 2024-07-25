@@ -57,6 +57,9 @@
     <env>
       <platform>qnx</platform>
     </env>
+    <env>
+      <arch>sbsa</arch>
+    </env>
   </supported_envs>
   <supported_sm_architectures>
     <from>3.5</from>
