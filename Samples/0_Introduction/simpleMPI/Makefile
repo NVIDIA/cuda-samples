@@ -168,6 +168,10 @@ NVCCFLAGS   := -m${TARGET_SIZE}
 CCFLAGS     :=
 LDFLAGS     :=
 
+# Special treatment for Clang 
+ifneq (,$(findstring clang,$(HOST_COMPILER)))
+     CCFLAGS+= -fPIE
+endif
 # build flags
 
 # Link flag for customized HOST_COMPILER with gcc realpath

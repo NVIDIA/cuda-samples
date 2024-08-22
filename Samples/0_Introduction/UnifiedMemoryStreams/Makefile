@@ -305,13 +305,24 @@ LIBRARIES :=
 # Attempt to compile a minimal OpenMP application. If a.out exists, OpenMP is properly set up.
 ifneq (,$(filter $(TARGET_OS),linux android))
 
+# Special treatment for Clang to not use standard OMP Library and fix OMP 5 bug in Clang 13
+ifneq (,$(findstring "clang",$(HOST_COMPILER)))
 ifneq (,$(filter $(TARGET_OS), android))
      LIBRARIES += -lomp
 else
      LIBRARIES += -lgomp
 endif
-
 ALL_CCFLAGS += -Xcompiler -fopenmp
+else
+      ALL_CCFLAGS += -Xcompiler -fopenmp
+      ALL_LDFLAGS += -Xcompiler -fopenmp
+      COMPILER_VERSION= $(shell $(HOST_COMPILER) --version)
+ifneq (,$(findstring 13.,$(COMPILER_VERSION)))
+      ALL_CCFLAGS += -Xcompiler -fopenmp -Xcompiler -fopenmp-version=45
+      ALL_LDFLAGS += -Xcompiler -fopenmp -Xcompiler -fopenmp-version=45
+endif
+endif
+
 $(shell echo "#include <omp.h>" > test.c ; echo "int main() { omp_get_num_threads(); return 0; }" >> test.c ; $(HOST_COMPILER) -fopenmp test.c)
 OPENMP ?= $(shell find a.out 2>/dev/null)
 
