@@ -137,6 +137,7 @@ OpenGL ES is an embedded systems graphics library used for 2D and 3D rendering. 
 #### Vulkan
 
 Vulkan is a low-overhead, cross-platform 3D graphics and compute API. Vulkan targets high-performance realtime 3D graphics applications such as video games and interactive media across all platforms. On systems which support Vulkan, NVIDIA's Vulkan implementation is provided with the CUDA Driver. For building and running Vulkan applications one needs to install the [Vulkan SDK](https://www.lunarg.com/vulkan-sdk/).
+In addition, for building Vulkan related CUDA samples, pkg-config needs to be installed - `sudo apt-get install pkg-config`.
 
 #### OpenMP
 
