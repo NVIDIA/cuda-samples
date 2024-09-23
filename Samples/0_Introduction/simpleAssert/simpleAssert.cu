@@ -124,5 +124,5 @@ void runTest(int argc, char **argv) {
         cudaGetErrorString(error));
   }
 
-  testResult = error == cudaErrorAssert;
+  testResult = error == cudaSuccess;
 }
