@@ -25,7 +25,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-//Based on http://www.iti.fh-flensburg.de/lang/algorithmen/sortieren/bitonic/bitonicen.htm
+//Based on https://hwlang.de/algorithmen/sortieren/bitonic/bitonicen.htm
 
 #include <assert.h>
 #include <cooperative_groups.h>
