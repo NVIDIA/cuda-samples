@@ -9,7 +9,7 @@
         * `cppIntegration` demonstrating calling between .cu and .cpp files (reason: obsolete)
         * `cppOverload` demonstrating C++ function overloading (reason: obsolete)
         * `simpleSeparateCompilation` demonstrating NVCC compilation to a static library (reason: trivial)
-        *
+        * `simpleTemplates_nvrtc` demonstrating NVRTC usage for `simpleTemplates` sample (reason: redundant)
 
 ### CUDA 12.5
 
