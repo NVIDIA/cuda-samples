@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(cuda-samples LANGUAGES CXX CUDA)
+project(cuda-samples LANGUAGES C CXX CUDA)
 
 find_package(CUDAToolkit REQUIRED)
 
