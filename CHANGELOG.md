@@ -1,13 +1,15 @@
 ## Changelog
 
 ### CUDA 12.8
+* Updated build system across the repository to CMake. Removed Visual Studio project files and Makefiles.
 * Removed the following outdated samples:
     * `0_Introduction`
         * `c++11_cuda` demonstrating CUDA and C++ 11 interoperability (reason: obsolete)
         * `concurrentKernels` demonstrating the ability to run multiple kernels simultaneously (reason: obsolete)
         * `cppIntegration` demonstrating calling between .cu and .cpp files (reason: obsolete)
         * `cppOverload` demonstrating C++ function overloading (reason: obsolete)
-
+        * `simpleSeparateCompilation` demonstrating NVCC compilation to a static library (reason: trivial)
+        *
 
 ### CUDA 12.5
 
