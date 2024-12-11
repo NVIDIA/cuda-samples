@@ -4,7 +4,9 @@
 * Removed the following outdated samples:
     * `0_Introduction`
         * `c++11_cuda` demonstrating CUDA and C++ 11 interoperability (reason: obsolete)
-        * `concurrentKernels.cu` demonstrating the ability to run multiple kernels simultaneously (reason: obsolete)
+        * `concurrentKernels` demonstrating the ability to run multiple kernels simultaneously (reason: obsolete)
+        * `cppIntegration` demonstrating calling between .cu and .cpp files (reason: obsolete)
+
 
 ### CUDA 12.5
 
