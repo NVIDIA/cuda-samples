@@ -6,6 +6,7 @@
         * `c++11_cuda` demonstrating CUDA and C++ 11 interoperability (reason: obsolete)
         * `concurrentKernels` demonstrating the ability to run multiple kernels simultaneously (reason: obsolete)
         * `cppIntegration` demonstrating calling between .cu and .cpp files (reason: obsolete)
+        * `cppOverload` demonstrating C++ function overloading (reason: obsolete)
 
 
 ### CUDA 12.5
