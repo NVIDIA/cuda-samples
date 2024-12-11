@@ -1,5 +1,10 @@
 ## Changelog
 
+### CUDA 12.8
+* Removed the following outdated samples:
+    * `0_Introduction`
+        * `c++11_cuda` demonstrating CUDA and C++ 11 interoperability (reason: obsolete)
+
 ### CUDA 12.5
 
 ### CUDA 12.4
@@ -18,7 +23,7 @@
 * Added new sample for Large Kernels
 
 ### CUDA 12.0
-* Added new flags for JIT compiling 
+* Added new flags for JIT compiling
 * Removed deprecated APIs in Hopper Architecture
 
 ### CUDA 11.6
