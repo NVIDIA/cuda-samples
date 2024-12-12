@@ -11,6 +11,9 @@
         * `simpleSeparateCompilation` demonstrating NVCC compilation to a static library (reason: trivial)
         * `simpleTemplates_nvrtc` demonstrating NVRTC usage for `simpleTemplates` sample (reason: redundant)
         * `simpleVoteIntrinsics_nvrtc` demonstrating NVRTC usage for `simpleVoteIntrinsics` sample (reason: redundant)
+    * `2_Concepts_and_Techniques`
+        * `cuHook` demonstrating dlsym hooks. (reason: incompatible with modern `glibc`)
+
 
 ### CUDA 12.5
 
