@@ -1,3 +1,4 @@
 add_subdirectory(0_Introduction)
 add_subdirectory(1_Utilities)
 add_subdirectory(2_Concepts_and_Techniques)
+add_subdirectory(3_CUDA_Features)
