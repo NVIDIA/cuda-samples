@@ -15,6 +15,15 @@
         * `cuHook` demonstrating dlsym hooks. (reason: incompatible with modern `glibc`)
     * `4_CUDA_Libraries`
         * `batchedLabelMarkersAndLabelCompressionNPP` demonstrating NPP features (reason: some functionality removed from library)
+    * `5_Domain_Specific`
+        * Legacy Direct3D 9 and 10 interoperability samples:
+            * `simpleD3D10`
+            * `simpleD3D10RenderTarget`
+            * `simpleD3D10Texture`
+            * `simpleD3D9`
+            * `simpleD3D9Texture`
+            * `SLID3D10Texture`
+            * `VFlockingD3D10`
 
 
 
