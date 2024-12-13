@@ -2,7 +2,7 @@
 #add_subdirectory(MersenneTwisterGP11213)
 add_subdirectory(batchCUBLAS)
 add_subdirectory(boxFilterNPP)
-#add_subdirectory(cannyEdgeDetectorNPP)
+add_subdirectory(cannyEdgeDetectorNPP)
 #add_subdirectory(conjugateGradient)
 #add_subdirectory(conjugateGradientCudaGraphs)
 #add_subdirectory(conjugateGradientMultiBlockCG)
