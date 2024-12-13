@@ -17,6 +17,7 @@
         * `batchedLabelMarkersAndLabelCompressionNPP` demonstrating NPP features (reason: some functionality removed from library)
     * `5_Domain_Specific`
         * Legacy Direct3D 9 and 10 interoperability samples:
+            * `fluidsD3D9`
             * `simpleD3D10`
             * `simpleD3D10RenderTarget`
             * `simpleD3D10Texture`
