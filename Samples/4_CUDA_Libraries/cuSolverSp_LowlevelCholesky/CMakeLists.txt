@@ -1,0 +1,30 @@
+# Include directories and libraries
+include_directories(../../../Common)
+
+# Source file
+set(SRC_FILES
+    cuSolverSp_LowlevelCholesky.cpp
+    mmio.c
+    mmio_wrapper.cpp
+)
+
+# Add target for cuSolverSp_LowlevelCholesky
+add_executable(cuSolverSp_LowlevelCholesky ${SRC_FILES})
+set_target_properties(cuSolverSp_LowlevelCholesky PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
+target_include_directories(cuSolverSp_LowlevelCholesky PRIVATE
+    ${CUDAToolkit_INCLUDE_DIRS}
+)
+
+target_link_libraries(cuSolverSp_LowlevelCholesky PRIVATE
+    CUDA::cudart
+    CUDA::cublas
+    CUDA::cusolver
+)
+
+# Copy data files to output directory
+add_custom_command(TARGET cuSolverSp_LowlevelCholesky POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_CURRENT_SOURCE_DIR}/*.mtx
+    ${CMAKE_CURRENT_BINARY_DIR}
+)
