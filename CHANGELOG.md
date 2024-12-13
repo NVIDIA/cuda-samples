@@ -13,6 +13,9 @@
         * `simpleVoteIntrinsics_nvrtc` demonstrating NVRTC usage for `simpleVoteIntrinsics` sample (reason: redundant)
     * `2_Concepts_and_Techniques`
         * `cuHook` demonstrating dlsym hooks. (reason: incompatible with modern `glibc`)
+    * `4_CUDA_Libraries`
+        * `batchedLabelMarkersAndLabelCompressionNPP` demonstrating NPP features (reason: some functionality removed from library)
+
 
 
 ### CUDA 12.5
