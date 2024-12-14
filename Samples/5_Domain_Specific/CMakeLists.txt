@@ -1,6 +1,5 @@
 add_subdirectory(BlackScholes)
 add_subdirectory(BlackScholes_nvrtc)
-#add_subdirectory(FDTD3d)
 #add_subdirectory(HSOpticalFlow)
 #add_subdirectory(Mandelbrot)
 #add_subdirectory(MonteCarloMultiGPU)
