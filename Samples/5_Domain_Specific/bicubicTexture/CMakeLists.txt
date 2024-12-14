@@ -6,40 +6,37 @@ find_package(GLUT)
 
 # Source file
 set(SRC_FILES
-    particleSystem.cpp
-    particleSystem_cuda.cu
-    particles.cpp
-    render_particles.cpp
-    shaders.cpp
+    bicubicTexture.cpp
+    bicubicTexture_cuda.cu
 )
 
 if(${OpenGL_FOUND})
     if (${GLUT_FOUND})
-        # Add target for particles
-        add_executable(particles ${SRC_FILES})
-        set_target_properties(particles PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+        # Add target for bicubicTexture
+        add_executable(bicubicTexture ${SRC_FILES})
+        set_target_properties(bicubicTexture PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
-        target_include_directories(particles PUBLIC
+        target_include_directories(bicubicTexture PUBLIC
             ${OPENGL_INCLUDE_DIR}
             ${CUDAToolkit_INCLUDE_DIRS}
             ${GLUT_INCLUDE_DIRS}
         )
 
-        target_link_libraries(particles
+        target_link_libraries(bicubicTexture
             ${OPENGL_LIBRARIES}
             ${GLUT_LIBRARIES}
         )
 
         # Copy clock_kernel.cu to the output directory
-        add_custom_command(TARGET particles POST_BUILD
+        add_custom_command(TARGET bicubicTexture POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
             ${CMAKE_CURRENT_SOURCE_DIR}/data
             ${CMAKE_CURRENT_BINARY_DIR}/data
         )
 
     else()
-        message(STATUS "GLUT not found - will not build sample 'particles'")
+        message(STATUS "GLUT not found - will not build sample 'bicubicTexture'")
     endif()
 else()
-    message(STATUS "OpenGL not found - will not build sample 'particles'")
+    message(STATUS "OpenGL not found - will not build sample 'bicubicTexture'")
 endif()
