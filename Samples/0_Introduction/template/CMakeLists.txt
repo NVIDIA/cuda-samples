@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
-project(simpleTemplates LANGUAGES C CXX CUDA)
+project(template LANGUAGES C CXX CUDA)
 
 find_package(CUDAToolkit REQUIRED)
 
@@ -18,14 +18,15 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --extended-lambda")
+
 # Include directories and libraries
 include_directories(../../../Common)
 
 # Source file
 set(SRC_FILES
-    simpleTemplates.cu
+    template.cu
 )
 
-# Add target for simpleTemplates
-add_executable(simpleTemplates ${SRC_FILES})
-set_target_properties(simpleTemplates PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+# Add target for template
+add_executable(template ${SRC_FILES})
+set_target_properties(template PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
