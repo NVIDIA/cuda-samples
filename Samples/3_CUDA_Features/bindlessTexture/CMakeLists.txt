@@ -1,3 +1,16 @@
+cmake_minimum_required(VERSION 3.20)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
+
+project(bindlessTexture LANGUAGES C CXX CUDA)
+
+find_package(CUDAToolkit REQUIRED)
+
+set(CMAKE_CUDA_ARCHITECTURES "native")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")  # enable cuda-gdb (expensive)
+endif()
+
 # Include directories and libraries
 include_directories(../../../Common)
 
@@ -5,15 +18,15 @@ find_package(OpenGL)
 find_package(GLUT)
 
 # Source file
-set(SRC_FILES
-    bindlessTexture.cpp
-    bindlessTexture_kernel.cu
-)
-
 if(${OpenGL_FOUND})
     if (${GLUT_FOUND})
         # Add target for bindlessTexture
-        add_executable(bindlessTexture ${SRC_FILES})
+        add_executable(bindlessTexture bindlessTexture.cpp bindlessTexture_kernel.cu)
+
+target_compile_options(bindlessTexture PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
+
+target_compile_features(bindlessTexture PRIVATE cxx_std_17 cuda_std_17)
+
         set_target_properties(bindlessTexture PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
         target_include_directories(bindlessTexture PUBLIC
