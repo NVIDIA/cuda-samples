@@ -6,26 +6,20 @@ project(simpleTemplates LANGUAGES C CXX CUDA)
 
 find_package(CUDAToolkit REQUIRED)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-set(CMAKE_CUDA_STANDARD 17)
-set(CMAKE_CUDA_STANDARD_REQUIRED ON)
-
 set(CMAKE_CUDA_ARCHITECTURES "native")
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")  # enable cuda-gdb (expensive)
 endif()
 
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --extended-lambda")
 # Include directories and libraries
 include_directories(../../../Common)
 
 # Source file
-set(SRC_FILES
-    simpleTemplates.cu
-)
-
 # Add target for simpleTemplates
-add_executable(simpleTemplates ${SRC_FILES})
+add_executable(simpleTemplates simpleTemplates.cu)
+
+target_compile_options(simpleTemplates PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
+
+target_compile_features(simpleTemplates PRIVATE cxx_std_17 cuda_std_17)
+
 set_target_properties(simpleTemplates PROPERTIES CUDA_SEPARABLE_COMPILATION ON)

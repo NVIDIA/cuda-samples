@@ -6,28 +6,22 @@ project(vectorAdd_nvrtc LANGUAGES C CXX CUDA)
 
 find_package(CUDAToolkit REQUIRED)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-set(CMAKE_CUDA_STANDARD 17)
-set(CMAKE_CUDA_STANDARD_REQUIRED ON)
-
 set(CMAKE_CUDA_ARCHITECTURES "native")
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")  # enable cuda-gdb (expensive)
 endif()
 
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --extended-lambda")
 # Include directories and libraries
 include_directories(../../../Common)
 
 # Source file
-set(SRC_FILES
-    vectorAdd.cpp
-)
-
 # Add sample target executable
-add_executable(vectorAdd_nvrtc ${SRC_FILES})
+add_executable(vectorAdd_nvrtc vectorAdd.cpp)
+
+target_compile_options(vectorAdd_nvrtc PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
+
+target_compile_features(vectorAdd_nvrtc PRIVATE cxx_std_17 cuda_std_17)
+
 target_link_libraries(vectorAdd_nvrtc PRIVATE
     CUDA::nvrtc
 )

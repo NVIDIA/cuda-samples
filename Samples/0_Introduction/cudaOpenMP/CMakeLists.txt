@@ -6,31 +6,25 @@ project(cudaOpenMP LANGUAGES C CXX CUDA)
 
 find_package(CUDAToolkit REQUIRED)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-set(CMAKE_CUDA_STANDARD 17)
-set(CMAKE_CUDA_STANDARD_REQUIRED ON)
-
 set(CMAKE_CUDA_ARCHITECTURES "native")
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")  # enable cuda-gdb (expensive)
 endif()
 
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --extended-lambda")
 # Include directories and libraries
 include_directories(../../../Common)
 
 find_package(OpenMP)
 
 # Source file
-set(SRC_FILES
-    cudaOpenMP.cu
-)
-
 if(OpenMP_CXX_FOUND)
 # Add target for asyncAPI
-    add_executable(cudaOpenMP ${SRC_FILES})
+    add_executable(cudaOpenMP cudaOpenMP.cu)
+
+target_compile_options(cudaOpenMP PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
+
+target_compile_features(cudaOpenMP PRIVATE cxx_std_17 cuda_std_17)
+
     set_target_properties(cudaOpenMP PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
     target_link_libraries(cudaOpenMP PUBLIC
         OpenMP::OpenMP_CXX

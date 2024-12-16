@@ -6,26 +6,20 @@ project(simpleCooperativeGroups LANGUAGES C CXX CUDA)
 
 find_package(CUDAToolkit REQUIRED)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-set(CMAKE_CUDA_STANDARD 17)
-set(CMAKE_CUDA_STANDARD_REQUIRED ON)
-
 set(CMAKE_CUDA_ARCHITECTURES "native")
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")  # enable cuda-gdb (expensive)
 endif()
 
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --extended-lambda")
 # Include directories and libraries
 include_directories(../../../Common)
 
 # Source file
-set(SRC_FILES
-    simpleCooperativeGroups.cu
-)
-
 # Add target for simpleCooperativeGroups
-add_executable(simpleCooperativeGroups ${SRC_FILES})
+add_executable(simpleCooperativeGroups simpleCooperativeGroups.cu)
+
+target_compile_options(simpleCooperativeGroups PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
+
+target_compile_features(simpleCooperativeGroups PRIVATE cxx_std_17 cuda_std_17)
+
 set_target_properties(simpleCooperativeGroups PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
