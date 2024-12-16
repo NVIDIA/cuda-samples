@@ -1,13 +1,27 @@
+cmake_minimum_required(VERSION 3.20)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
+
+project(MersenneTwisterGP11213 LANGUAGES C CXX CUDA)
+
+find_package(CUDAToolkit REQUIRED)
+
+set(CMAKE_CUDA_ARCHITECTURES "native")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")  # enable cuda-gdb (expensive)
+endif()
+
 # Include directories and libraries
 include_directories(../../../Common)
 
 # Source file
-set(SRC_FILES
-    MersenneTwister.cpp
-)
-
 # Add target for MersenneTwisterGP11213
-add_executable(MersenneTwisterGP11213 ${SRC_FILES})
+add_executable(MersenneTwisterGP11213 MersenneTwister.cpp)
+
+target_compile_options(MersenneTwisterGP11213 PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
+
+target_compile_features(MersenneTwisterGP11213 PRIVATE cxx_std_17 cuda_std_17)
+
 set_target_properties(MersenneTwisterGP11213 PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
 target_include_directories(MersenneTwisterGP11213 PRIVATE

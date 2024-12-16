@@ -1,15 +1,27 @@
+cmake_minimum_required(VERSION 3.20)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
+
+project(cuSolverDn_LinearSolver LANGUAGES C CXX CUDA)
+
+find_package(CUDAToolkit REQUIRED)
+
+set(CMAKE_CUDA_ARCHITECTURES "native")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")  # enable cuda-gdb (expensive)
+endif()
+
 # Include directories and libraries
 include_directories(../../../Common)
 
 # Source file
-set(SRC_FILES
-    cuSolverDn_LinearSolver.cpp
-    mmio.c
-    mmio_wrapper.cpp
-)
-
 # Add target for cuSolverDn_LinearSolver
-add_executable(cuSolverDn_LinearSolver ${SRC_FILES})
+add_executable(cuSolverDn_LinearSolver cuSolverDn_LinearSolver.cpp mmio.c mmio_wrapper.cpp)
+
+target_compile_options(cuSolverDn_LinearSolver PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
+
+target_compile_features(cuSolverDn_LinearSolver PRIVATE cxx_std_17 cuda_std_17)
+
 set_target_properties(cuSolverDn_LinearSolver PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
 target_include_directories(cuSolverDn_LinearSolver PRIVATE
