@@ -1,15 +1,27 @@
+cmake_minimum_required(VERSION 3.20)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
+
+project(dct8x8 LANGUAGES C CXX CUDA)
+
+find_package(CUDAToolkit REQUIRED)
+
+set(CMAKE_CUDA_ARCHITECTURES "native")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")  # enable cuda-gdb (expensive)
+endif()
+
 # Include directories and libraries
 include_directories(../../../Common)
 
 # Source file
-set(SRC_FILES
-    dct8x8.cu
-    BmpUtil.cpp
-    DCT8x8_Gold.cpp
-)
-
 # Add target for dct8x8
-add_executable(dct8x8 ${SRC_FILES})
+add_executable(dct8x8 dct8x8.cu BmpUtil.cpp DCT8x8_Gold.cpp)
+
+target_compile_options(dct8x8 PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
+
+target_compile_features(dct8x8 PRIVATE cxx_std_17 cuda_std_17)
+
 set_target_properties(dct8x8 PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
 target_include_directories(dct8x8 PUBLIC

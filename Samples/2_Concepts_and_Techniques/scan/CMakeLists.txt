@@ -1,15 +1,27 @@
+cmake_minimum_required(VERSION 3.20)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
+
+project(scan LANGUAGES C CXX CUDA)
+
+find_package(CUDAToolkit REQUIRED)
+
+set(CMAKE_CUDA_ARCHITECTURES "native")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")  # enable cuda-gdb (expensive)
+endif()
+
 # Include directories and libraries
 include_directories(../../../Common)
 
 # Source file
-set(SRC_FILES
-    main.cpp
-    scan_gold.cpp
-    scan.cu
-)
-
 # Add target for scan
-add_executable(scan ${SRC_FILES})
+add_executable(scan main.cpp scan_gold.cpp scan.cu)
+
+target_compile_options(scan PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
+
+target_compile_features(scan PRIVATE cxx_std_17 cuda_std_17)
+
 set_target_properties(scan PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
 target_include_directories(scan PUBLIC

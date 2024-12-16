@@ -1,3 +1,16 @@
+cmake_minimum_required(VERSION 3.20)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
+
+project(EGLSync_CUDAEvent_Interop LANGUAGES C CXX CUDA)
+
+find_package(CUDAToolkit REQUIRED)
+
+set(CMAKE_CUDA_ARCHITECTURES "native")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")  # enable cuda-gdb (expensive)
+endif()
+
 # Include directories and libraries
 include_directories(../../../Common)
 
@@ -6,15 +19,16 @@ find_package(X11)
 find_package(OpenGL)
 
 # Source file
-set(SRC_FILES
-    EGLSync_CUDAEvent_Interop.cu
-)
-
 if(${OpenGL_FOUND})
     if(${EGL_FOUND})
         if(${X11_FOUND})
             # Add target for EGLSync_CUDAEvent_Interop
-            add_executable(EGLSync_CUDAEvent_Interop ${SRC_FILES})
+            add_executable(EGLSync_CUDAEvent_Interop EGLSync_CUDAEvent_Interop.cu)
+
+target_compile_options(EGLSync_CUDAEvent_Interop PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
+
+target_compile_features(EGLSync_CUDAEvent_Interop PRIVATE cxx_std_17 cuda_std_17)
+
             set_target_properties(EGLSync_CUDAEvent_Interop PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
             target_include_directories(EGLSync_CUDAEvent_Interop PUBLIC
