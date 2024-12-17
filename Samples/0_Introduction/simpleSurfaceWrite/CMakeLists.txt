@@ -26,7 +26,7 @@ set_target_properties(simpleSurfaceWrite PROPERTIES CUDA_SEPARABLE_COMPILATION O
 
 # Copy data to the output directory
 add_custom_command(TARGET simpleSurfaceWrite POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_CURRENT_SOURCE_DIR}/data
     ${CMAKE_CURRENT_BINARY_DIR}
 )

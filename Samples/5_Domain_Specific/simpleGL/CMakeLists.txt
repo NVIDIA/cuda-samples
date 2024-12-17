@@ -41,7 +41,7 @@ target_compile_features(simpleGL PRIVATE cxx_std_17 cuda_std_17)
         )
 
         add_custom_command(TARGET simpleGL POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_CURRENT_SOURCE_DIR}/data
             ${CMAKE_CURRENT_BINARY_DIR}/data
         )

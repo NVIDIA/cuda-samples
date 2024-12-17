@@ -48,7 +48,7 @@ target_compile_features(FilterBorderControlNPP PRIVATE cxx_std_17 cuda_std_17)
 
     # Copy data files to output directory
     add_custom_command(TARGET FilterBorderControlNPP POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_CURRENT_SOURCE_DIR}/data
         ${CMAKE_CURRENT_BINARY_DIR}/data
     )

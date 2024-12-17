@@ -33,16 +33,16 @@ add_custom_command(TARGET matrixMul_nvrtc POST_BUILD
 )
 
 add_custom_command(TARGET matrixMul_nvrtc POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CUDAToolkit_BIN_DIR}/../include/cooperative_groups ${CMAKE_CURRENT_BINARY_DIR}/cooperative_groups
 )
 
 add_custom_command(TARGET matrixMul_nvrtc POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CUDAToolkit_BIN_DIR}/../include/nv ${CMAKE_CURRENT_BINARY_DIR}/nv
 )
 
 add_custom_command(TARGET matrixMul_nvrtc POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CUDAToolkit_BIN_DIR}/../include/cuda ${CMAKE_CURRENT_BINARY_DIR}/cuda
 )

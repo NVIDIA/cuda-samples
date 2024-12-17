@@ -35,7 +35,7 @@ target_link_libraries(nvJPEG PRIVATE
 
 # Copy data to the output directory
 add_custom_command(TARGET nvJPEG POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_CURRENT_SOURCE_DIR}/images
     ${CMAKE_CURRENT_BINARY_DIR}/images
 )

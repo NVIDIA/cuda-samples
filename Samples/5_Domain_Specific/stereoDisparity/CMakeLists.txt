@@ -25,7 +25,7 @@ target_compile_features(stereoDisparity PRIVATE cxx_std_17 cuda_std_17)
 set_target_properties(stereoDisparity PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
 add_custom_command(TARGET stereoDisparity POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_CURRENT_SOURCE_DIR}/data
     ${CMAKE_CURRENT_BINARY_DIR}/data
 )
