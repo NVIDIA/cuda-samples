@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
-project(jitLto LANGUAGES C CXX CUDA)
+project(jitLto LANGUAGES CXX)
 
 find_package(CUDAToolkit REQUIRED)
 
