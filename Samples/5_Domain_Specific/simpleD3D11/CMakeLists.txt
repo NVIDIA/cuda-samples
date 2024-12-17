@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
-project(FDTD3d LANGUAGES C CXX CUDA)
+project(simpleD3D11 LANGUAGES C CXX CUDA)
 
 find_package(CUDAToolkit REQUIRED)
 
@@ -15,15 +15,11 @@ endif()
 include_directories(../../../Common)
 
 # Source file
-# Add target for FDTD3d
-add_executable(FDTD3d src/FDTD3d.cpp src/FDTD3dGPU.cu src/FDTD3dReference.cpp)
+# Add target for simpleD3D11
+add_executable(simpleD3D11 simpleD3D11.cu)
 
-target_compile_options(FDTD3d PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
+target_compile_options(simpleD3D11 PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
 
-target_compile_features(FDTD3d PRIVATE cxx_std_17 cuda_std_17)
+target_compile_features(simpleD3D11 PRIVATE cxx_std_17 cuda_std_17)
 
-set_target_properties(FDTD3d PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-
-target_include_directories(FDTD3d PRIVATE
-    inc
-)
+set_target_properties(simpleD3D11 PROPERTIES CUDA_SEPARABLE_COMPILATION ON)

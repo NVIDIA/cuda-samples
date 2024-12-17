@@ -1,17 +1,27 @@
+cmake_minimum_required(VERSION 3.20)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
+
+project(NV12toBGRandResize LANGUAGES C CXX CUDA)
+
+find_package(CUDAToolkit REQUIRED)
+
+set(CMAKE_CUDA_ARCHITECTURES 50 52 60 61 70 75 80 86 89 90)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")  # enable cuda-gdb (expensive)
+endif()
+
 # Include directories and libraries
 include_directories(../../../Common)
 
 # Source file
-set(SRC_FILES
-    bgr_resize.cu
-    nv12_resize.cu
-    nv12_to_bgr_planar.cu
-    resize_convert_main.cpp
-    utils.cu
-)
-
 # Add target for NV12toBGRandResize
-add_executable(NV12toBGRandResize ${SRC_FILES})
+add_executable(NV12toBGRandResize bgr_resize.cu nv12_resize.cu nv12_to_bgr_planar.cu resize_convert_main.cpp utils.cu)
+
+target_compile_options(NV12toBGRandResize PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
+
+target_compile_features(NV12toBGRandResize PRIVATE cxx_std_17 cuda_std_17)
+
 set_target_properties(NV12toBGRandResize PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
 target_include_directories(NV12toBGRandResize PRIVATE

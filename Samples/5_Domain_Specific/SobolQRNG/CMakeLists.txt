@@ -1,16 +1,27 @@
+cmake_minimum_required(VERSION 3.20)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
+
+project(SobolQRNG LANGUAGES C CXX CUDA)
+
+find_package(CUDAToolkit REQUIRED)
+
+set(CMAKE_CUDA_ARCHITECTURES 50 52 60 61 70 75 80 86 89 90)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")  # enable cuda-gdb (expensive)
+endif()
+
 # Include directories and libraries
 include_directories(../../../Common)
 
 # Source file
-set(SRC_FILES
-    sobol_gold.cpp
-    sobol_gpu.cu
-    sobol_primitives.cpp
-    sobol.cpp
-)
-
 # Add target for SobolQRNG
-add_executable(SobolQRNG ${SRC_FILES})
+add_executable(SobolQRNG sobol_gold.cpp sobol_gpu.cu sobol_primitives.cpp sobol.cpp)
+
+target_compile_options(SobolQRNG PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
+
+target_compile_features(SobolQRNG PRIVATE cxx_std_17 cuda_std_17)
+
 set_target_properties(SobolQRNG PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
 target_include_directories(SobolQRNG PRIVATE
