@@ -18,7 +18,7 @@ Linux, Windows, QNX
 
 ## Supported CPU Architecture
 
-x86_64, ppc64le, armv7l, aarch64
+x86_64, armv7l, aarch64
 
 ## CUDA APIs involved
 
@@ -30,4 +30,3 @@ cudaStreamCreateWithFlags, cudaFree, cudaMallocHost, cudaFreeHost, cudaStreamSyn
 Download and install the [CUDA Toolkit 12.5](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 
 ## References (for more details)
-

@@ -18,7 +18,7 @@ Linux, Windows
 
 ## Supported CPU Architecture
 
-x86_64, ppc64le, armv7l
+x86_64, armv7l
 
 ## CUDA APIs involved
 
@@ -30,4 +30,3 @@ cudaMemcpyToSymbol, cudaMemcpy, cudaFree, cudaDeviceSynchronize, cudaMalloc
 Download and install the [CUDA Toolkit 12.1](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 
 ## References (for more details)
-

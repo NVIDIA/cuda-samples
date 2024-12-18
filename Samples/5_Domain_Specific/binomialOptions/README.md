@@ -18,7 +18,7 @@ Linux, Windows
 
 ## Supported CPU Architecture
 
-x86_64, ppc64le, armv7l
+x86_64, armv7l
 
 ## CUDA APIs involved
 
