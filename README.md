@@ -72,6 +72,18 @@ Open the generated solution file CUDA_Samples.sln in Visual Studio. Build the sa
 
 Run the samples from the output directories specified in Visual Studio.
 
+### Platform-Specific Samples
+
+Some CUDA samples are specific to certain platforms, and require passing flags into CMake to enable. In particular, we define the following platform-specific flags:
+
+* `BUILD_TEGRA` - for Tegra-specific samples
+
+To build these samples, set the variables either on the command line or through your CMake GUI. For example:
+
+```
+cmake -DBUILD_TEGRA=True ..
+```
+
 ### Cross-Compilation for Tegra Platforms
 
 Install the NVIDIA toolchain and cross-compilation environment for Tegra devices as described in the Tegra Development Guide.
