@@ -16,14 +16,15 @@ include_directories(../../../Common)
 
 find_package(EGL)
 
-# Source file
-if(${EGL_FOUND})
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    # Source file
+    if(${EGL_FOUND})
         # Add target for EGLStream_CUDA_Interop
         add_executable(EGLStream_CUDA_Interop cuda_consumer.cpp cuda_producer.cpp eglstrm_common.cpp main.cpp)
 
-target_compile_options(EGLStream_CUDA_Interop PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
+        target_compile_options(EGLStream_CUDA_Interop PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
 
-target_compile_features(EGLStream_CUDA_Interop PRIVATE cxx_std_17 cuda_std_17)
+        target_compile_features(EGLStream_CUDA_Interop PRIVATE cxx_std_17 cuda_std_17)
 
         set_target_properties(EGLStream_CUDA_Interop PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
@@ -37,6 +38,9 @@ target_compile_features(EGLStream_CUDA_Interop PRIVATE cxx_std_17 cuda_std_17)
             CUDA::cuda_driver
         )
 
+    else()
+        message(STATUS "EGL not found - will not build sample 'EGLStream_CUDA_Interop'")
+    endif()
 else()
-    message(STATUS "EGL not found - will not build sample 'EGLStream_CUDA_Interop'")
+    message(STATUS "Will not build sample EGLStream_CUDA_Interop - requires Linux OS")
 endif()

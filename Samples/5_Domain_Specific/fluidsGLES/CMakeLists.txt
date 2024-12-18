@@ -14,6 +14,7 @@ endif()
 # Include directories and libraries
 include_directories(../../../Common)
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 # Source file
 # Add target for fluidsGLES
 add_executable(fluidsGLES fluidsGLES.cu)
@@ -23,3 +24,6 @@ target_compile_options(fluidsGLES PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-
 target_compile_features(fluidsGLES PRIVATE cxx_std_17 cuda_std_17)
 
 set_target_properties(fluidsGLES PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+else()
+    message(STATUS "Will not build sample fluidsGLES - requires Linux OS")
+endif()

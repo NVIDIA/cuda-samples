@@ -1,33 +1,34 @@
-add_subdirectory(EGLStream_CUDA_CrossGPU)
-add_subdirectory(EGLStream_CUDA_Interop)
-#add_subdirectory(EGLSync_CUDAEvent_Interop)
-add_subdirectory(FunctionPointers)
-add_subdirectory(MC_EstimatePiInlineP)
-add_subdirectory(MC_EstimatePiInlineQ)
-add_subdirectory(MC_EstimatePiP)
-add_subdirectory(MC_EstimatePiQ)
-add_subdirectory(MC_SingleAsianOptionP)
-add_subdirectory(boxFilter)
-add_subdirectory(convolutionSeparable)
-add_subdirectory(convolutionTexture)
-add_subdirectory(dct8x8)
-add_subdirectory(eigenvalues)
-add_subdirectory(histogram)
-add_subdirectory(imageDenoising)
-add_subdirectory(inlinePTX)
-add_subdirectory(inlinePTX_nvrtc)
-add_subdirectory(interval)
-add_subdirectory(particles)
-add_subdirectory(radixSortThrust)
-add_subdirectory(reduction)
-add_subdirectory(reductionMultiBlockCG)
-add_subdirectory(scalarProd)
-add_subdirectory(scan)
-add_subdirectory(segmentationTreeThrust)
-add_subdirectory(shfl_scan)
-add_subdirectory(sortingNetworks)
-add_subdirectory(streamOrderedAllocation)
-add_subdirectory(streamOrderedAllocationIPC)
-add_subdirectory(streamOrderedAllocationP2P)
-add_subdirectory(threadFenceReduction)
-add_subdirectory(threadMigration)
+cmake_minimum_required(VERSION 3.20)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
+
+project(streamOrderedAllocationIPC LANGUAGES C CXX CUDA)
+
+find_package(CUDAToolkit REQUIRED)
+
+set(CMAKE_CUDA_ARCHITECTURES 50 52 60 61 70 75 80 86 89 90)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")  # enable cuda-gdb (expensive)
+endif()
+
+# Include directories and libraries
+include_directories(../../../Common)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+# Source file
+# Add target for streamOrderedAllocationIPC
+    add_executable(streamOrderedAllocationIPC streamOrderedAllocationIPC.cu ../../../Common/helper_multiprocess.cpp)
+
+    target_compile_options(streamOrderedAllocationIPC PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
+
+    target_compile_features(streamOrderedAllocationIPC PRIVATE cxx_std_17 cuda_std_17)
+
+    set_target_properties(streamOrderedAllocationIPC PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
+    target_link_libraries(streamOrderedAllocationIPC PUBLIC
+        CUDA::cuda_driver
+)
+else()
+    message(STATUS "Will not build sample streamOrderedAllocationIPC - requires Linux OS")
+endif()
+

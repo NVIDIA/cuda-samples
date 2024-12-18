@@ -14,12 +14,16 @@ endif()
 # Include directories and libraries
 include_directories(../../../Common)
 
-# Source file
-# Add target for simpleGLES
-add_executable(simpleGLES simpleGLES.cu)
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    # Source file
+    # Add target for simpleGLES
+    add_executable(simpleGLES simpleGLES.cu)
 
-target_compile_options(simpleGLES PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
+    target_compile_options(simpleGLES PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
 
-target_compile_features(simpleGLES PRIVATE cxx_std_17 cuda_std_17)
+    target_compile_features(simpleGLES PRIVATE cxx_std_17 cuda_std_17)
 
-set_target_properties(simpleGLES PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+    set_target_properties(simpleGLES PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+else()
+    message(STATUS "Will not build sample simpleGLES - requires Linux OS")
+endif()
