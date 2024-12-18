@@ -14,12 +14,36 @@ endif()
 # Include directories and libraries
 include_directories(../../../Common)
 
-# Source file
-# Add target for simpleD3D11Texture
-add_executable(simpleD3D11Texture simpleD3D11Texture.cu)
+if(WIN32)
+    find_package(DirectX)
 
-target_compile_options(simpleD3D11Texture PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
+    if(${DirectX_FOUND})
 
-target_compile_features(simpleD3D11Texture PRIVATE cxx_std_17 cuda_std_17)
+        # Source file
+        # Add target for simpleD3D11Texture
+        add_executable(simpleD3D11Texture
+            simpleD3D11Texture.cpp
+            texture_2d.cu
+            texture_3d.cu
+            texture_cube.cu
+        )
 
-set_target_properties(simpleD3D11Texture PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+        target_compile_options(simpleD3D11Texture PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
+
+        target_compile_features(simpleD3D11Texture PRIVATE cxx_std_17 cuda_std_17)
+
+        set_target_properties(simpleD3D11Texture PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
+        target_link_libraries(simpleD3D11Texture PRIVATE
+            DirectX::D3D11
+        )
+
+        add_custom_command(TARGET simpleD3D11Texture POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_CURRENT_SOURCE_DIR}/data
+            ${CMAKE_CURRENT_BINARY_DIR}/data
+        )
+    else()
+        message(STATUS "DirectX not found - will not build sample 'simpleD3D11Texture'")
+    endif()
+endif()
