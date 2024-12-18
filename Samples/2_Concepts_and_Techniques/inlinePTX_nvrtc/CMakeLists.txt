@@ -26,6 +26,7 @@ set_target_properties(inlinePTX_nvrtc PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
 target_link_libraries(inlinePTX_nvrtc PRIVATE
     CUDA::nvrtc
+    CUDA::cuda_driver
 )
 
 # Copy clock_kernel.cu to the output directory

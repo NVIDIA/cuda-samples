@@ -15,11 +15,13 @@ endif()
 include_directories(../../../Common)
 
 # Source file
-# Add target for systemWideAtomics
-add_executable(systemWideAtomics systemWideAtomics.cu)
+# Add target for systemWideAtomics (Linux-only)
+if(NOT WIN32)
+    add_executable(systemWideAtomics systemWideAtomics.cu)
 
-target_compile_options(systemWideAtomics PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
+    target_compile_options(systemWideAtomics PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
 
-target_compile_features(systemWideAtomics PRIVATE cxx_std_17 cuda_std_17)
+    target_compile_features(systemWideAtomics PRIVATE cxx_std_17 cuda_std_17)
 
-set_target_properties(systemWideAtomics PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+    set_target_properties(systemWideAtomics PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+endif()

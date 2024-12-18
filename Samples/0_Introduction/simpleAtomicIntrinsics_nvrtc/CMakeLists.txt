@@ -24,6 +24,7 @@ target_compile_features(simpleAtomicIntrinsics_nvrtc PRIVATE cxx_std_17 cuda_std
 
 target_link_libraries(simpleAtomicIntrinsics_nvrtc PRIVATE
     CUDA::nvrtc
+    CUDA::cuda_driver
 )
 
 # Copy clock_kernel.cu to the output directory

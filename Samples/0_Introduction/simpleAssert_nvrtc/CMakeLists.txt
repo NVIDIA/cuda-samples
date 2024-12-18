@@ -24,6 +24,7 @@ target_compile_features(simpleAssert_nvrtc PRIVATE cxx_std_17 cuda_std_17)
 
 target_link_libraries(simpleAssert_nvrtc PRIVATE
     CUDA::nvrtc
+    CUDA::cuda_driver
 )
 
 # Copy clock_kernel.cu to the output directory
