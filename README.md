@@ -28,51 +28,69 @@ Without using git the easiest way to use these samples is to download the zip fi
 
 ## Building CUDA Samples
 
-# NOTE - SECTION OUTDATED DURING CMAKE TRANSITION
+### Building CUDA Samples
 
+The CUDA Samples are built using CMake. Follow the instructions below for building on Linux, Windows, and for cross-compilation to Tegra devices.
 
---------------------
+### Linux
 
+Ensure that CMake (version 3.20 or later) is installed. Install it using your package manager if necessary:
 
+e.g.
+```sudo apt install cmake```
 
+Navigate to the root of the cloned repository and create a build directory:
+```
+mkdir build && cd build
+```
+Configure the project with CMake:
+```
+cmake ..
+```
+Build the samples:
+```
+make -j$(nproc)
+```
+Run the samples from their respective directories in the build folder. You can also follow this process from and subdirectory of the samples repo, or from within any individual sample.
 
 ### Windows
 
-The Windows samples are built using the Visual Studio IDE. Solution files (.sln) are provided for each supported version of Visual Studio, using the format:
-```
-*_vs<version>.sln - for Visual Studio <version>
-```
-Complete samples solution files exist at parent directory of the repo:
+Language services for CMake are available in Visual Studio 2019 version 16.5 or later, and you can directly import the CUDA samples repository from either the root level or from any
+subdirectory or individual sample.
 
-Each individual sample has its own set of solution files at:
-`<CUDA_SAMPLES_REPO>\Samples\<sample_dir>\`
+To build from the command line, open the `x64 Native Tools Command Prompt for VS` provided with your Visual Studio installation.
 
-To build/examine all the samples at once, the complete solution files should be used. To build/examine a single sample, the individual sample solution files should be used.
-
-### Linux
-The Linux samples are built using makefiles. To use the makefiles, change the current directory to the sample directory you wish to build, and run make:
+Navigate to the root of the cloned repository and create a build directory:
 ```
-$ cd <sample_dir>
-$ make
+mkdir build && cd build
 ```
-The samples makefiles can take advantage of certain options:
-*  **TARGET_ARCH=<arch>** - cross-compile targeting a specific architecture. Allowed architectures are x86_64, ppc64le, armv7l, aarch64.
-    By default, TARGET_ARCH is set to HOST_ARCH. On a x86_64 machine, not setting TARGET_ARCH is the equivalent of setting TARGET_ARCH=x86_64.<br/>
-`$ make TARGET_ARCH=x86_64` <br/> `$ make TARGET_ARCH=ppc64le` <br/> `$ make TARGET_ARCH=armv7l` <br/> `$ make TARGET_ARCH=aarch64` <br/>
-    See [here](http://docs.nvidia.com/cuda/cuda-samples/index.html#cross-samples) for more details on cross platform compilation of cuda samples.
-*   **dbg=1** - build with debug symbols
-    ```
-    $ make dbg=1
-    ```
-*   **SMS="A B ..."** - override the SM architectures for which the sample will be built, where `"A B ..."` is a space-delimited list of SM architectures. For example, to generate SASS for SM 50 and SM 60, use `SMS="50 60"`.
-    ```
-    $ make SMS="50 60"
-    ```
+Configure the project with CMake - for example:
+```
+cmake .. -G "Visual Studio 16 2019" -A x64
+```
+Open the generated solution file CUDA_Samples.sln in Visual Studio. Build the samples by selecting the desired configuration (e.g., Debug or Release) and pressing F7 (Build Solution).
 
-*  **HOST_COMPILER=<host_compiler>** - override the default g++ host compiler. See the [Linux Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#system-requirements) for a list of supported host compilers.
-    ```
-    $ make HOST_COMPILER=g++
-    ```
+Run the samples from the output directories specified in Visual Studio.
+
+### Cross-Compilation for Tegra Platforms
+
+Install the NVIDIA toolchain and cross-compilation environment for Tegra devices as described in the Tegra Development Guide.
+
+Ensure that CMake (version 3.20 or later) is installed.
+
+Navigate to the root of the cloned repository and create a build directory:
+```
+mkdir build && cd build
+```
+Configure the project with CMake, specifying the Tegra toolchain file:
+```
+cmake .. -DCMAKE_TOOLCHAIN_FILE=/path/to/tegra/toolchain.cmake
+```
+Build the samples:
+```
+make -j$(nproc)
+```
+Transfer the built binaries to the Tegra device and execute them there.
 
 ## Samples list
 
