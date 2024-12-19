@@ -15,35 +15,38 @@ endif()
 include_directories(../../../Common)
 
 if(WIN32)
-    find_package(DirectX)
+    # Source file
+    # Add target for simpleD3D11Texture
+    add_executable(simpleD3D11Texture
+        simpleD3D11Texture.cpp
+        ../../../Common/rendercheck_d3d11.cpp
+        texture_2d.cu
+        texture_3d.cu
+        texture_cube.cu
+    )
 
-    if(${DirectX_FOUND})
+    target_compile_options(simpleD3D11Texture PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
 
-        # Source file
-        # Add target for simpleD3D11Texture
-        add_executable(simpleD3D11Texture
-            simpleD3D11Texture.cpp
-            texture_2d.cu
-            texture_3d.cu
-            texture_cube.cu
-        )
+    target_compile_features(simpleD3D11Texture PRIVATE cxx_std_17 cuda_std_17)
 
-        target_compile_options(simpleD3D11Texture PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
+    set_target_properties(simpleD3D11Texture PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
-        target_compile_features(simpleD3D11Texture PRIVATE cxx_std_17 cuda_std_17)
+    target_include_directories(simpleD3D11Texture PRIVATE
+        ${CUDAToolkit_INCLUDE_DIRS}
+    )
 
-        set_target_properties(simpleD3D11Texture PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+    target_link_libraries(simpleD3D11Texture PRIVATE 
+        d3d11 
+        dxgi 
+        dxguid
+        d3dcompiler
+    )
 
-        target_link_libraries(simpleD3D11Texture PRIVATE
-            DirectX::D3D11
-        )
-
-        add_custom_command(TARGET simpleD3D11Texture POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_CURRENT_SOURCE_DIR}/data
-            ${CMAKE_CURRENT_BINARY_DIR}/data
-        )
-    else()
-        message(STATUS "DirectX not found - will not build sample 'simpleD3D11Texture'")
-    endif()
+    add_custom_command(TARGET simpleD3D11Texture POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/data
+        ${CMAKE_CURRENT_BINARY_DIR}/data
+    )
+else()
+    message(STATUS "Sample 'simpleD3D11Texture' is Windows-only - skipping")
 endif()

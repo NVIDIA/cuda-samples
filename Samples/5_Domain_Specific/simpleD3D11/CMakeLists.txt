@@ -15,30 +15,36 @@ endif()
 include_directories(../../../Common)
 
 if(WIN32)
-    find_package(DirectX)
+    # Source file
+    # Add target for simpleD3D11
+    add_executable(simpleD3D11 
+        simpleD3D11.cpp 
+        sinewave_cuda.cu
+        ../../../Common/rendercheck_d3d11.cpp
+    )
 
-    if(${DirectX_FOUND})
+    target_compile_options(simpleD3D11 PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
 
-        # Source file
-        # Add target for simpleD3D11
-        add_executable(simpleD3D11 simpleD3D11.cpp sinewave_cuda.cu)
+    target_compile_features(simpleD3D11 PRIVATE cxx_std_17 cuda_std_17)
 
-        target_compile_options(simpleD3D11 PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
+    set_target_properties(simpleD3D11 PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
-        target_compile_features(simpleD3D11 PRIVATE cxx_std_17 cuda_std_17)
+    target_include_directories(simpleD3D11 PRIVATE
+        ${CUDAToolkit_INCLUDE_DIRS}
+    )
 
-        set_target_properties(simpleD3D11 PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+    target_link_libraries(simpleD3D11 PRIVATE 
+        d3d11 
+        dxgi 
+        dxguid
+        d3dcompiler
+    )
 
-        target_link_libraries(simpleD3D11 PRIVATE
-            DirectX::D3D11
-        )
-
-        add_custom_command(TARGET simpleD3D11 POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_CURRENT_SOURCE_DIR}/data
-            ${CMAKE_CURRENT_BINARY_DIR}/data
-        )
-    else()
-        message(STATUS "DirectX not found - will not build sample 'simpleD3D11'")
-    endif()
+    add_custom_command(TARGET simpleD3D11 POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/data
+        ${CMAKE_CURRENT_BINARY_DIR}/data
+    )
+else()
+    message(STATUS "Sample 'simpleD3D11' is Windows-only - skipping")
 endif()

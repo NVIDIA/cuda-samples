@@ -15,38 +15,40 @@ endif()
 include_directories(../../../Common)
 
 if(WIN32)
-    find_package(DirectX)
+    # Source file
+    # Add target for simpleD3D12
+    add_executable(simpleD3D12 WIN32
+        DX12CudaSample.cpp
+        Main.cpp
+        Win32Application.cpp
+        simpleD3D12.cpp
+        stdafx.cpp
+        sinewave_cuda.cu
+    )
 
-    if(${DirectX_FOUND})
+    target_compile_options(simpleD3D12 PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
 
-        # Source file
-        # Add target for simpleD3D12
-        add_executable(simpleD3D12
-            DX12CudaSample.cpp
-            Main.cpp
-            Win32Application.cpp
-            simpleD3D12.cpp
-            stdafx.cpp
-            sinewave_cuda.cu
-        )
+    target_compile_features(simpleD3D12 PRIVATE cxx_std_17 cuda_std_17)
 
-        target_compile_options(simpleD3D12 PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
+    set_target_properties(simpleD3D12 PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
-        target_compile_features(simpleD3D12 PRIVATE cxx_std_17 cuda_std_17)
+    target_include_directories(simpleD3D12 PRIVATE
+        ${CUDAToolkit_INCLUDE_DIRS}
+    )
 
-        set_target_properties(simpleD3D12 PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+    target_link_libraries(simpleD3D12 PRIVATE 
+        d3d12
+        dxgi 
+        dxguid
+        d3dcompiler
+    )
 
-        target_link_libraries(simpleD3D12 PRIVATE
-            DirectX::D3D12
-        )
+    add_custom_command(TARGET simpleD3D12 POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_CURRENT_SOURCE_DIR}/shaders.hlsl
+        ${CMAKE_CURRENT_BINARY_DIR}/shaders.hlsl
+    )
 
-        add_custom_command(TARGET simpleD3D11 POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_file
-            ${CMAKE_CURRENT_SOURCE_DIR}/shaders.hlsl
-            ${CMAKE_CURRENT_BINARY_DIR}/shaders.hlsl
-        )
-
-    else()
-        message(STATUS "DirectX not found - will not build sample 'simpleD3D12'")
-    endif()
+else()
+    message(STATUS "Sample 'simpleD3D12' is Windows-only - will not build")
 endif()
