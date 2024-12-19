@@ -56,5 +56,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         message(STATUS "OpenGL not found - will not build sample 'EGLSync_CUDAEvent_Interop'")
     endif()
 else()
-    message(STATUS "Will not build sample streamOrderedAllocationIPC - requires Linux OS")
+    message(STATUS "Will not build sample EGLSync_CUDAEvent_Interop
+ - requires Linux OS")
 endif()
