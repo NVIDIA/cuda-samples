@@ -78,7 +78,8 @@ static real expiryCallValue(real S, real X, real vDt, int i) {
   return (d > (real)0) ? d : (real)0;
 }
 
-extern "C" void binomialOptionsCPU(real &callResult, TOptionData optionData) {
+extern "C" void binomialOptionsCPU(real &callResult, TOptionData optionData,
+				   option_t option_type) {
   static real Call[NUM_STEPS + 1];
 
   const real S = optionData.S;
@@ -112,9 +113,18 @@ extern "C" void binomialOptionsCPU(real &callResult, TOptionData optionData) {
   ////////////////////////////////////////////////////////////////////////
   // Walk backwards up binomial tree
   ////////////////////////////////////////////////////////////////////////
-  for (int i = NUM_STEPS; i > 0; i--)
-    for (int j = 0; j <= i - 1; j++)
-      Call[j] = puByDf * Call[j + 1] + pdByDf * Call[j];
+  for (int i = NUM_STEPS; i > 0; i--) {
+    for (int j = 0; j <= i - 1; j++) {
+      real continuation_value = puByDf * Call[j + 1] + pdByDf * Call[j];
+      if(option_type == NA){
+	real fwd = S * exp((2*j-i) * vDt);
+	real exercise_value = (fwd - X) > (real)0 ? (fwd - X) : (real)0;
+	Call[j] = exercise_value > continuation_value ? exercise_value : continuation_value;
+      } else if (option_type == EU) {
+	Call[j] = continuation_value;
+      }
+    }
+  }
 
   callResult = (real)Call[0];
 }
