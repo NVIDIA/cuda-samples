@@ -37,6 +37,12 @@ target_link_libraries(cuSolverDn_LinearSolver PRIVATE
 # Copy data files to output directory
 add_custom_command(TARGET cuSolverDn_LinearSolver POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    ${CMAKE_CURRENT_SOURCE_DIR}/*.mtx
+    ${CMAKE_CURRENT_SOURCE_DIR}/gr_900_900_crg.mtx
     ${CMAKE_CURRENT_BINARY_DIR}
 )
+add_custom_command(TARGET cuSolverDn_LinearSolver POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_CURRENT_SOURCE_DIR}/lap3D_7pt_n20.mtx
+    ${CMAKE_CURRENT_BINARY_DIR}
+)
+
