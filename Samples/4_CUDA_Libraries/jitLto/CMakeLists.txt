@@ -28,7 +28,15 @@ target_include_directories(jitLto PRIVATE
     ${CUDAToolkit_INCLUDE_DIRS}
 )
 
-target_link_libraries(jitLto PRIVATE
-    CUDA::cuda_driver
-    CUDA::nvrtc
-)
+
+
+    target_link_libraries(jitLto PRIVATE
+        CUDA::cuda_driver
+        CUDA::nvrtc
+    )
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_link_libraries(jitLto PRIVATE
+        ${CUDAToolkit_LIBRARY_DIR}/libnvJitLink.so
+    )
+endif()	
