@@ -37,6 +37,13 @@ target_link_libraries(cuSolverSp_LowlevelCholesky PRIVATE
 # Copy data files to output directory
 add_custom_command(TARGET cuSolverSp_LowlevelCholesky POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    ${CMAKE_CURRENT_SOURCE_DIR}/*.mtx
+    ${CMAKE_CURRENT_SOURCE_DIR}/lap2D_5pt_n100.mtx
+    ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+# Copy data files to output directory
+add_custom_command(TARGET cuSolverSp_LowlevelCholesky POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_CURRENT_SOURCE_DIR}/lap3D_7pt_n20.mtx
     ${CMAKE_CURRENT_BINARY_DIR}
 )
