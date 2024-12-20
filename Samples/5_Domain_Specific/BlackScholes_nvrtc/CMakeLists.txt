@@ -26,6 +26,7 @@ set_target_properties(BlackScholes_nvrtc PROPERTIES CUDA_SEPARABLE_COMPILATION O
 
 target_link_libraries(BlackScholes_nvrtc PRIVATE
     CUDA::nvrtc
+    CUDA::cuda_driver
 )
 
 # Copy kernel to the output directory
