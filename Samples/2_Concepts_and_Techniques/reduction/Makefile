@@ -386,13 +386,13 @@ run: build
 	$(EXEC) ./reduction
 
 testrun: build
-	$(EXEC) ./reduction -kernel 0
-		$(EXEC) ./reduction -kernel 1
-		$(EXEC) ./reduction -kernel 2
-		$(EXEC) ./reduction -kernel 3
-		$(EXEC) ./reduction -kernel 4
-		$(EXEC) ./reduction -kernel 5
-		$(EXEC) ./reduction -kernel 6
+	$(EXEC) ./reduction -kernel=0
+		$(EXEC) ./reduction -kernel=1
+		$(EXEC) ./reduction -kernel=2
+		$(EXEC) ./reduction -kernel=3
+		$(EXEC) ./reduction -kernel=4
+		$(EXEC) ./reduction -kernel=5
+		$(EXEC) ./reduction -kernel=6
 
 clean:
 	rm -f reduction reduction.o reduction_kernel.o
