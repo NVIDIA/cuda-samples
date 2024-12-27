@@ -50,5 +50,5 @@ if(WIN32)
     )
 
 else()
-    message(STATUS "Sample 'simpleD3D12' is Windows-only - will not build")
+    message(STATUS "Sample 'simpleD3D12' is Windows-only - skipping")
 endif()
