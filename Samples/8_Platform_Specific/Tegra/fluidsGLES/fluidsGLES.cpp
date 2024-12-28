@@ -40,7 +40,7 @@ void error_exit(const char* format, ... )
 #include <cufft.h>
 
 // CUDA helper functions
-#include <helper_functions.h>
+#include "helper_functions.h"
 #include <rendercheck_gles.h>
 #include <helper_cuda.h>
 
