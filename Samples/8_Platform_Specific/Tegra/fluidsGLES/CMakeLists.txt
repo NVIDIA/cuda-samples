@@ -11,34 +11,48 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")  # enable cuda-gdb (expensive)
 endif()
 
+# Include directories and libraries
+include_directories(../../../../Common)
+
+find_package(EGL)
+find_package(X11)
+find_package(OpenGL)
+
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    find_package (OpenGL COMPONENTS EGL GLES2)
-    if(${OpenGL_EGL_FOUND})
-        # Source file
-        # Add target for fluidsGLES
-        add_executable(fluidsGLES 
-            fluidsGLES.cpp
-            fluidsGLES_kernels.cu
-        )
+    # Source file
+    if(${OpenGL_FOUND})
+        if(${EGL_FOUND})
+            if(${X11_FOUND})
+                # Add target for fluidsGLES
+                add_executable(fluidsGLES fluidsGLES.cpp fluidsGLES_kernels.cu)
 
-        target_compile_options(fluidsGLES PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
+                target_compile_options(fluidsGLES PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
 
-        target_compile_features(fluidsGLES PRIVATE cxx_std_17 cuda_std_17)
+                target_compile_features(fluidsGLES PRIVATE cxx_std_17 cuda_std_17)
 
-        set_target_properties(fluidsGLES PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+                set_target_properties(fluidsGLES PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
-        target_include_directories(fluidsGLES PUBLIC
-            ${OPENGL_INCLUDE_DIRS}
-            ${CUDAToolkit_INCLUDE_DIRS}
-            ../../../Common
-        )
+                target_include_directories(fluidsGLES PUBLIC
+                    ${EGL_INCLUDE_DIR}
+                    ${OPENGL_INCLUDE_DIR}
+                    ${CUDAToolkit_INCLUDE_DIRS}
+                )
 
-        target_link_libraries(fluidsGLES
-            ${OPENGL_LIBRARIES}
-            CUDA::cuda_driver
-        )
+                target_link_libraries(fluidsGLES
+                    CUDA::cuda_driver
+                    CUDA::cufft
+                    ${EGL_LIBRARY}
+                    ${X11_LIBRARIES}
+                    ${OPENGL_LIBRARIES}
+                )
+            else()
+                message(STATUS "X11 libraries not found - will not build sample 'fluidsGLES'")
+            endif()
+        else()
+            message(STATUS "EGL not found - will not build sample 'fluidsGLES'")
+        endif()
     else()
-        message(STATUS "EGL not found - will not build sample 'fluidsGLES'")
+        message(STATUS "OpenGL not found - will not build sample 'fluidsGLES'")
     endif()
 else()
     message(STATUS "Will not build sample fluidsGLES - requires Linux OS")
