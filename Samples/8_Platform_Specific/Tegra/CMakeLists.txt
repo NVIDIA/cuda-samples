@@ -1,0 +1,3 @@
+add_subdirectory(fluidsGLES)
+add_subdirectory(nbody_opengles)
+add_subdirectory(simpleGLES)
