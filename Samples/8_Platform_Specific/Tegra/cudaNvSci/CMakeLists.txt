@@ -6,6 +6,8 @@ project(cudaNvSci LANGUAGES C CXX CUDA)
 
 find_package(CUDAToolkit REQUIRED)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 set(CMAKE_CUDA_ARCHITECTURES 53 61 70 72 75 80 86 87 90)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")  # enable cuda-gdb (expensive)
@@ -62,7 +64,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         )
 
         # Specify additional clean files
-        set_target_properties(cudaNvSci PROPERTIES 
+        set_target_properties(cudaNvSci PROPERTIES
             ADDITIONAL_CLEAN_FILES "teapot1024_out.ppm"
         )
     else()

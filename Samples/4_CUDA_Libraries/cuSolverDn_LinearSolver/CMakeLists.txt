@@ -6,6 +6,8 @@ project(cuSolverDn_LinearSolver LANGUAGES C CXX)
 
 find_package(CUDAToolkit REQUIRED)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 set(CMAKE_CUDA_ARCHITECTURES 50 52 60 61 70 75 80 86 89 90)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")  # enable cuda-gdb (expensive)
@@ -45,4 +47,3 @@ add_custom_command(TARGET cuSolverDn_LinearSolver POST_BUILD
     ${CMAKE_CURRENT_SOURCE_DIR}/lap3D_7pt_n20.mtx
     ${CMAKE_CURRENT_BINARY_DIR}
 )
-
