@@ -16,12 +16,16 @@ endif()
 # Include directories and libraries
 include_directories(../../../Common)
 
-# Source file
-# Add target for topologyQuery
-add_executable(topologyQuery topologyQuery.cu)
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+    message(STATUS "Will not build sample topologyQuery - not supported on aarch64")
+else()
+    # Source file
+    # Add target for topologyQuery
+    add_executable(topologyQuery topologyQuery.cu)
 
-target_compile_options(topologyQuery PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
+    target_compile_options(topologyQuery PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
 
-target_compile_features(topologyQuery PRIVATE cxx_std_17 cuda_std_17)
+    target_compile_features(topologyQuery PRIVATE cxx_std_17 cuda_std_17)
 
-set_target_properties(topologyQuery PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+    set_target_properties(topologyQuery PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+endif()

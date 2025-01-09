@@ -16,12 +16,16 @@ endif()
 # Include directories and libraries
 include_directories(../../../Common)
 
-# Source file
-# Add target for simpleIPC
-add_executable(simpleIPC simpleIPC.cu ../../../Common/helper_multiprocess.cpp)
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+    message(STATUS "Will not build sample simpleIPC - not supported on aarch64")
+else()
+    # Source file
+    # Add target for simpleIPC
+    add_executable(simpleIPC simpleIPC.cu ../../../Common/helper_multiprocess.cpp)
 
-target_compile_options(simpleIPC PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
+    target_compile_options(simpleIPC PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
 
-target_compile_features(simpleIPC PRIVATE cxx_std_17 cuda_std_17)
+    target_compile_features(simpleIPC PRIVATE cxx_std_17 cuda_std_17)
 
-set_target_properties(simpleIPC PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+    set_target_properties(simpleIPC PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+endif()
