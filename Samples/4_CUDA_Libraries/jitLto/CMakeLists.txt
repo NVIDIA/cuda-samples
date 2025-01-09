@@ -6,6 +6,8 @@ project(jitLto LANGUAGES CXX)
 
 find_package(CUDAToolkit REQUIRED)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 set(CMAKE_CUDA_ARCHITECTURES 50 52 60 61 70 75 80 86 89 90)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")  # enable cuda-gdb (expensive)
@@ -39,4 +41,4 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_link_libraries(jitLto PRIVATE
         ${CUDAToolkit_LIBRARY_DIR}/libnvJitLink.so
     )
-endif()	
+endif()

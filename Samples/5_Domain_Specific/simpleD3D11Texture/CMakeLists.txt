@@ -6,6 +6,8 @@ project(simpleD3D11Texture LANGUAGES C CXX CUDA)
 
 find_package(CUDAToolkit REQUIRED)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 set(CMAKE_CUDA_ARCHITECTURES 50 52 60 61 70 75 80 86 89 90)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")  # enable cuda-gdb (expensive)
@@ -35,9 +37,9 @@ if(WIN32)
         ${CUDAToolkit_INCLUDE_DIRS}
     )
 
-    target_link_libraries(simpleD3D11Texture PRIVATE 
-        d3d11 
-        dxgi 
+    target_link_libraries(simpleD3D11Texture PRIVATE
+        d3d11
+        dxgi
         dxguid
         d3dcompiler
     )

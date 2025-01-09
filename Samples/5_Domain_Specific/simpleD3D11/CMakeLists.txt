@@ -6,6 +6,8 @@ project(simpleD3D11 LANGUAGES C CXX CUDA)
 
 find_package(CUDAToolkit REQUIRED)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 set(CMAKE_CUDA_ARCHITECTURES 50 52 60 61 70 75 80 86 89 90)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")  # enable cuda-gdb (expensive)
@@ -17,8 +19,8 @@ include_directories(../../../Common)
 if(WIN32)
     # Source file
     # Add target for simpleD3D11
-    add_executable(simpleD3D11 
-        simpleD3D11.cpp 
+    add_executable(simpleD3D11
+        simpleD3D11.cpp
         sinewave_cuda.cu
         ../../../Common/rendercheck_d3d11.cpp
     )
@@ -33,9 +35,9 @@ if(WIN32)
         ${CUDAToolkit_INCLUDE_DIRS}
     )
 
-    target_link_libraries(simpleD3D11 PRIVATE 
-        d3d11 
-        dxgi 
+    target_link_libraries(simpleD3D11 PRIVATE
+        d3d11
+        dxgi
         dxguid
         d3dcompiler
     )
