@@ -14,7 +14,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 # Include directories and libraries
-include_directories(../../../../Common)
+include_directories(../../../Common)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     # Find the NVSCI libraries
