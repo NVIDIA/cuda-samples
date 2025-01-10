@@ -19,37 +19,47 @@ include_directories(../../../Common)
 find_package(Vulkan)
 find_package(OpenGL)
 
+# Include the check_include_file macro
+include(CheckIncludeFile)
+
+# Check for the GLFW/glfw3.h header
+check_include_file("GLFW/glfw3.h" HAVE_GLFW3_H)
+
 # Source file
 if(${Vulkan_FOUND})
     if(${OPENGL_FOUND})
-        # Add target for simpleVulkan
-        add_executable(simpleVulkan main.cpp SineWaveSimulation.cu VulkanBaseApp.cpp)
+        if(${HAVE_GLFW3_H})
+            # Add target for simpleVulkan
+            add_executable(simpleVulkan main.cpp SineWaveSimulation.cu VulkanBaseApp.cpp)
 
-target_compile_options(simpleVulkan PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
+            target_compile_options(simpleVulkan PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
 
-target_compile_features(simpleVulkan PRIVATE cxx_std_17 cuda_std_17)
+            target_compile_features(simpleVulkan PRIVATE cxx_std_17 cuda_std_17)
 
-        set_target_properties(simpleVulkan PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+            set_target_properties(simpleVulkan PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
-        target_include_directories(simpleVulkan PUBLIC
-            ${Vulkan_INCLUDE_DIRS}
-            ${CUDAToolkit_INCLUDE_DIRS}
-        )
+            target_include_directories(simpleVulkan PUBLIC
+                ${Vulkan_INCLUDE_DIRS}
+                ${CUDAToolkit_INCLUDE_DIRS}
+            )
 
-        target_link_libraries(simpleVulkan
-            ${Vulkan_LIBRARIES}
-            OpenGL::GL
-            glfw
-        )
+            target_link_libraries(simpleVulkan
+                ${Vulkan_LIBRARIES}
+                OpenGL::GL
+                glfw
+            )
 
-        add_custom_command(TARGET simpleVulkan POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${CMAKE_CURRENT_SOURCE_DIR}/sinewave.frag
-            ${CMAKE_CURRENT_SOURCE_DIR}/sinewave.vert
-            ${CMAKE_CURRENT_SOURCE_DIR}/vert.spv
-            ${CMAKE_CURRENT_SOURCE_DIR}/frag.spv
-            ${CMAKE_CURRENT_BINARY_DIR}
-        )
+            add_custom_command(TARGET simpleVulkan POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${CMAKE_CURRENT_SOURCE_DIR}/sinewave.frag
+                ${CMAKE_CURRENT_SOURCE_DIR}/sinewave.vert
+                ${CMAKE_CURRENT_SOURCE_DIR}/vert.spv
+                ${CMAKE_CURRENT_SOURCE_DIR}/frag.spv
+                ${CMAKE_CURRENT_BINARY_DIR}
+            )
+        else()
+            message(STATUS "glfw3 not found - will not build sample 'simpleVulkan'")
+        endif()
     else()
         message(STATUS "GLFW not found - will not build sample 'simpleVulkan'")
     endif()

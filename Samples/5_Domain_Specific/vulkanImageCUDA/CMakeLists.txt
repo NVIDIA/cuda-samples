@@ -19,40 +19,50 @@ include_directories(../../../Common)
 find_package(Vulkan)
 find_package(OpenGL)
 
+# Include the check_include_file macro
+include(CheckIncludeFile)
+
+# Check for the GLFW/glfw3.h header
+check_include_file("GLFW/glfw3.h" HAVE_GLFW3_H)
+
 # Source file
 if(${Vulkan_FOUND})
     if(${OPENGL_FOUND})
-        # Add target for vulkanImageCUDA
-        add_executable(vulkanImageCUDA vulkanImageCUDA.cu)
+        if(${HAVE_GLFW3_H})
+            # Add target for vulkanImageCUDA
+            add_executable(vulkanImageCUDA vulkanImageCUDA.cu)
 
-target_compile_options(vulkanImageCUDA PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
+            target_compile_options(vulkanImageCUDA PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
 
-target_compile_features(vulkanImageCUDA PRIVATE cxx_std_17 cuda_std_17)
+            target_compile_features(vulkanImageCUDA PRIVATE cxx_std_17 cuda_std_17)
 
-        set_target_properties(vulkanImageCUDA PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+            set_target_properties(vulkanImageCUDA PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
-        target_include_directories(vulkanImageCUDA PUBLIC
-            ${Vulkan_INCLUDE_DIRS}
-            ${CUDAToolkit_INCLUDE_DIRS}
-        )
+            target_include_directories(vulkanImageCUDA PUBLIC
+                ${Vulkan_INCLUDE_DIRS}
+                ${CUDAToolkit_INCLUDE_DIRS}
+            )
 
-        target_link_libraries(vulkanImageCUDA
-            ${Vulkan_LIBRARIES}
-            OpenGL::GL
-            glfw
-        )
+            target_link_libraries(vulkanImageCUDA
+                ${Vulkan_LIBRARIES}
+                OpenGL::GL
+                glfw
+            )
 
-        add_custom_command(TARGET vulkanImageCUDA POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${CMAKE_CURRENT_SOURCE_DIR}/shader.frag
-            ${CMAKE_CURRENT_SOURCE_DIR}/shader.vert
-            ${CMAKE_CURRENT_SOURCE_DIR}/vert.spv
-            ${CMAKE_CURRENT_SOURCE_DIR}/frag.spv
-            ${CMAKE_CURRENT_SOURCE_DIR}/teapot1024.ppm
-            ${CMAKE_CURRENT_BINARY_DIR}
-        )
+            add_custom_command(TARGET vulkanImageCUDA POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${CMAKE_CURRENT_SOURCE_DIR}/shader.frag
+                ${CMAKE_CURRENT_SOURCE_DIR}/shader.vert
+                ${CMAKE_CURRENT_SOURCE_DIR}/vert.spv
+                ${CMAKE_CURRENT_SOURCE_DIR}/frag.spv
+                ${CMAKE_CURRENT_SOURCE_DIR}/teapot1024.ppm
+                ${CMAKE_CURRENT_BINARY_DIR}
+            )
+        else()
+            message(STATUS "glfw3 not found - will not build sample 'vulkanImageCUDA'")
+        endif()
     else()
-        message(STATUS "GLFW not found - will not build sample 'vulkanImageCUDA'")
+        message(STATUS "OpenGL not found - will not build sample 'vulkanImageCUDA'")
     endif()
 else()
     message(STATUS "Vulkan not found - will not build sample 'vulkanImageCUDA'")
