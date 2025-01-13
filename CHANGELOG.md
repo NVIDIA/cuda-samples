@@ -25,6 +25,22 @@
             * `simpleD3D9Texture`
             * `SLID3D10Texture`
             * `VFlockingD3D10`
+    * `8_Platform_Specific/Tegra`
+        * Temporarily removed the following two samples pending updates:
+            * `nbody_screen` demonstrating the nbody sample in QNX
+            * `simpleGLES_screen` demonstrating GLES interop in QNX
+* Moved the following Tegra-specific samples to a dedicated subdirectory: `8_Platform_Specific/Tegra`
+    * `EGLSync_CUDAEvent_Interop`
+    * `cuDLAErrorReporting`
+    * `cuDLAHybridMode`
+    * `cuDLALayerwiseStatsHybrid`
+    * `cuDLALayerwiseStatsStandalone`
+    * `cuDLAStandaloneMode`
+    * `cudaNvSciNvMedia`
+    * `fluidsGLES`
+    * `nbody_opengles`
+    * `simpleGLES`
+    * `simpleGLES_EGLOutput`
 
 
 

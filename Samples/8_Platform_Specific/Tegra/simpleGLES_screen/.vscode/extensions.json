@@ -1,7 +1,0 @@
-{
-    "recommendations": [
-        "nvidia.nsight-vscode-edition",
-        "ms-vscode.cpptools",
-        "ms-vscode.makefile-tools"
-    ]
-}
