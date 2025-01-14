@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake/Modules")
 
 project(nvJPEG LANGUAGES CXX)
 
@@ -32,7 +32,7 @@ else()
 
     target_include_directories(nvJPEG PRIVATE
         ${CUDAToolkit_INCLUDE_DIRS}
-    ) 
+    )
 
     target_link_libraries(nvJPEG PRIVATE
         CUDA::cudart
