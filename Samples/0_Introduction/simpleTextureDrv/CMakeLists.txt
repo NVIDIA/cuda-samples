@@ -47,4 +47,4 @@ add_custom_command(
 add_custom_target(generate_fatbin_textureDrv ALL DEPENDS ${CUDA_FATBIN_FILE})
 
 # Ensure matrixMulDrv depends on the fatbin
-add_dependencies(matrixMulDrv generate_fatbin_textureDrv)
+add_dependencies(simpleTextureDrv generate_fatbin_textureDrv)

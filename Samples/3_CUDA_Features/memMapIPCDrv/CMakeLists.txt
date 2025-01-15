@@ -49,4 +49,4 @@ add_custom_command(
 add_custom_target(generate_memMapIpc_ptx ALL DEPENDS ${CUDA_PTX_FILE})
 
 # Ensure matrixMulDrv depends on the fatbin
-add_dependencies(matrixMulDrv generate_memMapIpc_ptx)
+add_dependencies(memMapIPCDrv generate_memMapIpc_ptx)
