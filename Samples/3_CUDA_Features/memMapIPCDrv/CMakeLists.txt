@@ -48,5 +48,5 @@ add_custom_command(
 # Create a dummy target for fatbin generation
 add_custom_target(generate_memMapIpc_ptx ALL DEPENDS ${CUDA_PTX_FILE})
 
-# Ensure matrixMulDrv depends on the fatbin
+# Ensure memMapIPCDrv depends on the fatbin
 add_dependencies(memMapIPCDrv generate_memMapIpc_ptx)
