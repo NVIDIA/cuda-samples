@@ -49,5 +49,5 @@ add_custom_command(
 # Create a dummy target for fatbin generation
 add_custom_target(generate_ptxjit_ptx ALL DEPENDS ${CUDA_PTX_FILE})
 
-# Ensure matrixMulDrv depends on the fatbin
-add_dependencies(matrixMulDrv generate_ptxjit_ptx)
+# Ensure ptxjit depends on the fatbin
+add_dependencies(ptxjit generate_ptxjit_ptx)
