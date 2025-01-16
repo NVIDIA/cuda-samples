@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake/Modules")
 
 project(memMapIPCDrv LANGUAGES C CXX CUDA)
 
@@ -48,5 +48,5 @@ add_custom_command(
 # Create a dummy target for fatbin generation
 add_custom_target(generate_memMapIpc_ptx ALL DEPENDS ${CUDA_PTX_FILE})
 
-# Ensure matrixMulDrv depends on the fatbin
-add_dependencies(matrixMulDrv generate_memMapIpc_ptx)
+# Ensure memMapIPCDrv depends on the fatbin
+add_dependencies(memMapIPCDrv generate_memMapIpc_ptx)

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../../cmake/Modules")
 
 project(simpleGLES_EGLOutput LANGUAGES C CXX CUDA)
 
@@ -64,4 +64,3 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 else()
     message(STATUS "Will not build sample simpleGLES_EGLOutput - requires Linux OS")
 endif()
-

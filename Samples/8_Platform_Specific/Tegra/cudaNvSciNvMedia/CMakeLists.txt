@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../../cmake/Modules")
 
 project(cudaNvSciNvMedia LANGUAGES C CXX CUDA)
 
@@ -34,7 +34,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     # use CMAKE_INCLUDE_PATH so that users can also specify the NVSCI/NVMEDIA include path in cmake command
     set(CMAKE_INCLUDE_PATH
         "/usr/include"
-        "/usr/${CMAKE_SYSTEM_PROCESSOR}-linux-gnu/include" 
+        "/usr/${CMAKE_SYSTEM_PROCESSOR}-linux-gnu/include"
         ${CMAKE_LIBRARY_PATH}
     )
     find_path(NVSCIBUF_INCLUDE_DIR nvscibuf.h PATHS ${CMAKE_INCLUDE_PATH})
@@ -77,7 +77,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
             )
 
             # Specify additional clean files
-            set_target_properties(cudaNvSciNvMedia PROPERTIES 
+            set_target_properties(cudaNvSciNvMedia PROPERTIES
                 ADDITIONAL_CLEAN_FILES "teapot_out.rgba"
             )
         else()
