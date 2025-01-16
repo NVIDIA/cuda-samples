@@ -36,3 +36,17 @@ add_custom_command(TARGET dct8x8 POST_BUILD
     ${REF_DATA}
     ${CMAKE_CURRENT_BINARY_DIR}
 )
+
+# Copy data files to output directory
+add_custom_command(TARGET dct8x8 POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_CURRENT_SOURCE_DIR}/data/teapot512.ppm
+    ${CMAKE_CURRENT_BINARY_DIR}/
+)
+
+# Copy data files to output directory
+add_custom_command(TARGET dct8x8 POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_CURRENT_SOURCE_DIR}/data/teapot512.bmp
+    ${CMAKE_CURRENT_BINARY_DIR}/
+)
