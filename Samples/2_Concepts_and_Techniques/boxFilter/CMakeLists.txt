@@ -47,3 +47,24 @@ target_compile_features(boxFilter PRIVATE cxx_std_17 cuda_std_17)
 else()
     message(STATUS "OpenGL not found - will not build sample 'boxFilter'")
 endif()
+
+# Copy data files to output directory
+add_custom_command(TARGET boxFilter POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_CURRENT_SOURCE_DIR}/data/teapot1024.ppm
+    ${CMAKE_CURRENT_BINARY_DIR}/
+)
+
+# Copy data files to output directory
+add_custom_command(TARGET boxFilter POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_CURRENT_SOURCE_DIR}/data/ref_14.ppm
+    ${CMAKE_CURRENT_BINARY_DIR}/
+)
+
+# Copy data files to output directory
+add_custom_command(TARGET boxFilter POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_CURRENT_SOURCE_DIR}/data/ref_22.ppm
+    ${CMAKE_CURRENT_BINARY_DIR}/
+)

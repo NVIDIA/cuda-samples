@@ -43,6 +43,20 @@ add_custom_command(
     COMMENT "Building CUDA fatbin: ${CUDA_FATBIN_FILE}"
 )
 
+# Copy data files to output directory
+add_custom_command(TARGET simpleTextureDrv POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_CURRENT_SOURCE_DIR}/data/teapot512.pgm
+    ${CMAKE_CURRENT_BINARY_DIR}/
+)
+
+# Copy data files to output directory
+add_custom_command(TARGET simpleTextureDrv POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_CURRENT_SOURCE_DIR}/data/ref_rotated.pgm
+    ${CMAKE_CURRENT_BINARY_DIR}/
+)
+
 # Create a dummy target for fatbin generation
 add_custom_target(generate_fatbin_textureDrv ALL DEPENDS ${CUDA_FATBIN_FILE})
 
