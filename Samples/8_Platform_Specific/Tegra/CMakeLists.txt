@@ -1,4 +1,5 @@
 add_subdirectory(cudaNvSciNvMedia)
+add_subdirectory(cudaNvSciBufMultiplanar)
 add_subdirectory(cuDLAErrorReporting)
 add_subdirectory(cuDLAHybridMode)
 add_subdirectory(cuDLALayerwiseStatsHybrid)
