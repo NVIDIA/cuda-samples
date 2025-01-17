@@ -25,3 +25,17 @@ target_compile_options(simpleTexture PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extend
 target_compile_features(simpleTexture PRIVATE cxx_std_17 cuda_std_17)
 
 set_target_properties(simpleTexture PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
+# Copy data files to output directory
+add_custom_command(TARGET simpleTexture POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_CURRENT_SOURCE_DIR}/data/teapot512.pgm
+    ${CMAKE_CURRENT_BINARY_DIR}/
+)
+
+# Copy data files to output directory
+add_custom_command(TARGET simpleTexture POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_CURRENT_SOURCE_DIR}/data/ref_rotated.pgm
+    ${CMAKE_CURRENT_BINARY_DIR}/
+)

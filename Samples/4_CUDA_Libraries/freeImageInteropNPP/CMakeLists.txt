@@ -47,3 +47,10 @@ target_compile_features(freeImageInteropNPP PRIVATE cxx_std_17 cuda_std_17)
 else()
     message(STATUS "FreeImage not found - will not build sample 'freeImageInteropNPP'")
 endif()
+
+# Copy data files to output directory
+add_custom_command(TARGET freeImageInteropNPP POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../Common/data/teapot512.pgm
+    ${CMAKE_CURRENT_BINARY_DIR}/
+)
