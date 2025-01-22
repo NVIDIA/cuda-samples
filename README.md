@@ -104,6 +104,12 @@ make -j$(nproc)
 ```
 Transfer the built binaries to the Tegra device and execute them there.
 
+### QNX
+
+Note that in the current branch sample cross-compilation for QNX is not fully validated. This placeholder will be updated in the
+near future with QNX cross-compilation instructions. In the meantime, if you want to cross-compile for QNX please check out one
+of the previous tags prior to the CMake build system transition in 12.8.
+
 ## Samples list
 
 ### [0. Introduction](./Samples/0_Introduction/README.md)
