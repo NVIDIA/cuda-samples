@@ -28,7 +28,8 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set_target_properties(simpleCUFFT_callback PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
     target_link_libraries(simpleCUFFT_callback PRIVATE
-        CUDA::cufft
+        CUDA::cufft_static
+        culibos
     )
 else()
     message(STATUS "Will not build sample simpleCUFFT_callback - requires Linux OS")

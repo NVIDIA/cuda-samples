@@ -52,6 +52,14 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
                     ${OPENGL_LIBRARIES}
                     ${DRM_LIB}
                 )
+
+                # Copy the .glsl files to the output directory
+                add_custom_command(TARGET simpleGLES_EGLOutput POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    ${CMAKE_CURRENT_SOURCE_DIR}/mesh.frag.glsl
+                    ${CMAKE_CURRENT_SOURCE_DIR}/mesh.vert.glsl
+                    ${CMAKE_CURRENT_BINARY_DIR}
+                )
             else()
                 message(STATUS "X11 libraries not found - will not build sample 'simpleGLES_EGLOutput'")
             endif()
