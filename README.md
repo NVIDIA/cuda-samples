@@ -104,6 +104,24 @@ make -j$(nproc)
 ```
 Transfer the built binaries to the Tegra device and execute them there.
 
+### Building for Automotive Linux Platforms
+
+These platforms require additional information to be passed to CMake on the command line to ensure proper resolution of all necessary include and library files.
+Instead of being in the default location, `/usr/local/cuda/include` or `/usr/local/cuda/lib64`, you must point to architecture-specific paths:
+
+`/usr/local/cuda/<ARCH>/targets/aarch64-linux/lib`
+and
+`/usr/local/cuda-12.8/<ARCH>/include`
+
+An example build might look like this:
+
+```
+$ mkdir build
+$ cd build
+
+$ cmake -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc -DCMAKE_LIBRARY_PATH=/usr/local/cuda/orin/lib64/ -DCMAKE_INCLUDE_PATH=/usr/local/cuda/orin/include -DBUILD_TEGRA=True ..
+```
+
 ### QNX
 
 Note that in the current branch sample cross-compilation for QNX is not fully validated. This placeholder will be updated in the
