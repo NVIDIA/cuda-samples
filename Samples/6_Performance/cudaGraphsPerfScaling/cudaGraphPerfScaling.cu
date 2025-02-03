@@ -386,7 +386,7 @@ int main(int argc, char **argv)
 
     if (!(outputFmt & 6)) {
         printf("skipping trials since no output is expected\n");
-        return;
+        return EXIT_FAILURE;
     }
     
     std::vector<double> metricTotal;
