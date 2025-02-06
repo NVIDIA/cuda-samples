@@ -28,8 +28,7 @@ set(CMAKE_INSTALL_RPATH ${LIBNVVM_HOME})
 set(CMAKE_INCLUDE_CURRENT_DIR YES)
 
 add_executable(simple simple.c)
-add_custom_target(clobber)
-add_custom_target(testrun)
+
 add_test(NAME simple COMMAND simple WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 
 target_link_libraries(simple ${NVVM_LIB} ${CUDA_LIB})

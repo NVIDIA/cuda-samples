@@ -24,8 +24,6 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-add_custom_target(clobber)
-add_custom_target(testrun)
 
 add_test(NAME test-syscalls-malloc-free
 	COMMAND "${CMAKE_CURRENT_BINARY_DIR}/ptxgen/ptxgen" "${CMAKE_CURRENT_SOURCE_DIR}/malloc-free.ll"

@@ -25,8 +25,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 add_executable(ptxgen ptxgen.c)
-add_custom_target(clobber)
-add_custom_target(testrun)
+
 add_test(NAME ptxgenTest
    COMMAND ptxgen "${CMAKE_CURRENT_SOURCE_DIR}/test.ll"
    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")

@@ -30,8 +30,7 @@ set_property(SOURCE dsl.c
              PROPERTY COMPILE_DEFINITIONS LIBCUDADEVRT="${CUDADEVRT_LIB}")
 
 add_executable(dsl dsl.c)
-add_custom_target(clobber)
-add_custom_target(testrun)
+
 add_test(NAME device-side-launch COMMAND dsl
 	WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 target_link_libraries(dsl ${NVVM_LIB} ${CUDA_LIB})
