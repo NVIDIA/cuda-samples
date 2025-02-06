@@ -28,7 +28,7 @@ cmake_minimum_required(VERSION 3.10.0)
 
 project(libnvvm-samples)
 enable_testing()
-set_property(GLOBAL PROPERTY ALLOW_DUPLICATE_CUSTOM_TARGETS TRUE)
+#set_property(GLOBAL PROPERTY ALLOW_DUPLICATE_CUSTOM_TARGETS TRUE)
 set(CMAKE_C_STANDARD 11)
 
 # Initialize the CUDA Toolkit search using CUDA_HOME if the user specified it.

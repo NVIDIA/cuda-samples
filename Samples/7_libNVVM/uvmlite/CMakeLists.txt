@@ -30,8 +30,6 @@ set_property(SOURCE uvmlite.c
              PROPERTY COMPILE_DEFINITIONS LIBCUDADEVRT="${CUDADEVRT_LIB}")
 
 add_executable(uvmlite uvmlite.c)
-add_custom_target(clobber)
-add_custom_target(testrun)
 add_test(NAME uvmlite COMMAND uvmlite WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
 target_link_libraries(uvmlite ${NVVM_LIB} ${CUDA_LIB})
 
