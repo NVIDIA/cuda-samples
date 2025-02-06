@@ -32,7 +32,7 @@ set_property(SOURCE dsl.c
 add_executable(dsl dsl.c)
 
 add_test(NAME device-side-launch COMMAND dsl
-         WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+	WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 target_link_libraries(dsl ${NVVM_LIB} ${CUDA_LIB})
 
 if (WIN32)
@@ -46,4 +46,4 @@ install(FILES dsl-gpu64.ll DESTINATION bin)
 
 # 'dsl' will load dsl-gpu64.ll from the current working directory. That
 # .ll file should be present where tests are executed (the build directory).
-file(COPY dsl-gpu64.ll DESTINATION "${CMAKE_BINARY_DIR}")
+file(COPY dsl-gpu64.ll DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
