@@ -28,13 +28,16 @@ add_custom_target(clobber)
 add_custom_target(testrun)
 
 add_test(NAME test-cuda-shared-memory-shared_memory
-  COMMAND "${CMAKE_BINARY_DIR}/ptxgen/ptxgen" "${CMAKE_CURRENT_SOURCE_DIR}/shared_memory.ll"
-  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+	COMMAND "${CMAKE_CURRENT_BINARY_DIR}/ptxgen/ptxgen" "${CMAKE_CURRENT_SOURCE_DIR}/shared_memory.ll"
+	WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 
 add_test(NAME test-cuda-shared-memory-extern_shared_memory
-  COMMAND "${CMAKE_BINARY_DIR}/ptxgen/ptxgen" "${CMAKE_CURRENT_SOURCE_DIR}/extern_shared_memory.ll"
-  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+	COMMAND "${CMAKE_CURRENT_BINARY_DIR}/ptxgen/ptxgen" "${CMAKE_CURRENT_SOURCE_DIR}/extern_shared_memory.ll"
+	WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 
 set_tests_properties(test-cuda-shared-memory-shared_memory
                      test-cuda-shared-memory-extern_shared_memory
                      PROPERTIES FIXTURES_REQUIRED PTXGENTEST)
+	     
+file(COPY shared_memory.ll DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+file(COPY extern_shared_memory.ll DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")

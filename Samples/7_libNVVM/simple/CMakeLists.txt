@@ -30,7 +30,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR YES)
 add_executable(simple simple.c)
 add_custom_target(clobber)
 add_custom_target(testrun)
-add_test(NAME simple COMMAND simple WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+add_test(NAME simple COMMAND simple WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 
 target_link_libraries(simple ${NVVM_LIB} ${CUDA_LIB})
 
@@ -46,4 +46,4 @@ install(FILES simple-gpu64.ll DESTINATION bin)
 
 # 'simple' will load simple-gpu64.ll from the current working directory. That
 # .ll file should be present where tests are executed (the build directory).
-file(COPY simple-gpu64.ll DESTINATION "${CMAKE_BINARY_DIR}")
+file(COPY simple-gpu64.ll DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")

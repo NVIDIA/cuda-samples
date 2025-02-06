@@ -29,7 +29,7 @@ add_custom_target(clobber)
 add_custom_target(testrun)
 add_test(NAME ptxgenTest
    COMMAND ptxgen "${CMAKE_CURRENT_SOURCE_DIR}/test.ll"
-   WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+   WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 set_tests_properties(ptxgenTest PROPERTIES FIXTURES_SETUP PTXGENTEST)
 
 target_link_libraries(ptxgen ${NVVM_LIB})
@@ -44,3 +44,4 @@ else (WIN32)
 endif (WIN32)
 
 install(TARGETS ptxgen DESTINATION bin)
+file(COPY test.ll DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")

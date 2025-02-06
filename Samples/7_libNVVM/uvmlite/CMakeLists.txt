@@ -32,7 +32,7 @@ set_property(SOURCE uvmlite.c
 add_executable(uvmlite uvmlite.c)
 add_custom_target(clobber)
 add_custom_target(testrun)
-add_test(NAME uvmlite COMMAND uvmlite WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+add_test(NAME uvmlite COMMAND uvmlite WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 target_link_libraries(uvmlite ${NVVM_LIB} ${CUDA_LIB})
 
 if (WIN32)
@@ -49,4 +49,4 @@ install(FILES uvmlite64.ll DESTINATION bin)
 
 # 'uvmlite' will load uvmlite64.ll from the current working directory. That
 # .ll file should be present where tests are executed (the build directory).
-file(COPY uvmlite64.ll DESTINATION "${CMAKE_BINARY_DIR}")
+file(COPY uvmlite64.ll DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")

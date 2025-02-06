@@ -38,7 +38,7 @@ add_custom_target(clobber)
 add_custom_target(testrun)
 add_test(NAME cuda-c-linking
    COMMAND cuda-c-linking
-   WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+   WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 target_link_libraries(cuda-c-linking ${NVVM_LIB} ${CUDA_LIB})
 
 # See https://llvm.org/docs/CMake.html#developing-llvm-passes-out-of-source
