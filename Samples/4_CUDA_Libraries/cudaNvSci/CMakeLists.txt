@@ -22,12 +22,19 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     # Find the NVSCI libraries
     # use CMAKE_LIBRARY_PATH so that users can also specify the NVSCI lib path in cmake command
     set(CMAKE_LIBRARY_PATH "/usr/lib" ${CMAKE_LIBRARY_PATH})
-    file(GLOB_RECURSE NVSCIBUF_LIB
-         ${CMAKE_LIBRARY_PATH}/*/libnvscibuf.so
-    )
-    file(GLOB_RECURSE NVSCISYNC_LIB
-         ${CMAKE_LIBRARY_PATH}/*/libnvscisync.so
-    )
+    foreach(LIBRARY_PATH ${CMAKE_LIBRARY_PATH})
+        file(GLOB_RECURSE NVSCIBUF_LIB
+            ${LIBRARY_PATH}/libnvscibuf.so
+            ${LIBRARY_PATH}/*/libnvscibuf.so
+        )
+        file(GLOB_RECURSE NVSCISYNC_LIB
+            ${LIBRARY_PATH}/libnvscisync.so
+            ${LIBRARY_PATH}/*/libnvscisync.so
+        )
+        if(NVSCIBUF_LIB AND NVSCISYNC_LIB)
+            break()
+        endif()
+    endforeach()
 
     # Find the NVSCI header files
     # use CMAKE_INCLUDE_PATH so that users can also specify the NVSCI include path in cmake command
