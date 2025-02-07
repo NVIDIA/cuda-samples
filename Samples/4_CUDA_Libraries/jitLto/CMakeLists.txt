@@ -43,3 +43,9 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         ${CUDAToolkit_LIBRARY_DIR}/libnvJitLink.so
     )
 endif()
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    target_link_libraries(jitLto PRIVATE
+        ${CUDAToolkit_LIBRARY_DIR}/nvJitLink.lib
+    )
+endif()
