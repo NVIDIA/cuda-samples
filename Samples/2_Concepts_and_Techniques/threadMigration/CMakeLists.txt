@@ -35,6 +35,10 @@ target_link_libraries(threadMigration PUBLIC
     CUDA::cuda_driver
 )
 
+if(UNIX)
+    target_link_libraries(threadMigration PUBLIC pthread)
+endif()
+
 set(CUDA_FATBIN_FILE "${CMAKE_CURRENT_BINARY_DIR}/threadMigration_kernel64.fatbin")
 set(CUDA_KERNEL_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/threadMigration_kernel.cu")
 

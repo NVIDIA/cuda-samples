@@ -35,6 +35,10 @@ target_link_libraries(memMapIPCDrv PUBLIC
     CUDA::cuda_driver
 )
 
+if(UNIX)
+    target_link_libraries(memMapIPCDrv PUBLIC rt)
+endif()
+
 set(CUDA_PTX_FILE "${CMAKE_CURRENT_BINARY_DIR}/memMapIpc_kernel64.ptx")
 set(CUDA_KERNEL_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/memMapIpc_kernel.cu")
 

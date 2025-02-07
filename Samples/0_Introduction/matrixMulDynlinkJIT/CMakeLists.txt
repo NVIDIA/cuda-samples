@@ -34,3 +34,7 @@ target_link_libraries(matrixMulDynlinkJIT PUBLIC
     CUDA::cudart
     CUDA::cuda_driver
 )
+
+if(UNIX)
+    target_link_libraries(matrixMulDynlinkJIT PUBLIC dl)
+endif()
