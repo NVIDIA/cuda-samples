@@ -14,6 +14,9 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")  # enable cuda-gdb (expensive)
 endif()
 
+# Removes -DNDEBUG For Print specific logs in this sample.
+string(REPLACE "-DNDEBUG" "" CMAKE_CUDA_FLAGS_RELEASE "${CMAKE_CUDA_FLAGS_RELEASE}")
+
 # Include directories and libraries
 include_directories(../../../Common)
 
