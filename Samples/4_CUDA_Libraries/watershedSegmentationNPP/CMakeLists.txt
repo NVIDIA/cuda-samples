@@ -41,19 +41,19 @@ target_link_libraries(watershedSegmentationNPP PRIVATE
 add_custom_command(TARGET watershedSegmentationNPP POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../Common/data/teapot_512x512_8u_Gray.raw
-    ${CMAKE_CURRENT_BINARY_DIR}/
+    $<TARGET_FILE_DIR:watershedSegmentationNPP>/
 )
 
 # Copy data files to output directory
 add_custom_command(TARGET watershedSegmentationNPP POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../Common/data/CT_skull_512x512_8u_Gray.raw
-    ${CMAKE_CURRENT_BINARY_DIR}/
+    $<TARGET_FILE_DIR:watershedSegmentationNPP>/
 )
 
 # Copy data files to output directory
 add_custom_command(TARGET watershedSegmentationNPP POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../Common/data/Rocks_512x512_8u_Gray.raw
-    ${CMAKE_CURRENT_BINARY_DIR}/
+    $<TARGET_FILE_DIR:watershedSegmentationNPP>/
 )
