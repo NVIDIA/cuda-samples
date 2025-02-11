@@ -17,6 +17,12 @@ endif()
 # Include directories and libraries
 include_directories(../../../Common)
 
+if(WIN32)
+    set(PC_GLUT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/../../../Common")
+    set(PC_GLUT_LIBRARY_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/../../../Common/lib/x64")
+endif()
+
+
 find_package(OpenGL)
 find_package(GLUT)
 
@@ -41,10 +47,26 @@ if(${OpenGL_FOUND})
                 ${GLUT_INCLUDE_DIRS}
             )
 
-        target_link_libraries(simpleCUDA2GL
-            ${OPENGL_LIBRARIES}
-            ${GLUT_LIBRARIES}
-        )
+            target_link_libraries(simpleCUDA2GL
+                ${OPENGL_LIBRARIES}
+                ${GLUT_LIBRARIES}
+            )
+            if(WIN32)
+                target_link_libraries(simpleCUDA2GL
+                    ${PC_GLUT_LIBRARY_DIRS}/freeglut.lib
+                    ${PC_GLUT_LIBRARY_DIRS}/glew64.lib
+                )
+
+                add_custom_command(TARGET simpleCUDA2GL
+                    POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/../../../bin/win64/$<CONFIGURATION>/freeglut.dll ${CMAKE_CURRENT_BINARY_DIR}
+                )
+
+                add_custom_command(TARGET simpleCUDA2GL
+                    POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/../../../bin/win64/$<CONFIGURATION>/glew64.dll ${CMAKE_CURRENT_BINARY_DIR}
+                )
+            endif()
         endif()
     else()
         message(STATUS "GLUT not found - will not build sample 'simpleCUDA2GL'")
