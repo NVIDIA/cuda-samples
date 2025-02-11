@@ -45,4 +45,17 @@ install(FILES simple-gpu64.ll DESTINATION bin)
 
 # 'simple' will load simple-gpu64.ll from the current working directory. That
 # .ll file should be present where tests are executed (the build directory).
-file(COPY simple-gpu64.ll DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+add_custom_command(
+    TARGET simple
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_CURRENT_SOURCE_DIR}/simple-gpu64.ll" "$<TARGET_FILE_DIR:simple>"
+)
+if (WIN32)
+add_custom_command(
+    TARGET simple
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_BINARY_DIR}/nvvm64_40_0.dll" "$<TARGET_FILE_DIR:simple>"
+)
+endif ()

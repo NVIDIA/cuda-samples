@@ -26,11 +26,11 @@
 
 
 add_test(NAME test-syscalls-malloc-free
-	COMMAND "${CMAKE_CURRENT_BINARY_DIR}/ptxgen/ptxgen" "${CMAKE_CURRENT_SOURCE_DIR}/malloc-free.ll"
+	COMMAND "${CMAKE_CURRENT_BINARY_DIR}/../ptxgen/ptxgen" "${CMAKE_CURRENT_SOURCE_DIR}/malloc-free.ll"
   WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 
 add_test(NAME test-syscalls-vprintf
-	COMMAND "${CMAKE_CURRENT_BINARY_DIR}/ptxgen/ptxgen" "${CMAKE_CURRENT_SOURCE_DIR}/vprintf.ll"
+	COMMAND "${CMAKE_CURRENT_BINARY_DIR}/../ptxgen/ptxgen" "${CMAKE_CURRENT_SOURCE_DIR}/vprintf.ll"
   WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 
 set_tests_properties(test-syscalls-vprintf test-syscalls-malloc-free
