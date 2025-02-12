@@ -281,11 +281,11 @@ static void parentProcess(char *app) {
 
   // Launch the child processes!
   for (i = 0; i < shm->nprocesses; i++) {
-    char devIdx[10];
+    char devIdx[12];  // Increased size to ensure enough space for formatted integer
     char *const args[] = {app, devIdx, NULL};
     Process process;
 
-    SPRINTF(devIdx, "%d", i);
+    snprintf(devIdx, sizeof(devIdx), "%d", i);
 
     if (spawnProcess(&process, app, args)) {
       printf("Failed to create process\n");
