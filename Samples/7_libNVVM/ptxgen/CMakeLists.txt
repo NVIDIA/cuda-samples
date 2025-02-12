@@ -51,10 +51,10 @@ add_custom_command(
             "${CMAKE_CURRENT_SOURCE_DIR}/test.ll" "$<TARGET_FILE_DIR:ptxgen>"
 )
 if (WIN32)
-add_custom_command(
-    TARGET ptxgen
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${CMAKE_BINARY_DIR}/nvvm64_40_0.dll" "$<TARGET_FILE_DIR:ptxgen>"
-)
+  add_custom_command(
+      TARGET ptxgen
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+              "${CMAKE_BINARY_DIR}/nvvm64_40_0.dll" "$<TARGET_FILE_DIR:ptxgen>"
+  )
 endif ()

@@ -56,10 +56,10 @@ add_custom_command(
             "${CMAKE_CURRENT_SOURCE_DIR}/uvmlite64.ll" "$<TARGET_FILE_DIR:uvmlite>"
 )
 if (WIN32)
-add_custom_command(
-    TARGET uvmlite
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${CMAKE_BINARY_DIR}/nvvm64_40_0.dll" "$<TARGET_FILE_DIR:uvmlite>"
-)
+  add_custom_command(
+      TARGET uvmlite
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+              "${CMAKE_BINARY_DIR}/nvvm64_40_0.dll" "$<TARGET_FILE_DIR:uvmlite>"
+  )
 endif ()

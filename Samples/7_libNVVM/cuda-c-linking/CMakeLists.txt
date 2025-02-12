@@ -81,3 +81,12 @@ set_target_properties(mathfuncs64 PROPERTIES PREFIX "lib"
                       OUTPUT_NAME "mathfuncs64"
                       SUFFIX ".a" CUDA_SEPERABLE_COMPILATION ON)
 install(TARGETS cuda-c-linking mathfuncs64 DESTINATION bin)
+
+if (WIN32)
+  add_custom_command(
+      TARGET cuda-c-linking
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+              "${CMAKE_BINARY_DIR}/nvvm64_40_0.dll" "$<TARGET_FILE_DIR:cuda-c-linking>"
+  )
+endif ()
