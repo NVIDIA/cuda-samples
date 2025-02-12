@@ -53,10 +53,10 @@ add_custom_command(
             "${CMAKE_CURRENT_SOURCE_DIR}/dsl-gpu64.ll" "$<TARGET_FILE_DIR:dsl>"
 )
 if (WIN32)
-add_custom_command(
-    TARGET dsl
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${CMAKE_BINARY_DIR}/nvvm64_40_0.dll" "$<TARGET_FILE_DIR:dsl>"
-)
+  add_custom_command(
+      TARGET dsl
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+              "${CMAKE_BINARY_DIR}/nvvm64_40_0.dll" "$<TARGET_FILE_DIR:dsl>"
+  )
 endif ()

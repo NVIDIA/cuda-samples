@@ -52,10 +52,10 @@ add_custom_command(
             "${CMAKE_CURRENT_SOURCE_DIR}/simple-gpu64.ll" "$<TARGET_FILE_DIR:simple>"
 )
 if (WIN32)
-add_custom_command(
-    TARGET simple
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${CMAKE_BINARY_DIR}/nvvm64_40_0.dll" "$<TARGET_FILE_DIR:simple>"
-)
+  add_custom_command(
+      TARGET simple
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+              "${CMAKE_BINARY_DIR}/nvvm64_40_0.dll" "$<TARGET_FILE_DIR:simple>"
+  )
 endif ()
