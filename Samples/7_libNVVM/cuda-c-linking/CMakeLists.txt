@@ -34,8 +34,7 @@ if (LLVM_PACKAGE_VERSION VERSION_GREATER_EQUAL "15" OR
 endif ()
 
 add_executable(cuda-c-linking cuda-c-linking.cpp)
-add_custom_target(clobber)
-add_custom_target(testrun)
+
 add_test(NAME cuda-c-linking
    COMMAND cuda-c-linking
    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
