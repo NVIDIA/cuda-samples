@@ -39,7 +39,7 @@ EXTENSION_LIST(EXTLST_EXTERN)
 
 int checkbuf(FILE *fp1, FILE *fp2);
 
-CUresult cudaConsumerTest(test_cuda_consumer_s *data, char *fileName) {
+CUresult cudaConsumerTest(test_cuda_consumer_s *data, const char *fileName) {
   CUresult cuStatus = CUDA_SUCCESS;
   CUarray cudaArr = NULL;
   CUeglFrame cudaEgl;
@@ -309,8 +309,8 @@ void cuda_consumer_init(test_cuda_consumer_s *cudaConsumer, TestArgs *args) {
   cudaConsumer->fileName1 = args->infile1;
   cudaConsumer->fileName2 = args->infile2;
 
-  cudaConsumer->outFile1 = "cuda_out1.yuv";
-  cudaConsumer->outFile2 = "cuda_out2.yuv";
+  cudaConsumer->outFile1 = const_cast<char *>("cuda_out1.yuv");
+  cudaConsumer->outFile2 = const_cast<char *>("cuda_out2.yuv");
 }
 
 CUresult cuda_consumer_deinit(test_cuda_consumer_s *cudaConsumer) {
