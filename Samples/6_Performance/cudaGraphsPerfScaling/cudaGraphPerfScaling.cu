@@ -350,8 +350,10 @@ int main(int argc, char **argv)
 
     cudaFree(0);
     cudaMallocHost(&hostData, sizeof(*hostData));
-    stream.resize(width);
-    for (int i = 0; i < width; i++)
+    int numStreams = width;
+    if (numStreams == 1) numStreams = 2; // demo needs two streams even if capture only needs 1.
+    stream.resize(numStreams);
+    for (int i = 0; i < numStreams; i++)
     {
         cudaStreamCreate(&stream[i]);
     }
@@ -386,7 +388,7 @@ int main(int argc, char **argv)
 
     if (!(outputFmt & 6)) {
         printf("skipping trials since no output is expected\n");
-        return EXIT_FAILURE;
+        return 1;
     }
     
     std::vector<double> metricTotal;
@@ -429,6 +431,9 @@ int main(int argc, char **argv)
         length += stride;
     }
 
-    printf("\n");
-}
+    cudaFreeHost(hostData);
 
+    printf("\n");
+    printf("Test passed\n");
+    return 0;
+}
