@@ -55,6 +55,14 @@ target_compile_features(FilterBorderControlNPP PRIVATE cxx_std_17 cuda_std_17)
         ${CMAKE_CURRENT_SOURCE_DIR}/data
         ${CMAKE_CURRENT_BINARY_DIR}/data
     )
+    if(WIN32)
+        add_custom_command(TARGET FilterBorderControlNPP
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${FreeImage_LIBRARY}/../FreeImage.dll
+        ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>
+        )
+    endif()
 else()
     message(STATUS "FreeImage not found - will not build sample 'FilterBorderControlNPP'")
 endif()

@@ -49,9 +49,17 @@ target_compile_features(cannyEdgeDetectorNPP PRIVATE cxx_std_17 cuda_std_17)
     # Copy data files to output directory
     add_custom_command(TARGET cannyEdgeDetectorNPP POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${CMAKE_CURRENT_SOURCE_DIR}/*.pgm
+        ${CMAKE_CURRENT_SOURCE_DIR}/teapot512.pgm
         ${CMAKE_CURRENT_BINARY_DIR}
     )
+    if(WIN32)
+        add_custom_command(TARGET cannyEdgeDetectorNPP
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${FreeImage_LIBRARY}/../FreeImage.dll
+        ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>
+        )
+    endif()
 else()
     message(STATUS "FreeImage not found - will not build sample 'cannyEdgeDetectorNPP'")
 endif()

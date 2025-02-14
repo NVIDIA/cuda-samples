@@ -26,6 +26,14 @@ include(CheckIncludeFile)
 # Check for the GLFW/glfw3.h header
 check_include_file("GLFW/glfw3.h" HAVE_GLFW3_H)
 
+# Find GLFW/glfw3.h header for Windows
+if(WIN32)
+    find_file(GLFW3_H "glfw3.h" PATH "$ENV{GLFW_INCLUDES_DIR}/GLFW")
+    if(GLFW3_H)
+        set(HAVE_GLFW3_H 1)
+    endif()
+endif()
+
 # Source file
 if(${Vulkan_FOUND})
     if(${OPENGL_FOUND})
@@ -44,11 +52,19 @@ if(${Vulkan_FOUND})
                 ${CUDAToolkit_INCLUDE_DIRS}
             )
 
-            target_link_libraries(vulkanImageCUDA
-                ${Vulkan_LIBRARIES}
-                OpenGL::GL
-                glfw
-            )
+            if(WIN32)
+                target_link_libraries(vulkanImageCUDA
+                    ${Vulkan_LIBRARIES}
+                    OpenGL::GL
+                    glfw3.dll
+                )
+            else()
+                target_link_libraries(vulkanImageCUDA
+                    ${Vulkan_LIBRARIES}
+                    OpenGL::GL
+                    glfw
+                )
+            endif()
 
             add_custom_command(TARGET vulkanImageCUDA POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
