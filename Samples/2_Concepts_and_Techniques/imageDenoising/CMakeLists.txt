@@ -49,7 +49,7 @@ if(${OpenGL_FOUND})
             ${GLUT_LIBRARIES}
         )
 
-        # Copy clock_kernel.cu to the output directory
+        # Copy data files to the output directory
         add_custom_command(TARGET imageDenoising POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_CURRENT_SOURCE_DIR}/data
@@ -64,12 +64,16 @@ if(${OpenGL_FOUND})
 
             add_custom_command(TARGET imageDenoising
                 POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/../../../bin/win64/$<CONFIGURATION>/freeglut.dll ${CMAKE_CURRENT_BINARY_DIR}
+                COMMAND ${CMAKE_COMMAND} -E copy
+                ${CMAKE_CURRENT_SOURCE_DIR}/../../../bin/win64/$<CONFIGURATION>/freeglut.dll
+                ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>
             )
 
             add_custom_command(TARGET imageDenoising
                 POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/../../../bin/win64/$<CONFIGURATION>/glew64.dll ${CMAKE_CURRENT_BINARY_DIR}
+                COMMAND ${CMAKE_COMMAND} -E copy
+                ${CMAKE_CURRENT_SOURCE_DIR}/../../../bin/win64/$<CONFIGURATION>/glew64.dll
+                ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>
             )
         endif()
 

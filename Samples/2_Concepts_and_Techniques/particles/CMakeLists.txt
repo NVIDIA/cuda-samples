@@ -63,12 +63,16 @@ target_compile_features(particles PRIVATE cxx_std_17 cuda_std_17)
 
             add_custom_command(TARGET particles
                 POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/../../../bin/win64/$<CONFIGURATION>/freeglut.dll ${CMAKE_CURRENT_BINARY_DIR}
+                COMMAND ${CMAKE_COMMAND} -E copy
+                ${CMAKE_CURRENT_SOURCE_DIR}/../../../bin/win64/$<CONFIGURATION>/freeglut.dll
+                ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>
             )
 
             add_custom_command(TARGET particles
                 POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/../../../bin/win64/$<CONFIGURATION>/glew64.dll ${CMAKE_CURRENT_BINARY_DIR}
+                COMMAND ${CMAKE_COMMAND} -E copy
+                ${CMAKE_CURRENT_SOURCE_DIR}/../../../bin/win64/$<CONFIGURATION>/glew64.dll
+                ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>
             )
         endif()
 

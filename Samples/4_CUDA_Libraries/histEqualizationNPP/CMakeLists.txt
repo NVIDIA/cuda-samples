@@ -53,7 +53,14 @@ if(${FreeImage_FOUND})
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../Common/data/teapot512.pgm
         ${CMAKE_CURRENT_BINARY_DIR}/
     )
-
+    if(WIN32)
+        add_custom_command(TARGET histEqualizationNPP
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${FreeImage_LIBRARY}/../FreeImage.dll
+        ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>
+        )
+    endif()
 else()
     message(STATUS "FreeImage not found - will not build sample 'histEqualizationNPP'")
 endif()

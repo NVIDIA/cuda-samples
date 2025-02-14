@@ -48,7 +48,7 @@ target_compile_features(Mandelbrot PRIVATE cxx_std_17 cuda_std_17)
             ${GLUT_LIBRARIES}
         )
 
-        # Copy clock_kernel.cu to the output directory
+        # Copy data files to the output directory
         add_custom_command(TARGET Mandelbrot POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_CURRENT_SOURCE_DIR}/data
@@ -63,12 +63,16 @@ target_compile_features(Mandelbrot PRIVATE cxx_std_17 cuda_std_17)
 
             add_custom_command(TARGET Mandelbrot
                 POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/../../../bin/win64/$<CONFIGURATION>/freeglut.dll ${CMAKE_CURRENT_BINARY_DIR}
+                COMMAND ${CMAKE_COMMAND} -E copy
+                ${CMAKE_CURRENT_SOURCE_DIR}/../../../bin/win64/$<CONFIGURATION>/freeglut.dll
+                ${CMAKE_CURRENT_BINARY_DIR}
             )
 
             add_custom_command(TARGET Mandelbrot
                 POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/../../../bin/win64/$<CONFIGURATION>/glew64.dll ${CMAKE_CURRENT_BINARY_DIR}
+                COMMAND ${CMAKE_COMMAND} -E copy
+                ${CMAKE_CURRENT_SOURCE_DIR}/../../../bin/win64/$<CONFIGURATION>/glew64.dll
+                ${CMAKE_CURRENT_BINARY_DIR}
             )
         endif()
 
