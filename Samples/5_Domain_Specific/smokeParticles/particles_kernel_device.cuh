@@ -26,8 +26,8 @@
  */
 
 /*
-* CUDA Device code for particle simulation.
-*/
+ * CUDA Device code for particle simulation.
+ */
 
 #ifndef _PARTICLES_KERNEL_H_
 #define _PARTICLES_KERNEL_H_
@@ -38,16 +38,18 @@
 
 cudaTextureObject_t noiseTex;
 // simulation parameters
-__constant__ SimParams params;
+__constant__ SimParams cudaParams;
 
 // look up in 3D noise texture
-__device__ float3 noise3D(float3 p, cudaTextureObject_t noiseTex) {
+__device__ float3 noise3D(float3 p, cudaTextureObject_t noiseTex)
+{
   float4 n = tex3D<float4>(noiseTex, p.x, p.y, p.z);
   return make_float3(n.x, n.y, n.z);
 }
 
 // integrate particle attributes
-struct integrate_functor {
+struct integrate_functor
+{
   float deltaTime;
   cudaTextureObject_t noiseTex;
 
@@ -56,7 +58,8 @@ struct integrate_functor {
       : deltaTime(delta_time), noiseTex(noise_Tex) {}
 
   template <typename Tuple>
-  __device__ void operator()(Tuple t) {
+  __device__ void operator()(Tuple t)
+  {
     volatile float4 posData = thrust::get<2>(t);
     volatile float4 velData = thrust::get<3>(t);
 
@@ -67,24 +70,27 @@ struct integrate_functor {
     float age = posData.w;
     float lifetime = velData.w;
 
-    if (age < lifetime) {
+    if (age < lifetime)
+    {
       age += deltaTime;
-    } else {
+    }
+    else
+    {
       age = lifetime;
     }
 
     // apply accelerations
-    vel += params.gravity * deltaTime;
+    vel += cudaParams.gravity * deltaTime;
 
     // apply procedural noise
     float3 noise = noise3D(
-        pos * params.noiseFreq + params.time * params.noiseSpeed, noiseTex);
-    vel += noise * params.noiseAmp;
+        pos * cudaParams.noiseFreq + cudaParams.time * cudaParams.noiseSpeed, noiseTex);
+    vel += noise * cudaParams.noiseAmp;
 
     // new position = old position + velocity * deltaTime
     pos += vel * deltaTime;
 
-    vel *= params.globalDamping;
+    vel *= cudaParams.globalDamping;
 
     // store new position and velocity
     thrust::get<0>(t) = make_float4(pos, age);
@@ -92,17 +98,19 @@ struct integrate_functor {
   }
 };
 
-struct calcDepth_functor {
+struct calcDepth_functor
+{
   float3 sortVector;
 
   __host__ __device__ calcDepth_functor(float3 sort_vector)
       : sortVector(sort_vector) {}
 
   template <typename Tuple>
-  __host__ __device__ void operator()(Tuple t) {
+  __host__ __device__ void operator()(Tuple t)
+  {
     volatile float4 p = thrust::get<0>(t);
     float key = -dot(make_float3(p.x, p.y, p.z),
-                     sortVector);  // project onto sort vector
+                     sortVector); // project onto sort vector
     thrust::get<1>(t) = key;
   }
 };

@@ -116,6 +116,9 @@ inline int _ConvertSMVer2CoresDRV(int major, int minor) {
       {0x87, 128},
       {0x89, 128},
       {0x90, 128},
+      {0xa0, 128},
+      {0xa1, 128},
+      {0xc0, 128},
       {-1, -1}};
 
   int index = 0;
@@ -405,4 +408,3 @@ bool inline findFatbinPath(const char *module_file, std::string &module_path, ch
   // end of CUDA Helper Functions
 
 #endif  // COMMON_HELPER_CUDA_DRVAPI_H_
-

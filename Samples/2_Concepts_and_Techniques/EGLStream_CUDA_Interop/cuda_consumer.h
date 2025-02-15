@@ -47,16 +47,16 @@ typedef struct _test_cuda_consumer_s {
   bool pitchLinearOutput;
   unsigned int width;
   unsigned int height;
-  char *fileName1;
-  char *fileName2;
-  char *outFile1;
-  char *outFile2;
+  const char *fileName1;
+  const char *fileName2;
+  const char *outFile1;
+  const char *outFile2;
   unsigned int frameCount;
 } test_cuda_consumer_s;
 
 void cuda_consumer_init(test_cuda_consumer_s *cudaConsumer, TestArgs *args);
 CUresult cuda_consumer_deinit(test_cuda_consumer_s *cudaConsumer);
-CUresult cudaConsumerTest(test_cuda_consumer_s *data, char *outFile);
+CUresult cudaConsumerTest(test_cuda_consumer_s *data, const char *outFile);
 CUresult cudaDeviceCreateConsumer(test_cuda_consumer_s *cudaConsumer,
                                   CUdevice device);
 #endif

@@ -173,7 +173,7 @@ int
 main( int argc, char** argv )
 {
 
-    int      aSegmentationScratchBufferSize[NUMBER_OF_IMAGES];
+    size_t      aSegmentationScratchBufferSize[NUMBER_OF_IMAGES];
     int      aSegmentLabelsOutputBufferSize[NUMBER_OF_IMAGES];
 
     cudaError_t cudaError;

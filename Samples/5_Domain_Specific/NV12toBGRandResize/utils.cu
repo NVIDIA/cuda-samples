@@ -38,14 +38,17 @@
 #include "utils.h"
 
 __global__ void floatToChar(float *src, unsigned char *dst, int height,
-                            int width, int batchSize) {
+                            int width, int batchSize)
+{
   int x = threadIdx.x + blockIdx.x * blockDim.x;
 
-  if (x >= height * width) return;
+  if (x >= height * width)
+    return;
 
   int offset = height * width * 3;
 
-  for (int j = 0; j < batchSize; j++) {
+  for (int j = 0; j < batchSize; j++)
+  {
     // b
     *(dst + j * offset + x * 3 + 0) =
         (unsigned char)*(src + j * offset + height * width * 0 + x);
@@ -59,13 +62,15 @@ __global__ void floatToChar(float *src, unsigned char *dst, int height,
 }
 
 void floatPlanarToChar(float *src, unsigned char *dst, int height, int width,
-                       int batchSize) {
+                       int batchSize)
+{
   floatToChar<<<(height * width - 1) / 1024 + 1, 1024, 0, NULL>>>(
       src, dst, height, width, batchSize);
 }
 
 void dumpRawBGR(float *d_srcBGR, int pitch, int width, int height,
-                int batchSize, char *folder, char *tag) {
+                int batchSize, char *folder, char *tag)
+{
   float *bgr, *d_bgr;
   int frameSize;
   char directory[120];
@@ -82,22 +87,25 @@ void dumpRawBGR(float *d_srcBGR, int pitch, int width, int height,
 
   frameSize = width * height * 3 * sizeof(float);
   bgr = (float *)malloc(frameSize);
-  if (bgr == NULL) {
+  if (bgr == NULL)
+  {
     std::cerr << "Failed malloc for bgr\n";
     return;
   }
 
   d_bgr = d_srcBGR;
-  for (int i = 0; i < batchSize; i++) {
-    char filename[120];
+  for (int i = 0; i < batchSize; i++)
+  {
+    char filename[256];
     std::ofstream *outputFile;
 
     checkCudaErrors(cudaMemcpy((void *)bgr, (void *)d_bgr, frameSize,
                                cudaMemcpyDeviceToHost));
-    sprintf(filename, "%s/%s_%d.raw", directory, tag, (i + 1));
+    snprintf(filename, sizeof(filename), "%s/%s_%d.raw", directory, tag, (i + 1));
 
     outputFile = new std::ofstream(filename);
-    if (outputFile) {
+    if (outputFile)
+    {
       outputFile->write((char *)bgr, frameSize);
       delete outputFile;
     }
@@ -109,14 +117,16 @@ void dumpRawBGR(float *d_srcBGR, int pitch, int width, int height,
 }
 
 void dumpBGR(float *d_srcBGR, int pitch, int width, int height, int batchSize,
-             char *folder, char *tag) {
+             char *folder, char *tag)
+{
   dumpRawBGR(d_srcBGR, pitch, width, height, batchSize, folder, tag);
 }
 
-void dumpYUV(unsigned char *d_nv12, int size, char *folder, char *tag) {
+void dumpYUV(unsigned char *d_nv12, int size, char *folder, char *tag)
+{
   unsigned char *nv12Data;
   std::ofstream *nv12File;
-  char filename[120];
+  char filename[256];
   char directory[60];
   char mkdir_cmd[256];
 #if !defined(_WIN32)
@@ -129,16 +139,18 @@ void dumpYUV(unsigned char *d_nv12, int size, char *folder, char *tag) {
 
   int ret = system(mkdir_cmd);
 
-  sprintf(filename, "%s/%s.nv12", directory, tag);
+  snprintf(filename, sizeof(filename), "%s/%s.nv12", directory, tag);
 
   nv12File = new std::ofstream(filename);
-  if (nv12File == NULL) {
+  if (nv12File == NULL)
+  {
     std::cerr << "Failed to new " << filename;
     return;
   }
 
   nv12Data = (unsigned char *)malloc(size * (sizeof(char)));
-  if (nv12Data == NULL) {
+  if (nv12Data == NULL)
+  {
     std::cerr << "Failed to allcoate memory\n";
     return;
   }

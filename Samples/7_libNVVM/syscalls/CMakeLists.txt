@@ -24,16 +24,17 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-add_custom_target(clobber)
-add_custom_target(testrun)
 
 add_test(NAME test-syscalls-malloc-free
-  COMMAND "${CMAKE_BINARY_DIR}/ptxgen/ptxgen" "${CMAKE_CURRENT_SOURCE_DIR}/malloc-free.ll"
-  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+	COMMAND "${CMAKE_CURRENT_BINARY_DIR}/../ptxgen/ptxgen" "${CMAKE_CURRENT_SOURCE_DIR}/malloc-free.ll"
+  WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 
 add_test(NAME test-syscalls-vprintf
-  COMMAND "${CMAKE_BINARY_DIR}/ptxgen/ptxgen" "${CMAKE_CURRENT_SOURCE_DIR}/vprintf.ll"
-  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+	COMMAND "${CMAKE_CURRENT_BINARY_DIR}/../ptxgen/ptxgen" "${CMAKE_CURRENT_SOURCE_DIR}/vprintf.ll"
+  WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 
 set_tests_properties(test-syscalls-vprintf test-syscalls-malloc-free
                      PROPERTIES FIXTURES_REQUIRED PTXGENTEST)
+	     
+file(COPY malloc-free.ll DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+file(COPY vprintf.ll DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
