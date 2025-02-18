@@ -416,8 +416,8 @@ void initMC(int argc, char **argv) {
     gridSizeLog2.x = n;
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "gridx")) {
-    n = getCmdLineArgumentInt(argc, (const char **)argv, "gridx");
+  if (checkCmdLineFlag(argc, (const char **)argv, "gridy")) {
+    n = getCmdLineArgumentInt(argc, (const char **)argv, "gridy");
     gridSizeLog2.y = n;
   }
 
