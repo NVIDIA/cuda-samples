@@ -550,7 +550,7 @@ static void parentProcess(char *app) {
   // Launch the child processes!
   for (i = 0; i < nprocesses; i++) {
     char devIdx[10];
-    char procIdx[10];
+    char procIdx[12];
     char *const args[] = {app, devIdx, procIdx, NULL};
     Process process;
 
