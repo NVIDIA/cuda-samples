@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
   // Get GPU information
   checkCudaErrors(cudaGetDevice(&devID));
   checkCudaErrors(cudaGetDeviceProperties(&props, devID));
-  printf("Device %d: \"%s\" with Compute %d.%d capability\n", devID, props.name,
+  printf("Device %d: \"%s\" with Compute capability %d.%d\n", devID, props.name,
          props.major, props.minor);
 
   printf("printf() is called. Output:\n\n");
