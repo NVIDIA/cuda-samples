@@ -241,7 +241,7 @@ inline int gpuGetMaxGflopsDeviceIdDRV() {
       }
 
       unsigned long long compute_perf =
-          (unsigned long long)(multiProcessorCount * sm_per_multiproc *
+          ((unsigned long long)multiProcessorCount * sm_per_multiproc *
                                clockRate);
 
       if (compute_perf > max_compute_perf) {
