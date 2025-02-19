@@ -31,7 +31,6 @@
  */
 
 #include <stdio.h>
-#include <string.h>
 #include <cstring>
 #include <iostream>
 #include "cuda.h"
@@ -293,6 +292,11 @@ static void memMapGetDeviceFunction(char **argv) {
                                        jitNumOptions, jitOptions,
                                        (void **)jitOptVals));
     printf("> PTX JIT log:\n%s\n", jitLogBuffer);
+
+    // Clean up dynamically allocated memory
+    delete[] jitOptions;
+    delete[] jitOptVals;
+    delete[] jitLogBuffer;
   } else {
     checkCudaErrors(cuModuleLoad(&cuModule, module_path.c_str()));
   }
@@ -379,7 +383,7 @@ static void childProcess(int devId, int id, char **argv) {
     // deterministic.
     barrierWait(&shm->barrier, &shm->sense, (unsigned int)procCount);
     if (id == 0) {
-      printf("Step %lld done\n", (unsigned long long)i);
+      printf("Step %llu done\n", (unsigned long long)i);
     }
   }
 
