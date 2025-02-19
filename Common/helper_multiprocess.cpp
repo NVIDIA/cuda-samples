@@ -168,7 +168,7 @@ int waitProcess(Process *process) {
 #endif
 }
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__QNX__)
 int ipcCreateSocket(ipcHandle *&handle, const char *name,
                     const std::vector<Process> &processes) {
   int server_fd;
@@ -262,41 +262,48 @@ int ipcRecvShareableHandle(ipcHandle *handle, ShareableHandle *shHandle) {
   // Union to guarantee alignment requirements for control array
   union {
     struct cmsghdr cm;
-    char control[CMSG_SPACE(sizeof(int))];
+    // This will not work on QNX as QNX CMSG_SPACE calls __cmsg_alignbytes
+    // And __cmsg_alignbytes is a runtime function instead of compile-time macros
+    // char control[CMSG_SPACE(sizeof(int))]
+    char* control;
   } control_un;
 
+  size_t sizeof_control = CMSG_SPACE(sizeof(int)) * sizeof(char);
+  control_un.control = (char*) malloc(sizeof_control);
   struct cmsghdr *cmptr;
   ssize_t n;
   int receivedfd;
   char dummy_buffer[1];
   ssize_t sendResult;
-
   msg.msg_control = control_un.control;
-  msg.msg_controllen = sizeof(control_un.control);
+  msg.msg_controllen = sizeof_control;
 
   iov[0].iov_base = (void *)dummy_buffer;
   iov[0].iov_len = sizeof(dummy_buffer);
 
   msg.msg_iov = iov;
   msg.msg_iovlen = 1;
-
   if ((n = recvmsg(handle->socket, &msg, 0)) <= 0) {
     perror("IPC failure: Receiving data over socket failed");
+    free(control_un.control);
     return -1;
   }
 
   if (((cmptr = CMSG_FIRSTHDR(&msg)) != NULL) &&
       (cmptr->cmsg_len == CMSG_LEN(sizeof(int)))) {
     if ((cmptr->cmsg_level != SOL_SOCKET) || (cmptr->cmsg_type != SCM_RIGHTS)) {
+      free(control_un.control);
       return -1;
     }
 
     memmove(&receivedfd, CMSG_DATA(cmptr), sizeof(receivedfd));
     *(int *)shHandle = receivedfd;
   } else {
+    free(control_un.control);
     return -1;
   }
 
+  free(control_un.control);
   return 0;
 }
 
@@ -340,8 +347,11 @@ int ipcSendShareableHandle(ipcHandle *handle,
 
   union {
     struct cmsghdr cm;
-    char control[CMSG_SPACE(sizeof(int))];
+    char* control;
   } control_un;
+
+  size_t sizeof_control = CMSG_SPACE(sizeof(int)) * sizeof(char);
+  control_un.control = (char*) malloc(sizeof_control);
 
   struct cmsghdr *cmptr;
   ssize_t readResult;
@@ -360,7 +370,7 @@ int ipcSendShareableHandle(ipcHandle *handle,
   int sendfd = (int)shareableHandles[data];
 
   msg.msg_control = control_un.control;
-  msg.msg_controllen = sizeof(control_un.control);
+  msg.msg_controllen = sizeof_control;
 
   cmptr = CMSG_FIRSTHDR(&msg);
   cmptr->cmsg_len = CMSG_LEN(sizeof(int));
@@ -380,9 +390,11 @@ int ipcSendShareableHandle(ipcHandle *handle,
   ssize_t sendResult = sendmsg(handle->socket, &msg, 0);
   if (sendResult <= 0) {
     perror("IPC failure: Sending data over socket failed");
+    free(control_un.control);
     return -1;
   }
 
+  free(control_un.control);
   return 0;
 }
 

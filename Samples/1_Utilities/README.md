@@ -12,4 +12,3 @@ This sample enumerates the properties of the CUDA devices present using CUDA Dri
 
 ### [topologyQuery](./topologyQuery)
 A simple example on how to query the topology of a system with multiple GPU
-

@@ -42,46 +42,43 @@
 #include "BmpUtil.h"
 
 /**
-*  This unitary matrix performs DCT of rows of the matrix to the left
-*/
+ *  This unitary matrix performs DCT of rows of the matrix to the left
+ */
 const float DCTv8matrix[BLOCK_SIZE2] = {
-  0.3535533905932738f,  0.4903926402016152f,  0.4619397662556434f,  0.4157348061512726f,  0.3535533905932738f,  0.2777851165098011f,  0.1913417161825449f,  0.0975451610080642f,
-  0.3535533905932738f,  0.4157348061512726f,  0.1913417161825449f, -0.0975451610080641f, -0.3535533905932737f, -0.4903926402016152f, -0.4619397662556434f, -0.2777851165098011f,
-  0.3535533905932738f,  0.2777851165098011f, -0.1913417161825449f, -0.4903926402016152f, -0.3535533905932738f,  0.0975451610080642f,  0.4619397662556433f,  0.4157348061512727f,
-  0.3535533905932738f,  0.0975451610080642f, -0.4619397662556434f, -0.2777851165098011f,  0.3535533905932737f,  0.4157348061512727f, -0.1913417161825450f, -0.4903926402016153f,
-  0.3535533905932738f, -0.0975451610080641f, -0.4619397662556434f,  0.2777851165098009f,  0.3535533905932738f, -0.4157348061512726f, -0.1913417161825453f,  0.4903926402016152f,
-  0.3535533905932738f, -0.2777851165098010f, -0.1913417161825452f,  0.4903926402016153f, -0.3535533905932733f, -0.0975451610080649f,  0.4619397662556437f, -0.4157348061512720f,
-  0.3535533905932738f, -0.4157348061512727f,  0.1913417161825450f,  0.0975451610080640f, -0.3535533905932736f,  0.4903926402016152f, -0.4619397662556435f,  0.2777851165098022f,
-  0.3535533905932738f, -0.4903926402016152f,  0.4619397662556433f, -0.4157348061512721f,  0.3535533905932733f, -0.2777851165098008f,  0.1913417161825431f, -0.0975451610080625f
-};
+    0.3535533905932738f, 0.4903926402016152f, 0.4619397662556434f, 0.4157348061512726f, 0.3535533905932738f, 0.2777851165098011f, 0.1913417161825449f, 0.0975451610080642f,
+    0.3535533905932738f, 0.4157348061512726f, 0.1913417161825449f, -0.0975451610080641f, -0.3535533905932737f, -0.4903926402016152f, -0.4619397662556434f, -0.2777851165098011f,
+    0.3535533905932738f, 0.2777851165098011f, -0.1913417161825449f, -0.4903926402016152f, -0.3535533905932738f, 0.0975451610080642f, 0.4619397662556433f, 0.4157348061512727f,
+    0.3535533905932738f, 0.0975451610080642f, -0.4619397662556434f, -0.2777851165098011f, 0.3535533905932737f, 0.4157348061512727f, -0.1913417161825450f, -0.4903926402016153f,
+    0.3535533905932738f, -0.0975451610080641f, -0.4619397662556434f, 0.2777851165098009f, 0.3535533905932738f, -0.4157348061512726f, -0.1913417161825453f, 0.4903926402016152f,
+    0.3535533905932738f, -0.2777851165098010f, -0.1913417161825452f, 0.4903926402016153f, -0.3535533905932733f, -0.0975451610080649f, 0.4619397662556437f, -0.4157348061512720f,
+    0.3535533905932738f, -0.4157348061512727f, 0.1913417161825450f, 0.0975451610080640f, -0.3535533905932736f, 0.4903926402016152f, -0.4619397662556435f, 0.2777851165098022f,
+    0.3535533905932738f, -0.4903926402016152f, 0.4619397662556433f, -0.4157348061512721f, 0.3535533905932733f, -0.2777851165098008f, 0.1913417161825431f, -0.0975451610080625f};
 
 /**
-*  This unitary matrix performs DCT of columns of the matrix to the right
-*/
+ *  This unitary matrix performs DCT of columns of the matrix to the right
+ */
 const float DCTv8matrixT[BLOCK_SIZE2] = {
-  0.3535533905932738f,  0.3535533905932738f,  0.3535533905932738f,  0.3535533905932738f,  0.3535533905932738f,  0.3535533905932738f,  0.3535533905932738f,  0.3535533905932738f,
-  0.4903926402016152f,  0.4157348061512726f,  0.2777851165098011f,  0.0975451610080642f, -0.0975451610080641f, -0.2777851165098010f, -0.4157348061512727f, -0.4903926402016152f,
-  0.4619397662556434f,  0.1913417161825449f, -0.1913417161825449f, -0.4619397662556434f, -0.4619397662556434f, -0.1913417161825452f,  0.1913417161825450f,  0.4619397662556433f,
-  0.4157348061512726f, -0.0975451610080641f, -0.4903926402016152f, -0.2777851165098011f,  0.2777851165098009f,  0.4903926402016153f,  0.0975451610080640f, -0.4157348061512721f,
-  0.3535533905932738f, -0.3535533905932737f, -0.3535533905932738f,  0.3535533905932737f,  0.3535533905932738f, -0.3535533905932733f, -0.3535533905932736f,  0.3535533905932733f,
-  0.2777851165098011f, -0.4903926402016152f,  0.0975451610080642f,  0.4157348061512727f, -0.4157348061512726f, -0.0975451610080649f,  0.4903926402016152f, -0.2777851165098008f,
-  0.1913417161825449f, -0.4619397662556434f,  0.4619397662556433f, -0.1913417161825450f, -0.1913417161825453f,  0.4619397662556437f, -0.4619397662556435f,  0.1913417161825431f,
-  0.0975451610080642f, -0.2777851165098011f,  0.4157348061512727f, -0.4903926402016153f,  0.4903926402016152f, -0.4157348061512720f,  0.2777851165098022f, -0.0975451610080625f
-};
+    0.3535533905932738f, 0.3535533905932738f, 0.3535533905932738f, 0.3535533905932738f, 0.3535533905932738f, 0.3535533905932738f, 0.3535533905932738f, 0.3535533905932738f,
+    0.4903926402016152f, 0.4157348061512726f, 0.2777851165098011f, 0.0975451610080642f, -0.0975451610080641f, -0.2777851165098010f, -0.4157348061512727f, -0.4903926402016152f,
+    0.4619397662556434f, 0.1913417161825449f, -0.1913417161825449f, -0.4619397662556434f, -0.4619397662556434f, -0.1913417161825452f, 0.1913417161825450f, 0.4619397662556433f,
+    0.4157348061512726f, -0.0975451610080641f, -0.4903926402016152f, -0.2777851165098011f, 0.2777851165098009f, 0.4903926402016153f, 0.0975451610080640f, -0.4157348061512721f,
+    0.3535533905932738f, -0.3535533905932737f, -0.3535533905932738f, 0.3535533905932737f, 0.3535533905932738f, -0.3535533905932733f, -0.3535533905932736f, 0.3535533905932733f,
+    0.2777851165098011f, -0.4903926402016152f, 0.0975451610080642f, 0.4157348061512727f, -0.4157348061512726f, -0.0975451610080649f, 0.4903926402016152f, -0.2777851165098008f,
+    0.1913417161825449f, -0.4619397662556434f, 0.4619397662556433f, -0.1913417161825450f, -0.1913417161825453f, 0.4619397662556437f, -0.4619397662556435f, 0.1913417161825431f,
+    0.0975451610080642f, -0.2777851165098011f, 0.4157348061512727f, -0.4903926402016153f, 0.4903926402016152f, -0.4157348061512720f, 0.2777851165098022f, -0.0975451610080625f};
 
 /**
-*  JPEG quality=0_of_12 quantization matrix
-*/
-float Q[BLOCK_SIZE2] = {
-  32.f,  33.f,  51.f,  81.f,  66.f,  39.f,  34.f,  17.f,
-  33.f,  36.f,  48.f,  47.f,  28.f,  23.f,  12.f,  12.f,
-  51.f,  48.f,  47.f,  28.f,  23.f,  12.f,  12.f,  12.f,
-  81.f,  47.f,  28.f,  23.f,  12.f,  12.f,  12.f,  12.f,
-  66.f,  28.f,  23.f,  12.f,  12.f,  12.f,  12.f,  12.f,
-  39.f,  23.f,  12.f,  12.f,  12.f,  12.f,  12.f,  12.f,
-  34.f,  12.f,  12.f,  12.f,  12.f,  12.f,  12.f,  12.f,
-  17.f,  12.f,  12.f,  12.f,  12.f,  12.f,  12.f,  12.f
-};
+ *  JPEG quality=0_of_12 quantization matrix
+ */
+float Q_GOLD[BLOCK_SIZE2] = {
+    32.f, 33.f, 51.f, 81.f, 66.f, 39.f, 34.f, 17.f,
+    33.f, 36.f, 48.f, 47.f, 28.f, 23.f, 12.f, 12.f,
+    51.f, 48.f, 47.f, 28.f, 23.f, 12.f, 12.f, 12.f,
+    81.f, 47.f, 28.f, 23.f, 12.f, 12.f, 12.f, 12.f,
+    66.f, 28.f, 23.f, 12.f, 12.f, 12.f, 12.f, 12.f,
+    39.f, 23.f, 12.f, 12.f, 12.f, 12.f, 12.f, 12.f,
+    34.f, 12.f, 12.f, 12.f, 12.f, 12.f, 12.f, 12.f,
+    17.f, 12.f, 12.f, 12.f, 12.f, 12.f, 12.f, 12.f};
 
 /**
 **************************************************************************
@@ -97,12 +94,16 @@ float Q[BLOCK_SIZE2] = {
 * \return None
 */
 void mult8x8(const float *M1, int M1Stride, const float *M2, int M2Stride,
-             float *Mres, int MresStride) {
-  for (int i = 0; i < BLOCK_SIZE; i++) {
-    for (int j = 0; j < BLOCK_SIZE; j++) {
+             float *Mres, int MresStride)
+{
+  for (int i = 0; i < BLOCK_SIZE; i++)
+  {
+    for (int j = 0; j < BLOCK_SIZE; j++)
+    {
       float accumul = 0;
 
-      for (int k = 0; k < BLOCK_SIZE; k++) {
+      for (int k = 0; k < BLOCK_SIZE; k++)
+      {
         accumul += M1[i * M1Stride + k] * M2[k * M2Stride + j];
       }
 
@@ -125,13 +126,16 @@ void mult8x8(const float *M1, int M1Stride, const float *M2, int M2Stride,
 * \return None
 */
 extern "C" void computeDCT8x8Gold1(const float *fSrc, float *fDst, int Stride,
-                                   ROI Size) {
+                                   ROI Size)
+{
   float tmpblock[BLOCK_SIZE2];
 
   // perform block wise DCT
   // DCT(A) = DCTv8matrixT * A * DCTv8matrix
-  for (int i = 0; i + BLOCK_SIZE - 1 < Size.height; i += BLOCK_SIZE) {
-    for (int j = 0; j + BLOCK_SIZE - 1 < Size.width; j += BLOCK_SIZE) {
+  for (int i = 0; i + BLOCK_SIZE - 1 < Size.height; i += BLOCK_SIZE)
+  {
+    for (int j = 0; j + BLOCK_SIZE - 1 < Size.width; j += BLOCK_SIZE)
+    {
       // tmpblock = DCTv8matrixT * A
       mult8x8(DCTv8matrixT, BLOCK_SIZE, fSrc + i * Stride + j, Stride, tmpblock,
               BLOCK_SIZE);
@@ -156,13 +160,16 @@ extern "C" void computeDCT8x8Gold1(const float *fSrc, float *fDst, int Stride,
 * \return None
 */
 extern "C" void computeIDCT8x8Gold1(const float *fSrc, float *fDst, int Stride,
-                                    ROI Size) {
+                                    ROI Size)
+{
   float tmpblock[BLOCK_SIZE2];
 
   // perform block wise IDCT
   // IDCT(A) = DCTv8matrix * A * DCTv8matrixT
-  for (int i = 0; i + BLOCK_SIZE - 1 < Size.height; i += BLOCK_SIZE) {
-    for (int j = 0; j + BLOCK_SIZE - 1 < Size.width; j += BLOCK_SIZE) {
+  for (int i = 0; i + BLOCK_SIZE - 1 < Size.height; i += BLOCK_SIZE)
+  {
+    for (int j = 0; j + BLOCK_SIZE - 1 < Size.width; j += BLOCK_SIZE)
+    {
       // tmpblock = DCTv8matrix * A
       mult8x8(DCTv8matrix, BLOCK_SIZE, fSrc + i * Stride + j, Stride, tmpblock,
               BLOCK_SIZE);
@@ -184,16 +191,19 @@ extern "C" void computeIDCT8x8Gold1(const float *fSrc, float *fDst, int Stride,
 *
 * \return None
 */
-extern "C" void quantizeGoldFloat(float *fSrcDst, int Stride, ROI Size) {
-  // perform block wise in-place quantization using Q
-  // Q(A) = round(A ./ Q) .* Q;
-  for (int i = 0; i < Size.height; i++) {
-    for (int j = 0; j < Size.width; j++) {
+extern "C" void quantizeGoldFloat(float *fSrcDst, int Stride, ROI Size)
+{
+  // perform block wise in-place quantization using Q_GOLD
+  // Q_GOLD(A) = round(A ./ Q_GOLD) .* Q_GOLD;
+  for (int i = 0; i < Size.height; i++)
+  {
+    for (int j = 0; j < Size.width; j++)
+    {
       int qx = j % BLOCK_SIZE;
       int qy = i % BLOCK_SIZE;
       float quantized =
-          round_f(fSrcDst[i * Stride + j] / Q[(qy << BLOCK_SIZE_LOG2) + qx]);
-      fSrcDst[i * Stride + j] = quantized * Q[(qy << BLOCK_SIZE_LOG2) + qx];
+          round_f(fSrcDst[i * Stride + j] / Q_GOLD[(qy << BLOCK_SIZE_LOG2) + qx]);
+      fSrcDst[i * Stride + j] = quantized * Q_GOLD[(qy << BLOCK_SIZE_LOG2) + qx];
     }
   }
 }
@@ -209,22 +219,28 @@ extern "C" void quantizeGoldFloat(float *fSrcDst, int Stride, ROI Size) {
 *
 * \return None
 */
-void quantizeGoldShort(short *fSrcDst, int Stride, ROI Size) {
-  // perform block wise in-place quantization using Q
-  // Q(A) = round(A ./ Q) .* Q;
-  for (int i = 0; i < Size.height; i++) {
-    for (int j = 0; j < Size.width; j++) {
+void quantizeGoldShort(short *fSrcDst, int Stride, ROI Size)
+{
+  // perform block wise in-place quantization using Q_GOLD
+  // Q_GOLD(A) = round(A ./ Q_GOLD) .* Q_GOLD;
+  for (int i = 0; i < Size.height; i++)
+  {
+    for (int j = 0; j < Size.width; j++)
+    {
       int qx = j % BLOCK_SIZE;
       int qy = i % BLOCK_SIZE;
       short temp = fSrcDst[i * Stride + j];
-      short quant = (short)(Q[(qy << BLOCK_SIZE_LOG2) + qx]);
+      short quant = (short)(Q_GOLD[(qy << BLOCK_SIZE_LOG2) + qx]);
 
-      if (temp < 0) {
+      if (temp < 0)
+      {
         temp = -temp;
         temp += quant >> 1;
         temp /= quant;
         temp = -temp;
-      } else {
+      }
+      else
+      {
         temp += quant >> 1;
         temp /= quant;
       }
@@ -235,17 +251,17 @@ void quantizeGoldShort(short *fSrcDst, int Stride, ROI Size) {
 }
 
 // Used in forward and inverse DCT.
-float C_a = 1.387039845322148f;  //!< a = (2^0.5) * cos(    pi / 16);
-float C_b = 1.306562964876377f;  //!< b = (2^0.5) * cos(    pi /  8);
-float C_c = 1.175875602419359f;  //!< c = (2^0.5) * cos(3 * pi / 16);
-float C_d = 0.785694958387102f;  //!< d = (2^0.5) * cos(5 * pi / 16);
-float C_e = 0.541196100146197f;  //!< e = (2^0.5) * cos(3 * pi /  8);
-float C_f = 0.275899379282943f;  //!< f = (2^0.5) * cos(7 * pi / 16);
+float C_a = 1.387039845322148f; //!< a = (2^0.5) * cos(    pi / 16);
+float C_b = 1.306562964876377f; //!< b = (2^0.5) * cos(    pi /  8);
+float C_c = 1.175875602419359f; //!< c = (2^0.5) * cos(3 * pi / 16);
+float C_d = 0.785694958387102f; //!< d = (2^0.5) * cos(5 * pi / 16);
+float C_e = 0.541196100146197f; //!< e = (2^0.5) * cos(3 * pi /  8);
+float C_f = 0.275899379282943f; //!< f = (2^0.5) * cos(7 * pi / 16);
 
 /**
-*  Normalization constant that is used in forward and inverse DCT
-*/
-float C_norm = 0.3535533905932737f;  // 1 / (8^0.5)
+ *  Normalization constant that is used in forward and inverse DCT
+ */
+float C_norm = 0.3535533905932737f; // 1 / (8^0.5)
 
 /**
 **************************************************************************
@@ -261,7 +277,8 @@ float C_norm = 0.3535533905932737f;  // 1 / (8^0.5)
 * \return None
 */
 void SubroutineDCTvector(float *FirstIn, int StepIn, float *FirstOut,
-                         int StepOut) {
+                         int StepOut)
+{
   float X07P = FirstIn[0 * StepIn] + FirstIn[7 * StepIn];
   float X16P = FirstIn[1 * StepIn] + FirstIn[6 * StepIn];
   float X25P = FirstIn[2 * StepIn] + FirstIn[5 * StepIn];
@@ -306,7 +323,8 @@ void SubroutineDCTvector(float *FirstIn, int StepIn, float *FirstOut,
 * \return None
 */
 void SubroutineIDCTvector(float *FirstIn, int StepIn, float *FirstOut,
-                          int StepOut) {
+                          int StepOut)
+{
   float Y04P = FirstIn[0 * StepIn] + FirstIn[4 * StepIn];
   float Y2b6eP = C_b * FirstIn[2 * StepIn] + C_e * FirstIn[6 * StepIn];
 
@@ -352,17 +370,22 @@ void SubroutineIDCTvector(float *FirstIn, int StepIn, float *FirstOut,
 * \return None
 */
 extern "C" void computeDCT8x8Gold2(const float *fSrc, float *fDst, int Stride,
-                                   ROI Size) {
-  for (int i = 0; i + BLOCK_SIZE - 1 < Size.height; i += BLOCK_SIZE) {
-    for (int j = 0; j + BLOCK_SIZE - 1 < Size.width; j += BLOCK_SIZE) {
+                                   ROI Size)
+{
+  for (int i = 0; i + BLOCK_SIZE - 1 < Size.height; i += BLOCK_SIZE)
+  {
+    for (int j = 0; j + BLOCK_SIZE - 1 < Size.width; j += BLOCK_SIZE)
+    {
       // process rows
-      for (int k = 0; k < BLOCK_SIZE; k++) {
+      for (int k = 0; k < BLOCK_SIZE; k++)
+      {
         SubroutineDCTvector((float *)fSrc + (i + k) * Stride + j, 1,
                             fDst + (i + k) * Stride + j, 1);
       }
 
       // process columns
-      for (int k = 0; k < BLOCK_SIZE; k++) {
+      for (int k = 0; k < BLOCK_SIZE; k++)
+      {
         SubroutineDCTvector(fDst + i * Stride + (j + k), Stride,
                             fDst + i * Stride + (j + k), Stride);
       }
@@ -384,17 +407,22 @@ extern "C" void computeDCT8x8Gold2(const float *fSrc, float *fDst, int Stride,
 * \return None
 */
 extern "C" void computeIDCT8x8Gold2(const float *fSrc, float *fDst, int Stride,
-                                    ROI Size) {
-  for (int i = 0; i + BLOCK_SIZE - 1 < Size.height; i += BLOCK_SIZE) {
-    for (int j = 0; j + BLOCK_SIZE - 1 < Size.width; j += BLOCK_SIZE) {
+                                    ROI Size)
+{
+  for (int i = 0; i + BLOCK_SIZE - 1 < Size.height; i += BLOCK_SIZE)
+  {
+    for (int j = 0; j + BLOCK_SIZE - 1 < Size.width; j += BLOCK_SIZE)
+    {
       // process rows
-      for (int k = 0; k < BLOCK_SIZE; k++) {
+      for (int k = 0; k < BLOCK_SIZE; k++)
+      {
         SubroutineIDCTvector((float *)fSrc + (i + k) * Stride + j, 1,
                              fDst + (i + k) * Stride + j, 1);
       }
 
       // process columns
-      for (int k = 0; k < BLOCK_SIZE; k++) {
+      for (int k = 0; k < BLOCK_SIZE; k++)
+      {
         SubroutineIDCTvector(fDst + i * Stride + (j + k), Stride,
                              fDst + i * Stride + (j + k), Stride);
       }

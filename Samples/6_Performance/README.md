@@ -10,3 +10,5 @@ This sample demonstrates Matrix Transpose.  Different performance are shown to a
 ### [UnifiedMemoryPerf](./UnifiedMemoryPerf)
 This sample demonstrates the performance comparision using matrix multiplication kernel of Unified Memory with/without hints and other types of memory like zero copy buffers, pageable, pagelocked memory performing synchronous and Asynchronous transfers on a single GPU.
 
+### [cudaGraphsPerfScaling](./cudaGraphsPerfScaling)
+This sample demonstrates the performance characteristics of cuda graphs. It is focused on how the apis scale with graph size.
