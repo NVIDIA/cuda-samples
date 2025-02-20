@@ -20,16 +20,19 @@ include_directories(../../../Common)
 find_package(Vulkan)
 find_package(OpenGL)
 
+
 # Include the check_include_file macro
 include(CheckIncludeFile)
 
 # Check for the GLFW/glfw3.h header
 check_include_file("GLFW/glfw3.h" HAVE_GLFW3_H)
 
-# Find GLFW/glfw3.h header for Windows
+# Find GLFW header and lib for Windows
 if(WIN32)
-    find_file(GLFW3_H "glfw3.h" PATH "$ENV{GLFW_INCLUDES_DIR}/GLFW")
-    if(GLFW3_H)
+    find_file(GLFW3_H "GLFW/glfw3.h" PATH "${GLFW_INCLUDE_DIR}")
+    find_library(GLFW3_LIB "glfw3" PATH "${GLFW_LIB_DIR}")
+    if(GLFW3_H AND GLFW3_LIB) 
+        message(STATUS "Found GLFW/glfw3.h and GLFW library.")
         set(HAVE_GLFW3_H 1)
     endif()
 endif()
@@ -51,21 +54,22 @@ if(${Vulkan_FOUND})
                 ${Vulkan_INCLUDE_DIRS}
                 ${CUDAToolkit_INCLUDE_DIRS}
             )
-
+            target_link_libraries(simpleVulkan
+                ${Vulkan_LIBRARIES}
+                OpenGL::GL
+            )
             if(WIN32)
+                target_include_directories(simpleVulkan PUBLIC
+                    ${GLFW_INCLUDE_DIR}
+                )
                 target_link_libraries(simpleVulkan
-                    ${Vulkan_LIBRARIES}
-                    OpenGL::GL
-                    glfw3.dll
+                    ${GLFW3_LIB}
                 )
             else()
                 target_link_libraries(simpleVulkan
-                    ${Vulkan_LIBRARIES}
-                    OpenGL::GL
                     glfw
                 )
             endif()
-
             add_custom_command(TARGET simpleVulkan POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${CMAKE_CURRENT_SOURCE_DIR}/sinewave.frag

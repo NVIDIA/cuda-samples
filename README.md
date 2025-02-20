@@ -203,7 +203,7 @@ Vulkan is a low-overhead, cross-platform 3D graphics and compute API. Vulkan tar
 #### GLFW
 GLFW is a lightweight, open-source library designed for managing OpenGL, OpenGL ES, and Vulkan contexts. It simplifies the process of creating and managing windows, handling user input (keyboard, mouse, and joystick), and working with multiple monitors in a cross-platform manner.
 
-To set up GLFW on a Windows system, Download the pre-built binaries from [GLFW website](https://www.glfw.org/download.html) and extract the zip file into the folder, pass the GLFW include header as `-DGLFW_INCLUDE_DIR` for cmake configuring and follow the Build_instructions.txt in the sample folder to set up the t.
+To set up GLFW on a Windows system, Download the pre-built binaries from [GLFW website](https://www.glfw.org/download.html) and extract the zip file into the folder, pass the GLFW include header folder as `-DGLFW_INCLUDE_DIR` and lib folder as `-DGLFW_LIB_DIR` for cmake configuring.
 
 #### OpenMP
 
