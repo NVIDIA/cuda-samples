@@ -53,7 +53,7 @@ const char *sSDKsample = "Transpose";
 // TILE_DIM/BLOCK_ROWS elements.  TILE_DIM must be an integral multiple of
 // BLOCK_ROWS
 
-#define TILE_DIM 16
+#define TILE_DIM 32
 #define BLOCK_ROWS 16
 
 // This sample assumes that MATRIX_SIZE_X = MATRIX_SIZE_Y
