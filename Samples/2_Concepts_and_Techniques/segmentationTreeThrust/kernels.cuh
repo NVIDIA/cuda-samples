@@ -34,13 +34,12 @@
 #define _KERNELS_H_
 
 #include <stdio.h>
-#include <thrust/functional.h>
 
 #include "common.cuh"
 
 // Functors used with thrust library.
 template <typename Input>
-struct IsGreaterEqualThan : public thrust::unary_function<Input, bool>
+struct IsGreaterEqualThan
 {
     __host__ __device__ IsGreaterEqualThan(uint upperBound) :
         upperBound_(upperBound) {}
