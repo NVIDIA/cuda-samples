@@ -399,7 +399,6 @@ extern "C" void freeTextures() {
     Perform 2D box filter on image using CUDA
 
     Parameters:
-    d_src  - pointer to input image in device memory
     d_temp - pointer to temporary storage in device memory
     d_dest - pointer to destination image in device memory
     width  - image width
@@ -408,7 +407,7 @@ extern "C" void freeTextures() {
     iterations - number of iterations
 
 */
-extern "C" double boxFilter(float *d_src, float *d_temp, float *d_dest,
+extern "C" double boxFilter(float *d_temp, float *d_dest,
                             int width, int height, int radius, int iterations,
                             int nthreads, StopWatchInterface *timer) {
   // var for kernel timing
@@ -447,7 +446,7 @@ extern "C" double boxFilter(float *d_src, float *d_temp, float *d_dest,
 }
 
 // RGBA version
-extern "C" double boxFilterRGBA(unsigned int *d_src, unsigned int *d_temp,
+extern "C" double boxFilterRGBA(unsigned int *d_temp,
                                 unsigned int *d_dest, int width, int height,
                                 int radius, int iterations, int nthreads,
                                 StopWatchInterface *timer) {
