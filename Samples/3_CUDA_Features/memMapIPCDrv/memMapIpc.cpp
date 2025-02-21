@@ -493,12 +493,14 @@ static void parentProcess(char *app) {
       continue;
     }
 
-    for (int j = 0; j < nprocesses; j++) {
+    for (int j = 0; j < selectedDevices.size(); j++) {
       int canAccessPeerIJ, canAccessPeerJI;
-      checkCudaErrors(
-          cuDeviceCanAccessPeer(&canAccessPeerJI, devices[j], devices[i]));
-      checkCudaErrors(
-          cuDeviceCanAccessPeer(&canAccessPeerIJ, devices[i], devices[j]));
+      checkCudaErrors(cuDeviceCanAccessPeer(&canAccessPeerJI, 
+                                            devices[selectedDevices[j]], 
+                                            devices[i]));
+      checkCudaErrors(cuDeviceCanAccessPeer(&canAccessPeerIJ, 
+                                            devices[i], 
+                                            devices[selectedDevices[j]]));
       if (!canAccessPeerIJ || !canAccessPeerJI) {
         allPeers = false;
         break;
@@ -513,10 +515,10 @@ static void parentProcess(char *app) {
       // setup the peers for the device.  For systems that only allow 8
       // peers per GPU at a time, this acts to remove devices from CanAccessPeer
       for (int j = 0; j < nprocesses; j++) {
-        checkCudaErrors(cuCtxSetCurrent(ctxs[i]));
+        checkCudaErrors(cuCtxSetCurrent(ctxs.back()));
         checkCudaErrors(cuCtxEnablePeerAccess(ctxs[j], 0));
         checkCudaErrors(cuCtxSetCurrent(ctxs[j]));
-        checkCudaErrors(cuCtxEnablePeerAccess(ctxs[i], 0));
+        checkCudaErrors(cuCtxEnablePeerAccess(ctxs.back(), 0));
       }
       selectedDevices.push_back(i);
       nprocesses++;
