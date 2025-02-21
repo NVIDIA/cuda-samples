@@ -2,7 +2,7 @@
 
 ## Description
 
-This sample demonstrates CUDA-NvSciBuf/NvSciSync Interop. Two CPU threads import the NvSciBuf and NvSciSync into CUDA to perform two image processing algorithms on a ppm image - image rotation in 1st thread &amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp; rgba to grayscale conversion of rotated image in 2nd thread. Currently only supported on Ubuntu 18.04
+This sample demonstrates CUDA-NvSciBuf/NvSciSync Interop. Two CPU threads import the NvSciBuf and NvSciSync into CUDA to perform two image processing algorithms on a ppm image - image rotation in 1st thread &amp; rgba to grayscale conversion of rotated image in 2nd thread. Currently only supported on Ubuntu 18.04
 
 ## Key Concepts
 
