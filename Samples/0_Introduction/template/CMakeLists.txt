@@ -20,7 +20,7 @@ include_directories(../../../Common)
 
 # Source file
 # Add target for template
-add_executable(template template.cu)
+add_executable(template template.cu template_cpu.cpp)
 
 target_compile_options(template PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
 
