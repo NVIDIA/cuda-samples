@@ -36,6 +36,7 @@
     * `cuDLALayerwiseStatsHybrid`
     * `cuDLALayerwiseStatsStandalone`
     * `cuDLAStandaloneMode`
+    * `cudaNvSciBufMultiplanar`
     * `cudaNvSciNvMedia`
     * `fluidsGLES`
     * `nbody_opengles`
