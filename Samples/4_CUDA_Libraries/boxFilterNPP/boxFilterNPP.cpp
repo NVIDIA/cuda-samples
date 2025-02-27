@@ -48,38 +48,55 @@
 #include <helper_string.h>
 
 
-bool printfNPPinfo(int argc, char *argv[]) {
-  const NppLibraryVersion *libVer = nppGetLibVersion();
-
-  printf("NPP Library Version %d.%d.%d\n", libVer->major, libVer->minor,
-         libVer->build);
-
-  int driverVersion, runtimeVersion;
-  cudaDriverGetVersion(&driverVersion);
-  cudaRuntimeGetVersion(&runtimeVersion);
-
-  printf("  CUDA Driver  Version: %d.%d\n", driverVersion / 1000,
-         (driverVersion % 100) / 10);
-  printf("  CUDA Runtime Version: %d.%d\n", runtimeVersion / 1000,
-         (runtimeVersion % 100) / 10);
-
-  // Min spec is SM 1.0 devices
-  bool bVal = checkCudaCapabilities(1, 0);
-  return bVal;
-}
-
 int main(int argc, char *argv[]) {
   printf("%s Starting...\n\n", argv[0]);
 
   try {
     std::string sFilename;
     char *filePath;
+    NppStreamContext nppStreamCtx;
+    nppStreamCtx.hStream = 0; // The NULL stream by default, set this to whatever your stream ID is if not the NULL stream.
 
-    findCudaDevice(argc, (const char **)argv);
-
-    if (printfNPPinfo(argc, argv) == false) {
-      exit(EXIT_SUCCESS);
+    cudaError_t cudaError = cudaGetDevice(&nppStreamCtx.nCudaDeviceId);
+    if (cudaError != cudaSuccess)
+    {
+        printf("CUDA error: no devices supporting CUDA.\n");
+        return NPP_NOT_SUFFICIENT_COMPUTE_CAPABILITY;
     }
+
+    const NppLibraryVersion *libVer   = nppGetLibVersion();
+
+    printf("NPP Library Version %d.%d.%d\n", libVer->major, libVer->minor, libVer->build);
+
+    int driverVersion, runtimeVersion;
+    cudaDriverGetVersion(&driverVersion);
+    cudaRuntimeGetVersion(&runtimeVersion);
+
+    printf("CUDA Driver  Version: %d.%d\n", driverVersion/1000, (driverVersion%100)/10);
+    printf("CUDA Runtime Version: %d.%d\n\n", runtimeVersion/1000, (runtimeVersion%100)/10);
+
+    cudaError = cudaDeviceGetAttribute(&nppStreamCtx.nCudaDevAttrComputeCapabilityMajor, 
+                                      cudaDevAttrComputeCapabilityMajor, 
+                                      nppStreamCtx.nCudaDeviceId);
+    if (cudaError != cudaSuccess)
+        return NPP_NOT_SUFFICIENT_COMPUTE_CAPABILITY;
+
+    cudaError = cudaDeviceGetAttribute(&nppStreamCtx.nCudaDevAttrComputeCapabilityMinor, 
+                                      cudaDevAttrComputeCapabilityMinor, 
+                                      nppStreamCtx.nCudaDeviceId);
+    if (cudaError != cudaSuccess)
+        return NPP_NOT_SUFFICIENT_COMPUTE_CAPABILITY;
+
+    cudaError = cudaStreamGetFlags(nppStreamCtx.hStream, &nppStreamCtx.nStreamFlags);
+
+    cudaDeviceProp oDeviceProperties;
+
+    cudaError = cudaGetDeviceProperties(&oDeviceProperties, nppStreamCtx.nCudaDeviceId);
+
+    nppStreamCtx.nMultiProcessorCount = oDeviceProperties.multiProcessorCount;
+    nppStreamCtx.nMaxThreadsPerMultiProcessor = oDeviceProperties.maxThreadsPerMultiProcessor;
+    nppStreamCtx.nMaxThreadsPerBlock = oDeviceProperties.maxThreadsPerBlock;
+    nppStreamCtx.nSharedMemPerBlock = oDeviceProperties.sharedMemPerBlock;
 
     if (checkCmdLineFlag(argc, (const char **)argv, "input")) {
       getCmdLineArgumentString(argc, (const char **)argv, "input", &filePath);
@@ -154,10 +171,10 @@ int main(int argc, char *argv[]) {
     NppiPoint oAnchor = {oMaskSize.width / 2, oMaskSize.height / 2};
 
     // run box filter
-    NPP_CHECK_NPP(nppiFilterBoxBorder_8u_C1R(
+    NPP_CHECK_NPP(nppiFilterBoxBorder_8u_C1R_Ctx(
         oDeviceSrc.data(), oDeviceSrc.pitch(), oSrcSize, oSrcOffset,
         oDeviceDst.data(), oDeviceDst.pitch(), oSizeROI, oMaskSize, oAnchor,
-        NPP_BORDER_REPLICATE));
+        NPP_BORDER_REPLICATE, nppStreamCtx));
 
     // declare a host image for the result
     npp::ImageCPU_8u_C1 oHostDst(oDeviceDst.size());
