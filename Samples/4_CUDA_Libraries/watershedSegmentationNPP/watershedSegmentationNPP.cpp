@@ -328,9 +328,10 @@ main( int argc, char** argv )
 
             int nCompressedLabelCount = 0;
 
-            nppStatus = nppiCompressMarkerLabelsUF_32u_C1IR(pSegmentLabelsOutputBufferDev[nImage], oSizeROI[nImage].width * sizeof(Npp32u), oSizeROI[nImage], 
-                                                            oSizeROI[nImage].width * oSizeROI[nImage].height, &nCompressedLabelCount, 
-                                                            pCompressedLabelsScratchBufferDev);
+            nppStatus = nppiCompressMarkerLabelsUF_32u_C1IR_Ctx(pSegmentLabelsOutputBufferDev[nImage], oSizeROI[nImage].width * sizeof(Npp32u), oSizeROI[nImage], 
+                                                                oSizeROI[nImage].width * oSizeROI[nImage].height, &nCompressedLabelCount, 
+                                                                pCompressedLabelsScratchBufferDev,
+                                                                nppStreamCtx);
 
             if (nppStatus != NPP_SUCCESS)  
             {
@@ -539,6 +540,3 @@ main( int argc, char** argv )
 
     return 0;
 }
-
-
-
