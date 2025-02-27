@@ -70,6 +70,25 @@ inline int cudaDeviceInit(int argc, const char **argv) {
   return dev;
 }
 
+bool printfNPPinfo(int argc, char *argv[], int cudaVerMajor, int cudaVerMinor) {
+  const NppLibraryVersion *libVer = nppGetLibVersion();
+
+  printf("NPP Library Version %d.%d.%d\n", libVer->major, libVer->minor,
+         libVer->build);
+
+  int driverVersion, runtimeVersion;
+  cudaDriverGetVersion(&driverVersion);
+  cudaRuntimeGetVersion(&runtimeVersion);
+
+  printf("  CUDA Driver  Version: %d.%d\n", driverVersion / 1000,
+         (driverVersion % 100) / 10);
+  printf("  CUDA Runtime Version: %d.%d\n", runtimeVersion / 1000,
+         (runtimeVersion % 100) / 10);
+
+  bool bVal = checkCudaCapabilities(cudaVerMajor, cudaVerMinor);
+  return bVal;
+}
+
 // Error handler for FreeImage library.
 //  In case this handler is invoked, it throws an NPP exception.
 extern "C" void FreeImageErrorHandler(FREE_IMAGE_FORMAT oFif,
@@ -138,49 +157,10 @@ int main(int argc, char *argv[]) {
 
     cudaDeviceInit(argc, (const char **)argv);
 
-    NppStreamContext nppStreamCtx;
-    nppStreamCtx.hStream = 0; // The NULL stream by default, set this to whatever your stream ID is if not the NULL stream.
-
-    cudaError_t cudaError = cudaGetDevice(&nppStreamCtx.nCudaDeviceId);
-    if (cudaError != cudaSuccess)
-    {
-        printf("CUDA error: no devices supporting CUDA.\n");
-        return NPP_NOT_SUFFICIENT_COMPUTE_CAPABILITY;
+    // Min spec is SM 1.0 devices
+    if (printfNPPinfo(argc, argv, 1, 0) == false) {
+      exit(EXIT_SUCCESS);
     }
-
-    const NppLibraryVersion *libVer   = nppGetLibVersion();
-
-    printf("NPP Library Version %d.%d.%d\n", libVer->major, libVer->minor, libVer->build);
-
-    int driverVersion, runtimeVersion;
-    cudaDriverGetVersion(&driverVersion);
-    cudaRuntimeGetVersion(&runtimeVersion);
-
-    printf("CUDA Driver  Version: %d.%d\n", driverVersion/1000, (driverVersion%100)/10);
-    printf("CUDA Runtime Version: %d.%d\n\n", runtimeVersion/1000, (runtimeVersion%100)/10);
-
-    cudaError = cudaDeviceGetAttribute(&nppStreamCtx.nCudaDevAttrComputeCapabilityMajor, 
-                                      cudaDevAttrComputeCapabilityMajor, 
-                                      nppStreamCtx.nCudaDeviceId);
-    if (cudaError != cudaSuccess)
-        return NPP_NOT_SUFFICIENT_COMPUTE_CAPABILITY;
-
-    cudaError = cudaDeviceGetAttribute(&nppStreamCtx.nCudaDevAttrComputeCapabilityMinor, 
-                                      cudaDevAttrComputeCapabilityMinor, 
-                                      nppStreamCtx.nCudaDeviceId);
-    if (cudaError != cudaSuccess)
-        return NPP_NOT_SUFFICIENT_COMPUTE_CAPABILITY;
-
-    cudaError = cudaStreamGetFlags(nppStreamCtx.hStream, &nppStreamCtx.nStreamFlags);
-
-    cudaDeviceProp oDeviceProperties;
-
-    cudaError = cudaGetDeviceProperties(&oDeviceProperties, nppStreamCtx.nCudaDeviceId);
-
-    nppStreamCtx.nMultiProcessorCount = oDeviceProperties.multiProcessorCount;
-    nppStreamCtx.nMaxThreadsPerMultiProcessor = oDeviceProperties.maxThreadsPerMultiProcessor;
-    nppStreamCtx.nMaxThreadsPerBlock = oDeviceProperties.maxThreadsPerBlock;
-    nppStreamCtx.nSharedMemPerBlock = oDeviceProperties.sharedMemPerBlock;
 
     if (checkCmdLineFlag(argc, (const char **)argv, "input")) {
       getCmdLineArgumentString(argc, (const char **)argv, "input", &filePath);
@@ -280,9 +260,9 @@ int main(int argc, char *argv[]) {
     Npp8u *pDstImageCUDA =
         nppiMalloc_8u_C1(oSizeROI.width, oSizeROI.height, &nDstPitchCUDA);
     NPP_ASSERT_NOT_NULL(pDstImageCUDA);
-    NPP_CHECK_NPP(nppiFilterBox_8u_C1R_Ctx(pSrcImageCUDA, nSrcPitchCUDA,
-                                           pDstImageCUDA, nDstPitchCUDA, oSizeROI,
-                                           oMaskSize, oMaskAchnor, nppStreamCtx));
+    NPP_CHECK_NPP(nppiFilterBox_8u_C1R(pSrcImageCUDA, nSrcPitchCUDA,
+                                       pDstImageCUDA, nDstPitchCUDA, oSizeROI,
+                                       oMaskSize, oMaskAchnor));
     // create the result image storage using FreeImage so we can easily
     // save
     FIBITMAP *pResultBitmap = FreeImage_Allocate(

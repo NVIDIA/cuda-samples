@@ -73,6 +73,26 @@ inline int cudaDeviceInit(int argc, const char **argv) {
   return dev;
 }
 
+bool printfNPPinfo(int argc, char *argv[]) {
+  const NppLibraryVersion *libVer = nppGetLibVersion();
+
+  printf("NPP Library Version %d.%d.%d\n", libVer->major, libVer->minor,
+         libVer->build);
+
+  int driverVersion, runtimeVersion;
+  cudaDriverGetVersion(&driverVersion);
+  cudaRuntimeGetVersion(&runtimeVersion);
+
+  printf("  CUDA Driver  Version: %d.%d\n", driverVersion / 1000,
+         (driverVersion % 100) / 10);
+  printf("  CUDA Runtime Version: %d.%d\n", runtimeVersion / 1000,
+         (runtimeVersion % 100) / 10);
+
+  // Min spec is SM 1.1 devices
+  bool bVal = checkCudaCapabilities(1, 1);
+  return bVal;
+}
+
 int main(int argc, char *argv[]) {
   printf("%s Starting...\n\n", argv[0]);
 
@@ -82,49 +102,9 @@ int main(int argc, char *argv[]) {
 
     cudaDeviceInit(argc, (const char **)argv);
 
-    NppStreamContext nppStreamCtx;
-    nppStreamCtx.hStream = 0; // The NULL stream by default, set this to whatever your stream ID is if not the NULL stream.
-
-    cudaError_t cudaError = cudaGetDevice(&nppStreamCtx.nCudaDeviceId);
-    if (cudaError != cudaSuccess)
-    {
-        printf("CUDA error: no devices supporting CUDA.\n");
-        return NPP_NOT_SUFFICIENT_COMPUTE_CAPABILITY;
+    if (printfNPPinfo(argc, argv) == false) {
+      exit(EXIT_SUCCESS);
     }
-
-    const NppLibraryVersion *libVer   = nppGetLibVersion();
-
-    printf("NPP Library Version %d.%d.%d\n", libVer->major, libVer->minor, libVer->build);
-
-    int driverVersion, runtimeVersion;
-    cudaDriverGetVersion(&driverVersion);
-    cudaRuntimeGetVersion(&runtimeVersion);
-
-    printf("CUDA Driver  Version: %d.%d\n", driverVersion/1000, (driverVersion%100)/10);
-    printf("CUDA Runtime Version: %d.%d\n\n", runtimeVersion/1000, (runtimeVersion%100)/10);
-
-    cudaError = cudaDeviceGetAttribute(&nppStreamCtx.nCudaDevAttrComputeCapabilityMajor, 
-                                      cudaDevAttrComputeCapabilityMajor, 
-                                      nppStreamCtx.nCudaDeviceId);
-    if (cudaError != cudaSuccess)
-        return NPP_NOT_SUFFICIENT_COMPUTE_CAPABILITY;
-
-    cudaError = cudaDeviceGetAttribute(&nppStreamCtx.nCudaDevAttrComputeCapabilityMinor, 
-                                      cudaDevAttrComputeCapabilityMinor, 
-                                      nppStreamCtx.nCudaDeviceId);
-    if (cudaError != cudaSuccess)
-        return NPP_NOT_SUFFICIENT_COMPUTE_CAPABILITY;
-
-    cudaError = cudaStreamGetFlags(nppStreamCtx.hStream, &nppStreamCtx.nStreamFlags);
-
-    cudaDeviceProp oDeviceProperties;
-
-    cudaError = cudaGetDeviceProperties(&oDeviceProperties, nppStreamCtx.nCudaDeviceId);
-
-    nppStreamCtx.nMultiProcessorCount = oDeviceProperties.multiProcessorCount;
-    nppStreamCtx.nMaxThreadsPerMultiProcessor = oDeviceProperties.maxThreadsPerMultiProcessor;
-    nppStreamCtx.nMaxThreadsPerBlock = oDeviceProperties.maxThreadsPerBlock;
-    nppStreamCtx.nSharedMemPerBlock = oDeviceProperties.sharedMemPerBlock;
 
     if (checkCmdLineFlag(argc, (const char **)argv, "input")) {
       getCmdLineArgumentString(argc, (const char **)argv, "input", &filePath);
@@ -202,9 +182,8 @@ int main(int argc, char *argv[]) {
                          (int)oDeviceSrc.height()};  // full image
     // create device scratch buffer for nppiHistogram
     size_t nDeviceBufferSize;
-    nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(oSizeROI, levelCount,
-                                              &nDeviceBufferSize,
-                                              nppStreamCtx);
+    nppiHistogramEvenGetBufferSize_8u_C1R(oSizeROI, levelCount,
+                                          &nDeviceBufferSize);
     Npp8u *pDeviceBuffer;
     NPP_CHECK_CUDA(cudaMalloc((void **)&pDeviceBuffer, nDeviceBufferSize));
 
@@ -212,9 +191,9 @@ int main(int argc, char *argv[]) {
     Npp32s levelsHost[levelCount];
     NPP_CHECK_NPP(nppiEvenLevelsHost_32s(levelsHost, levelCount, 0, binCount));
     // compute the histogram
-    NPP_CHECK_NPP(nppiHistogramEven_8u_C1R_Ctx(
+    NPP_CHECK_NPP(nppiHistogramEven_8u_C1R(
         oDeviceSrc.data(), oDeviceSrc.pitch(), oSizeROI, histDevice, levelCount,
-        0, binCount, pDeviceBuffer, nppStreamCtx));
+        0, binCount, pDeviceBuffer));
     // copy histogram and levels to host memory
     Npp32s histHost[binCount];
     NPP_CHECK_CUDA(cudaMemcpy(histHost, histDevice, binCount * sizeof(Npp32s),
@@ -275,22 +254,20 @@ int main(int argc, char *argv[]) {
                               sizeof(Npp32s) * (levelCount),
                               cudaMemcpyHostToDevice));
 
-    NPP_CHECK_NPP(nppiLUT_Linear_8u_C1R_Ctx(
+    NPP_CHECK_NPP(nppiLUT_Linear_8u_C1R(
         oDeviceSrc.data(), oDeviceSrc.pitch(), oDeviceDst.data(),
         oDeviceDst.pitch(), oSizeROI,
-        lutDevice,  // value and level arrays are in host memory
-        lvlsDevice, levelCount,
-        nppStreamCtx));
+        lutDevice,  // value and level arrays are in GPU device memory
+        lvlsDevice, levelCount));
 
     NPP_CHECK_CUDA(cudaFree(lutDevice));
     NPP_CHECK_CUDA(cudaFree(lvlsDevice));
 #else
-    NPP_CHECK_NPP(nppiLUT_Linear_8u_C1R_Ctx(
+    NPP_CHECK_NPP(nppiLUT_Linear_8u_C1R(
         oDeviceSrc.data(), oDeviceSrc.pitch(), oDeviceDst.data(),
         oDeviceDst.pitch(), oSizeROI,
         lutHost,  // value and level arrays are in host memory
-        levelsHost, levelCount,
-        nppStreamCtx));
+        levelsHost, levelCount));
 #endif
 
     // copy the result image back into the storage that contained the

@@ -74,6 +74,26 @@ inline int cudaDeviceInit(int argc, const char **argv) {
   return dev;
 }
 
+bool printfNPPinfo(int argc, char *argv[]) {
+  const NppLibraryVersion *libVer = nppGetLibVersion();
+
+  printf("NPP Library Version %d.%d.%d\n", libVer->major, libVer->minor,
+         libVer->build);
+
+  int driverVersion, runtimeVersion;
+  cudaDriverGetVersion(&driverVersion);
+  cudaRuntimeGetVersion(&runtimeVersion);
+
+  printf("  CUDA Driver  Version: %d.%d\n", driverVersion / 1000,
+         (driverVersion % 100) / 10);
+  printf("  CUDA Runtime Version: %d.%d\n", runtimeVersion / 1000,
+         (runtimeVersion % 100) / 10);
+
+  // Min spec is SM 1.0 devices
+  bool bVal = checkCudaCapabilities(1, 0);
+  return bVal;
+}
+
 int main(int argc, char *argv[]) {
   printf("%s Starting...\n\n", argv[0]);
 
@@ -84,49 +104,10 @@ int main(int argc, char *argv[]) {
 
     cudaDeviceInit(argc, (const char **)argv);
 
-    NppStreamContext nppStreamCtx;
-    nppStreamCtx.hStream = 0; // The NULL stream by default, set this to whatever your stream ID is if not the NULL stream.
-
-    cudaError_t cudaError = cudaGetDevice(&nppStreamCtx.nCudaDeviceId);
-    if (cudaError != cudaSuccess)
-    {
-        printf("CUDA error: no devices supporting CUDA.\n");
-        return NPP_NOT_SUFFICIENT_COMPUTE_CAPABILITY;
+    if (printfNPPinfo(argc, argv) == false) {
+      cudaDeviceReset();
+      exit(EXIT_SUCCESS);
     }
-
-    const NppLibraryVersion *libVer   = nppGetLibVersion();
-
-    printf("NPP Library Version %d.%d.%d\n", libVer->major, libVer->minor, libVer->build);
-
-    int driverVersion, runtimeVersion;
-    cudaDriverGetVersion(&driverVersion);
-    cudaRuntimeGetVersion(&runtimeVersion);
-
-    printf("CUDA Driver  Version: %d.%d\n", driverVersion/1000, (driverVersion%100)/10);
-    printf("CUDA Runtime Version: %d.%d\n\n", runtimeVersion/1000, (runtimeVersion%100)/10);
-
-    cudaError = cudaDeviceGetAttribute(&nppStreamCtx.nCudaDevAttrComputeCapabilityMajor, 
-                                      cudaDevAttrComputeCapabilityMajor, 
-                                      nppStreamCtx.nCudaDeviceId);
-    if (cudaError != cudaSuccess)
-        return NPP_NOT_SUFFICIENT_COMPUTE_CAPABILITY;
-
-    cudaError = cudaDeviceGetAttribute(&nppStreamCtx.nCudaDevAttrComputeCapabilityMinor, 
-                                      cudaDevAttrComputeCapabilityMinor, 
-                                      nppStreamCtx.nCudaDeviceId);
-    if (cudaError != cudaSuccess)
-        return NPP_NOT_SUFFICIENT_COMPUTE_CAPABILITY;
-
-    cudaError = cudaStreamGetFlags(nppStreamCtx.hStream, &nppStreamCtx.nStreamFlags);
-
-    cudaDeviceProp oDeviceProperties;
-
-    cudaError = cudaGetDeviceProperties(&oDeviceProperties, nppStreamCtx.nCudaDeviceId);
-
-    nppStreamCtx.nMultiProcessorCount = oDeviceProperties.multiProcessorCount;
-    nppStreamCtx.nMaxThreadsPerMultiProcessor = oDeviceProperties.maxThreadsPerMultiProcessor;
-    nppStreamCtx.nMaxThreadsPerBlock = oDeviceProperties.maxThreadsPerBlock;
-    nppStreamCtx.nSharedMemPerBlock = oDeviceProperties.sharedMemPerBlock;
 
     char *filePath;
 
@@ -205,11 +186,11 @@ int main(int argc, char *argv[]) {
     npp::ImageNPP_16s_C1 oDeviceDstY(oSizeROI.width, oSizeROI.height);
 
     // run Prewitt edge detection gradient vector filter
-    NPP_CHECK_NPP(nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx(
+    NPP_CHECK_NPP(nppiGradientVectorPrewittBorder_8u16s_C1R(
         oDeviceSrc.data(), oDeviceSrc.pitch(), oSrcSize, oSrcOffset,
         oDeviceDstX.data(), oDeviceDstX.pitch(), oDeviceDstY.data(),
         oDeviceDstY.pitch(), 0, 0, 0, 0, oSizeROI, NPP_MASK_SIZE_3_X_3,
-        nppiNormL1, NPP_BORDER_REPLICATE, nppStreamCtx));
+        nppiNormL1, NPP_BORDER_REPLICATE));
 
     // allocate device destination images of appropriatedly size
     npp::ImageNPP_8u_C1 oDeviceDstOutX(oSizeROI.width, oSizeROI.height);
@@ -217,13 +198,13 @@ int main(int argc, char *argv[]) {
 
     // convert 16s_C1 result images to binary 8u_C1 output images using constant
     // value to adjust amount of visible detail
-    NPP_CHECK_NPP(nppiCompareC_16s_C1R_Ctx(
+    NPP_CHECK_NPP(nppiCompareC_16s_C1R(
         oDeviceDstX.data(), oDeviceDstX.pitch(), 32, oDeviceDstOutX.data(),
-        oDeviceDstOutX.pitch(), oSizeROI, NPP_CMP_GREATER_EQ, nppStreamCtx));
+        oDeviceDstOutX.pitch(), oSizeROI, NPP_CMP_GREATER_EQ));
 
-    NPP_CHECK_NPP(nppiCompareC_16s_C1R_Ctx(
+    NPP_CHECK_NPP(nppiCompareC_16s_C1R(
         oDeviceDstY.data(), oDeviceDstY.pitch(), 32, oDeviceDstOutY.data(),
-        oDeviceDstOutY.pitch(), oSizeROI, NPP_CMP_GREATER_EQ, nppStreamCtx));
+        oDeviceDstOutY.pitch(), oSizeROI, NPP_CMP_GREATER_EQ));
 
     // create host images for the results
     npp::ImageCPU_8u_C1 oHostDstX(oDeviceDstOutX.size());
@@ -253,10 +234,10 @@ int main(int argc, char *argv[]) {
 
     // copy and enlarge the original device source image and surround it with a
     // white edge (border)
-    NPP_CHECK_NPP(nppiCopyConstBorder_8u_C1R_Ctx(
+    NPP_CHECK_NPP(nppiCopyConstBorder_8u_C1R(
         oDeviceSrc.data(), oDeviceSrc.pitch(), oSrcSize,
         oEnlargedDeviceSrc.data(), oEnlargedDeviceSrc.pitch(), oEnlargedSrcSize,
-        oMaskSize.width / 2, oMaskSize.height / 2, 255, nppStreamCtx));
+        oMaskSize.width / 2, oMaskSize.height / 2, 255));
 
     // adjust oEnlargedDeviceSrc pixel pointer to point to the first pixel of
     // the original source image in the enlarged source image
@@ -280,25 +261,23 @@ int main(int argc, char *argv[]) {
 
     // run Prewitt edge detection gradient vector filter bypassing border
     // control due to enlarged source image
-    NPP_CHECK_NPP(nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx(
+    NPP_CHECK_NPP(nppiGradientVectorPrewittBorder_8u16s_C1R(
         pAdjustedSrc, oEnlargedDeviceSrc.pitch(), oEnlargedSrcSize, oSrcOffset,
         oDeviceDstX.data(), oDeviceDstX.pitch(), oDeviceDstY.data(),
         oDeviceDstY.pitch(), 0, 0, 0, 0, oSizeROI, NPP_MASK_SIZE_3_X_3,
-        nppiNormL1, NPP_BORDER_REPLICATE, nppStreamCtx));
+        nppiNormL1, NPP_BORDER_REPLICATE));
 
     // convert 16s_C1 result images to binary 8u_C1 output images using constant
     // value to adjust amount of visible detail
-    NPP_CHECK_NPP(nppiCompareC_16s_C1R_Ctx(oDeviceDstX.data(), oDeviceDstX.pitch(),
-                                           32, oDeviceDstOutXNoBorders.data(),
-                                           oDeviceDstOutXNoBorders.pitch(),
-                                           oSizeROI, NPP_CMP_GREATER_EQ,
-                                           nppStreamCtx));
+    NPP_CHECK_NPP(nppiCompareC_16s_C1R(oDeviceDstX.data(), oDeviceDstX.pitch(),
+                                       32, oDeviceDstOutXNoBorders.data(),
+                                       oDeviceDstOutXNoBorders.pitch(),
+                                       oSizeROI, NPP_CMP_GREATER_EQ));
 
-    NPP_CHECK_NPP(nppiCompareC_16s_C1R_Ctx(oDeviceDstY.data(), oDeviceDstY.pitch(),
-                                           32, oDeviceDstOutYNoBorders.data(),
-                                           oDeviceDstOutYNoBorders.pitch(),
-                                           oSizeROI, NPP_CMP_GREATER_EQ,
-                                           nppStreamCtx));
+    NPP_CHECK_NPP(nppiCompareC_16s_C1R(oDeviceDstY.data(), oDeviceDstY.pitch(),
+                                       32, oDeviceDstOutYNoBorders.data(),
+                                       oDeviceDstOutYNoBorders.pitch(),
+                                       oSizeROI, NPP_CMP_GREATER_EQ));
     // create additional output files
     std::string sResultXNoBordersFilename = sResultBaseFilename;
     std::string sResultYNoBordersFilename = sResultBaseFilename;
@@ -326,17 +305,15 @@ int main(int argc, char *argv[]) {
 
     // diff the two 8u_C1 result images one with and one without border control
 
-    NPP_CHECK_NPP(nppiAbsDiff_8u_C1R_Ctx(
+    NPP_CHECK_NPP(nppiAbsDiff_8u_C1R(
         oDeviceDstOutXNoBorders.data(), oDeviceDstOutXNoBorders.pitch(),
         oDeviceDstOutX.data(), oDeviceDstOutX.pitch(),
-        oDeviceDstOutXDiff.data(), oDeviceDstOutXDiff.pitch(), oSizeROI,
-        nppStreamCtx));
+        oDeviceDstOutXDiff.data(), oDeviceDstOutXDiff.pitch(), oSizeROI));
 
-    NPP_CHECK_NPP(nppiAbsDiff_8u_C1R_Ctx(
+    NPP_CHECK_NPP(nppiAbsDiff_8u_C1R(
         oDeviceDstOutYNoBorders.data(), oDeviceDstOutYNoBorders.pitch(),
         oDeviceDstOutY.data(), oDeviceDstOutY.pitch(),
-        oDeviceDstOutYDiff.data(), oDeviceDstOutYDiff.pitch(), oSizeROI,
-        nppStreamCtx));
+        oDeviceDstOutYDiff.data(), oDeviceDstOutYDiff.pitch(), oSizeROI));
 
     // create additional output files
     std::string sResultXDiffFilename = sResultBaseFilename;
@@ -403,11 +380,11 @@ int main(int argc, char *argv[]) {
 
     // run Prewitt edge detection gradient vector filter to generate the left
     // side of the output image
-    NPP_CHECK_NPP(nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx(
+    NPP_CHECK_NPP(nppiGradientVectorPrewittBorder_8u16s_C1R(
         pAdjustedSrc, oEnlargedDeviceSrc.pitch(), oEnlargedSrcSize, oSrcOffset,
         oDeviceDstX.data(), oDeviceDstX.pitch(), oDeviceDstY.data(),
         oDeviceDstY.pitch(), 0, 0, 0, 0, oSizeROI, NPP_MASK_SIZE_3_X_3,
-        nppiNormL1, NPP_BORDER_REPLICATE, nppStreamCtx));
+        nppiNormL1, NPP_BORDER_REPLICATE));
 
     // now move the enlarged source pointer to the horizontal middle of the
     // enlarged source image and tell the function where it was moved to
@@ -424,26 +401,23 @@ int main(int argc, char *argv[]) {
     // run Prewitt edge detection gradient vector filter to generate the right
     // side of the output image adjusting the destination image pointers
     // appropriately
-    NPP_CHECK_NPP(nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx(
+    NPP_CHECK_NPP(nppiGradientVectorPrewittBorder_8u16s_C1R(
         pAdjustedSrc, oEnlargedDeviceSrc.pitch(), oEnlargedSrcSize, oSrcOffset,
         oDeviceDstX.data() + nLeftWidth, oDeviceDstX.pitch(),
         oDeviceDstY.data() + nLeftWidth, oDeviceDstY.pitch(), 0, 0, 0, 0,
-        oSizeROI, NPP_MASK_SIZE_3_X_3, nppiNormL1, NPP_BORDER_REPLICATE,
-        nppStreamCtx));
+        oSizeROI, NPP_MASK_SIZE_3_X_3, nppiNormL1, NPP_BORDER_REPLICATE));
 
     // convert 16s_C1 result images to binary 8u_C1 output images using constant
     // value to adjust amount of visible detail
-    NPP_CHECK_NPP(nppiCompareC_16s_C1R_Ctx(oDeviceDstX.data(), oDeviceDstX.pitch(),
-                                           32, oDeviceDstOutXMixedBorders.data(),
-                                           oDeviceDstOutXMixedBorders.pitch(),
-                                           oSizeROI, NPP_CMP_GREATER_EQ,
-                                           nppStreamCtx));
+    NPP_CHECK_NPP(nppiCompareC_16s_C1R(oDeviceDstX.data(), oDeviceDstX.pitch(),
+                                       32, oDeviceDstOutXMixedBorders.data(),
+                                       oDeviceDstOutXMixedBorders.pitch(),
+                                       oSizeROI, NPP_CMP_GREATER_EQ));
 
-    NPP_CHECK_NPP(nppiCompareC_16s_C1R_Ctx(oDeviceDstY.data(), oDeviceDstY.pitch(),
-                                           32, oDeviceDstOutYMixedBorders.data(),
-                                           oDeviceDstOutYMixedBorders.pitch(),
-                                           oSizeROI, NPP_CMP_GREATER_EQ,
-                                           nppStreamCtx));
+    NPP_CHECK_NPP(nppiCompareC_16s_C1R(oDeviceDstY.data(), oDeviceDstY.pitch(),
+                                       32, oDeviceDstOutYMixedBorders.data(),
+                                       oDeviceDstOutYMixedBorders.pitch(),
+                                       oSizeROI, NPP_CMP_GREATER_EQ));
     // create additional output files
     std::string sResultXMixedBordersFilename = sResultBaseFilename;
     std::string sResultYMixedBordersFilename = sResultBaseFilename;
@@ -465,17 +439,15 @@ int main(int argc, char *argv[]) {
     // diff the original 8u_C1 result images with border control and the mixed
     // border control images, they should match (diff image will be all black)
 
-    NPP_CHECK_NPP(nppiAbsDiff_8u_C1R_Ctx(
+    NPP_CHECK_NPP(nppiAbsDiff_8u_C1R(
         oDeviceDstOutXMixedBorders.data(), oDeviceDstOutXMixedBorders.pitch(),
         oDeviceDstOutX.data(), oDeviceDstOutX.pitch(),
-        oDeviceDstOutXDiff.data(), oDeviceDstOutXDiff.pitch(), oSizeROI,
-        nppStreamCtx));
+        oDeviceDstOutXDiff.data(), oDeviceDstOutXDiff.pitch(), oSizeROI));
 
-    NPP_CHECK_NPP(nppiAbsDiff_8u_C1R_Ctx(
+    NPP_CHECK_NPP(nppiAbsDiff_8u_C1R(
         oDeviceDstOutYMixedBorders.data(), oDeviceDstOutYMixedBorders.pitch(),
         oDeviceDstOutY.data(), oDeviceDstOutY.pitch(),
-        oDeviceDstOutYDiff.data(), oDeviceDstOutYDiff.pitch(), oSizeROI,
-        nppStreamCtx));
+        oDeviceDstOutYDiff.data(), oDeviceDstOutYDiff.pitch(), oSizeROI));
 
     // create additional output files
     std::string sResultXMixedDiffFilename = sResultBaseFilename;
