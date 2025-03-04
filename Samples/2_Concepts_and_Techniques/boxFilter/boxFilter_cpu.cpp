@@ -74,7 +74,7 @@ void hboxfilter_y(float *id, float *od, int w, int h, int r) {
 
   for (int x = 0; x < w; x++) {
     float t;
-    // do left edge
+    // do top edge
     t = id[x] * r;
 
     for (int y = 0; y < r + 1; y++) {
@@ -98,7 +98,7 @@ void hboxfilter_y(float *id, float *od, int w, int h, int r) {
       od[c] = t * scale;
     }
 
-    // do right edge
+    // do bottom edge
     for (int y = h - r; y < h; y++) {
       int c = y * w + x;
       t += id[(h - 1) * w + x];

@@ -129,7 +129,7 @@ __device__ void d_boxfilter_y(float *id, float *od, int w, int h, int r) {
   float scale = 1.0f / (float)((r << 1) + 1);
 
   float t;
-  // do left edge
+  // do top edge
   t = id[0] * r;
 
   for (int y = 0; y < (r + 1); y++) {
@@ -151,7 +151,7 @@ __device__ void d_boxfilter_y(float *id, float *od, int w, int h, int r) {
     od[y * w] = t * scale;
   }
 
-  // do right edge
+  // do bottom edge
   for (int y = h - r; y < h; y++) {
     t += id[(h - 1) * w];
     t -= id[((y - r) * w) - w];
@@ -271,7 +271,7 @@ __global__ void d_boxfilter_rgba_y(unsigned int *id, unsigned int *od, int w,
   float scale = 1.0f / (float)((r << 1) + 1);
 
   float4 t;
-  // do left edge
+  // do top edge
   t = rgbaIntToFloat(id[0]) * r;
 
   for (int y = 0; y < (r + 1); y++) {
@@ -293,7 +293,7 @@ __global__ void d_boxfilter_rgba_y(unsigned int *id, unsigned int *od, int w,
     od[y * w] = rgbaFloatToInt(t * scale);
   }
 
-  // do right edge
+  // do bottom edge
   for (int y = h - r; y < h; y++) {
     t += rgbaIntToFloat(id[(h - 1) * w]);
     t -= rgbaIntToFloat(id[((y - r) * w) - w]);
