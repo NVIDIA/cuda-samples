@@ -380,8 +380,8 @@ void simpleIfElseGraph(void)
     // Use a kernel upstream of the conditional to set the handle value
     cudaGraphNodeParams params = {cudaGraphNodeTypeKernel};
     params.kernel.func = (void *)ifGraphKernelA;
-    params.kernel.gridDim = 1;
-    params.kernel.blockDim = 1;
+    params.kernel.blockDim.x = params.kernel.blockDim.y = params.kernel.blockDim.z = 1;
+    params.kernel.gridDim.x = params.kernel.gridDim.y = params.kernel.gridDim.z = 1;
     params.kernel.kernelParams = kernelArgs;
     kernelArgs[0] = &dPtr;
     kernelArgs[1] = &handle;
