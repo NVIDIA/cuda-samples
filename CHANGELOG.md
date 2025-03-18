@@ -1,5 +1,50 @@
 ## Changelog
 
+### CUDA 12.8
+* Updated build system across the repository to CMake. Removed Visual Studio project files and Makefiles.
+* Removed the following outdated samples:
+    * `0_Introduction`
+        * `c++11_cuda` demonstrating CUDA and C++ 11 interoperability (reason: obsolete)
+        * `concurrentKernels` demonstrating the ability to run multiple kernels simultaneously (reason: obsolete)
+        * `cppIntegration` demonstrating calling between .cu and .cpp files (reason: obsolete)
+        * `cppOverload` demonstrating C++ function overloading (reason: obsolete)
+        * `simpleSeparateCompilation` demonstrating NVCC compilation to a static library (reason: trivial)
+        * `simpleTemplates_nvrtc` demonstrating NVRTC usage for `simpleTemplates` sample (reason: redundant)
+        * `simpleVoteIntrinsics_nvrtc` demonstrating NVRTC usage for `simpleVoteIntrinsics` sample (reason: redundant)
+    * `2_Concepts_and_Techniques`
+        * `cuHook` demonstrating dlsym hooks. (reason: incompatible with modern `glibc`)
+    * `4_CUDA_Libraries`
+        * `batchedLabelMarkersAndLabelCompressionNPP` demonstrating NPP features (reason: some functionality removed from library)
+    * `5_Domain_Specific`
+        * Legacy Direct3D 9 and 10 interoperability samples:
+            * `fluidsD3D9`
+            * `simpleD3D10`
+            * `simpleD3D10RenderTarget`
+            * `simpleD3D10Texture`
+            * `simpleD3D9`
+            * `simpleD3D9Texture`
+            * `SLID3D10Texture`
+            * `VFlockingD3D10`
+    * `8_Platform_Specific/Tegra`
+        * Temporarily removed the following two samples pending updates:
+            * `nbody_screen` demonstrating the nbody sample in QNX
+            * `simpleGLES_screen` demonstrating GLES interop in QNX
+* Moved the following Tegra-specific samples to a dedicated subdirectory: `8_Platform_Specific/Tegra`
+    * `EGLSync_CUDAEvent_Interop`
+    * `cuDLAErrorReporting`
+    * `cuDLAHybridMode`
+    * `cuDLALayerwiseStatsHybrid`
+    * `cuDLALayerwiseStatsStandalone`
+    * `cuDLAStandaloneMode`
+    * `cudaNvSciBufMultiplanar`
+    * `cudaNvSciNvMedia`
+    * `fluidsGLES`
+    * `nbody_opengles`
+    * `simpleGLES`
+    * `simpleGLES_EGLOutput`
+
+
+
 ### CUDA 12.5
 
 ### CUDA 12.4
@@ -18,7 +63,7 @@
 * Added new sample for Large Kernels
 
 ### CUDA 12.0
-* Added new flags for JIT compiling 
+* Added new flags for JIT compiling
 * Removed deprecated APIs in Hopper Architecture
 
 ### CUDA 11.6

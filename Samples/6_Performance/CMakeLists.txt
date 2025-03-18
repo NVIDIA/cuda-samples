@@ -1,0 +1,5 @@
+add_subdirectory(LargeKernelParameter)
+add_subdirectory(UnifiedMemoryPerf)
+add_subdirectory(alignedTypes)
+add_subdirectory(cudaGraphsPerfScaling)
+add_subdirectory(transpose)

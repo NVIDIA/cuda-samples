@@ -59,6 +59,7 @@ typedef struct shmStruct_st {
   size_t nprocesses;
   int barrier;
   int sense;
+  cudaMemAllocationHandleType handleType;
   int devices[MAX_DEVICES];
   cudaMemPoolPtrExportData exportPtrData[MAX_DEVICES];
 } shmStruct;
@@ -126,7 +127,7 @@ static void childProcess(int id) {
 
   std::vector<cudaMemPool_t> pools(shm->nprocesses);
 
-  cudaMemAllocationHandleType handleType = cudaMemHandleTypePosixFileDescriptor;
+  cudaMemAllocationHandleType handleType = shm->handleType;
 
   // Import mem pools from all the devices created in the master
   // process using shareable handles received via socket
@@ -239,6 +240,7 @@ static void parentProcess(char *app) {
   volatile shmStruct *shm = NULL;
   std::vector<void *> ptrs;
   std::vector<Process> processes;
+  cudaMemAllocationHandleType handleType = cudaMemHandleTypeNone;
 
   checkCudaErrors(cudaGetDeviceCount(&devCount));
   std::vector<CUdevice> devices(devCount);
@@ -270,21 +272,31 @@ static void parentProcess(char *app) {
       printf("Device %d does not support cuda memory pools, skipping...\n", i);
       continue;
     }
-    int deviceSupportsIpcHandle = 0;
-#if defined(__linux__)
-    checkCudaErrors(cuDeviceGetAttribute(
-        &deviceSupportsIpcHandle,
-        CU_DEVICE_ATTRIBUTE_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR_SUPPORTED,
-        devices[i]));
-#else
-    cuDeviceGetAttribute(&deviceSupportsIpcHandle,
-                         CU_DEVICE_ATTRIBUTE_HANDLE_TYPE_WIN32_HANDLE_SUPPORTED,
-                         devices[i]);
-#endif
-
-    if (!deviceSupportsIpcHandle) {
-      printf("Device %d does not support CUDA IPC Handle, skipping...\n", i);
+    int supportedHandleTypes = 0;
+    checkCudaErrors(cudaDeviceGetAttribute(&supportedHandleTypes,
+                                           cudaDevAttrMemoryPoolSupportedHandleTypes, i));
+    if (supportedHandleTypes == 0) {
+      printf("Device %d does not support Memory pool based IPC, skipping...\n", i);
       continue;
+    }
+
+    if (handleType == cudaMemHandleTypeNone) {
+        if (supportedHandleTypes & cudaMemHandleTypePosixFileDescriptor) {
+            handleType = cudaMemHandleTypePosixFileDescriptor;
+        }
+        else if (supportedHandleTypes & cudaMemHandleTypeWin32) {
+            handleType = cudaMemHandleTypeWin32;
+        }
+        else {
+            printf("Device %d does not support any supported handle types, skipping...\n", i);
+            continue;
+        }
+    }
+    else {
+        if ((supportedHandleTypes & handleType) != handleType) {
+            printf("Mixed handle types are not supported, waiving test\n");
+            exit(EXIT_WAIVED);
+        }
     }
     // This sample requires two processes accessing each device, so we need
     // to ensure exclusive or prohibited mode is not set
@@ -337,6 +349,11 @@ static void parentProcess(char *app) {
     exit(EXIT_WAIVED);
   }
 
+  if (handleType == cudaMemHandleTypeNone) {
+    printf("No supported handle types found, waiving test\n");
+    exit(EXIT_WAIVED);
+  }
+
   std::vector<ShareableHandle> shareableHandles(shm->nprocesses);
   std::vector<cudaStream_t> streams(shm->nprocesses);
   std::vector<cudaMemPool_t> pools(shm->nprocesses);
@@ -352,7 +369,7 @@ static void parentProcess(char *app) {
     cudaMemPoolProps poolProps;
     memset(&poolProps, 0, sizeof(cudaMemPoolProps));
     poolProps.allocType = cudaMemAllocationTypePinned;
-    poolProps.handleTypes = cudaMemHandleTypePosixFileDescriptor;
+    poolProps.handleTypes = handleType;
 
     poolProps.location.type = cudaMemLocationTypeDevice;
     poolProps.location.id = shm->devices[i];
@@ -360,8 +377,6 @@ static void parentProcess(char *app) {
     checkCudaErrors(cudaMemPoolCreate(&pools[i], &poolProps));
 
     // Query the shareable handle for the pool
-    cudaMemAllocationHandleType handleType =
-        cudaMemHandleTypePosixFileDescriptor;
     // Allocate memory in a stream from the pool just created
     checkCudaErrors(cudaMallocAsync(&ptr, DATA_SIZE, pools[i], streams[i]));
 
@@ -377,6 +392,8 @@ static void parentProcess(char *app) {
         (cudaMemPoolPtrExportData *)&shm->exportPtrData[i], ptr));
     ptrs.push_back(ptr);
   }
+
+  shm->handleType = handleType;
 
   // Launch the child processes!
   for (i = 0; i < shm->nprocesses; i++) {
@@ -430,7 +447,7 @@ static void parentProcess(char *app) {
 int main(int argc, char **argv) {
 #if defined(__arm__) || defined(__aarch64__) || defined(WIN32) || \
     defined(_WIN32) || defined(WIN64) || defined(_WIN64)
-  printf("Not supported on ARM\n");
+  printf("Not supported on ARM or Windows\n");
   return EXIT_WAIVED;
 #else
   if (argc == 1) {

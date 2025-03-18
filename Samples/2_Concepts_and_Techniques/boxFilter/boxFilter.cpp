@@ -77,7 +77,6 @@ int filter_radius = 14;
 int nthreads = 64;
 unsigned int width, height;
 unsigned int *h_img = NULL;
-unsigned int *d_img = NULL;
 unsigned int *d_temp = NULL;
 
 GLuint pbo;                                      // OpenGL pixel buffer object
@@ -108,11 +107,11 @@ extern "C" void computeGold(float *id, float *od, int w, int h, int n);
 // These are CUDA functions to handle allocation and launching the kernels
 extern "C" void initTexture(int width, int height, void *pImage, bool useRGBA);
 extern "C" void freeTextures();
-extern "C" double boxFilter(float *d_src, float *d_temp, float *d_dest,
+extern "C" double boxFilter(float *d_temp, float *d_dest,
                             int width, int height, int radius, int iterations,
                             int nthreads, StopWatchInterface *timer);
 
-extern "C" double boxFilterRGBA(unsigned int *d_src, unsigned int *d_temp,
+extern "C" double boxFilterRGBA(unsigned int *d_temp,
                                 unsigned int *d_dest, int width, int height,
                                 int radius, int iterations, int nthreads,
                                 StopWatchInterface *timer);
@@ -165,7 +164,7 @@ void display() {
   size_t num_bytes;
   checkCudaErrors(cudaGraphicsResourceGetMappedPointer(
       (void **)&d_result, &num_bytes, cuda_pbo_resource));
-  boxFilterRGBA(d_img, d_temp, d_result, width, height, filter_radius,
+  boxFilterRGBA(d_temp, d_result, width, height, filter_radius,
                 iterations, nthreads, kernel_timer);
 
   checkCudaErrors(cudaGraphicsUnmapResources(1, &cuda_pbo_resource, 0));
@@ -282,11 +281,7 @@ void reshape(int x, int y) {
 }
 
 void initCuda(bool useRGBA) {
-  // allocate device memory
-  checkCudaErrors(
-      cudaMalloc((void **)&d_img, (width * height * sizeof(unsigned int))));
-  checkCudaErrors(
-      cudaMalloc((void **)&d_temp, (width * height * sizeof(unsigned int))));
+  checkCudaErrors(cudaMalloc((void **)&d_temp, (width * height * sizeof(unsigned int))));
 
   // Refer to boxFilter_kernel.cu for implementation
   initTexture(width, height, h_img, useRGBA);
@@ -302,11 +297,6 @@ void cleanup() {
   if (h_img) {
     free(h_img);
     h_img = NULL;
-  }
-
-  if (d_img) {
-    cudaFree(d_img);
-    d_img = NULL;
   }
 
   if (d_temp) {
@@ -413,7 +403,7 @@ int runBenchmark() {
       cudaMalloc((void **)&d_result, width * height * sizeof(unsigned int)));
 
   // warm-up
-  boxFilterRGBA(d_img, d_temp, d_temp, width, height, filter_radius, iterations,
+  boxFilterRGBA(d_temp, d_temp, width, height, filter_radius, iterations,
                 nthreads, kernel_timer);
   checkCudaErrors(cudaDeviceSynchronize());
 
@@ -426,7 +416,7 @@ int runBenchmark() {
 
   for (int i = 0; i < iCycles; i++) {
     dProcessingTime +=
-        boxFilterRGBA(d_img, d_temp, d_img, width, height, filter_radius,
+        boxFilterRGBA(d_temp, d_temp, width, height, filter_radius,
                       iterations, nthreads, kernel_timer);
   }
 
@@ -469,7 +459,7 @@ int runSingleTest(char *ref_file, char *exec_path) {
   {
     printf("%s (radius=%d) (passes=%d) ", sSDKsample, filter_radius,
            iterations);
-    boxFilterRGBA(d_img, d_temp, d_result, width, height, filter_radius,
+    boxFilterRGBA(d_temp, d_result, width, height, filter_radius,
                   iterations, nthreads, kernel_timer);
 
     // check if kernel execution generated an error

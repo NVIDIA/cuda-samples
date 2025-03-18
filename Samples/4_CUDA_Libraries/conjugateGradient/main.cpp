@@ -231,6 +231,10 @@ int main(int argc, char **argv) {
     }
   }
 
+  if (buffer) {
+    checkCudaErrors(cudaFree(buffer));
+  }
+  
   cusparseDestroy(cusparseHandle);
   cublasDestroy(cublasHandle);
   if (matA) {

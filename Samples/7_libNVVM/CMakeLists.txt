@@ -28,7 +28,7 @@ cmake_minimum_required(VERSION 3.10.0)
 
 project(libnvvm-samples)
 enable_testing()
-set_property(GLOBAL PROPERTY ALLOW_DUPLICATE_CUSTOM_TARGETS TRUE)
+#set_property(GLOBAL PROPERTY ALLOW_DUPLICATE_CUSTOM_TARGETS TRUE)
 set(CMAKE_C_STANDARD 11)
 
 # Initialize the CUDA Toolkit search using CUDA_HOME if the user specified it.
@@ -53,6 +53,8 @@ if (${CMAKE_VERSION} VERSION_LESS 3.18.0)
 else () # Else, we're using cmake versions >= 3.18.
   cmake_policy(SET CMP0074 NEW) # Use CUDAToolkit_ROOT as a cmake prefix.
   find_package(CUDAToolkit REQUIRED)
+
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
   set(CUDA_LIB "${CUDA_cuda_driver_LIBRARY}")
   include_directories("${CUDAToolkit_INCLUDE_DIRS}")
   get_filename_component(CUDA_HOME "${CUDAToolkit_BIN_DIR}" DIRECTORY)

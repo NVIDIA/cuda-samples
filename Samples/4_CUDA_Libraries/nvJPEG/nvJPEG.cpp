@@ -312,7 +312,7 @@ int decode_images(const FileData &img_data, const std::vector<size_t> &img_len,
   return EXIT_SUCCESS;
 }
 
-int write_images(std::vector<nvjpegImage_t> &iout, std::vector<int> &widths,
+void write_images(std::vector<nvjpegImage_t> &iout, std::vector<int> &widths,
                  std::vector<int> &heights, decode_params_t &params,
                  FileNames &filenames) {
   for (int i = 0; i < params.batch_size; i++) {
@@ -341,7 +341,7 @@ int write_images(std::vector<nvjpegImage_t> &iout, std::vector<int> &widths,
     }
     if (err) {
       std::cout << "Cannot write output file: " << fname << std::endl;
-      return EXIT_FAILURE;
+      return;
     }
     std::cout << "Done writing decoded image to file: " << fname << std::endl;
   }

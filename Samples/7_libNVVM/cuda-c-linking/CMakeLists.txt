@@ -34,11 +34,10 @@ if (LLVM_PACKAGE_VERSION VERSION_GREATER_EQUAL "15" OR
 endif ()
 
 add_executable(cuda-c-linking cuda-c-linking.cpp)
-add_custom_target(clobber)
-add_custom_target(testrun)
+
 add_test(NAME cuda-c-linking
    COMMAND cuda-c-linking
-   WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+   WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 target_link_libraries(cuda-c-linking ${NVVM_LIB} ${CUDA_LIB})
 
 # See https://llvm.org/docs/CMake.html#developing-llvm-passes-out-of-source
@@ -70,6 +69,7 @@ enable_language(CUDA)
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -dc") # -dc: Build for device only.
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.18.0)
   set(CMAKE_CUDA_ARCHITECTURES 50)
+  set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Wno-deprecated-gpu-targets")
 endif ()
 if (WIN32)
   set(CMAKE_CUDA_USE_RESPONSE_FILE_FOR_INCLUDES 0)
@@ -81,3 +81,12 @@ set_target_properties(mathfuncs64 PROPERTIES PREFIX "lib"
                       OUTPUT_NAME "mathfuncs64"
                       SUFFIX ".a" CUDA_SEPERABLE_COMPILATION ON)
 install(TARGETS cuda-c-linking mathfuncs64 DESTINATION bin)
+
+if (WIN32)
+  add_custom_command(
+      TARGET cuda-c-linking
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+              "${CMAKE_BINARY_DIR}/nvvm64_40_0.dll" "$<TARGET_FILE_DIR:cuda-c-linking>"
+  )
+endif ()
