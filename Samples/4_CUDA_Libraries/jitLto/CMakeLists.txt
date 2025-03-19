@@ -27,25 +27,16 @@ target_compile_features(jitLto PRIVATE cxx_std_17 cuda_std_17)
 
 set_target_properties(jitLto PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
+find_library(NVJITLINK_LIB
+             NAME nvJitLink
+             PATHS "${CUDAToolkit_LIBRARY_DIR}" "${CMAKE_LIBRARY_PATH}")
+
 target_include_directories(jitLto PRIVATE
     ${CUDAToolkit_INCLUDE_DIRS}
 )
 
-
-
-    target_link_libraries(jitLto PRIVATE
-        CUDA::cuda_driver
-        CUDA::nvrtc
-    )
-
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    target_link_libraries(jitLto PRIVATE
-        ${CUDAToolkit_LIBRARY_DIR}/libnvJitLink.so
-    )
-endif()
-
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    target_link_libraries(jitLto PRIVATE
-        ${CUDAToolkit_LIBRARY_DIR}/nvJitLink.lib
-    )
-endif()
+target_link_libraries(jitLto PRIVATE
+    CUDA::cuda_driver
+    CUDA::nvrtc
+    ${NVJITLINK_LIB}
+)

@@ -27,9 +27,13 @@ include(CheckIncludeFile)
 check_include_file("GLFW/glfw3.h" HAVE_GLFW3_H)
 
 # Find GLFW header and lib for Windows
-if(WIN32)
-    find_file(GLFW3_H "GLFW/glfw3.h" PATH "${GLFW_INCLUDE_DIR}")
-    find_file(GLFW3_LIB "glfw3" PATH "${GLFW_LIB_DIR}")
+if(WIN32 OR CMAKE_CROSSCOMPILING)
+    set(GLFW_INCLUDE_DIRS "${GLFW_INCLUDE_DIR}" "${CMAKE_INCLUDE_PATH}")
+    find_file(GLFW3_H "GLFW/glfw3.h" PATHS ${GLFW_INCLUDE_DIRS})
+    find_library(GLFW3_LIB
+                 NAMES glfw3 glfw
+                 PATHS "${GLFW_LIB_DIR}"
+                 PATH_SUFFIXES lib lib64)
     if(GLFW3_H AND GLFW3_LIB) 
         message(STATUS "Found GLFW/glfw3.h and GLFW library.")
         set(HAVE_GLFW3_H 1)
@@ -57,9 +61,9 @@ if(${Vulkan_FOUND})
                 ${Vulkan_LIBRARIES}
                 OpenGL::GL
             )
-            if(WIN32)
+            if(WIN32 OR CMAKE_CROSSCOMPILING)
                 target_include_directories(vulkanImageCUDA PUBLIC
-                    ${GLFW_INCLUDE_DIR}
+                    ${GLFW_INCLUDE_DIRS}
                 )
                 target_link_libraries(vulkanImageCUDA
                     ${GLFW3_LIB}
