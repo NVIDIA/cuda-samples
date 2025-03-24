@@ -74,7 +74,7 @@ __device__ inline double expiryCallValue(double S, double X, double vDt,
 #error Bad constants
 #endif
 
-__global__ void binomialOptionsKernel() {
+__global__ void binomialOptionsKernel(option_t option_type) {
   // Handle to thread block group
   cg::thread_block cta = cg::this_thread_block();
   __shared__ real call_exchange[THREADBLOCK_SIZE + 1];
@@ -105,8 +105,20 @@ __global__ void binomialOptionsKernel() {
 
     if (i > final_it) {
 #pragma unroll
-      for (int j = 0; j < ELEMS_PER_THREAD; ++j)
-        call[j] = puByDf * call[j + 1] + pdByDf * call[j];
+      for (int j = 0; j < ELEMS_PER_THREAD; ++j) {
+	real continuation_value = puByDf * call[j + 1] + pdByDf * call[j];
+	if(option_type == NA){
+#ifndef DOUBLE_PRECISION
+	  real fwd = S*__expf(vDt * (2*(tid * ELEMS_PER_THREAD + j) - i));
+#else
+	  real fwd = S*exp(vDt * (2*(tid * ELEMS_PER_THREAD + j) - i));
+#endif
+	  real exercise_value = ((fwd - X) > (real)0) ? (fwd - X) : (real)0;
+	  call[j] = exercise_value > continuation_value ? exercise_value : continuation_value;
+	} else if (option_type == EU){
+	  call[j] = continuation_value;
+	}
+      }
     }
   }
 
@@ -119,7 +131,7 @@ __global__ void binomialOptionsKernel() {
 // Host-side interface to GPU binomialOptions
 ////////////////////////////////////////////////////////////////////////////////
 extern "C" void binomialOptionsGPU(real *callValue, TOptionData *optionData,
-                                   int optN) {
+                                   int optN, option_t option_type) {
   __TOptionData h_OptionData[MAX_OPTIONS];
 
   for (int i = 0; i < optN; i++) {
@@ -150,7 +162,7 @@ extern "C" void binomialOptionsGPU(real *callValue, TOptionData *optionData,
 
   checkCudaErrors(cudaMemcpyToSymbol(d_OptionData, h_OptionData,
                                      optN * sizeof(__TOptionData)));
-  binomialOptionsKernel<<<optN, THREADBLOCK_SIZE>>>();
+  binomialOptionsKernel<<<optN, THREADBLOCK_SIZE>>>(option_type);
   getLastCudaError("binomialOptionsKernel() execution failed.\n");
   checkCudaErrors(
       cudaMemcpyFromSymbol(callValue, d_CallValue, optN * sizeof(real)));

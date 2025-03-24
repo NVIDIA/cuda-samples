@@ -52,13 +52,14 @@ extern "C" void BlackScholesCall(real &callResult, TOptionData optionData);
 // Process single option on CPU
 // Note that CPU code is for correctness testing only and not for benchmarking.
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" void binomialOptionsCPU(real &callResult, TOptionData optionData);
+extern "C" void binomialOptionsCPU(real &callResult, TOptionData optionData,
+				   option_t option_type);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Process an array of OptN options on GPU
 ////////////////////////////////////////////////////////////////////////////////
 extern "C" void binomialOptionsGPU(real *callValue, TOptionData *optionData,
-                                   int optN);
+                                   int optN, option_t option_type);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Helper function, returning uniformly distributed
@@ -103,12 +104,14 @@ int main(int argc, char **argv) {
     BlackScholesCall(callValueBS[i], optionData[i]);
   }
 
-  printf("Running GPU binomial tree...\n");
+  option_t option_type = EU;
+  
+  printf("Running GPU binomial tree (EU)...\n");
   checkCudaErrors(cudaDeviceSynchronize());
   sdkResetTimer(&hTimer);
   sdkStartTimer(&hTimer);
 
-  binomialOptionsGPU(callValueGPU, optionData, OPT_N);
+  binomialOptionsGPU(callValueGPU, optionData, OPT_N, option_type);
 
   checkCudaErrors(cudaDeviceSynchronize());
   sdkStopTimer(&hTimer);
@@ -118,13 +121,13 @@ int main(int argc, char **argv) {
   printf("binomialOptionsGPU() time: %f msec\n", gpuTime);
   printf("Options per second       : %f     \n", OPT_N / (gpuTime * 0.001));
 
-  printf("Running CPU binomial tree...\n");
+  printf("Running CPU binomial tree (EU)...\n");
 
   for (i = 0; i < OPT_N; i++) {
-    binomialOptionsCPU(callValueCPU[i], optionData[i]);
+    binomialOptionsCPU(callValueCPU[i], optionData[i], option_type);
   }
 
-  printf("Comparing the results...\n");
+  printf("Comparing the results (EU)...\n");
   sumDelta = 0;
   sumRef = 0;
   printf("GPU binomial vs. Black-Scholes\n");
@@ -153,6 +156,49 @@ int main(int argc, char **argv) {
     printf("L1 norm: %E\n", sumDelta / sumRef);
   } else {
     printf("Avg. diff: %E\n", (double)(sumDelta / (real)OPT_N));
+  }
+
+  printf("CPU binomial vs. GPU binomial\n");
+  sumDelta = 0;
+  sumRef = 0;
+
+  for (i = 0; i < OPT_N; i++) {
+    sumDelta += fabs(callValueGPU[i] - callValueCPU[i]);
+    sumRef += callValueCPU[i];
+  }
+
+  if (sumRef > 1E-5) {
+    printf("L1 norm: %E\n", errorVal = sumDelta / sumRef);
+  } else {
+    printf("Avg. diff: %E\n", (double)(sumDelta / (real)OPT_N));
+  }
+
+  if (errorVal > 5e-4) {
+    printf("Test failed!\n");
+    exit(EXIT_FAILURE);
+  }
+  
+  option_type = NA;
+  
+  printf("\nRunning GPU binomial tree (NA)...\n");
+  checkCudaErrors(cudaDeviceSynchronize());
+  sdkResetTimer(&hTimer);
+  sdkStartTimer(&hTimer);
+
+  binomialOptionsGPU(callValueGPU, optionData, OPT_N, option_type);
+
+  checkCudaErrors(cudaDeviceSynchronize());
+  sdkStopTimer(&hTimer);
+  gpuTime = sdkGetTimerValue(&hTimer);
+  printf("Options count            : %i     \n", OPT_N);
+  printf("Time steps               : %i     \n", NUM_STEPS);
+  printf("binomialOptionsGPU() time: %f msec\n", gpuTime);
+  printf("Options per second       : %f     \n", OPT_N / (gpuTime * 0.001));
+
+  printf("Running CPU binomial tree (NA)...\n");
+
+  for (i = 0; i < OPT_N; i++) {
+    binomialOptionsCPU(callValueCPU[i], optionData[i], option_type);
   }
 
   printf("CPU binomial vs. GPU binomial\n");
