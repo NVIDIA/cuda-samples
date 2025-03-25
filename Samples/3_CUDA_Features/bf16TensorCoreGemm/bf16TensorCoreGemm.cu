@@ -592,8 +592,8 @@ __global__ void simple_wmma_bf16gemm(__nv_bfloat16 *a, __nv_bfloat16 *b, float *
       int aCol = i; 
       int aRow = warpM * M;
 
-      int bCol = i;
-      int bRow = warpN * N;
+      int bCol = warpN * N;
+      int bRow = i;
 
       // Bounds checking
       if (aRow < m_ld && aCol < k_ld && bRow < k_ld && bCol < n_ld) {
