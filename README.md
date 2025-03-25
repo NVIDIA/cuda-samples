@@ -94,9 +94,9 @@ Navigate to the root of the cloned repository and create a build directory:
 ```
 mkdir build && cd build
 ```
-Configure the project with CMake, specifying the Tegra toolchain file:
+Configure the project with CMake, specifying the Tegra toolchain file. And you can use -DTARGET_FS to point to the target file system root path for necessary include and library files:
 ```
-cmake .. -DCMAKE_TOOLCHAIN_FILE=/path/to/tegra/toolchain.cmake
+cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/toolchain-aarch64-linux.cmake -DTARGET_FS=/path/to/target/system/file/system
 ```
 Build the samples:
 ```

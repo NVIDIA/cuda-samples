@@ -4,7 +4,7 @@ find_path(FreeImage_INCLUDE_DIR
 )
 
 find_library(FreeImage_LIBRARY
-  NAMES freeimage
+  NAMES freeimage FreeImage
   PATHS /usr/lib /usr/local/lib
 )
 

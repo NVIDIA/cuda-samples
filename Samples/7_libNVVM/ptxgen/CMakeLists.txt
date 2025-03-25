@@ -33,12 +33,18 @@ set_tests_properties(ptxgenTest PROPERTIES FIXTURES_SETUP PTXGENTEST)
 
 target_link_libraries(ptxgen ${NVVM_LIB})
 
+if (DEFINED RUNTIME_LIBNVVM_PATH)
+  get_filename_component(_LIBNVVM_HOME "${RUNTIME_LIBNVVM_PATH}" DIRECTORY)
+else ()
+  set(_LIBNVVM_HOME "${LIBNVVM_HOME}")
+endif ()
+
 if (WIN32)
   set_target_properties(ptxgen PROPERTIES
                         COMPILE_FLAGS "/wd4996 -DLIBNVVM_HOME=\"${LIBNVVM_HOME}\"")
 else (WIN32)
   set_target_properties(ptxgen PROPERTIES
-                        COMPILE_FLAGS "-DLIBNVVM_HOME=\"${LIBNVVM_HOME}\""
+                        COMPILE_FLAGS "-DLIBNVVM_HOME=\"${_LIBNVVM_HOME}\""
                         LINK_FLAGS    "-Wl,-rpath,${LIBNVVM_RPATH}")
 endif (WIN32)
 

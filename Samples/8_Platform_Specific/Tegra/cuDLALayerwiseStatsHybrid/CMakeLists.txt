@@ -18,7 +18,7 @@ endif()
 # Include directories and libraries
 include_directories(../../../../Common)
 
-find_library(CUDLA_LIB cudla PATHS ${CUDAToolkit_LIBRARY_DIR})
+find_library(CUDLA_LIB cudla PATHS ${CUDAToolkit_LIBRARY_DIR} ${CMAKE_LIBRARY_PATH})
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     if(CUDLA_LIB)

@@ -26,7 +26,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     if(${OpenGL_FOUND})
         if(${EGL_FOUND})
             if(${X11_FOUND})
-                set(DRM_INCLUDE_PATH "/usr/include/drm" "/usr/include/libdrm")
+                set(DRM_INCLUDE_PATH "/usr/include/drm" "/usr/include/libdrm" ${CMAKE_INCLUDE_PATH})
 
                 # use CMAKE_LIBRARY_PATH so that users can also specify the NVSCI lib path in cmake command
                 set(CMAKE_LIBRARY_PATH "/usr/lib/${CMAKE_SYSTEM_PROCESSOR}-linux-gnu" ${CMAKE_LIBRARY_PATH})
