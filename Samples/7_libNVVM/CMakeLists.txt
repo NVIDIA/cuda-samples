@@ -82,7 +82,12 @@ message(STATUS "Using libnvvm library:     ${NVVM_LIB}")
 
 # Set the rpath to libnvvm.
 find_path(LIBNVVM_RPATH lib lib64 PATHS "$ENV{LIBNVVM_HOME}" "${CUDA_HOME}")
-get_filename_component(LIBNVVM_RPATH ${NVVM_LIB} DIRECTORY)
+if(DEFINED RUNTIME_LIBNVVM_PATH)
+  message(STATUS "Using RUNTIME_LIBNVVM_PATH: ${RUNTIME_LIBNVVM_PATH}")
+  set(LIBNVVM_RPATH ${RUNTIME_LIBNVVM_PATH})
+else()
+  get_filename_component(LIBNVVM_RPATH ${NVVM_LIB} DIRECTORY)
+endif()
 set(CMAKE_INSTALL_RPATH "${LIBNVVM_RPATH}")
 message(STATUS "Using rpath: ${CMAKE_INSTALL_RPATH}")
 

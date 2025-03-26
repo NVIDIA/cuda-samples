@@ -10,8 +10,10 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(CMAKE_CUDA_ARCHITECTURES 50 52 60 61 70 72 75 80 86 87 89 90 100 101 120)
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Wno-deprecated-gpu-targets")
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")  # enable cuda-gdb (expensive)
+if(ENABLE_CUDA_DEBUG)
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")        # enable cuda-gdb (may significantly affect performance on some targets)
+else()
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -lineinfo") # add line information to all builds for debug tools (exclusive to -G option)
 endif()
 
 # Include directories and libraries
@@ -27,10 +29,14 @@ include(CheckIncludeFile)
 check_include_file("GLFW/glfw3.h" HAVE_GLFW3_H)
 
 # Find GLFW header and lib for Windows
-if(WIN32)
-    find_file(GLFW3_H "GLFW/glfw3.h" PATH "${GLFW_INCLUDE_DIR}")
-    find_library(GLFW3_LIB "glfw3" PATH "${GLFW_LIB_DIR}")
-    if(GLFW3_H AND GLFW3_LIB) 
+if(WIN32 OR CMAKE_CROSSCOMPILING)
+    set(GLFW_INCLUDE_DIRS "${GLFW_INCLUDE_DIR}" "${CMAKE_INCLUDE_PATH}")
+    find_file(GLFW3_H "GLFW/glfw3.h" PATHS ${GLFW_INCLUDE_DIRS})
+    find_library(GLFW3_LIB
+                 NAMES glfw3 glfw
+                 PATHS "${GLFW_LIB_DIR}"
+                 PATH_SUFFIXES lib lib64)
+    if(GLFW3_H AND GLFW3_LIB)
         message(STATUS "Found GLFW/glfw3.h and GLFW library.")
         set(HAVE_GLFW3_H 1)
     endif()
@@ -58,9 +64,9 @@ if(${Vulkan_FOUND})
                 OpenGL::GL
                 CUDA::cuda_driver
             )
-            if(WIN32)
+            if(WIN32 OR CMAKE_CROSSCOMPILING)
                 target_include_directories(simpleVulkanMMAP PUBLIC
-                    ${GLFW_INCLUDE_DIR}
+                    ${GLFW_INCLUDE_DIRS}
                 )
                 target_link_libraries(simpleVulkanMMAP
                     ${GLFW3_LIB}

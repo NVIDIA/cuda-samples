@@ -10,8 +10,10 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(CMAKE_CUDA_ARCHITECTURES 50 52 60 61 70 72 75 80 86 87 89 90 100 101 120)
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Wno-deprecated-gpu-targets")
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")  # enable cuda-gdb (expensive)
+if(ENABLE_CUDA_DEBUG)
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")        # enable cuda-gdb (may significantly affect performance on some targets)
+else()
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -lineinfo") # add line information to all builds for debug tools (exclusive to -G option)
 endif()
 
 # Include directories and libraries
@@ -41,6 +43,12 @@ endif()
 
 set(CUDA_FATBIN_FILE "${CMAKE_CURRENT_BINARY_DIR}/threadMigration_kernel64.fatbin")
 set(CUDA_KERNEL_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/threadMigration_kernel.cu")
+
+# Construct GENCODE_FLAGS explicitly from CUDA architectures
+set(GENCODE_FLAGS "")
+foreach(arch ${CMAKE_CUDA_ARCHITECTURES})
+    list(APPEND GENCODE_FLAGS "-gencode=arch=compute_${arch},code=sm_${arch}")
+endforeach()
 
 add_custom_command(
     OUTPUT ${CUDA_FATBIN_FILE}

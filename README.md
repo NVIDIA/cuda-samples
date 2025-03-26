@@ -72,6 +72,17 @@ Open the generated solution file CUDA_Samples.sln in Visual Studio. Build the sa
 
 Run the samples from the output directories specified in Visual Studio.
 
+### Enabling On-GPU Debugging
+
+NVIDIA GPUs support on-GPU debugging through cuda-gdb. Enabling this may significantly affect application performance as certain compiler optimizations are disabled
+in this configuration, hence it's not on by default. Enablement of on-device debugging is controlled via the `-G` switch to nvcc.
+
+To enable cuda-gdb for samples builds, define the `ENABLE_CUDA_DEBUG` flag on the CMake command line. For example:
+
+```
+cmake -DENABLE_CUDA_DEBUG=True ...
+```
+
 ### Platform-Specific Samples
 
 Some CUDA samples are specific to certain platforms, and require passing flags into CMake to enable. In particular, we define the following platform-specific flags:
@@ -94,9 +105,9 @@ Navigate to the root of the cloned repository and create a build directory:
 ```
 mkdir build && cd build
 ```
-Configure the project with CMake, specifying the Tegra toolchain file:
+Configure the project with CMake, specifying the Tegra toolchain file. And you can use -DTARGET_FS to point to the target file system root path for necessary include and library files:
 ```
-cmake .. -DCMAKE_TOOLCHAIN_FILE=/path/to/tegra/toolchain.cmake
+cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/toolchain-aarch64-linux.cmake -DTARGET_FS=/path/to/target/system/file/system
 ```
 Build the samples:
 ```

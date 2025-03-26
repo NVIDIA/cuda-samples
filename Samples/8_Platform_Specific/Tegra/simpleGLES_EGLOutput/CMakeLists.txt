@@ -11,8 +11,10 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CUDA_ARCHITECTURES 72 87 101)
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Wno-deprecated-gpu-targets")
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")  # enable cuda-gdb (expensive)
+if(ENABLE_CUDA_DEBUG)
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")        # enable cuda-gdb (may significantly affect performance on some targets)
+else()
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -lineinfo") # add line information to all builds for debug tools (exclusive to -G option)
 endif()
 
 # Include directories and libraries
@@ -26,7 +28,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     if(${OpenGL_FOUND})
         if(${EGL_FOUND})
             if(${X11_FOUND})
-                set(DRM_INCLUDE_PATH "/usr/include/drm" "/usr/include/libdrm")
+                set(DRM_INCLUDE_PATH "/usr/include/drm" "/usr/include/libdrm" ${CMAKE_INCLUDE_PATH})
 
                 # use CMAKE_LIBRARY_PATH so that users can also specify the NVSCI lib path in cmake command
                 set(CMAKE_LIBRARY_PATH "/usr/lib/${CMAKE_SYSTEM_PROCESSOR}-linux-gnu" ${CMAKE_LIBRARY_PATH})

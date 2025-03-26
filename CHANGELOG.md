@@ -1,5 +1,8 @@
 ## Changelog
 
+### CUDA 12.9
+* Updated toolchain for cross-compilation for Tegra Linux platforms.
+
 ### CUDA 12.8
 * Updated build system across the repository to CMake. Removed Visual Studio project files and Makefiles.
 * Removed the following outdated samples:

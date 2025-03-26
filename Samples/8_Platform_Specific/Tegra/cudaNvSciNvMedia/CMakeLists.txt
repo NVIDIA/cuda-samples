@@ -11,31 +11,27 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CUDA_ARCHITECTURES 72 87 101)
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Wno-deprecated-gpu-targets")
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")  # enable cuda-gdb (expensive)
+if(ENABLE_CUDA_DEBUG)
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")        # enable cuda-gdb (may significantly affect performance on some targets)
+else()
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -lineinfo") # add line information to all builds for debug tools (exclusive to -G option)
 endif()
 
 # Include directories and libraries
 include_directories(../../../../Common)
+
+find_package(NVSCI)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     # Find the NVSCI/NVMEDIA libraries
     # use CMAKE_LIBRARY_PATH so that users can also specify the NVSCI lib path in cmake command
     set(CMAKE_LIBRARY_PATH "/usr/lib" ${CMAKE_LIBRARY_PATH})
     foreach(LIBRARY_PATH ${CMAKE_LIBRARY_PATH})
-        file(GLOB_RECURSE NVSCIBUF_LIB
-            ${LIBRARY_PATH}/libnvscibuf.so
-            ${LIBRARY_PATH}/*/libnvscibuf.so
-        )
-        file(GLOB_RECURSE NVSCISYNC_LIB
-            ${LIBRARY_PATH}/libnvscisync.so
-            ${LIBRARY_PATH}/*/libnvscisync.so
-        )
         file(GLOB_RECURSE NVMEDIA_LIB
             ${LIBRARY_PATH}/libnvmedia.so
             ${LIBRARY_PATH}/*/libnvmedia.so
         )
-        if(NVSCIBUF_LIB AND NVSCISYNC_LIB AND NVMEDIA_LIB)
+        if(NVMEDIA_LIB)
             break()
         endif()
     endforeach()
@@ -47,13 +43,9 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         "/usr/${CMAKE_SYSTEM_PROCESSOR}-linux-gnu/include"
         ${CMAKE_LIBRARY_PATH}
     )
-    find_path(NVSCIBUF_INCLUDE_DIR nvscibuf.h PATHS ${CMAKE_INCLUDE_PATH})
-    find_path(NVSCISYNC_INCLUDE_DIR nvscisync.h PATHS ${CMAKE_INCLUDE_PATH})
     find_path(NVMEDIA_INCLUDE_DIR nvmedia_core.h PATHS ${CMAKE_INCLUDE_PATH})
 
-    if(NVSCIBUF_LIB AND NVSCISYNC_LIB AND NVSCIBUF_INCLUDE_DIR AND NVSCISYNC_INCLUDE_DIR)
-        message(STATUS "FOUND NVSCI libs: ${NVSCIBUF_LIB} ${NVSCISYNC_LIB}")
-        message(STATUS "Using NVSCI headers path: ${NVSCIBUF_INCLUDE_DIR} ${NVSCIBUF_INCLUDE_DIR}")
+    if(NVSCI_FOUND)
         if(NVMEDIA_LIB AND NVMEDIA_INCLUDE_DIR)
             message(STATUS "FOUND NVMEDIA libs: ${NVMEDIA_LIB}")
             message(STATUS "Using NVMEDIA headers path: ${NVMEDIA_INCLUDE_DIR}")
@@ -69,15 +61,13 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
             target_include_directories(cudaNvSciNvMedia PUBLIC
                 ${CUDAToolkit_INCLUDE_DIRS}
-                ${NVSCIBUF_INCLUDE_DIR}
-                ${NVSCISYNC_INCLUDE_DIR}
+                ${NVSCI_INCLUDE_DIRS}
                 ${NVMEDIA_INCLUDE_DIR}
             )
 
             target_link_libraries(cudaNvSciNvMedia
                 CUDA::cuda_driver
-                ${NVSCIBUF_LIB}
-                ${NVSCISYNC_LIB}
+                ${NVSCI_LIBRARIES}
                 ${NVMEDIA_LIB}
             )
             # Copy teapot.rgba to the output directory
