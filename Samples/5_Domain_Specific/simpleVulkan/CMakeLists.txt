@@ -9,7 +9,7 @@ find_package(CUDAToolkit REQUIRED)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(CMAKE_CUDA_ARCHITECTURES 50 52 60 61 70 72 75 80 86 87 89 90 100 101 120)
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Wno-deprecated-gpu-targets")
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -lineinfo -Wno-deprecated-gpu-targets")
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")  # enable cuda-gdb (expensive)
 endif()
@@ -35,7 +35,7 @@ if(WIN32 OR CMAKE_CROSSCOMPILING)
                  NAMES glfw3 glfw
                  PATHS "${GLFW_LIB_DIR}"
                  PATH_SUFFIXES lib lib64)
-    if(GLFW3_H AND GLFW3_LIB) 
+    if(GLFW3_H AND GLFW3_LIB)
         message(STATUS "Found GLFW/glfw3.h and GLFW library.")
         set(HAVE_GLFW3_H 1)
     endif()

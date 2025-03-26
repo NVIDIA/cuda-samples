@@ -9,7 +9,7 @@ find_package(CUDAToolkit REQUIRED)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(CMAKE_CUDA_ARCHITECTURES 50 52 60 61 70 72 75 80 86 87 89 90 100 101 120)
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Wno-deprecated-gpu-targets")
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -lineinfo -Wno-deprecated-gpu-targets")
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")  # enable cuda-gdb (expensive)
 endif()
@@ -77,7 +77,7 @@ if(${OpenGL_FOUND})
 
             add_custom_command(TARGET boxFilter
                 POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy 
+                COMMAND ${CMAKE_COMMAND} -E copy
                 ${CMAKE_CURRENT_SOURCE_DIR}/../../../bin/win64/$<CONFIGURATION>/freeglut.dll
                 ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>
             )
