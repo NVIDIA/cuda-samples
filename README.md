@@ -72,6 +72,17 @@ Open the generated solution file CUDA_Samples.sln in Visual Studio. Build the sa
 
 Run the samples from the output directories specified in Visual Studio.
 
+### Enabling On-GPU Debugging
+
+NVIDIA GPUs support on-GPU debugging through cuda-gdb. Enabling this may significantly affect application performance as certain compiler optimizations are disabled
+in this configuration, hence it's not on by default. Enablement of on-device debugging is controlled via the `-G` switch to nvcc.
+
+To enable cuda-gdb for samples builds, define the `ENABLE_CUDA_DEBUG` flag on the CMake command line. For example:
+
+```
+cmake -DENABLE_CUDA_DEBUG=True ...
+```
+
 ### Platform-Specific Samples
 
 Some CUDA samples are specific to certain platforms, and require passing flags into CMake to enable. In particular, we define the following platform-specific flags:
