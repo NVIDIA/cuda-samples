@@ -37,6 +37,12 @@ target_link_libraries(vectorAddDrv PUBLIC
 set(CUDA_FATBIN_FILE "${CMAKE_CURRENT_BINARY_DIR}/vectorAdd_kernel64.fatbin")
 set(CUDA_KERNEL_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/vectorAdd_kernel.cu")
 
+# Construct GENCODE_FLAGS explicitly from CUDA architectures
+set(GENCODE_FLAGS "")
+foreach(arch ${CMAKE_CUDA_ARCHITECTURES})
+    list(APPEND GENCODE_FLAGS "-gencode=arch=compute_${arch},code=sm_${arch}")
+endforeach()
+
 add_custom_command(
     OUTPUT ${CUDA_FATBIN_FILE}
     COMMAND ${CMAKE_CUDA_COMPILER} ${INCLUDES} ${ALL_CCFLAGS} -Wno-deprecated-gpu-targets  ${GENCODE_FLAGS} -o ${CUDA_FATBIN_FILE} -fatbin ${CUDA_KERNEL_SOURCE}
