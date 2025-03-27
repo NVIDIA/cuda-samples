@@ -27,22 +27,28 @@
 
 #ifndef __NVMEDIA_PRODUCER_H__
 #define __NVMEDIA_PRODUCER_H__
-#include "nvmedia_utils/cmdline.h"
-#include "nvmedia_image.h"
 #include "nvmedia_2d.h"
-#include "nvmedia_surface.h"
-#include "nvmedia_utils/image_utils.h"
+#include "nvmedia_image.h"
 #include "nvmedia_image_nvscibuf.h"
+#include "nvmedia_surface.h"
+#include "nvmedia_utils/cmdline.h"
+#include "nvmedia_utils/image_utils.h"
 #include "nvscisync.h"
 
-void runNvMediaBlit2D(TestArgs* args, Blit2DTest* ctx, NvSciSyncObj& syncObj,
-                      NvSciSyncFence* preSyncFence, NvSciSyncFence* fence);
-void runNvMediaBlit2D(TestArgs* args, Blit2DTest* ctx);
-void setupNvMedia(TestArgs* args, Blit2DTest* ctx, NvSciBufObj& srcNvSciBufobj,
-                  NvSciBufObj& dstNvSciBufobj, NvSciSyncObj& syncObj,
-                  NvSciSyncObj& preSyncObj, int cudaDeviceId);
-void setupNvMedia(TestArgs* args, Blit2DTest* ctx);
-void cleanupNvMedia(Blit2DTest* ctx, NvSciSyncObj& syncObj,
-                    NvSciSyncObj& preSyncObj);
-void cleanupNvMedia(Blit2DTest* ctx);
+void runNvMediaBlit2D(TestArgs       *args,
+                      Blit2DTest     *ctx,
+                      NvSciSyncObj   &syncObj,
+                      NvSciSyncFence *preSyncFence,
+                      NvSciSyncFence *fence);
+void runNvMediaBlit2D(TestArgs *args, Blit2DTest *ctx);
+void setupNvMedia(TestArgs     *args,
+                  Blit2DTest   *ctx,
+                  NvSciBufObj  &srcNvSciBufobj,
+                  NvSciBufObj  &dstNvSciBufobj,
+                  NvSciSyncObj &syncObj,
+                  NvSciSyncObj &preSyncObj,
+                  int           cudaDeviceId);
+void setupNvMedia(TestArgs *args, Blit2DTest *ctx);
+void cleanupNvMedia(Blit2DTest *ctx, NvSciSyncObj &syncObj, NvSciSyncObj &preSyncObj);
+void cleanupNvMedia(Blit2DTest *ctx);
 #endif

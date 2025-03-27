@@ -16,9 +16,9 @@ Dumping result to teapot512_gold2.bmp... Success
 Dumping result to teapot512_cuda1.bmp... Success
 Dumping result to teapot512_cuda2.bmp... Success
 Dumping result to teapot512_cuda_short.bmp... Success
-Processing time (CUDA 1)    : 0.021800 ms 
-Processing time (CUDA 2)    : 0.003180 ms 
-Processing time (CUDA short): 0.033000 ms 
+Processing time (CUDA 1)    : 0.021800 ms
+Processing time (CUDA 2)    : 0.003180 ms
+Processing time (CUDA short): 0.033000 ms
 PSNR Original    <---> CPU(Gold 1)    : 32.527462
 PSNR Original    <---> CPU(Gold 2)    : 32.527309
 PSNR Original    <---> GPU(CUDA 1)    : 32.527184

@@ -35,6 +35,6 @@ add_test(NAME test-syscalls-vprintf
 
 set_tests_properties(test-syscalls-vprintf test-syscalls-malloc-free
                      PROPERTIES FIXTURES_REQUIRED PTXGENTEST)
-	     
+
 file(COPY malloc-free.ll DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 file(COPY vprintf.ll DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")

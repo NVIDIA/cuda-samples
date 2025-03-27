@@ -27,13 +27,14 @@
 #include <cuda.h>
 #include <helper_cuda.h>
 
-static __global__ void flipSurfaceBits(cudaSurfaceObject_t surfObj, int width, int height) {
-    char data;
+static __global__ void flipSurfaceBits(cudaSurfaceObject_t surfObj, int width, int height)
+{
+    char         data;
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
     if (x < width && y < height) {
         // Read from input surface
-        surf2Dread(&data,  surfObj, x, y);
+        surf2Dread(&data, surfObj, x, y);
         // Write to output surface
         data = ~data;
         surf2Dwrite(data, surfObj, x, y);
@@ -41,24 +42,23 @@ static __global__ void flipSurfaceBits(cudaSurfaceObject_t surfObj, int width, i
 }
 
 // Copy cudaArray to surface memory and launch the CUDA kernel
-void launchFlipSurfaceBitsKernel(
-    cudaArray_t *levelArray, 
-    int32_t *multiPlanarWidth, 
-    int32_t *multiPlanarHeight, 
-    int numPlanes) {
+void launchFlipSurfaceBitsKernel(cudaArray_t *levelArray,
+                                 int32_t     *multiPlanarWidth,
+                                 int32_t     *multiPlanarHeight,
+                                 int          numPlanes)
+{
 
     cudaSurfaceObject_t surfObject[numPlanes] = {0};
-    cudaResourceDesc resDesc;
-    
-    for (int i = 0; i < numPlanes; i++) { 
+    cudaResourceDesc    resDesc;
+
+    for (int i = 0; i < numPlanes; i++) {
         memset(&resDesc, 0, sizeof(resDesc));
-        resDesc.resType = cudaResourceTypeArray;
+        resDesc.resType         = cudaResourceTypeArray;
         resDesc.res.array.array = levelArray[i];
         checkCudaErrors(cudaCreateSurfaceObject(&surfObject[i], &resDesc));
         dim3 threadsperBlock(16, 16);
         dim3 numBlocks((multiPlanarWidth[i] + threadsperBlock.x - 1) / threadsperBlock.x,
-                (multiPlanarHeight[i] + threadsperBlock.y - 1) / threadsperBlock.y);
+                       (multiPlanarHeight[i] + threadsperBlock.y - 1) / threadsperBlock.y);
         flipSurfaceBits<<<numBlocks, threadsperBlock>>>(surfObject[i], multiPlanarWidth[i], multiPlanarHeight[i]);
     }
 }
-

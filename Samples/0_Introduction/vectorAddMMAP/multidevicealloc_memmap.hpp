@@ -63,10 +63,12 @@
 //! handle
 //!   is not needed after its mappings are set up.
 ////////////////////////////////////////////////////////////////////////////
-CUresult simpleMallocMultiDeviceMmap(
-    CUdeviceptr *dptr, size_t *allocationSize, size_t size,
-    const std::vector<CUdevice> &residentDevices,
-    const std::vector<CUdevice> &mappingDevices, size_t align = 0);
+CUresult simpleMallocMultiDeviceMmap(CUdeviceptr                 *dptr,
+                                     size_t                      *allocationSize,
+                                     size_t                       size,
+                                     const std::vector<CUdevice> &residentDevices,
+                                     const std::vector<CUdevice> &mappingDevices,
+                                     size_t                       align = 0);
 
 ////////////////////////////////////////////////////////////////////////////
 //! Frees resources allocated by simpleMallocMultiDeviceMmap

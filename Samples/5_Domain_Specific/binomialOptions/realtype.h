@@ -28,7 +28,7 @@
 #ifndef REALTYPE_H
 #define REALTYPE_H
 
-//#define DOUBLE_PRECISION
+// #define DOUBLE_PRECISION
 
 #ifndef DOUBLE_PRECISION
 typedef float real;

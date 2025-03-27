@@ -1,8 +1,8 @@
-//  (C) Copyright John Maddock 2001 - 2003. 
-//  (C) Copyright Darin Adler 2001. 
-//  (C) Copyright Douglas Gregor 2002. 
-//  Use, modification and distribution are subject to the 
-//  Boost Software License, Version 1.0. (See accompanying file 
+//  (C) Copyright John Maddock 2001 - 2003.
+//  (C) Copyright Darin Adler 2001.
+//  (C) Copyright Douglas Gregor 2002.
+//  Use, modification and distribution are subject to the
+//  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 //  See http://www.boost.org for most recent version.
@@ -29,25 +29,22 @@
 // advertise the fact in <unistd.h>:
 //
 #if (defined(__FreeBSD__) && (__FreeBSD__ >= 3)) || defined(__DragonFly__)
-#  define BOOST_HAS_NL_TYPES_H
+#define BOOST_HAS_NL_TYPES_H
 #endif
 
 //
 // FreeBSD 3.x has pthreads support, but defines _POSIX_THREADS in <pthread.h>
 // and not in <unistd.h>
 //
-#if (defined(__FreeBSD__) && (__FreeBSD__ <= 3))\
-   || defined(__OpenBSD__) || defined(__DragonFly__) 
-#  define BOOST_HAS_PTHREADS
+#if (defined(__FreeBSD__) && (__FreeBSD__ <= 3)) || defined(__OpenBSD__) || defined(__DragonFly__)
+#define BOOST_HAS_PTHREADS
 #endif
 
 //
 // No wide character support in the BSD header files:
 //
 #if defined(__NetBSD__)
-#define __NetBSD_GCC__ (__GNUC__         * 1000000 \
-                       + __GNUC_MINOR__ *    1000 \
-                       + __GNUC_PATCHLEVEL__)
+#define __NetBSD_GCC__ (__GNUC__ * 1000000 + __GNUC_MINOR__ * 1000 + __GNUC_PATCHLEVEL__)
 // XXX - the following is required until c++config.h
 //       defines _GLIBCXX_HAVE_SWPRINTF and friends
 //       or the preprocessor conditionals are removed
@@ -55,15 +52,14 @@
 #define _GLIBCXX_HAVE_SWPRINTF 1
 #endif
 
-#if !((defined(__FreeBSD__) && (__FreeBSD__ >= 5)) \
-      || (__NetBSD_GCC__ >= 2095003) || defined(__DragonFly__))
-#  define BOOST_NO_CWCHAR
+#if !((defined(__FreeBSD__) && (__FreeBSD__ >= 5)) || (__NetBSD_GCC__ >= 2095003) || defined(__DragonFly__))
+#define BOOST_NO_CWCHAR
 #endif
 //
 // The BSD <ctype.h> has macros only, no functions:
 //
 #if !defined(__OpenBSD__) || defined(__DragonFly__)
-#  define BOOST_NO_CTYPE_FUNCTIONS
+#define BOOST_NO_CTYPE_FUNCTIONS
 #endif
 
 //
@@ -78,9 +74,3 @@
 // boilerplate code:
 #define BOOST_HAS_UNISTD_H
 #include <boost/config/posix_features.hpp>
-
-
-
-
-
-

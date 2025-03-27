@@ -30,10 +30,10 @@
  */
 
 // includes, system
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #ifdef _WIN32
 #define WINDOWS_LEAN_AND_MEAN
@@ -46,7 +46,7 @@
 #include <nvrtc_helper.h>
 
 // Utilities and timing functions
-#include <helper_functions.h>  // includes cuda.h and cuda_runtime_api.h
+#include <helper_functions.h> // includes cuda.h and cuda_runtime_api.h
 
 const char *sampleName = "simpleAtomicIntrinsics_nvrtc";
 
@@ -64,84 +64,90 @@ extern "C" bool computeGold(int *gpuData, const int len);
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
 
-int main(int argc, char **argv) {
-  printf("%s starting...\n", sampleName);
+int main(int argc, char **argv)
+{
+    printf("%s starting...\n", sampleName);
 
-  runTest(argc, argv);
+    runTest(argc, argv);
 
-  printf("%s completed, returned %s\n", sampleName,
-         testResult ? "OK" : "ERROR!");
+    printf("%s completed, returned %s\n", sampleName, testResult ? "OK" : "ERROR!");
 
-  exit(testResult ? EXIT_SUCCESS : EXIT_FAILURE);
+    exit(testResult ? EXIT_SUCCESS : EXIT_FAILURE);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Run a simple test for CUDA
 ////////////////////////////////////////////////////////////////////////////////
 
-void runTest(int argc, char **argv) {
-  int dev = 0;
+void runTest(int argc, char **argv)
+{
+    int dev = 0;
 
-  char *cubin, *kernel_file;
-  size_t cubinSize;
+    char  *cubin, *kernel_file;
+    size_t cubinSize;
 
-  kernel_file = sdkFindFilePath("simpleAtomicIntrinsics_kernel.cuh", argv[0]);
-  compileFileToCUBIN(kernel_file, argc, argv, &cubin, &cubinSize, 0);
+    kernel_file = sdkFindFilePath("simpleAtomicIntrinsics_kernel.cuh", argv[0]);
+    compileFileToCUBIN(kernel_file, argc, argv, &cubin, &cubinSize, 0);
 
-  CUmodule module = loadCUBIN(cubin, argc, argv);
-  CUfunction kernel_addr;
+    CUmodule   module = loadCUBIN(cubin, argc, argv);
+    CUfunction kernel_addr;
 
-  checkCudaErrors(cuModuleGetFunction(&kernel_addr, module, "testKernel"));
+    checkCudaErrors(cuModuleGetFunction(&kernel_addr, module, "testKernel"));
 
-  StopWatchInterface *timer;
-  sdkCreateTimer(&timer);
-  sdkStartTimer(&timer);
+    StopWatchInterface *timer;
+    sdkCreateTimer(&timer);
+    sdkStartTimer(&timer);
 
-  unsigned int numThreads = 256;
-  unsigned int numBlocks = 64;
-  unsigned int numData = 11;
-  unsigned int memSize = sizeof(int) * numData;
+    unsigned int numThreads = 256;
+    unsigned int numBlocks  = 64;
+    unsigned int numData    = 11;
+    unsigned int memSize    = sizeof(int) * numData;
 
-  // allocate mem for the result on host side
-  int *hOData = (int *)malloc(memSize);
+    // allocate mem for the result on host side
+    int *hOData = (int *)malloc(memSize);
 
-  // initialize the memory
-  for (unsigned int i = 0; i < numData; i++) hOData[i] = 0;
+    // initialize the memory
+    for (unsigned int i = 0; i < numData; i++)
+        hOData[i] = 0;
 
-  // To make the AND and XOR tests generate something other than 0...
-  hOData[8] = hOData[10] = 0xff;
+    // To make the AND and XOR tests generate something other than 0...
+    hOData[8] = hOData[10] = 0xff;
 
-  // allocate device memory for result
-  CUdeviceptr dOData;
-  checkCudaErrors(cuMemAlloc(&dOData, memSize));
-  checkCudaErrors(cuMemcpyHtoD(dOData, hOData, memSize));
+    // allocate device memory for result
+    CUdeviceptr dOData;
+    checkCudaErrors(cuMemAlloc(&dOData, memSize));
+    checkCudaErrors(cuMemcpyHtoD(dOData, hOData, memSize));
 
-  // execute the kernel
-  dim3 cudaBlockSize(numThreads, 1, 1);
-  dim3 cudaGridSize(numBlocks, 1, 1);
+    // execute the kernel
+    dim3 cudaBlockSize(numThreads, 1, 1);
+    dim3 cudaGridSize(numBlocks, 1, 1);
 
-  void *arr[] = {(void *)&dOData};
-  checkCudaErrors(cuLaunchKernel(kernel_addr, cudaGridSize.x, cudaGridSize.y,
-                                 cudaGridSize.z, /* grid dim */
-                                 cudaBlockSize.x, cudaBlockSize.y,
-                                 cudaBlockSize.z, /* block dim */
-                                 0, 0,            /* shared mem, stream */
-                                 &arr[0],         /* arguments */
-                                 0));
+    void *arr[] = {(void *)&dOData};
+    checkCudaErrors(cuLaunchKernel(kernel_addr,
+                                   cudaGridSize.x,
+                                   cudaGridSize.y,
+                                   cudaGridSize.z, /* grid dim */
+                                   cudaBlockSize.x,
+                                   cudaBlockSize.y,
+                                   cudaBlockSize.z, /* block dim */
+                                   0,
+                                   0,       /* shared mem, stream */
+                                   &arr[0], /* arguments */
+                                   0));
 
-  checkCudaErrors(cuCtxSynchronize());
+    checkCudaErrors(cuCtxSynchronize());
 
-  checkCudaErrors(cuMemcpyDtoH(hOData, dOData, memSize));
+    checkCudaErrors(cuMemcpyDtoH(hOData, dOData, memSize));
 
-  // Copy result from device to host
-  sdkStopTimer(&timer);
-  printf("Processing time: %f (ms)\n", sdkGetTimerValue(&timer));
-  sdkDeleteTimer(&timer);
+    // Copy result from device to host
+    sdkStopTimer(&timer);
+    printf("Processing time: %f (ms)\n", sdkGetTimerValue(&timer));
+    sdkDeleteTimer(&timer);
 
-  // Compute reference solution
-  testResult = computeGold(hOData, numThreads * numBlocks);
+    // Compute reference solution
+    testResult = computeGold(hOData, numThreads * numBlocks);
 
-  // Cleanup memory
-  free(hOData);
-  checkCudaErrors(cuMemFree(dOData));
+    // Cleanup memory
+    free(hOData);
+    checkCudaErrors(cuMemFree(dOData));
 }

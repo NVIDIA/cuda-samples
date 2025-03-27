@@ -84,20 +84,20 @@ decomposition.
 #endif
 
 // includes, system
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
 #include <assert.h>
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 // includes, project
-#include <helper_functions.h>
 #include <helper_cuda.h>
+#include <helper_functions.h>
 
 // constants which are used in host and device code
 #define INV_SQRT_2 0.70710678118654752440f;
 const unsigned int LOG_NUM_BANKS = 4;
-const unsigned int NUM_BANKS = 16;
+const unsigned int NUM_BANKS     = 16;
 
 ////////////////////////////////////////////////////////////////////////////////
 // includes, kernels
@@ -111,256 +111,252 @@ bool getLevels(unsigned int len, unsigned int *levels);
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
-  // run test
-  runTest(argc, argv);
+int main(int argc, char **argv)
+{
+    // run test
+    runTest(argc, argv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Perform the wavelet decomposition
 ////////////////////////////////////////////////////////////////////////////////
-void runTest(int argc, char **argv) {
-  bool bResult = false;  // flag for final validation of the results
+void runTest(int argc, char **argv)
+{
+    bool bResult = false; // flag for final validation of the results
 
-  char *s_fname = NULL, *r_gold_fname = NULL;
-  char r_fname[256];
-  const char usage[] = {
-      "\nUsage:\n"
-      "  dwtHaar1D --signal=<signal_file> --result=<result_file> "
-      "--gold=<gold_file>\n\n"
-      "  <signal_file> Input file containing the signal\n"
-      "  <result_file> Output file storing the result of the wavelet "
-      "decomposition\n"
-      "  <gold_file>   Input file containing the reference result of the "
-      "wavelet decomposition\n"
-      "\nExample:\n"
-      "  ./dwtHaar1D\n"
-      "       --signal=signal.dat\n"
-      "       --result=result.dat\n"
-      "       --gold=regression.gold.dat\n"};
+    char      *s_fname = NULL, *r_gold_fname = NULL;
+    char       r_fname[256];
+    const char usage[] = {"\nUsage:\n"
+                          "  dwtHaar1D --signal=<signal_file> --result=<result_file> "
+                          "--gold=<gold_file>\n\n"
+                          "  <signal_file> Input file containing the signal\n"
+                          "  <result_file> Output file storing the result of the wavelet "
+                          "decomposition\n"
+                          "  <gold_file>   Input file containing the reference result of the "
+                          "wavelet decomposition\n"
+                          "\nExample:\n"
+                          "  ./dwtHaar1D\n"
+                          "       --signal=signal.dat\n"
+                          "       --result=result.dat\n"
+                          "       --gold=regression.gold.dat\n"};
 
-  printf("%s Starting...\n\n", argv[0]);
+    printf("%s Starting...\n\n", argv[0]);
 
-  // use command-line specified CUDA device, otherwise use device with highest
-  // Gflops/s
-  findCudaDevice(argc, (const char **)argv);
+    // use command-line specified CUDA device, otherwise use device with highest
+    // Gflops/s
+    findCudaDevice(argc, (const char **)argv);
 
-  // file names, either specified as cmd line args or use default
-  if (argc == 4) {
-    char *tmp_sfname, *tmp_rfname, *tmp_goldfname;
+    // file names, either specified as cmd line args or use default
+    if (argc == 4) {
+        char *tmp_sfname, *tmp_rfname, *tmp_goldfname;
 
-    if ((getCmdLineArgumentString(argc, (const char **)argv, "signal",
-                                  &tmp_sfname) != true) ||
-        (getCmdLineArgumentString(argc, (const char **)argv, "result",
-                                  &tmp_rfname) != true) ||
-        (getCmdLineArgumentString(argc, (const char **)argv, "gold",
-                                  &tmp_goldfname) != true)) {
-      fprintf(stderr, "Invalid input syntax.\n%s", usage);
-      exit(EXIT_FAILURE);
+        if ((getCmdLineArgumentString(argc, (const char **)argv, "signal", &tmp_sfname) != true)
+            || (getCmdLineArgumentString(argc, (const char **)argv, "result", &tmp_rfname) != true)
+            || (getCmdLineArgumentString(argc, (const char **)argv, "gold", &tmp_goldfname) != true)) {
+            fprintf(stderr, "Invalid input syntax.\n%s", usage);
+            exit(EXIT_FAILURE);
+        }
+
+        s_fname      = sdkFindFilePath(tmp_sfname, argv[0]);
+        r_gold_fname = sdkFindFilePath(tmp_goldfname, argv[0]);
+        strcpy(r_fname, tmp_rfname);
+    }
+    else {
+        s_fname      = sdkFindFilePath("signal.dat", argv[0]);
+        r_gold_fname = sdkFindFilePath("regression.gold.dat", argv[0]);
+        strcpy(r_fname, "result.dat");
     }
 
-    s_fname = sdkFindFilePath(tmp_sfname, argv[0]);
-    r_gold_fname = sdkFindFilePath(tmp_goldfname, argv[0]);
-    strcpy(r_fname, tmp_rfname);
-  } else {
-    s_fname = sdkFindFilePath("signal.dat", argv[0]);
-    r_gold_fname = sdkFindFilePath("regression.gold.dat", argv[0]);
-    strcpy(r_fname, "result.dat");
-  }
+    printf("source file    = \"%s\"\n", s_fname);
+    printf("reference file = \"%s\"\n", r_fname);
+    printf("gold file      = \"%s\"\n", r_gold_fname);
 
-  printf("source file    = \"%s\"\n", s_fname);
-  printf("reference file = \"%s\"\n", r_fname);
-  printf("gold file      = \"%s\"\n", r_gold_fname);
+    // read in signal
+    unsigned int slength = 0;
+    float       *signal  = NULL;
 
-  // read in signal
-  unsigned int slength = 0;
-  float *signal = NULL;
+    if (s_fname == NULL) {
+        fprintf(stderr, "Cannot find the file containing the signal.\n%s", usage);
 
-  if (s_fname == NULL) {
-    fprintf(stderr, "Cannot find the file containing the signal.\n%s", usage);
+        exit(EXIT_FAILURE);
+    }
 
-    exit(EXIT_FAILURE);
-  }
+    if (sdkReadFile(s_fname, &signal, &slength, false) == true) {
+        printf("Reading signal from \"%s\"\n", s_fname);
+    }
+    else {
+        exit(EXIT_FAILURE);
+    }
 
-  if (sdkReadFile(s_fname, &signal, &slength, false) == true) {
-    printf("Reading signal from \"%s\"\n", s_fname);
-  } else {
-    exit(EXIT_FAILURE);
-  }
+    // get the number of decompositions necessary to perform a full decomposition
+    unsigned int dlevels_complete = 0;
 
-  // get the number of decompositions necessary to perform a full decomposition
-  unsigned int dlevels_complete = 0;
+    if (true != getLevels(slength, &dlevels_complete)) {
+        // error message
+        fprintf(stderr, "Signal length not supported.\n");
+        // cleanup and abort
+        free(signal);
+        exit(EXIT_FAILURE);
+    }
 
-  if (true != getLevels(slength, &dlevels_complete)) {
-    // error message
-    fprintf(stderr, "Signal length not supported.\n");
-    // cleanup and abort
+    // device in data
+    float *d_idata = NULL;
+    // device out data
+    float *d_odata = NULL;
+    // device approx_final data
+    float *approx_final = NULL;
+    // The very final approximation coefficient has to be written to the output
+    // data, all others are reused as input data in the next global step and
+    // therefore have to be written to the input data again.
+    // The following flag indicates where to copy approx_final data
+    //   - 0 is input, 1 is output
+    int approx_is_input;
+
+    // allocate device mem
+    const unsigned int smem_size = sizeof(float) * slength;
+    checkCudaErrors(cudaMalloc((void **)&d_idata, smem_size));
+    checkCudaErrors(cudaMalloc((void **)&d_odata, smem_size));
+    checkCudaErrors(cudaMalloc((void **)&approx_final, smem_size));
+    // copy input data to device
+    checkCudaErrors(cudaMemcpy(d_idata, signal, smem_size, cudaMemcpyHostToDevice));
+
+    // total number of threads
+    // in the first decomposition step always one thread computes the average and
+    // detail signal for one pair of adjacent values
+    unsigned int num_threads_total_left = slength / 2;
+    // decomposition levels performed in the current / next step
+    unsigned int dlevels_step = dlevels_complete;
+
+    // 1D signal so the arrangement of elements is also 1D
+    dim3 block_size;
+    dim3 grid_size;
+
+    // number of decomposition levels left after one iteration on the device
+    unsigned int dlevels_left = dlevels_complete;
+
+    // if less or equal 1k elements, then the data can be processed in one block,
+    // this avoids the Wait-For-Idle (WFI) on host side which is necessary if the
+    // computation is split across multiple SM's if enough input data
+    if (dlevels_complete <= 10) {
+        // decomposition can be performed at once
+        block_size.x    = num_threads_total_left;
+        approx_is_input = 0;
+    }
+    else {
+        // 512 threads per block
+        grid_size.x  = (num_threads_total_left / 512);
+        block_size.x = 512;
+
+        // 512 threads corresponds to 10 decomposition steps
+        dlevels_step = 10;
+        dlevels_left -= 10;
+
+        approx_is_input = 1;
+    }
+
+    // Initialize d_odata to 0.0f
+    initValue<<<grid_size, block_size>>>(d_odata, 0.0f);
+
+    // do until full decomposition is accomplished
+    while (0 != num_threads_total_left) {
+        // double the number of threads as bytes
+        unsigned int mem_shared = (2 * block_size.x) * sizeof(float);
+        // extra memory requirements to avoid bank conflicts
+        mem_shared += ((2 * block_size.x) / NUM_BANKS) * sizeof(float);
+
+        // run kernel
+        dwtHaar1D<<<grid_size, block_size, mem_shared>>>(
+            d_idata, d_odata, approx_final, dlevels_step, num_threads_total_left, block_size.x);
+
+        // Copy approx_final to appropriate location
+        if (approx_is_input) {
+            checkCudaErrors(cudaMemcpy(d_idata, approx_final, grid_size.x * 4, cudaMemcpyDeviceToDevice));
+        }
+        else {
+            checkCudaErrors(cudaMemcpy(d_odata, approx_final, grid_size.x * 4, cudaMemcpyDeviceToDevice));
+        }
+
+        // update level variables
+        if (dlevels_left < 10) {
+            // approx_final = d_odata;
+            approx_is_input = 0;
+        }
+
+        // more global steps necessary
+        dlevels_step = (dlevels_left > 10) ? dlevels_left - 10 : dlevels_left;
+        dlevels_left -= 10;
+
+        // after each step only half the threads are used any longer
+        // therefore after 10 steps 2^10 less threads
+        num_threads_total_left = num_threads_total_left >> 10;
+
+        // update block and grid size
+        grid_size.x = (num_threads_total_left / 512) + (0 != (num_threads_total_left % 512)) ? 1 : 0;
+
+        if (grid_size.x <= 1) {
+            block_size.x = num_threads_total_left;
+        }
+    }
+
+    // get the result back from the server
+    // allocate mem for the result
+    float *odata = (float *)malloc(smem_size);
+    checkCudaErrors(cudaMemcpy(odata, d_odata, smem_size, cudaMemcpyDeviceToHost));
+
+    // post processing
+    // write file for regression test
+    if (r_fname == NULL) {
+        fprintf(stderr,
+                "Cannot write the output file storing the result of the wavelet "
+                "decomposition.\n%s",
+                usage);
+        exit(EXIT_FAILURE);
+    }
+
+    if (sdkWriteFile(r_fname, odata, slength, 0.001f, false) == true) {
+        printf("Writing result to \"%s\"\n", r_fname);
+    }
+    else {
+        exit(EXIT_FAILURE);
+    }
+
+    // load the reference solution
+    unsigned int len_reference = 0;
+    float       *reference     = NULL;
+
+    if (r_gold_fname == NULL) {
+        fprintf(stderr,
+                "Cannot read the file containing the reference result of the "
+                "wavelet decomposition.\n%s",
+                usage);
+
+        exit(EXIT_FAILURE);
+    }
+
+    if (sdkReadFile(r_gold_fname, &reference, &len_reference, false) == true) {
+        printf("Reading reference result from \"%s\"\n", r_gold_fname);
+    }
+    else {
+        exit(EXIT_FAILURE);
+    }
+
+    assert(slength == len_reference);
+
+    // compare the computed solution and the reference
+    bResult = (bool)sdkCompareL2fe(reference, odata, slength, 0.001f);
+    free(reference);
+
+    // free allocated host and device memory
+    checkCudaErrors(cudaFree(d_odata));
+    checkCudaErrors(cudaFree(d_idata));
+    checkCudaErrors(cudaFree(approx_final));
+
     free(signal);
-    exit(EXIT_FAILURE);
-  }
+    free(odata);
+    free(s_fname);
+    free(r_gold_fname);
 
-  // device in data
-  float *d_idata = NULL;
-  // device out data
-  float *d_odata = NULL;
-  // device approx_final data
-  float *approx_final = NULL;
-  // The very final approximation coefficient has to be written to the output
-  // data, all others are reused as input data in the next global step and
-  // therefore have to be written to the input data again.
-  // The following flag indicates where to copy approx_final data
-  //   - 0 is input, 1 is output
-  int approx_is_input;
-
-  // allocate device mem
-  const unsigned int smem_size = sizeof(float) * slength;
-  checkCudaErrors(cudaMalloc((void **)&d_idata, smem_size));
-  checkCudaErrors(cudaMalloc((void **)&d_odata, smem_size));
-  checkCudaErrors(cudaMalloc((void **)&approx_final, smem_size));
-  // copy input data to device
-  checkCudaErrors(
-      cudaMemcpy(d_idata, signal, smem_size, cudaMemcpyHostToDevice));
-
-  // total number of threads
-  // in the first decomposition step always one thread computes the average and
-  // detail signal for one pair of adjacent values
-  unsigned int num_threads_total_left = slength / 2;
-  // decomposition levels performed in the current / next step
-  unsigned int dlevels_step = dlevels_complete;
-
-  // 1D signal so the arrangement of elements is also 1D
-  dim3 block_size;
-  dim3 grid_size;
-
-  // number of decomposition levels left after one iteration on the device
-  unsigned int dlevels_left = dlevels_complete;
-
-  // if less or equal 1k elements, then the data can be processed in one block,
-  // this avoids the Wait-For-Idle (WFI) on host side which is necessary if the
-  // computation is split across multiple SM's if enough input data
-  if (dlevels_complete <= 10) {
-    // decomposition can be performed at once
-    block_size.x = num_threads_total_left;
-    approx_is_input = 0;
-  } else {
-    // 512 threads per block
-    grid_size.x = (num_threads_total_left / 512);
-    block_size.x = 512;
-
-    // 512 threads corresponds to 10 decomposition steps
-    dlevels_step = 10;
-    dlevels_left -= 10;
-
-    approx_is_input = 1;
-  }
-
-  // Initialize d_odata to 0.0f
-  initValue<<<grid_size, block_size>>>(d_odata, 0.0f);
-
-  // do until full decomposition is accomplished
-  while (0 != num_threads_total_left) {
-    // double the number of threads as bytes
-    unsigned int mem_shared = (2 * block_size.x) * sizeof(float);
-    // extra memory requirements to avoid bank conflicts
-    mem_shared += ((2 * block_size.x) / NUM_BANKS) * sizeof(float);
-
-    // run kernel
-    dwtHaar1D<<<grid_size, block_size, mem_shared>>>(
-        d_idata, d_odata, approx_final, dlevels_step, num_threads_total_left,
-        block_size.x);
-
-    // Copy approx_final to appropriate location
-    if (approx_is_input) {
-      checkCudaErrors(cudaMemcpy(d_idata, approx_final, grid_size.x * 4,
-                                 cudaMemcpyDeviceToDevice));
-    } else {
-      checkCudaErrors(cudaMemcpy(d_odata, approx_final, grid_size.x * 4,
-                                 cudaMemcpyDeviceToDevice));
-    }
-
-    // update level variables
-    if (dlevels_left < 10) {
-      // approx_final = d_odata;
-      approx_is_input = 0;
-    }
-
-    // more global steps necessary
-    dlevels_step = (dlevels_left > 10) ? dlevels_left - 10 : dlevels_left;
-    dlevels_left -= 10;
-
-    // after each step only half the threads are used any longer
-    // therefore after 10 steps 2^10 less threads
-    num_threads_total_left = num_threads_total_left >> 10;
-
-    // update block and grid size
-    grid_size.x =
-        (num_threads_total_left / 512) + (0 != (num_threads_total_left % 512))
-            ? 1
-            : 0;
-
-    if (grid_size.x <= 1) {
-      block_size.x = num_threads_total_left;
-    }
-  }
-
-  // get the result back from the server
-  // allocate mem for the result
-  float *odata = (float *)malloc(smem_size);
-  checkCudaErrors(
-      cudaMemcpy(odata, d_odata, smem_size, cudaMemcpyDeviceToHost));
-
-  // post processing
-  // write file for regression test
-  if (r_fname == NULL) {
-    fprintf(stderr,
-            "Cannot write the output file storing the result of the wavelet "
-            "decomposition.\n%s",
-            usage);
-    exit(EXIT_FAILURE);
-  }
-
-  if (sdkWriteFile(r_fname, odata, slength, 0.001f, false) == true) {
-    printf("Writing result to \"%s\"\n", r_fname);
-  } else {
-    exit(EXIT_FAILURE);
-  }
-
-  // load the reference solution
-  unsigned int len_reference = 0;
-  float *reference = NULL;
-
-  if (r_gold_fname == NULL) {
-    fprintf(stderr,
-            "Cannot read the file containing the reference result of the "
-            "wavelet decomposition.\n%s",
-            usage);
-
-    exit(EXIT_FAILURE);
-  }
-
-  if (sdkReadFile(r_gold_fname, &reference, &len_reference, false) == true) {
-    printf("Reading reference result from \"%s\"\n", r_gold_fname);
-  } else {
-    exit(EXIT_FAILURE);
-  }
-
-  assert(slength == len_reference);
-
-  // compare the computed solution and the reference
-  bResult = (bool)sdkCompareL2fe(reference, odata, slength, 0.001f);
-  free(reference);
-
-  // free allocated host and device memory
-  checkCudaErrors(cudaFree(d_odata));
-  checkCudaErrors(cudaFree(d_idata));
-  checkCudaErrors(cudaFree(approx_final));
-
-  free(signal);
-  free(odata);
-  free(s_fname);
-  free(r_gold_fname);
-
-  printf(bResult ? "Test success!\n" : "Test failure!\n");
+    printf(bResult ? "Test success!\n" : "Test failure!\n");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -373,17 +369,18 @@ void runTest(int argc, char **argv) {
 //! @param   levels  number of decomposition levels necessary to perform a full
 //!           decomposition
 ////////////////////////////////////////////////////////////////////////////////
-bool getLevels(unsigned int len, unsigned int *levels) {
-  bool retval = false;
+bool getLevels(unsigned int len, unsigned int *levels)
+{
+    bool retval = false;
 
-  // currently signals up to a length of 2^20 supported
-  for (unsigned int i = 0; i < 20; ++i) {
-    if (len == (1 << i)) {
-      *levels = i;
-      retval = true;
-      break;
+    // currently signals up to a length of 2^20 supported
+    for (unsigned int i = 0; i < 20; ++i) {
+        if (len == (1 << i)) {
+            *levels = i;
+            retval  = true;
+            break;
+        }
     }
-  }
 
-  return retval;
+    return retval;
 }

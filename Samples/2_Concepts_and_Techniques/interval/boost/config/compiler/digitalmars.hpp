@@ -1,8 +1,8 @@
 //  Copyright (C) Christof Meerwald 2003
 //  Copyright (C) Dan Watkins 2003
 //
-//  Use, modification and distribution are subject to the 
-//  Boost Software License, Version 1.0. (See accompanying file 
+//  Use, modification and distribution are subject to the
+//  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 //  Digital Mars C++ compiler setup:
@@ -46,13 +46,13 @@
 //
 #include <cstddef>
 #if !defined(__STL_IMPORT_VENDOR_CSTD) && !defined(_STLP_IMPORT_VENDOR_CSTD)
-#  define BOOST_NO_STDC_NAMESPACE
+#define BOOST_NO_STDC_NAMESPACE
 #endif
 
 
 // check for exception handling support:
 #ifndef _CPPUNWIND
-#  define BOOST_NO_EXCEPTIONS
+#define BOOST_NO_EXCEPTIONS
 #endif
 
 //
@@ -87,7 +87,7 @@
 //
 // last known and checked version is ...:
 #if (__DMC__ > 0x848)
-#  if defined(BOOST_ASSERT_CONFIG)
-#     error "Unknown compiler version - please run the configure tests and report the results"
-#  endif
+#if defined(BOOST_ASSERT_CONFIG)
+#error "Unknown compiler version - please run the configure tests and report the results"
+#endif
 #endif

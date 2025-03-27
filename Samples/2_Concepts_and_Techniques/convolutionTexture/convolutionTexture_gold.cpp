@@ -30,46 +30,49 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Reference row convolution filter
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" void convolutionRowsCPU(float *h_Dst, float *h_Src, float *h_Kernel,
-                                   int imageW, int imageH, int kernelR) {
-  for (int y = 0; y < imageH; y++)
-    for (int x = 0; x < imageW; x++) {
-      float sum = 0;
+extern "C" void convolutionRowsCPU(float *h_Dst, float *h_Src, float *h_Kernel, int imageW, int imageH, int kernelR)
+{
+    for (int y = 0; y < imageH; y++)
+        for (int x = 0; x < imageW; x++) {
+            float sum = 0;
 
-      for (int k = -kernelR; k <= kernelR; k++) {
-        int d = x + k;
+            for (int k = -kernelR; k <= kernelR; k++) {
+                int d = x + k;
 
-        if (d < 0) d = 0;
+                if (d < 0)
+                    d = 0;
 
-        if (d >= imageW) d = imageW - 1;
+                if (d >= imageW)
+                    d = imageW - 1;
 
-        sum += h_Src[y * imageW + d] * h_Kernel[kernelR - k];
-      }
+                sum += h_Src[y * imageW + d] * h_Kernel[kernelR - k];
+            }
 
-      h_Dst[y * imageW + x] = sum;
-    }
+            h_Dst[y * imageW + x] = sum;
+        }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Reference column convolution filter
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" void convolutionColumnsCPU(float *h_Dst, float *h_Src,
-                                      float *h_Kernel, int imageW, int imageH,
-                                      int kernelR) {
-  for (int y = 0; y < imageH; y++)
-    for (int x = 0; x < imageW; x++) {
-      float sum = 0;
+extern "C" void convolutionColumnsCPU(float *h_Dst, float *h_Src, float *h_Kernel, int imageW, int imageH, int kernelR)
+{
+    for (int y = 0; y < imageH; y++)
+        for (int x = 0; x < imageW; x++) {
+            float sum = 0;
 
-      for (int k = -kernelR; k <= kernelR; k++) {
-        int d = y + k;
+            for (int k = -kernelR; k <= kernelR; k++) {
+                int d = y + k;
 
-        if (d < 0) d = 0;
+                if (d < 0)
+                    d = 0;
 
-        if (d >= imageH) d = imageH - 1;
+                if (d >= imageH)
+                    d = imageH - 1;
 
-        sum += h_Src[d * imageW + x] * h_Kernel[kernelR - k];
-      }
+                sum += h_Src[d * imageW + x] * h_Kernel[kernelR - k];
+            }
 
-      h_Dst[y * imageW + x] = sum;
-    }
+            h_Dst[y * imageW + x] = sum;
+        }
 }

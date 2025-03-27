@@ -11,4 +11,3 @@ Launching a single block with 64 threads...
    Sum of all ranks 0..15 in this tiledPartition16 group is 120 (expected 120)
 
 ...Done.
-

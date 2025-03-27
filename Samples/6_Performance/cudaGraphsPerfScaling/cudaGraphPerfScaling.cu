@@ -31,10 +31,10 @@
 
 #define USE_NVTX
 
+#include <chrono>
 #include <cstdio>
 #include <cuda_runtime.h>
 #include <vector>
-#include <chrono>
 
 typedef volatile int LatchType;
 
@@ -43,75 +43,72 @@ std::chrono::time_point<std::chrono::high_resolution_clock> getCpuTime()
     return std::chrono::high_resolution_clock::now();
 }
 
-template <typename T>
-float getMicroSecondDuration(T start, T end)
+template <typename T> float getMicroSecondDuration(T start, T end)
 {
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(end-start).count() *.001f;
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() * .001f;
 }
 
 float getAsyncMicroSecondDuration(cudaEvent_t start, cudaEvent_t end)
 {
     float ms;
     cudaEventElapsedTime(&ms, start, end);
-    return ms*1000;
+    return ms * 1000;
 }
 
 #ifdef USE_NVTX
 #include <nvtx3/nvToolsExt.h>
 
-class Tracer {
+class Tracer
+{
 public:
-    Tracer(const char* name) {
-        nvtxRangePushA(name);
-    }
-    ~Tracer() {
-        nvtxRangePop();
-    }
+    Tracer(const char *name) { nvtxRangePushA(name); }
+    ~Tracer() { nvtxRangePop(); }
 };
-#define RANGE(name) Tracer uniq_name_using_macros(name);
+#define RANGE(name)      Tracer uniq_name_using_macros(name);
 #define RANGE_PUSH(name) nvtxRangePushA(name)
-#define RANGE_POP() nvtxRangePop();
+#define RANGE_POP()      nvtxRangePop();
 #else
 #define RANGE(name)
 #endif
 
 std::vector<cudaStream_t> stream;
-cudaEvent_t event[1];
-cudaEvent_t timingEvent[2];
+cudaEvent_t               event[1];
+cudaEvent_t               timingEvent[2];
 
-struct hostData {
+struct hostData
+{
     long long timeElapsed;
-    bool timeoutDetected;
+    bool      timeoutDetected;
     long long timeElapsed2;
-    bool timeoutDetected2;
+    bool      timeoutDetected2;
     LatchType latch;
     LatchType latch2;
 };
 
 struct hostData *hostData;
 
-__global__ void empty()
-{
-}
+__global__ void empty() {}
 
 // Function to read the GPU nanosecond timer in a kernel
-__device__ __forceinline__ unsigned long long   __globaltimer() { 
-    unsigned long long globaltimer;   
-    asm volatile ("mov.u64 %0, %globaltimer;"   : "=l"(globaltimer));   
-    return globaltimer; 
+__device__ __forceinline__ unsigned long long __globaltimer()
+{
+    unsigned long long globaltimer;
+    asm volatile("mov.u64 %0, %globaltimer;" : "=l"(globaltimer));
+    return globaltimer;
 }
 
 __global__ void delay(long long ticks)
 {
     long long endTime = clock64() + ticks;
-    while (clock64() < endTime);
+    while (clock64() < endTime)
+        ;
 }
 
-__global__ void waitWithTimeout(long long nanoseconds, bool* timeoutDetected, long long *timeElapsed, LatchType* latch)
+__global__ void waitWithTimeout(long long nanoseconds, bool *timeoutDetected, long long *timeElapsed, LatchType *latch)
 {
     long long startTime = __globaltimer();
-    long long endTime = startTime + nanoseconds;
-    long long time = 0;
+    long long endTime   = startTime + nanoseconds;
+    long long time      = 0;
     do {
         time = __globaltimer();
     } while (time < endTime && (latch == NULL || *latch == 0));
@@ -124,13 +121,9 @@ __global__ void waitWithTimeout(long long nanoseconds, bool* timeoutDetected, lo
     }
 }
 
-__global__ void preUploadAnnotation()
-{
-}
+__global__ void preUploadAnnotation() {}
 
-__global__ void postUploadAnnotation()
-{
-}
+__global__ void postUploadAnnotation() {}
 
 cudaGraph_t createParallelChain(int length, int width, bool singleEntry = false)
 {
@@ -138,9 +131,9 @@ cudaGraph_t createParallelChain(int length, int width, bool singleEntry = false)
     RANGE("capture");
     cudaGraph_t graph;
     cudaStreamBeginCapture(stream[0], cudaStreamCaptureModeGlobal);
-    int streamIdx = 0; 
+    int streamIdx = 0;
     if (singleEntry) {
-       empty<<<1,1,0,stream[streamIdx]>>>();
+        empty<<<1, 1, 0, stream[streamIdx]>>>();
     }
 
     cudaEventRecord(event[0], stream[0]);
@@ -151,7 +144,7 @@ cudaGraph_t createParallelChain(int length, int width, bool singleEntry = false)
     for (int i = 0; i < width; i++) {
         streamIdx = i;
         for (int j = 0; j < length; j++) {
-            empty<<<1,1,0,stream[streamIdx]>>>();
+            empty<<<1, 1, 0, stream[streamIdx]>>>();
         }
     }
 
@@ -164,10 +157,10 @@ cudaGraph_t createParallelChain(int length, int width, bool singleEntry = false)
     return graph;
 }
 
-std::vector<const char*> metricName;
-std::vector<float> metricValue;
+std::vector<const char *> metricName;
+std::vector<float>        metricValue;
 
-int counter2 = 0;
+int  counter2 = 0;
 void runDemo(cudaGraph_t graph, int length, int width)
 {
     cudaGraphExec_t graphExec;
@@ -203,12 +196,13 @@ void runDemo(cudaGraph_t graph, int length, int width)
         metricValue.push_back(getMicroSecondDuration(start, streamSync));
     }
     {
-        // re-instantiating the exec to simulate first launch into a busy stream. 
+        // re-instantiating the exec to simulate first launch into a busy stream.
         cudaGraphExecDestroy(graphExec);
         cudaGraphInstantiateWithFlags(&graphExec, graph, 0);
 
-        long long maxTimeoutNanoSeconds = 4000 + 500*length*width;
-        waitWithTimeout<<<1,1,0,stream[0]>>>(maxTimeoutNanoSeconds, &hostData->timeoutDetected, &hostData->timeElapsed, &hostData->latch);
+        long long maxTimeoutNanoSeconds = 4000 + 500 * length * width;
+        waitWithTimeout<<<1, 1, 0, stream[0]>>>(
+            maxTimeoutNanoSeconds, &hostData->timeoutDetected, &hostData->timeElapsed, &hostData->latch);
 
         RANGE("launch including upload in busy stream");
         cudaEventRecord(timingEvent[0], stream[0]);
@@ -222,13 +216,14 @@ void runDemo(cudaGraph_t graph, int length, int width)
         metricValue.push_back(getAsyncMicroSecondDuration(timingEvent[0], timingEvent[1]));
         metricName.push_back("blockingKernelTimeoutDetected");
         metricValue.push_back(hostData->timeoutDetected);
-        hostData->latch = 0;
+        hostData->latch           = 0;
         hostData->timeoutDetected = 0;
     }
     {
         RANGE("repeat lauch in busy stream");
-        long long maxTimeoutNanoSeconds = 4000 + 500*length*width;
-        waitWithTimeout<<<1,1,0,stream[0]>>>(maxTimeoutNanoSeconds, &hostData->timeoutDetected, &hostData->timeElapsed, &hostData->latch);
+        long long maxTimeoutNanoSeconds = 4000 + 500 * length * width;
+        waitWithTimeout<<<1, 1, 0, stream[0]>>>(
+            maxTimeoutNanoSeconds, &hostData->timeoutDetected, &hostData->timeElapsed, &hostData->latch);
         cudaEventRecord(timingEvent[0], stream[0]);
         cudaGraphLaunch(graphExec, stream[0]);
         cudaEventRecord(timingEvent[1], stream[0]);
@@ -240,34 +235,37 @@ void runDemo(cudaGraph_t graph, int length, int width)
         metricValue.push_back(getAsyncMicroSecondDuration(timingEvent[0], timingEvent[1]));
         metricName.push_back("blockingKernelTimeoutDetected");
         metricValue.push_back(hostData->timeoutDetected);
-        hostData->latch = 0;
+        hostData->latch           = 0;
         hostData->timeoutDetected = 0;
     }
     {
         // re-instantiating the exec to provide upload with work to do.
         cudaGraphExecDestroy(graphExec);
         cudaGraphInstantiateWithFlags(&graphExec, graph, 0);
-        long long maxTimeoutNanoSeconds = 4000 + 1000*length*width;
-        waitWithTimeout<<<1,1,0,stream[0]>>>(maxTimeoutNanoSeconds, &hostData->timeoutDetected2, &hostData->timeElapsed2, &hostData->latch2);
-        maxTimeoutNanoSeconds = 2000 + 500*length*width;
-        waitWithTimeout<<<1,1,0,stream[1]>>>(maxTimeoutNanoSeconds, &hostData->timeoutDetected, &hostData->timeElapsed, &hostData->latch);
+        long long maxTimeoutNanoSeconds = 4000 + 1000 * length * width;
+        waitWithTimeout<<<1, 1, 0, stream[0]>>>(
+            maxTimeoutNanoSeconds, &hostData->timeoutDetected2, &hostData->timeElapsed2, &hostData->latch2);
+        maxTimeoutNanoSeconds = 2000 + 500 * length * width;
+        waitWithTimeout<<<1, 1, 0, stream[1]>>>(
+            maxTimeoutNanoSeconds, &hostData->timeoutDetected, &hostData->timeElapsed, &hostData->latch);
 
         RANGE("uploading a graph off of the critical path");
-        preUploadAnnotation<<<1,1,0,stream[1]>>>();
+        preUploadAnnotation<<<1, 1, 0, stream[1]>>>();
         cudaEventRecord(timingEvent[0], stream[0]);
         auto start = getCpuTime();
         cudaGraphUpload(graphExec, stream[1]);
         auto apiReturn = getCpuTime();
-        cudaEventRecord(event[0],stream[1]);
+        cudaEventRecord(event[0], stream[1]);
         cudaEventRecord(timingEvent[1], stream[0]);
-        postUploadAnnotation<<<1,1,0,stream[1]>>>();
+        postUploadAnnotation<<<1, 1, 0, stream[1]>>>();
 
         hostData->latch = 1; // release the blocking kernel for the upload
-        cudaStreamWaitEvent(stream[0],event[0]);
+        cudaStreamWaitEvent(stream[0], event[0]);
         cudaGraphLaunch(graphExec, stream[0]);
-        cudaEventSynchronize(event[0]); // upload done, similuate critical path being ready for the graph to run by the release of the second latch
+        cudaEventSynchronize(event[0]); // upload done, similuate critical path being ready for the graph to run by the
+                                        // release of the second latch
 
-        hostData->latch2 = 1; // release the work 
+        hostData->latch2 = 1; // release the work
         cudaStreamSynchronize(stream[0]);
 
         metricName.push_back("upload_api_time");
@@ -277,9 +275,9 @@ void runDemo(cudaGraph_t graph, int length, int width)
         metricName.push_back("blockingKernelTimeoutDetected");
         metricValue.push_back(hostData->timeoutDetected);
 
-        hostData->latch = 0;
-        hostData->latch2 = 0;
-        hostData->timeoutDetected = 0;
+        hostData->latch            = 0;
+        hostData->latch2           = 0;
+        hostData->timeoutDetected  = 0;
         hostData->timeoutDetected2 = 0;
     }
     cudaGraphExecDestroy(graphExec);
@@ -287,7 +285,8 @@ void runDemo(cudaGraph_t graph, int length, int width)
     RANGE_POP();
 }
 
-void usage() {
+void usage()
+{
     printf("programName [outputFmt] [numTrials] [length] [width] [pattern] [stride] [maxLength] \n");
     printf("\toutputFmt - program output, default=3 (see below)\n");
     printf("\tnumTrials (per length)\n");
@@ -312,34 +311,36 @@ void usage() {
 
 int main(int argc, char **argv)
 {
-    if(argc < 1) {
+    if (argc < 1) {
         usage();
         return 0;
     }
 
-    int numTrials=1, length=20, width=1, outputFmt=3, pattern=0, stride = 1;
-    if(argc > 1) outputFmt = atoi(argv[1]);
-    if(argc > 2) numTrials = atoi(argv[2]);
-    if(argc > 3) length= atoi(argv[3]);
-    if(argc > 4) width= atoi(argv[4]);
-    if(argc > 5) pattern = atoi(argv[5]);
-    if(argc > 6) stride = atoi(argv[6]);
+    int numTrials = 1, length = 20, width = 1, outputFmt = 3, pattern = 0, stride = 1;
+    if (argc > 1)
+        outputFmt = atoi(argv[1]);
+    if (argc > 2)
+        numTrials = atoi(argv[2]);
+    if (argc > 3)
+        length = atoi(argv[3]);
+    if (argc > 4)
+        width = atoi(argv[4]);
+    if (argc > 5)
+        pattern = atoi(argv[5]);
+    if (argc > 6)
+        stride = atoi(argv[6]);
     int maxLength = length;
-    if(argc > 7) maxLength = atoi(argv[7]);
+    if (argc > 7)
+        maxLength = atoi(argv[7]);
     if (maxLength < length) {
         maxLength = length;
     }
 
-    if((outputFmt & 4) && (outputFmt & 2)) {
+    if ((outputFmt & 4) && (outputFmt & 2)) {
         printf("printing average and all samples doesn't make sense\n");
     }
 
-    if(length == 0 ||
-       width == 0 ||
-       outputFmt == 0 ||
-       outputFmt > 5 ||
-       pattern > 1)
-    {
+    if (length == 0 || width == 0 || outputFmt == 0 || outputFmt > 5 || pattern > 1) {
         usage();
         return 0;
     }
@@ -351,10 +352,10 @@ int main(int argc, char **argv)
     cudaFree(0);
     cudaMallocHost(&hostData, sizeof(*hostData));
     int numStreams = width;
-    if (numStreams == 1) numStreams = 2; // demo needs two streams even if capture only needs 1.
+    if (numStreams == 1)
+        numStreams = 2; // demo needs two streams even if capture only needs 1.
     stream.resize(numStreams);
-    for (int i = 0; i < numStreams; i++)
-    {
+    for (int i = 0; i < numStreams; i++) {
         cudaStreamCreate(&stream[i]);
     }
 
@@ -364,15 +365,14 @@ int main(int argc, char **argv)
 
     {
         RANGE("warmup");
-        for (int i = 0; i < width; i++)
-        {
-            empty<<<1,1,0,stream[i]>>>();
+        for (int i = 0; i < width; i++) {
+            empty<<<1, 1, 0, stream[i]>>>();
         }
         cudaStreamSynchronize(stream[0]);
 
         auto start = getCpuTime();
-        graph = createParallelChain(length, width, singleEntry);
-        auto end = getCpuTime();
+        graph      = createParallelChain(length, width, singleEntry);
+        auto end   = getCpuTime();
         metricValue.push_back(getMicroSecondDuration(start, end));
         metricName.push_back("capture");
         runDemo(graph, length, width);
@@ -382,7 +382,7 @@ int main(int argc, char **argv)
         printf("length, width, pattern, ");
         for (int i = 0; i < metricName.size(); i++) {
             printf("%s, ", metricName[i]);
-        } 
+        }
         printf("\r\n");
     }
 
@@ -390,7 +390,7 @@ int main(int argc, char **argv)
         printf("skipping trials since no output is expected\n");
         return 1;
     }
-    
+
     std::vector<double> metricTotal;
     metricTotal.resize(metricValue.size());
 
@@ -399,32 +399,32 @@ int main(int argc, char **argv)
             metricName.clear();
             metricValue.clear();
             auto start = getCpuTime();
-            graph = createParallelChain(length, width, singleEntry);
-            auto end = getCpuTime();
+            graph      = createParallelChain(length, width, singleEntry);
+            auto end   = getCpuTime();
             metricValue.push_back(getMicroSecondDuration(start, end));
 
             runDemo(graph, length, width);
 
             if (outputFmt & 2) {
-                printf("%d, %d, %d, ",length, width, pattern);
+                printf("%d, %d, %d, ", length, width, pattern);
                 for (int i = 0; i < metricValue.size(); i++) {
                     printf("%0.3f, ", metricValue[i]);
-                } 
+                }
                 printf("\r\n");
             }
             if (outputFmt & 4) {
                 for (int i = 0; i < metricTotal.size(); i++) {
                     metricTotal[i] += metricValue[i];
-                } 
+                }
             }
         }
 
         if (outputFmt & 4) {
-            printf("%d, %d, %d, ",length, width, pattern);
+            printf("%d, %d, %d, ", length, width, pattern);
             for (int i = 0; i < metricTotal.size(); i++) {
-                printf("%0.3f, ", metricTotal[i]/numTrials);
+                printf("%0.3f, ", metricTotal[i] / numTrials);
                 metricTotal[i] = 0;
-            } 
+            }
             printf("\r\n");
         }
 

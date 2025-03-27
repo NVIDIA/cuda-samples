@@ -6,6 +6,6 @@ N: 4096 (16 x 256)
 K: 4096 (16 x 256)
 Preparing data for GPU...
 Required shared memory size: 64 Kb
-Computing... using high performance kernel compute_gemm_imma 
+Computing... using high performance kernel compute_gemm_imma
 Time: 0.629184 ms
 TOPS: 218.44

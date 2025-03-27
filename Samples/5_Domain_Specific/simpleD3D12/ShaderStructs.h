@@ -27,21 +27,25 @@
 
 #pragma once
 
-#include <d3d12.h>
-#include <dxgi1_4.h>
 #include <D3Dcompiler.h>
 #include <DirectXMath.h>
 #include <cuda_runtime.h>
+#include <d3d12.h>
+#include <dxgi1_4.h>
+
 #include "helper_cuda.h"
 
 using namespace DirectX;
 
-struct Vertex {
-  XMFLOAT3 position;
-  XMFLOAT4 color;
+struct Vertex
+{
+    XMFLOAT3 position;
+    XMFLOAT4 color;
 };
 
 
-void RunSineWaveKernel(size_t mesh_width, size_t mesh_height,
-                       Vertex *cudaDevVertptr, cudaStream_t streamToRun,
-                       float AnimTime);
+void RunSineWaveKernel(size_t       mesh_width,
+                       size_t       mesh_height,
+                       Vertex      *cudaDevVertptr,
+                       cudaStream_t streamToRun,
+                       float        AnimTime);

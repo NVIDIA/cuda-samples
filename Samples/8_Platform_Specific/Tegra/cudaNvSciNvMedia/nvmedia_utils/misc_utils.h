@@ -29,46 +29,42 @@
 #define _NVMEDIA_TEST_MISC_UTILS_H_
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-#include "nvmedia_core.h"
 #include "nvmedia_common.h"
+#include "nvmedia_core.h"
 
 #ifndef __INTEGRITY
-#define MIN(a,b)             (((a) < (b)) ? (a) : (b))
-#define MAX(a,b)             (((a) > (b)) ? (a) : (b))
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
 #endif
 
-typedef enum {
-    LSB_ALIGNED,
-    MSB_ALIGNED
-} PixelAlignment;
+    typedef enum { LSB_ALIGNED, MSB_ALIGNED } PixelAlignment;
 
 
-//  u32
-//
-//    u32()  Reads 4 bytes from buffer and returns the read value
-//
-//  Arguments:
-//
-//   ptr
-//      (in) Input buffer
+    //  u32
+    //
+    //    u32()  Reads 4 bytes from buffer and returns the read value
+    //
+    //  Arguments:
+    //
+    //   ptr
+    //      (in) Input buffer
 
-uint32_t   u32(const uint8_t* ptr);
+    uint32_t u32(const uint8_t *ptr);
 
-//  GetTimeMicroSec
-//
-//    GetTimeMicroSec()  Returns current time in microseconds
-//
-//  Arguments:
-//
-//   uTime
-//      (out) Pointer to current time in microseconds
+    //  GetTimeMicroSec
+    //
+    //    GetTimeMicroSec()  Returns current time in microseconds
+    //
+    //  Arguments:
+    //
+    //   uTime
+    //      (out) Pointer to current time in microseconds
 
-NvMediaStatus
-GetTimeMicroSec(
-    uint64_t *uTime);
+    NvMediaStatus GetTimeMicroSec(uint64_t *uTime);
 
 #ifdef __cplusplus
 }

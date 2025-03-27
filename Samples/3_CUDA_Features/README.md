@@ -76,4 +76,3 @@ This sample demonstrates how using Cooperative Groups (CG) to perform warp aggre
 
 ### [graphConditionalNodes](./graphConditionalNodes)
 Demonstrate the use of CUDA Graph conditional nodes available starting in CUDA 12.4.
-

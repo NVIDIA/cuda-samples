@@ -58,7 +58,6 @@
 #define SOBOL_GOLD_H
 
 void initSobolDirectionVectors(int n_dimensions, unsigned int *directions);
-void sobolCPU(int n_vectors, int n_dimensions, unsigned int *directions,
-              float *output);
+void sobolCPU(int n_vectors, int n_dimensions, unsigned int *directions, float *output);
 
 #endif

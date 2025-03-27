@@ -17,11 +17,11 @@ struct gas_particle
     Real rho;
     Real temp;
     Real hsmooth;
-    Real metals ;
-    Real phi ;
-} ;
+    Real metals;
+    Real phi;
+};
 
-//struct gas_particle *gas_particles;
+// struct gas_particle *gas_particles;
 
 struct dark_particle
 {
@@ -29,45 +29,45 @@ struct dark_particle
     Real pos[MAXDIM];
     Real vel[MAXDIM];
     Real eps;
-    int phi ;
-} ;
+    int  phi;
+};
 
-//struct dark_particle *dark_particles;
+// struct dark_particle *dark_particles;
 
 struct star_particle
 {
     Real mass;
     Real pos[MAXDIM];
     Real vel[MAXDIM];
-    Real metals ;
-    Real tform ;
+    Real metals;
+    Real tform;
     Real eps;
-    int phi ;
-} ;
+    int  phi;
+};
 
-//struct star_particle *star_particles;
+// struct star_particle *star_particles;
 
 struct dump
 {
-    double time ;
-    int nbodies ;
-    int ndim ;
-    int nsph ;
-    int ndark ;
-    int nstar ;
-} ;
+    double time;
+    int    nbodies;
+    int    ndim;
+    int    nsph;
+    int    ndark;
+    int    nstar;
+};
 
-typedef struct dump header ;
+typedef struct dump header;
 
 template <typename real4>
-void read_tipsy_file(vector<real4> &bodyPositions,
-                     vector<real4> &bodyVelocities,
-                     vector<int> &bodiesIDs,
+void read_tipsy_file(vector<real4>     &bodyPositions,
+                     vector<real4>     &bodyVelocities,
+                     vector<int>       &bodiesIDs,
                      const std::string &fileName,
-                     int &NTotal,
-                     int &NFirst,
-                     int &NSecond,
-                     int &NThird)
+                     int               &NTotal,
+                     int               &NFirst,
+                     int               &NSecond,
+                     int               &NThird)
 {
     /*
        Read in our custom version of the tipsy file format written by
@@ -82,59 +82,55 @@ void read_tipsy_file(vector<real4> &bodyPositions,
 
     ifstream inputFile(fullFileName, ios::in | ios::binary);
 
-    if (!inputFile.is_open())
-    {
+    if (!inputFile.is_open()) {
         cout << "Can't open input file \n";
         exit(EXIT_SUCCESS);
     }
 
-    dump  h;
+    dump h;
     inputFile.read((char *)&h, sizeof(h));
 
-    int idummy;
+    int   idummy;
     real4 positions;
     real4 velocity;
 
 
-    //Read tipsy header
-    NTotal        = h.nbodies;
-    NFirst        = h.ndark;
-    NSecond       = h.nstar;
-    NThird        = h.nsph;
+    // Read tipsy header
+    NTotal  = h.nbodies;
+    NFirst  = h.ndark;
+    NSecond = h.nstar;
+    NThird  = h.nsph;
 
-    //Start reading
+    // Start reading
     int particleCount = 0;
 
     dark_particle d;
     star_particle s;
 
-    for (int i=0; i < NTotal; i++)
-    {
-        if (i < NFirst)
-        {
+    for (int i = 0; i < NTotal; i++) {
+        if (i < NFirst) {
             inputFile.read((char *)&d, sizeof(d));
-            velocity.w        = d.eps;
-            positions.w       = d.mass;
-            positions.x       = d.pos[0];
-            positions.y       = d.pos[1];
-            positions.z       = d.pos[2];
-            velocity.x        = d.vel[0];
-            velocity.y        = d.vel[1];
-            velocity.z        = d.vel[2];
-            idummy            = d.phi;
+            velocity.w  = d.eps;
+            positions.w = d.mass;
+            positions.x = d.pos[0];
+            positions.y = d.pos[1];
+            positions.z = d.pos[2];
+            velocity.x  = d.vel[0];
+            velocity.y  = d.vel[1];
+            velocity.z  = d.vel[2];
+            idummy      = d.phi;
         }
-        else
-        {
+        else {
             inputFile.read((char *)&s, sizeof(s));
-            velocity.w        = s.eps;
-            positions.w       = s.mass;
-            positions.x       = s.pos[0];
-            positions.y       = s.pos[1];
-            positions.z       = s.pos[2];
-            velocity.x        = s.vel[0];
-            velocity.y        = s.vel[1];
-            velocity.z        = s.vel[2];
-            idummy            = s.phi;
+            velocity.w  = s.eps;
+            positions.w = s.mass;
+            positions.x = s.pos[0];
+            positions.y = s.pos[1];
+            positions.z = s.pos[2];
+            velocity.x  = s.vel[0];
+            velocity.y  = s.vel[1];
+            velocity.z  = s.vel[2];
+            idummy      = s.phi;
         }
 
         bodyPositions.push_back(positions);
@@ -142,18 +138,16 @@ void read_tipsy_file(vector<real4> &bodyPositions,
         bodiesIDs.push_back(idummy);
 
         particleCount++;
-    }//end for
+    } // end for
 
     // round up to a multiple of 256 bodies since our kernel only supports that...
     int newTotal = NTotal;
 
-    if (NTotal % 256)
-    {
+    if (NTotal % 256) {
         newTotal = ((NTotal / 256) + 1) * 256;
     }
 
-    for (int i = NTotal; i < newTotal; i++)
-    {
+    for (int i = NTotal; i < newTotal; i++) {
         positions.w = positions.x = positions.y = positions.z = 0;
         velocity.x = velocity.y = velocity.z = 0;
         bodyPositions.push_back(positions);

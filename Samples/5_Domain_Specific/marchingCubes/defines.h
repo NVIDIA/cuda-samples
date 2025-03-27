@@ -28,7 +28,7 @@
 #ifndef _DEFINES_H_
 #define _DEFINES_H_
 
-typedef unsigned int uint;
+typedef unsigned int  uint;
 typedef unsigned char uchar;
 
 // if SAMPLE_VOLUME is 0, an implicit dataset is generated. If 1, a voxelized

@@ -49,13 +49,12 @@
   Thanks to David Tschumperl� and all the CImg contributors!
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
 #include <cuda_runtime.h>
 #include <helper_cuda.h>
 #include <helper_math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "recursiveGaussian_kernel.cuh"
 
@@ -67,11 +66,12 @@ int iDivUp(int a, int b) { return (a % b != 0) ? (a / b + 1) : (a / b); }
 /*
   Transpose a 2D array (see SDK transpose example)
 */
-extern "C" void transpose(uint *d_src, uint *d_dest, uint width, int height) {
-  dim3 grid(iDivUp(width, BLOCK_DIM), iDivUp(height, BLOCK_DIM), 1);
-  dim3 threads(BLOCK_DIM, BLOCK_DIM, 1);
-  d_transpose<<<grid, threads>>>(d_dest, d_src, width, height);
-  getLastCudaError("Kernel execution failed");
+extern "C" void transpose(uint *d_src, uint *d_dest, uint width, int height)
+{
+    dim3 grid(iDivUp(width, BLOCK_DIM), iDivUp(height, BLOCK_DIM), 1);
+    dim3 threads(BLOCK_DIM, BLOCK_DIM, 1);
+    d_transpose<<<grid, threads>>>(d_dest, d_src, width, height);
+    getLastCudaError("Kernel execution failed");
 }
 
 /*
@@ -88,73 +88,68 @@ extern "C" void transpose(uint *d_src, uint *d_dest, uint width, int height) {
 */
 
 // 8-bit RGBA version
-extern "C" void gaussianFilterRGBA(uint *d_src, uint *d_dest, uint *d_temp,
-                                   int width, int height, float sigma,
-                                   int order, int nthreads) {
-  // compute filter coefficients
-  const float nsigma = sigma < 0.1f ? 0.1f : sigma, alpha = 1.695f / nsigma,
-              ema = (float)std::exp(-alpha), ema2 = (float)std::exp(-2 * alpha),
-              b1 = -2 * ema, b2 = ema2;
+extern "C" void
+gaussianFilterRGBA(uint *d_src, uint *d_dest, uint *d_temp, int width, int height, float sigma, int order, int nthreads)
+{
+    // compute filter coefficients
+    const float nsigma = sigma < 0.1f ? 0.1f : sigma, alpha = 1.695f / nsigma, ema = (float)std::exp(-alpha),
+                ema2 = (float)std::exp(-2 * alpha), b1 = -2 * ema, b2 = ema2;
 
-  float a0 = 0, a1 = 0, a2 = 0, a3 = 0, coefp = 0, coefn = 0;
+    float a0 = 0, a1 = 0, a2 = 0, a3 = 0, coefp = 0, coefn = 0;
 
-  switch (order) {
+    switch (order) {
     case 0: {
-      const float k = (1 - ema) * (1 - ema) / (1 + 2 * alpha * ema - ema2);
-      a0 = k;
-      a1 = k * (alpha - 1) * ema;
-      a2 = k * (alpha + 1) * ema;
-      a3 = -k * ema2;
+        const float k = (1 - ema) * (1 - ema) / (1 + 2 * alpha * ema - ema2);
+        a0            = k;
+        a1            = k * (alpha - 1) * ema;
+        a2            = k * (alpha + 1) * ema;
+        a3            = -k * ema2;
     } break;
 
     case 1: {
-      const float k = (1 - ema) * (1 - ema) / ema;
-      a0 = k * ema;
-      a1 = a3 = 0;
-      a2 = -a0;
+        const float k = (1 - ema) * (1 - ema) / ema;
+        a0            = k * ema;
+        a1 = a3 = 0;
+        a2      = -a0;
     } break;
 
     case 2: {
-      const float ea = (float)std::exp(-alpha),
-                  k = -(ema2 - 1) / (2 * alpha * ema),
-                  kn = (-2 * (-1 + 3 * ea - 3 * ea * ea + ea * ea * ea) /
-                        (3 * ea + 1 + 3 * ea * ea + ea * ea * ea));
-      a0 = kn;
-      a1 = -kn * (1 + k * alpha) * ema;
-      a2 = kn * (1 - k * alpha) * ema;
-      a3 = -kn * ema2;
+        const float ea = (float)std::exp(-alpha), k = -(ema2 - 1) / (2 * alpha * ema),
+                    kn = (-2 * (-1 + 3 * ea - 3 * ea * ea + ea * ea * ea) / (3 * ea + 1 + 3 * ea * ea + ea * ea * ea));
+        a0             = kn;
+        a1             = -kn * (1 + k * alpha) * ema;
+        a2             = kn * (1 - k * alpha) * ema;
+        a3             = -kn * ema2;
     } break;
 
     default:
-      fprintf(stderr, "gaussianFilter: invalid order parameter!\n");
-      return;
-  }
+        fprintf(stderr, "gaussianFilter: invalid order parameter!\n");
+        return;
+    }
 
-  coefp = (a0 + a1) / (1 + b1 + b2);
-  coefn = (a2 + a3) / (1 + b1 + b2);
+    coefp = (a0 + a1) / (1 + b1 + b2);
+    coefn = (a2 + a3) / (1 + b1 + b2);
 
 // process columns
 #if USE_SIMPLE_FILTER
-  d_simpleRecursive_rgba<<<iDivUp(width, nthreads), nthreads>>>(
-      d_src, d_temp, width, height, ema);
+    d_simpleRecursive_rgba<<<iDivUp(width, nthreads), nthreads>>>(d_src, d_temp, width, height, ema);
 #else
-  d_recursiveGaussian_rgba<<<iDivUp(width, nthreads), nthreads>>>(
-      d_src, d_temp, width, height, a0, a1, a2, a3, b1, b2, coefp, coefn);
+    d_recursiveGaussian_rgba<<<iDivUp(width, nthreads), nthreads>>>(
+        d_src, d_temp, width, height, a0, a1, a2, a3, b1, b2, coefp, coefn);
 #endif
-  getLastCudaError("Kernel execution failed");
+    getLastCudaError("Kernel execution failed");
 
-  transpose(d_temp, d_dest, width, height);
-  getLastCudaError("transpose: Kernel execution failed");
+    transpose(d_temp, d_dest, width, height);
+    getLastCudaError("transpose: Kernel execution failed");
 
 // process rows
 #if USE_SIMPLE_FILTER
-  d_simpleRecursive_rgba<<<iDivUp(height, nthreads), nthreads>>>(
-      d_dest, d_temp, height, width, ema);
+    d_simpleRecursive_rgba<<<iDivUp(height, nthreads), nthreads>>>(d_dest, d_temp, height, width, ema);
 #else
-  d_recursiveGaussian_rgba<<<iDivUp(height, nthreads), nthreads>>>(
-      d_dest, d_temp, height, width, a0, a1, a2, a3, b1, b2, coefp, coefn);
+    d_recursiveGaussian_rgba<<<iDivUp(height, nthreads), nthreads>>>(
+        d_dest, d_temp, height, width, a0, a1, a2, a3, b1, b2, coefp, coefn);
 #endif
-  getLastCudaError("Kernel execution failed");
+    getLastCudaError("Kernel execution failed");
 
-  transpose(d_temp, d_dest, height, width);
+    transpose(d_temp, d_dest, height, width);
 }

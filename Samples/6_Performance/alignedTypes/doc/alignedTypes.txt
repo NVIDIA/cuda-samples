@@ -6,5 +6,5 @@ typedef struct{
     float b;
 } testStructure;
 
-Without alignment specification the compiler will not automatically use a single 64-bit global memory load/store instruction, but will emit two 32-bit load instructions instead. 
+Without alignment specification the compiler will not automatically use a single 64-bit global memory load/store instruction, but will emit two 32-bit load instructions instead.
 This significantly impacts aggregate load/store bandwidth, since the latter breaks coalescing rules because of incontiguous memory access pattern. Refer to section 5.1.2.1 of the Programming Guide.

@@ -36,11 +36,11 @@
  */
 
 // Includes
+#include <cstring>
 #include <cuda.h>
+#include <iostream>
 #include <stdio.h>
 #include <string.h>
-#include <cstring>
-#include <iostream>
 
 // includes, project
 #include <helper_cuda_drvapi.h>
@@ -54,115 +54,111 @@
 using namespace std;
 
 // Variables
-CUdevice cuDevice;
-CUcontext cuContext;
-CUmodule cuModule;
-CUfunction vecAdd_kernel;
-float *h_A;
-float *h_B;
-float *h_C;
+CUdevice    cuDevice;
+CUcontext   cuContext;
+CUmodule    cuModule;
+CUfunction  vecAdd_kernel;
+float      *h_A;
+float      *h_B;
+float      *h_C;
 CUdeviceptr d_A;
 CUdeviceptr d_B;
 CUdeviceptr d_C;
-size_t allocationSize = 0;
+size_t      allocationSize = 0;
 
 // Functions
-int CleanupNoFailure();
+int  CleanupNoFailure();
 void RandomInit(float *, int);
 
-//define input fatbin file
+// define input fatbin file
 #ifndef FATBIN_FILE
 #define FATBIN_FILE "vectorAdd_kernel64.fatbin"
 #endif
 
 // collect all of the devices whose memory can be mapped from cuDevice.
-vector<CUdevice> getBackingDevices(CUdevice cuDevice) {
-  int num_devices;
+vector<CUdevice> getBackingDevices(CUdevice cuDevice)
+{
+    int num_devices;
 
-  checkCudaErrors(cuDeviceGetCount(&num_devices));
+    checkCudaErrors(cuDeviceGetCount(&num_devices));
 
-  vector<CUdevice> backingDevices;
-  backingDevices.push_back(cuDevice);
-  for (int dev = 0; dev < num_devices; dev++) {
-    int capable = 0;
-    int attributeVal = 0;
+    vector<CUdevice> backingDevices;
+    backingDevices.push_back(cuDevice);
+    for (int dev = 0; dev < num_devices; dev++) {
+        int capable      = 0;
+        int attributeVal = 0;
 
-    // The mapping device is already in the backingDevices vector
-    if (dev == cuDevice) {
-      continue;
+        // The mapping device is already in the backingDevices vector
+        if (dev == cuDevice) {
+            continue;
+        }
+
+        // Only peer capable devices can map each others memory
+        checkCudaErrors(cuDeviceCanAccessPeer(&capable, cuDevice, dev));
+        if (!capable) {
+            continue;
+        }
+
+        // The device needs to support virtual address management for the required
+        // apis to work
+        checkCudaErrors(
+            cuDeviceGetAttribute(&attributeVal, CU_DEVICE_ATTRIBUTE_VIRTUAL_ADDRESS_MANAGEMENT_SUPPORTED, cuDevice));
+        if (attributeVal == 0) {
+            continue;
+        }
+
+        backingDevices.push_back(dev);
     }
-
-    // Only peer capable devices can map each others memory
-    checkCudaErrors(cuDeviceCanAccessPeer(&capable, cuDevice, dev));
-    if (!capable) {
-      continue;
-    }
-
-    // The device needs to support virtual address management for the required
-    // apis to work
-    checkCudaErrors(cuDeviceGetAttribute(
-        &attributeVal, CU_DEVICE_ATTRIBUTE_VIRTUAL_ADDRESS_MANAGEMENT_SUPPORTED,
-        cuDevice));
-    if (attributeVal == 0) {
-      continue;
-    }
-
-    backingDevices.push_back(dev);
-  }
-  return backingDevices;
+    return backingDevices;
 }
 
 // Host code
-int main(int argc, char **argv) {
-  printf("Vector Addition (Driver API)\n");
-  int N = 50000;
-  size_t size = N * sizeof(float);
-  int attributeVal = 0;
+int main(int argc, char **argv)
+{
+    printf("Vector Addition (Driver API)\n");
+    int    N            = 50000;
+    size_t size         = N * sizeof(float);
+    int    attributeVal = 0;
 
-  // Initialize
-  checkCudaErrors(cuInit(0));
+    // Initialize
+    checkCudaErrors(cuInit(0));
 
-  cuDevice = findCudaDeviceDRV(argc, (const char **)argv);
+    cuDevice = findCudaDeviceDRV(argc, (const char **)argv);
 
-  // Check that the selected device supports virtual address management
-  checkCudaErrors(cuDeviceGetAttribute(
-      &attributeVal, CU_DEVICE_ATTRIBUTE_VIRTUAL_ADDRESS_MANAGEMENT_SUPPORTED,
-      cuDevice));
-  printf("Device %d VIRTUAL ADDRESS MANAGEMENT SUPPORTED = %d.\n", cuDevice,
-         attributeVal);
-  if (attributeVal == 0) {
-    printf("Device %d doesn't support VIRTUAL ADDRESS MANAGEMENT.\n", cuDevice);
-    exit(EXIT_WAIVED);
-  }
+    // Check that the selected device supports virtual address management
+    checkCudaErrors(
+        cuDeviceGetAttribute(&attributeVal, CU_DEVICE_ATTRIBUTE_VIRTUAL_ADDRESS_MANAGEMENT_SUPPORTED, cuDevice));
+    printf("Device %d VIRTUAL ADDRESS MANAGEMENT SUPPORTED = %d.\n", cuDevice, attributeVal);
+    if (attributeVal == 0) {
+        printf("Device %d doesn't support VIRTUAL ADDRESS MANAGEMENT.\n", cuDevice);
+        exit(EXIT_WAIVED);
+    }
 
-  // The vector addition happens on cuDevice, so the allocations need to be
-  // mapped there.
-  vector<CUdevice> mappingDevices;
-  mappingDevices.push_back(cuDevice);
+    // The vector addition happens on cuDevice, so the allocations need to be
+    // mapped there.
+    vector<CUdevice> mappingDevices;
+    mappingDevices.push_back(cuDevice);
 
-  // Collect devices accessible by the mapping device (cuDevice) into the
-  // backingDevices vector.
-  vector<CUdevice> backingDevices = getBackingDevices(cuDevice);
+    // Collect devices accessible by the mapping device (cuDevice) into the
+    // backingDevices vector.
+    vector<CUdevice> backingDevices = getBackingDevices(cuDevice);
 
-  // Create context
-  checkCudaErrors(cuCtxCreate(&cuContext, 0, cuDevice));
+    // Create context
+    checkCudaErrors(cuCtxCreate(&cuContext, 0, cuDevice));
 
     // first search for the module path before we load the results
     string module_path;
 
     std::ostringstream fatbin;
 
-    if (!findFatbinPath(FATBIN_FILE, module_path, argv, fatbin))
-    {
+    if (!findFatbinPath(FATBIN_FILE, module_path, argv, fatbin)) {
         exit(EXIT_FAILURE);
     }
-    else
-    {
+    else {
         printf("> initCUDA loading module: <%s>\n", module_path.c_str());
     }
 
-    if (!fatbin.str().size())
-    {
+    if (!fatbin.str().size()) {
         printf("fatbin file empty. exiting..\n");
         exit(EXIT_FAILURE);
     }
@@ -204,13 +200,10 @@ int main(int argc, char **argv) {
     int threadsPerBlock = 256;
     int blocksPerGrid   = (N + threadsPerBlock - 1) / threadsPerBlock;
 
-    void *args[] = { &d_A, &d_B, &d_C, &N };
+    void *args[] = {&d_A, &d_B, &d_C, &N};
 
     // Launch the CUDA kernel
-    checkCudaErrors(cuLaunchKernel(vecAdd_kernel,  blocksPerGrid, 1, 1,
-                               threadsPerBlock, 1, 1,
-                               0,
-                               NULL, args, NULL));
+    checkCudaErrors(cuLaunchKernel(vecAdd_kernel, blocksPerGrid, 1, 1, threadsPerBlock, 1, 1, 0, NULL, args, NULL));
 
     // Copy result from device memory to host memory
     // h_C contains the result in host memory
@@ -219,20 +212,18 @@ int main(int argc, char **argv) {
     // Verify result
     int i;
 
-    for (i = 0; i < N; ++i)
-    {
+    for (i = 0; i < N; ++i) {
         float sum = h_A[i] + h_B[i];
 
-        if (fabs(h_C[i] - sum) > 1e-7f)
-        {
+        if (fabs(h_C[i] - sum) > 1e-7f) {
             break;
         }
     }
 
     CleanupNoFailure();
-    printf("%s\n", (i==N) ? "Result = PASS" : "Result = FAIL");
+    printf("%s\n", (i == N) ? "Result = PASS" : "Result = FAIL");
 
-    exit((i==N) ? EXIT_SUCCESS : EXIT_FAILURE);
+    exit((i == N) ? EXIT_SUCCESS : EXIT_FAILURE);
 }
 
 int CleanupNoFailure()
@@ -243,18 +234,15 @@ int CleanupNoFailure()
     checkCudaErrors(simpleFreeMultiDeviceMmap(d_C, allocationSize));
 
     // Free host memory
-    if (h_A)
-    {
+    if (h_A) {
         free(h_A);
     }
 
-    if (h_B)
-    {
+    if (h_B) {
         free(h_B);
     }
 
-    if (h_C)
-    {
+    if (h_C) {
         free(h_C);
     }
 
@@ -265,8 +253,7 @@ int CleanupNoFailure()
 // Allocates an array with random float entries.
 void RandomInit(float *data, int n)
 {
-    for (int i = 0; i < n; ++i)
-    {
+    for (int i = 0; i < n; ++i) {
         data[i] = rand() / (float)RAND_MAX;
     }
 }

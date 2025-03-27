@@ -43,17 +43,18 @@
  *    divergence is inevitable one can use binary_partition group.
 */
 
-#include <stdio.h>
 #include <cooperative_groups.h>
 #include <cooperative_groups/reduce.h>
 #include <helper_cuda.h>
+#include <stdio.h>
 
 namespace cg = cooperative_groups;
 
-void initOddEvenArr(int *inputArr, unsigned int size) {
-  for (int i = 0; i < size; i++) {
-    inputArr[i] = rand() % 50;
-  }
+void initOddEvenArr(int *inputArr, unsigned int size)
+{
+    for (int i = 0; i < size; i++) {
+        inputArr[i] = rand() % 50;
+    }
 }
 
 /**
@@ -61,99 +62,97 @@ void initOddEvenArr(int *inputArr, unsigned int size) {
  *
  * Creates cooperative groups and performs odd/even counting & summation.
  */
-__global__ void oddEvenCountAndSumCG(int *inputArr, int *numOfOdds,
-                                     int *sumOfOddAndEvens, unsigned int size) {
-  cg::thread_block cta = cg::this_thread_block();
-  cg::grid_group grid = cg::this_grid();
-  cg::thread_block_tile<32> tile32 = cg::tiled_partition<32>(cta);
+__global__ void oddEvenCountAndSumCG(int *inputArr, int *numOfOdds, int *sumOfOddAndEvens, unsigned int size)
+{
+    cg::thread_block          cta    = cg::this_thread_block();
+    cg::grid_group            grid   = cg::this_grid();
+    cg::thread_block_tile<32> tile32 = cg::tiled_partition<32>(cta);
 
-  for (int i = grid.thread_rank(); i < size; i += grid.size()) {
-    int elem = inputArr[i];
-    auto subTile = cg::binary_partition(tile32, elem & 1);
-    if (elem & 1)  // Odd numbers group
-    {
-      int oddGroupSum = cg::reduce(subTile, elem, cg::plus<int>());
+    for (int i = grid.thread_rank(); i < size; i += grid.size()) {
+        int  elem    = inputArr[i];
+        auto subTile = cg::binary_partition(tile32, elem & 1);
+        if (elem & 1) // Odd numbers group
+        {
+            int oddGroupSum = cg::reduce(subTile, elem, cg::plus<int>());
 
-      if (subTile.thread_rank() == 0) {
-        // Add number of odds present in this group of Odds.
-        atomicAdd(numOfOdds, subTile.size());
+            if (subTile.thread_rank() == 0) {
+                // Add number of odds present in this group of Odds.
+                atomicAdd(numOfOdds, subTile.size());
 
-        // Add local reduction of odds present in this group of Odds.
-        atomicAdd(&sumOfOddAndEvens[0], oddGroupSum);
-      }
-    } else  // Even numbers group
-    {
-      int evenGroupSum = cg::reduce(subTile, elem, cg::plus<int>());
+                // Add local reduction of odds present in this group of Odds.
+                atomicAdd(&sumOfOddAndEvens[0], oddGroupSum);
+            }
+        }
+        else // Even numbers group
+        {
+            int evenGroupSum = cg::reduce(subTile, elem, cg::plus<int>());
 
-      if (subTile.thread_rank() == 0) {
-        // Add local reduction of even present in this group of evens.
-        atomicAdd(&sumOfOddAndEvens[1], evenGroupSum);
-      }
+            if (subTile.thread_rank() == 0) {
+                // Add local reduction of even present in this group of evens.
+                atomicAdd(&sumOfOddAndEvens[1], evenGroupSum);
+            }
+        }
+        // reconverge warp so for next loop iteration we ensure convergence of
+        // above diverged threads to perform coalesced loads of inputArr.
+        cg::sync(tile32);
     }
-    // reconverge warp so for next loop iteration we ensure convergence of
-    // above diverged threads to perform coalesced loads of inputArr.
-    cg::sync(tile32);
-  }
 }
 
 /**
  * Host main routine
  */
-int main(int argc, const char **argv) {
-  int deviceId = findCudaDevice(argc, argv);
-  int *h_inputArr, *d_inputArr;
-  int *h_numOfOdds, *d_numOfOdds;
-  int *h_sumOfOddEvenElems, *d_sumOfOddEvenElems;
-  unsigned int arrSize = 1024 * 100;
+int main(int argc, const char **argv)
+{
+    int          deviceId = findCudaDevice(argc, argv);
+    int         *h_inputArr, *d_inputArr;
+    int         *h_numOfOdds, *d_numOfOdds;
+    int         *h_sumOfOddEvenElems, *d_sumOfOddEvenElems;
+    unsigned int arrSize = 1024 * 100;
 
-  checkCudaErrors(cudaMallocHost(&h_inputArr, sizeof(int) * arrSize));
-  checkCudaErrors(cudaMallocHost(&h_numOfOdds, sizeof(int)));
-  checkCudaErrors(cudaMallocHost(&h_sumOfOddEvenElems, sizeof(int) * 2));
-  initOddEvenArr(h_inputArr, arrSize);
+    checkCudaErrors(cudaMallocHost(&h_inputArr, sizeof(int) * arrSize));
+    checkCudaErrors(cudaMallocHost(&h_numOfOdds, sizeof(int)));
+    checkCudaErrors(cudaMallocHost(&h_sumOfOddEvenElems, sizeof(int) * 2));
+    initOddEvenArr(h_inputArr, arrSize);
 
-  cudaStream_t stream;
-  checkCudaErrors(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));
-  checkCudaErrors(cudaMalloc(&d_inputArr, sizeof(int) * arrSize));
-  checkCudaErrors(cudaMalloc(&d_numOfOdds, sizeof(int)));
-  checkCudaErrors(cudaMalloc(&d_sumOfOddEvenElems, sizeof(int) * 2));
+    cudaStream_t stream;
+    checkCudaErrors(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));
+    checkCudaErrors(cudaMalloc(&d_inputArr, sizeof(int) * arrSize));
+    checkCudaErrors(cudaMalloc(&d_numOfOdds, sizeof(int)));
+    checkCudaErrors(cudaMalloc(&d_sumOfOddEvenElems, sizeof(int) * 2));
 
-  checkCudaErrors(cudaMemcpyAsync(d_inputArr, h_inputArr, sizeof(int) * arrSize,
-                                  cudaMemcpyHostToDevice, stream));
-  checkCudaErrors(cudaMemsetAsync(d_numOfOdds, 0, sizeof(int), stream));
-  checkCudaErrors(
-      cudaMemsetAsync(d_sumOfOddEvenElems, 0, 2 * sizeof(int), stream));
+    checkCudaErrors(cudaMemcpyAsync(d_inputArr, h_inputArr, sizeof(int) * arrSize, cudaMemcpyHostToDevice, stream));
+    checkCudaErrors(cudaMemsetAsync(d_numOfOdds, 0, sizeof(int), stream));
+    checkCudaErrors(cudaMemsetAsync(d_sumOfOddEvenElems, 0, 2 * sizeof(int), stream));
 
-  // Launch the kernel
-  int threadsPerBlock = 0;
-  int blocksPerGrid = 0;
-  checkCudaErrors(cudaOccupancyMaxPotentialBlockSize(
-      &blocksPerGrid, &threadsPerBlock, oddEvenCountAndSumCG, 0, 0));
+    // Launch the kernel
+    int threadsPerBlock = 0;
+    int blocksPerGrid   = 0;
+    checkCudaErrors(cudaOccupancyMaxPotentialBlockSize(&blocksPerGrid, &threadsPerBlock, oddEvenCountAndSumCG, 0, 0));
 
-  printf("\nLaunching %d blocks with %d threads...\n\n", blocksPerGrid,
-         threadsPerBlock);
+    printf("\nLaunching %d blocks with %d threads...\n\n", blocksPerGrid, threadsPerBlock);
 
-  oddEvenCountAndSumCG<<<blocksPerGrid, threadsPerBlock, 0, stream>>>(
-      d_inputArr, d_numOfOdds, d_sumOfOddEvenElems, arrSize);
+    oddEvenCountAndSumCG<<<blocksPerGrid, threadsPerBlock, 0, stream>>>(
+        d_inputArr, d_numOfOdds, d_sumOfOddEvenElems, arrSize);
 
-  checkCudaErrors(cudaMemcpyAsync(h_numOfOdds, d_numOfOdds, sizeof(int),
-                                  cudaMemcpyDeviceToHost, stream));
-  checkCudaErrors(cudaMemcpyAsync(h_sumOfOddEvenElems, d_sumOfOddEvenElems,
-                                  2 * sizeof(int), cudaMemcpyDeviceToHost,
-                                  stream));
-  checkCudaErrors(cudaStreamSynchronize(stream));
+    checkCudaErrors(cudaMemcpyAsync(h_numOfOdds, d_numOfOdds, sizeof(int), cudaMemcpyDeviceToHost, stream));
+    checkCudaErrors(
+        cudaMemcpyAsync(h_sumOfOddEvenElems, d_sumOfOddEvenElems, 2 * sizeof(int), cudaMemcpyDeviceToHost, stream));
+    checkCudaErrors(cudaStreamSynchronize(stream));
 
-  printf("Array size = %d Num of Odds = %d Sum of Odds = %d Sum of Evens %d\n",
-         arrSize, h_numOfOdds[0], h_sumOfOddEvenElems[0],
-         h_sumOfOddEvenElems[1]);
-  printf("\n...Done.\n\n");
+    printf("Array size = %d Num of Odds = %d Sum of Odds = %d Sum of Evens %d\n",
+           arrSize,
+           h_numOfOdds[0],
+           h_sumOfOddEvenElems[0],
+           h_sumOfOddEvenElems[1]);
+    printf("\n...Done.\n\n");
 
-  checkCudaErrors(cudaFreeHost(h_inputArr));
-  checkCudaErrors(cudaFreeHost(h_numOfOdds));
-  checkCudaErrors(cudaFreeHost(h_sumOfOddEvenElems));
+    checkCudaErrors(cudaFreeHost(h_inputArr));
+    checkCudaErrors(cudaFreeHost(h_numOfOdds));
+    checkCudaErrors(cudaFreeHost(h_sumOfOddEvenElems));
 
-  checkCudaErrors(cudaFree(d_inputArr));
-  checkCudaErrors(cudaFree(d_numOfOdds));
-  checkCudaErrors(cudaFree(d_sumOfOddEvenElems));
+    checkCudaErrors(cudaFree(d_inputArr));
+    checkCudaErrors(cudaFree(d_numOfOdds));
+    checkCudaErrors(cudaFree(d_sumOfOddEvenElems));
 
-  return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }

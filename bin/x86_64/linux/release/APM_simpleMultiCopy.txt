@@ -18,7 +18,7 @@ Measured timings (throughput):
  Kernel			: 0.033408 ms (5021.915549 GB/s)
 
 Theoretical limits for speedup gained from overlapped data transfers:
-No overlap at all (transfer-kernel-transfer): 1.338048 ms 
+No overlap at all (transfer-kernel-transfer): 1.338048 ms
 Compute can overlap with one transfer: 1.304640 ms
 Compute can overlap with both data transfers: 0.694048 ms
 

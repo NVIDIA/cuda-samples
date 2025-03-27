@@ -32,13 +32,14 @@
 #ifndef _EGL_COMMON_H_
 #define _EGL_COMMON_H_
 
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <sys/stat.h>
 #include <sys/time.h>
-#include <signal.h>
+#include <unistd.h>
+
 #include "cuda.h"
 #include "cudaEGL.h"
 
@@ -54,18 +55,18 @@ EGLImageKHR eglImage;
     T(PFNEGLCREATESYNC64KHRPROC, eglCreateSync64KHR)     \
     T(PFNEGLWAITSYNCKHRPROC, eglWaitSyncKHR)
 
-#define eglCreateImageKHR my_eglCreateImageKHR
-#define eglDestroyImageKHR my_eglDestroyImageKHR
-#define eglCreateSyncKHR my_eglCreateSyncKHR
-#define eglDestroySyncKHR my_eglDestroySyncKHR
+#define eglCreateImageKHR    my_eglCreateImageKHR
+#define eglDestroyImageKHR   my_eglDestroyImageKHR
+#define eglCreateSyncKHR     my_eglCreateSyncKHR
+#define eglDestroySyncKHR    my_eglDestroySyncKHR
 #define eglClientWaitSyncKHR my_eglClientWaitSyncKHR
-#define eglGetSyncAttribKHR my_eglGetSyncAttribKHR
-#define eglCreateSync64KHR my_eglCreateSync64KHR
-#define eglWaitSyncKHR my_eglWaitSyncKHR
+#define eglGetSyncAttribKHR  my_eglGetSyncAttribKHR
+#define eglCreateSync64KHR   my_eglCreateSync64KHR
+#define eglWaitSyncKHR       my_eglWaitSyncKHR
 
-#define EXTLST_DECL(tx, x) tx my_##x = NULL;
+#define EXTLST_DECL(tx, x)   tx my_##x = NULL;
 #define EXTLST_EXTERN(tx, x) extern tx my_##x;
-#define EXTLST_ENTRY(tx, x) {(extlst_fnptr_t *)&my_##x, #x},
+#define EXTLST_ENTRY(tx, x)  {(extlst_fnptr_t *)&my_##x, #x},
 
 int eglSetupExtensions(void);
 #endif

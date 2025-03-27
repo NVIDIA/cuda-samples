@@ -41,81 +41,80 @@
 */
 
 // includes, system
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #ifdef _WIN32
-#  define WINDOWS_LEAN_AND_MEAN
-#  define NOMINMAX
-#  include <windows.h>
+#define WINDOWS_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
 #endif
 
 // OpenGL Graphics includes
 #include <helper_gl.h>
-#if defined (__APPLE__) || defined(MACOSX)
-  #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  #include <GLUT/glut.h>
-  #ifndef glutCloseFunc
-  #define glutCloseFunc glutWMCloseFunc
-  #endif
+#if defined(__APPLE__) || defined(MACOSX)
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#include <GLUT/glut.h>
+#ifndef glutCloseFunc
+#define glutCloseFunc glutWMCloseFunc
+#endif
 #else
 #include <GL/freeglut.h>
 #endif
 
 // includes, cuda
-#include <cuda_runtime.h>
 #include <cuda_gl_interop.h>
+#include <cuda_runtime.h>
 
 // Utilities and timing functions
-#include <helper_functions.h>    // includes cuda.h and cuda_runtime_api.h
+#include <helper_functions.h> // includes cuda.h and cuda_runtime_api.h
 
 // CUDA helper functions
-#include <helper_cuda.h>         // helper functions for CUDA error check
-
+#include <helper_cuda.h> // helper functions for CUDA error check
 #include <vector_types.h>
 
 #define MAX_EPSILON_ERROR 10.0f
-#define THRESHOLD          0.30f
-#define REFRESH_DELAY     10 //ms
+#define THRESHOLD         0.30f
+#define REFRESH_DELAY     10 // ms
 
 ////////////////////////////////////////////////////////////////////////////////
 // constants
 const unsigned int window_width  = 512;
 const unsigned int window_height = 512;
 
-const unsigned int mesh_width    = 256;
-const unsigned int mesh_height   = 256;
+const unsigned int mesh_width  = 256;
+const unsigned int mesh_height = 256;
 
 // vbo variables
-GLuint vbo;
+GLuint                       vbo;
 struct cudaGraphicsResource *cuda_vbo_resource;
-void *d_vbo_buffer = NULL;
+void                        *d_vbo_buffer = NULL;
 
 float g_fAnim = 0.0;
 
 // mouse controls
-int mouse_old_x, mouse_old_y;
-int mouse_buttons = 0;
+int   mouse_old_x, mouse_old_y;
+int   mouse_buttons = 0;
 float rotate_x = 0.0, rotate_y = 0.0;
 float translate_z = -3.0;
 
 StopWatchInterface *timer = NULL;
 
 // Auto-Verification Code
-int fpsCount = 0;        // FPS count for averaging
-int fpsLimit = 1;        // FPS limit for sampling
-int g_Index = 0;
-float avgFPS = 0.0f;
-unsigned int frameCount = 0;
+int          fpsCount      = 0; // FPS count for averaging
+int          fpsLimit      = 1; // FPS limit for sampling
+int          g_Index       = 0;
+float        avgFPS        = 0.0f;
+unsigned int frameCount    = 0;
 unsigned int g_TotalErrors = 0;
-bool g_bQAReadback = false;
+bool         g_bQAReadback = false;
 
-int *pArgc = NULL;
+int   *pArgc = NULL;
 char **pArgv = NULL;
 
-#define MAX(a,b) ((a > b) ? a : b)
+#define MAX(a, b) ((a > b) ? a : b)
 
 ////////////////////////////////////////////////////////////////////////////////
 // declaration, forward
@@ -124,8 +123,7 @@ void cleanup();
 
 // GL functionality
 bool initGL(int *argc, char **argv);
-void createVBO(GLuint *vbo, struct cudaGraphicsResource **vbo_res,
-               unsigned int vbo_res_flags);
+void createVBO(GLuint *vbo, struct cudaGraphicsResource **vbo_res, unsigned int vbo_res_flags);
 void deleteVBO(GLuint *vbo, struct cudaGraphicsResource *vbo_res);
 
 // rendering callbacks
@@ -148,31 +146,30 @@ const char *sSDKsample = "simpleGL (VBO)";
 ///////////////////////////////////////////////////////////////////////////////
 __global__ void simple_vbo_kernel(float4 *pos, unsigned int width, unsigned int height, float time)
 {
-    unsigned int x = blockIdx.x*blockDim.x + threadIdx.x;
-    unsigned int y = blockIdx.y*blockDim.y + threadIdx.y;
+    unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
 
     // calculate uv coordinates
-    float u = x / (float) width;
-    float v = y / (float) height;
-    u = u*2.0f - 1.0f;
-    v = v*2.0f - 1.0f;
+    float u = x / (float)width;
+    float v = y / (float)height;
+    u       = u * 2.0f - 1.0f;
+    v       = v * 2.0f - 1.0f;
 
     // calculate simple sine wave pattern
     float freq = 4.0f;
-    float w = sinf(u*freq + time) * cosf(v*freq + time) * 0.5f;
+    float w    = sinf(u * freq + time) * cosf(v * freq + time) * 0.5f;
 
     // write output vertex
-    pos[y*width+x] = make_float4(u, w, v, 1.0f);
+    pos[y * width + x] = make_float4(u, w, v, 1.0f);
 }
 
 
-void launch_kernel(float4 *pos, unsigned int mesh_width,
-                   unsigned int mesh_height, float time)
+void launch_kernel(float4 *pos, unsigned int mesh_width, unsigned int mesh_height, float time)
 {
     // execute the kernel
     dim3 block(8, 8, 1);
     dim3 grid(mesh_width / block.x, mesh_height / block.y, 1);
-    simple_vbo_kernel<<< grid, block>>>(pos, mesh_width, mesh_height, time);
+    simple_vbo_kernel<<<grid, block>>>(pos, mesh_width, mesh_height, time);
 }
 
 
@@ -187,15 +184,13 @@ int main(int argc, char **argv)
     pArgv = argv;
 
 #if defined(__linux__)
-    setenv ("DISPLAY", ":0", 0);
+    setenv("DISPLAY", ":0", 0);
 #endif
 
     printf("%s starting...\n", sSDKsample);
 
-    if (argc > 1)
-    {
-        if (checkCmdLineFlag(argc, (const char **)argv, "file"))
-        {
+    if (argc > 1) {
+        if (checkCmdLineFlag(argc, (const char **)argv, "file")) {
             // In this mode, we are running non-OpenGL and doing a compare of the VBO was generated correctly
             getCmdLineArgumentString(argc, (const char **)argv, "file", (char **)&ref_file);
         }
@@ -214,9 +209,8 @@ void computeFPS()
     frameCount++;
     fpsCount++;
 
-    if (fpsCount == fpsLimit)
-    {
-        avgFPS = 1.f / (sdkGetAverageTimerValue(&timer) / 1000.f);
+    if (fpsCount == fpsLimit) {
+        avgFPS   = 1.f / (sdkGetAverageTimerValue(&timer) / 1000.f);
         fpsCount = 0;
         fpsLimit = (int)MAX(avgFPS, 1.f);
 
@@ -240,11 +234,10 @@ bool initGL(int *argc, char **argv)
     glutDisplayFunc(display);
     glutKeyboardFunc(keyboard);
     glutMotionFunc(motion);
-    glutTimerFunc(REFRESH_DELAY, timerEvent,0);
+    glutTimerFunc(REFRESH_DELAY, timerEvent, 0);
 
     // initialize necessary OpenGL extensions
-    if (! isGLVersionSupported(2,0))
-    {
+    if (!isGLVersionSupported(2, 0)) {
         fprintf(stderr, "ERROR: Support for necessary OpenGL extensions missing.");
         fflush(stderr);
         return false;
@@ -260,7 +253,7 @@ bool initGL(int *argc, char **argv)
     // projection
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(60.0, (GLfloat)window_width / (GLfloat) window_height, 0.1, 10.0);
+    gluPerspective(60.0, (GLfloat)window_width / (GLfloat)window_height, 0.1, 10.0);
 
     SDK_CHECK_ERROR_GL();
 
@@ -280,10 +273,9 @@ bool runTest(int argc, char **argv, char *ref_file)
     int devID = findCudaDevice(argc, (const char **)argv);
 
     // command line mode only
-    if (ref_file != NULL)
-    {
+    if (ref_file != NULL) {
         // create VBO
-        checkCudaErrors(cudaMalloc((void **)&d_vbo_buffer, mesh_width*mesh_height*4*sizeof(float)));
+        checkCudaErrors(cudaMalloc((void **)&d_vbo_buffer, mesh_width * mesh_height * 4 * sizeof(float)));
 
         // run the cuda part
         runAutoTest(devID, argv, ref_file);
@@ -294,12 +286,10 @@ bool runTest(int argc, char **argv, char *ref_file)
         cudaFree(d_vbo_buffer);
         d_vbo_buffer = NULL;
     }
-    else
-    {
+    else {
         // First initialize OpenGL context, so we can properly set the GL for CUDA.
         // This is necessary in order to achieve optimal performance with OpenGL/CUDA interop.
-        if (false == initGL(&argc, argv))
-        {
+        if (false == initGL(&argc, argv)) {
             return false;
         }
 
@@ -308,7 +298,7 @@ bool runTest(int argc, char **argv, char *ref_file)
         glutKeyboardFunc(keyboard);
         glutMouseFunc(mouse);
         glutMotionFunc(motion);
-#if defined (__APPLE__) || defined(MACOSX)
+#if defined(__APPLE__) || defined(MACOSX)
         atexit(cleanup);
 #else
         glutCloseFunc(cleanup);
@@ -336,9 +326,8 @@ void runCuda(struct cudaGraphicsResource **vbo_resource)
     float4 *dptr;
     checkCudaErrors(cudaGraphicsMapResources(1, vbo_resource, 0));
     size_t num_bytes;
-    checkCudaErrors(cudaGraphicsResourceGetMappedPointer((void **)&dptr, &num_bytes,
-                                                         *vbo_resource));
-    //printf("CUDA mapped VBO: May access %ld bytes\n", num_bytes);
+    checkCudaErrors(cudaGraphicsResourceGetMappedPointer((void **)&dptr, &num_bytes, *vbo_resource));
+    // printf("CUDA mapped VBO: May access %ld bytes\n", num_bytes);
 
     // execute the kernel
     //    dim3 block(8, 8, 1);
@@ -353,11 +342,11 @@ void runCuda(struct cudaGraphicsResource **vbo_resource)
 
 #ifdef _WIN32
 #ifndef FOPEN
-#define FOPEN(fHandle,filename,mode) fopen_s(&fHandle, filename, mode)
+#define FOPEN(fHandle, filename, mode) fopen_s(&fHandle, filename, mode)
 #endif
 #else
 #ifndef FOPEN
-#define FOPEN(fHandle,filename,mode) (fHandle = fopen(filename, mode))
+#define FOPEN(fHandle, filename, mode) (fHandle = fopen(filename, mode))
 #endif
 #endif
 
@@ -377,7 +366,7 @@ void sdkDumpBin2(void *data, unsigned int bytes, const char *filename)
 void runAutoTest(int devID, char **argv, char *ref_file)
 {
     char *reference_file = NULL;
-    void *imageData = malloc(mesh_width*mesh_height*sizeof(float));
+    void *imageData      = malloc(mesh_width * mesh_height * sizeof(float));
 
     // execute the kernel
     launch_kernel((float4 *)d_vbo_buffer, mesh_width, mesh_height, g_fAnim);
@@ -385,16 +374,19 @@ void runAutoTest(int devID, char **argv, char *ref_file)
     cudaDeviceSynchronize();
     getLastCudaError("launch_kernel failed");
 
-    checkCudaErrors(cudaMemcpy(imageData, d_vbo_buffer, mesh_width*mesh_height*sizeof(float), cudaMemcpyDeviceToHost));
+    checkCudaErrors(
+        cudaMemcpy(imageData, d_vbo_buffer, mesh_width * mesh_height * sizeof(float), cudaMemcpyDeviceToHost));
 
-    sdkDumpBin2(imageData, mesh_width*mesh_height*sizeof(float), "simpleGL.bin");
+    sdkDumpBin2(imageData, mesh_width * mesh_height * sizeof(float), "simpleGL.bin");
     reference_file = sdkFindFilePath(ref_file, argv[0]);
 
-    if (reference_file &&
-        !sdkCompareBin2BinFloat("simpleGL.bin", reference_file,
-                                mesh_width*mesh_height*sizeof(float),
-                                MAX_EPSILON_ERROR, THRESHOLD, pArgv[0]))
-    {
+    if (reference_file
+        && !sdkCompareBin2BinFloat("simpleGL.bin",
+                                   reference_file,
+                                   mesh_width * mesh_height * sizeof(float),
+                                   MAX_EPSILON_ERROR,
+                                   THRESHOLD,
+                                   pArgv[0])) {
         g_TotalErrors++;
     }
 }
@@ -402,8 +394,7 @@ void runAutoTest(int devID, char **argv, char *ref_file)
 ////////////////////////////////////////////////////////////////////////////////
 //! Create VBO
 ////////////////////////////////////////////////////////////////////////////////
-void createVBO(GLuint *vbo, struct cudaGraphicsResource **vbo_res,
-               unsigned int vbo_res_flags)
+void createVBO(GLuint *vbo, struct cudaGraphicsResource **vbo_res, unsigned int vbo_res_flags)
 {
     assert(vbo);
 
@@ -476,10 +467,9 @@ void display()
 
 void timerEvent(int value)
 {
-    if (glutGetWindow())
-    {
+    if (glutGetWindow()) {
         glutPostRedisplay();
-        glutTimerFunc(REFRESH_DELAY, timerEvent,0);
+        glutTimerFunc(REFRESH_DELAY, timerEvent, 0);
     }
 }
 
@@ -487,8 +477,7 @@ void cleanup()
 {
     sdkDeleteTimer(&timer);
 
-    if (vbo)
-    {
+    if (vbo) {
         deleteVBO(&vbo, cuda_vbo_resource);
     }
 }
@@ -499,15 +488,14 @@ void cleanup()
 ////////////////////////////////////////////////////////////////////////////////
 void keyboard(unsigned char key, int /*x*/, int /*y*/)
 {
-    switch (key)
-    {
-        case (27) :
-            #if defined(__APPLE__) || defined(MACOSX)
-                exit(EXIT_SUCCESS);
-            #else
-                glutDestroyWindow(glutGetWindow());
-                return;
-            #endif
+    switch (key) {
+    case (27):
+#if defined(__APPLE__) || defined(MACOSX)
+        exit(EXIT_SUCCESS);
+#else
+        glutDestroyWindow(glutGetWindow());
+        return;
+#endif
     }
 }
 
@@ -516,12 +504,10 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/)
 ////////////////////////////////////////////////////////////////////////////////
 void mouse(int button, int state, int x, int y)
 {
-    if (state == GLUT_DOWN)
-    {
-        mouse_buttons |= 1<<button;
+    if (state == GLUT_DOWN) {
+        mouse_buttons |= 1 << button;
     }
-    else if (state == GLUT_UP)
-    {
+    else if (state == GLUT_UP) {
         mouse_buttons = 0;
     }
 
@@ -535,13 +521,11 @@ void motion(int x, int y)
     dx = (float)(x - mouse_old_x);
     dy = (float)(y - mouse_old_y);
 
-    if (mouse_buttons & 1)
-    {
+    if (mouse_buttons & 1) {
         rotate_x += dy * 0.2f;
         rotate_y += dx * 0.2f;
     }
-    else if (mouse_buttons & 4)
-    {
+    else if (mouse_buttons & 4) {
         translate_z += dy * 0.01f;
     }
 
@@ -555,31 +539,26 @@ void motion(int x, int y)
 ////////////////////////////////////////////////////////////////////////////////
 void checkResultCuda(int argc, char **argv, const GLuint &vbo)
 {
-    if (!d_vbo_buffer)
-    {
+    if (!d_vbo_buffer) {
         checkCudaErrors(cudaGraphicsUnregisterResource(cuda_vbo_resource));
 
         // map buffer object
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        float *data = (float *) glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY);
+        float *data = (float *)glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY);
 
         // check result
-        if (checkCmdLineFlag(argc, (const char **) argv, "regression"))
-        {
+        if (checkCmdLineFlag(argc, (const char **)argv, "regression")) {
             // write file for regression test
-            sdkWriteFile<float>("./data/regression.dat",
-                                data, mesh_width * mesh_height * 3, 0.0, false);
+            sdkWriteFile<float>("./data/regression.dat", data, mesh_width * mesh_height * 3, 0.0, false);
         }
 
         // unmap GL buffer object
-        if (!glUnmapBuffer(GL_ARRAY_BUFFER))
-        {
+        if (!glUnmapBuffer(GL_ARRAY_BUFFER)) {
             fprintf(stderr, "Unmap buffer failed.\n");
             fflush(stderr);
         }
 
-        checkCudaErrors(cudaGraphicsGLRegisterBuffer(&cuda_vbo_resource, vbo,
-                                                     cudaGraphicsMapFlagsWriteDiscard));
+        checkCudaErrors(cudaGraphicsGLRegisterBuffer(&cuda_vbo_resource, vbo, cudaGraphicsMapFlagsWriteDiscard));
 
         SDK_CHECK_ERROR_GL();
     }

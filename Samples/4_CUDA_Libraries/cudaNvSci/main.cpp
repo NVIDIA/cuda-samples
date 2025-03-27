@@ -26,76 +26,77 @@
  */
 
 #include <cuda.h>
-#include <vector>
-#include "cudaNvSci.h"
 #include <helper_cuda.h>
 #include <helper_image.h>
+#include <vector>
 
-void loadImageData(const std::string &filename, const char **argv,
-                   unsigned char **image_data, uint32_t &imageWidth,
-                   uint32_t &imageHeight) {
-  // load image (needed so we can get the width and height before we create
-  // the window
-  char *image_path = sdkFindFilePath(filename.c_str(), argv[0]);
+#include "cudaNvSci.h"
 
-  if (image_path == 0) {
-    printf("Error finding image file '%s'\n", filename.c_str());
-    exit(EXIT_FAILURE);
-  }
+void loadImageData(const std::string &filename,
+                   const char       **argv,
+                   unsigned char    **image_data,
+                   uint32_t          &imageWidth,
+                   uint32_t          &imageHeight)
+{
+    // load image (needed so we can get the width and height before we create
+    // the window
+    char *image_path = sdkFindFilePath(filename.c_str(), argv[0]);
 
-  sdkLoadPPM4(image_path, image_data, &imageWidth, &imageHeight);
+    if (image_path == 0) {
+        printf("Error finding image file '%s'\n", filename.c_str());
+        exit(EXIT_FAILURE);
+    }
 
-  if (!image_data) {
-    printf("Error opening file '%s'\n", image_path);
-    exit(EXIT_FAILURE);
-  }
+    sdkLoadPPM4(image_path, image_data, &imageWidth, &imageHeight);
 
-  printf("Loaded '%s', %d x %d pixels\n", image_path, imageWidth, imageHeight);
+    if (!image_data) {
+        printf("Error opening file '%s'\n", image_path);
+        exit(EXIT_FAILURE);
+    }
+
+    printf("Loaded '%s', %d x %d pixels\n", image_path, imageWidth, imageHeight);
 }
 
-int main(int argc, const char **argv) {
-  int numOfGPUs = 0;
-  std::vector<int> deviceIds;
-  checkCudaErrors(cudaGetDeviceCount(&numOfGPUs));
+int main(int argc, const char **argv)
+{
+    int              numOfGPUs = 0;
+    std::vector<int> deviceIds;
+    checkCudaErrors(cudaGetDeviceCount(&numOfGPUs));
 
-  printf("%d GPUs found\n", numOfGPUs);
-  if (!numOfGPUs) {
-    exit(EXIT_WAIVED);
-  } else {
-    for (int devID = 0; devID < numOfGPUs; devID++) {
-      int major = 0, minor = 0;
-      checkCudaErrors(cudaDeviceGetAttribute(
-          &major, cudaDevAttrComputeCapabilityMajor, devID));
-      checkCudaErrors(cudaDeviceGetAttribute(
-          &minor, cudaDevAttrComputeCapabilityMinor, devID));
-      if (major >= 6) {
-        deviceIds.push_back(devID);
-      }
+    printf("%d GPUs found\n", numOfGPUs);
+    if (!numOfGPUs) {
+        exit(EXIT_WAIVED);
     }
-    if (deviceIds.size() == 0) {
-      printf(
-          "cudaNvSci requires one or more GPUs of Pascal(SM 6.0) or higher "
-          "archs\nWaiving..\n");
-      exit(EXIT_WAIVED);
+    else {
+        for (int devID = 0; devID < numOfGPUs; devID++) {
+            int major = 0, minor = 0;
+            checkCudaErrors(cudaDeviceGetAttribute(&major, cudaDevAttrComputeCapabilityMajor, devID));
+            checkCudaErrors(cudaDeviceGetAttribute(&minor, cudaDevAttrComputeCapabilityMinor, devID));
+            if (major >= 6) {
+                deviceIds.push_back(devID);
+            }
+        }
+        if (deviceIds.size() == 0) {
+            printf("cudaNvSci requires one or more GPUs of Pascal(SM 6.0) or higher "
+                   "archs\nWaiving..\n");
+            exit(EXIT_WAIVED);
+        }
     }
-  }
 
-  std::string image_filename = "teapot1024.ppm";
+    std::string image_filename = "teapot1024.ppm";
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "file")) {
-    getCmdLineArgumentString(argc, (const char **)argv, "file",
-                             (char **)&image_filename);
-  }
+    if (checkCmdLineFlag(argc, (const char **)argv, "file")) {
+        getCmdLineArgumentString(argc, (const char **)argv, "file", (char **)&image_filename);
+    }
 
-  uint32_t imageWidth = 0;
-  uint32_t imageHeight = 0;
-  unsigned char *image_data = NULL;
+    uint32_t       imageWidth  = 0;
+    uint32_t       imageHeight = 0;
+    unsigned char *image_data  = NULL;
 
-  loadImageData(image_filename, argv, &image_data, imageWidth, imageHeight);
+    loadImageData(image_filename, argv, &image_data, imageWidth, imageHeight);
 
-  cudaNvSci cudaNvSciApp(deviceIds.size() > 1, deviceIds, image_data,
-                         imageWidth, imageHeight);
-  cudaNvSciApp.runCudaNvSci(image_filename);
+    cudaNvSci cudaNvSciApp(deviceIds.size() > 1, deviceIds, image_data, imageWidth, imageHeight);
+    cudaNvSciApp.runCudaNvSci(image_filename);
 
-  return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }

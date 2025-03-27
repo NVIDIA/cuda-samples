@@ -27,61 +27,69 @@
 #ifndef CUDA_NVSCIBUF_MULTIPLANAR_H
 #define CUDA_NVSCIBUF_MULTIPLANAR_H
 
+#include <cuda.h>
 #include <cuda_runtime.h>
+#include <helper_cuda.h>
 #include <nvscibuf.h>
 #include <vector>
-#include <cuda.h>
-#include <helper_cuda.h>
 
-#define PLANAR_NUM_PLANES 3
-#define PLANAR_CHROMA_WIDTH_ORDER 2
+#define PLANAR_NUM_PLANES          3
+#define PLANAR_CHROMA_WIDTH_ORDER  2
 #define PLANAR_CHROMA_HEIGHT_ORDER 2
- 
-#define ATTR_SIZE 20
+
+#define ATTR_SIZE   20
 #define DEFAULT_GPU 0
 
-#define checkNvSciErrors(call)                              \
-  do {                                                      \
-    NvSciError _status = call;                              \
-    if (NvSciError_Success != _status) {                    \
-      printf(                                               \
-          "NVSCI call in file '%s' in line %i returned"     \
-          " %d, expected %d\n",                             \
-          __FILE__, __LINE__, _status, NvSciError_Success); \
-      fflush(stdout);                                       \
-      exit(EXIT_FAILURE);                                   \
-    }                                                       \
-  } while (0)
+#define checkNvSciErrors(call)                                   \
+    do {                                                         \
+        NvSciError _status = call;                               \
+        if (NvSciError_Success != _status) {                     \
+            printf("NVSCI call in file '%s' in line %i returned" \
+                   " %d, expected %d\n",                         \
+                   __FILE__,                                     \
+                   __LINE__,                                     \
+                   _status,                                      \
+                   NvSciError_Success);                          \
+            fflush(stdout);                                      \
+            exit(EXIT_FAILURE);                                  \
+        }                                                        \
+    } while (0)
 
 #define checkCudaDrvErrors(call)                           \
-  do {                                                     \
-    CUresult err = call;                                   \
-    if (CUDA_SUCCESS != err) {                             \
-      const char *errorStr = NULL;                         \
-      cuGetErrorString(err, &errorStr);                    \
-      printf(                                              \
-              "checkCudaDrvErrors() Driver API error"      \
-              " = %04d \"%s\" from file <%s>, "            \
-              "line %i.\n",                                \
-              err, errorStr, __FILE__, __LINE__);          \
-      exit(EXIT_FAILURE);                                  \
-    }                                                      \
-  } while (0)
+    do {                                                   \
+        CUresult err = call;                               \
+        if (CUDA_SUCCESS != err) {                         \
+            const char *errorStr = NULL;                   \
+            cuGetErrorString(err, &errorStr);              \
+            printf("checkCudaDrvErrors() Driver API error" \
+                   " = %04d \"%s\" from file <%s>, "       \
+                   "line %i.\n",                           \
+                   err,                                    \
+                   errorStr,                               \
+                   __FILE__,                               \
+                   __LINE__);                              \
+            exit(EXIT_FAILURE);                            \
+        }                                                  \
+    } while (0)
 
-extern void launchFlipSurfaceBitsKernel(cudaArray_t *levelArray, int32_t *multiPlanarWidth,
- int32_t *multiPlanarHeight, int numPlanes);
+extern void launchFlipSurfaceBitsKernel(cudaArray_t *levelArray,
+                                        int32_t     *multiPlanarWidth,
+                                        int32_t     *multiPlanarHeight,
+                                        int          numPlanes);
 
-class Caller {
+class Caller
+{
 private:
-    NvSciBufAttrList attrListOut;
+    NvSciBufAttrList         attrListOut;
     NvSciBufAttrKeyValuePair pairArrayOut[ATTR_SIZE];
-    cudaExternalMemory_t extMem;
-    int32_t numPlanes;
+    cudaExternalMemory_t     extMem;
+    int32_t                  numPlanes;
+
 public:
-    NvSciBufAttrList attrList;
+    NvSciBufAttrList     attrList;
     cudaMipmappedArray_t multiPlanarArray[PLANAR_NUM_PLANES];
-    int32_t multiPlanarWidth[PLANAR_NUM_PLANES];
-    int32_t multiPlanarHeight[PLANAR_NUM_PLANES];
+    int32_t              multiPlanarWidth[PLANAR_NUM_PLANES];
+    int32_t              multiPlanarHeight[PLANAR_NUM_PLANES];
 
     void init();
     void deinit();
@@ -92,15 +100,17 @@ public:
 };
 
 
-class cudaNvSciBufMultiplanar {
+class cudaNvSciBufMultiplanar
+{
 private:
-    size_t imageWidth;
-    size_t imageHeight;
-    int mCudaDeviceId;
-    int deviceCnt;
+    size_t           imageWidth;
+    size_t           imageHeight;
+    int              mCudaDeviceId;
+    int              deviceCnt;
     NvSciBufAttrList attrList[2];
     NvSciBufAttrList attrListReconciled;
     NvSciBufAttrList attrListConflict;
+
 public:
     cudaNvSciBufMultiplanar(size_t imageWidth, size_t imageHeight, std::vector<int> &deviceIds);
     void initCuda(int devId);
@@ -110,15 +120,15 @@ public:
 };
 
 enum NvSciBufImageAttributes {
-    PLANE_SIZE,  
+    PLANE_SIZE,
     PLANE_ALIGNED_SIZE,
     PLANE_OFFSET,
-    PLANE_HEIGHT, 
-    PLANE_WIDTH, 
-    PLANE_CHANNEL_COUNT, 
+    PLANE_HEIGHT,
+    PLANE_WIDTH,
+    PLANE_CHANNEL_COUNT,
     PLANE_BITS_PER_PIXEL,
     PLANE_COUNT,
     PLANE_ATTR_SIZE
 };
 
-#endif  // CUDA_NVSCIBUF_MULTIPLANAR_H
+#endif // CUDA_NVSCIBUF_MULTIPLANAR_H
