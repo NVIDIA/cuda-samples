@@ -28,30 +28,31 @@
 #ifndef TEST_H
 #define TEST_H
 
-template <typename Real>
-struct Test {
-  Test() : pass(false){};
+template <typename Real> struct Test
+{
+    Test()
+        : pass(false) {};
 
-  int device;
-  unsigned int numSims;
-  unsigned int threadBlockSize;
-  unsigned int seed;
+    int          device;
+    unsigned int numSims;
+    unsigned int threadBlockSize;
+    unsigned int seed;
 
-  bool pass;
-  double elapsedTime;
+    bool   pass;
+    double elapsedTime;
 
-  bool operator()();
+    bool operator()();
 };
 
 // Defaults are arbitrary to give sensible runtime
-#define k_sims_min 100000
-#define k_sims_max 1000000
-#define k_sims_def 100000
-#define k_sims_qa 100000
+#define k_sims_min  100000
+#define k_sims_max  1000000
+#define k_sims_def  100000
+#define k_sims_qa   100000
 #define k_bsize_min 32
 #define k_bsize_def 128
-#define k_bsize_qa 128
-#define k_seed_def 1234
-#define k_seed_qa 1234
+#define k_bsize_qa  128
+#define k_seed_def  1234
+#define k_seed_qa   1234
 
 #endif

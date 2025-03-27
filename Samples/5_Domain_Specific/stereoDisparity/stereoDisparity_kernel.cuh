@@ -54,18 +54,17 @@ namespace cg = cooperative_groups;
 //  "ptx_isa_3.0K.pdf"
 // included in the NVIDIA GPU Computing Toolkit
 ////////////////////////////////////////////////////////////////////////////////
-__device__ unsigned int __usad4(unsigned int A, unsigned int B,
-                                unsigned int C = 0) {
-  unsigned int result;
+__device__ unsigned int __usad4(unsigned int A, unsigned int B, unsigned int C = 0)
+{
+    unsigned int result;
 
-  // Kepler (SM 3.x) and higher supports a 4 vector SAD SIMD
-  asm(
-      "vabsdiff4.u32.u32.u32.add"
-      " %0, %1, %2, %3;"
-      : "=r"(result)
-      : "r"(A), "r"(B), "r"(C));
+    // Kepler (SM 3.x) and higher supports a 4 vector SAD SIMD
+    asm("vabsdiff4.u32.u32.u32.add"
+        " %0, %1, %2, %3;"
+        : "=r"(result)
+        : "r"(A), "r"(B), "r"(C));
 
-  return result;
+    return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -88,165 +87,178 @@ __device__ unsigned int __usad4(unsigned int A, unsigned int B,
 //! @param minDisparity leftmost search range
 //! @param maxDisparity rightmost search range
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void stereoDisparityKernel(unsigned int *g_img0,
-                                      unsigned int *g_img1,
-                                      unsigned int *g_odata, int w, int h,
-                                      int minDisparity, int maxDisparity,
+__global__ void stereoDisparityKernel(unsigned int       *g_img0,
+                                      unsigned int       *g_img1,
+                                      unsigned int       *g_odata,
+                                      int                 w,
+                                      int                 h,
+                                      int                 minDisparity,
+                                      int                 maxDisparity,
                                       cudaTextureObject_t tex2Dleft,
-                                      cudaTextureObject_t tex2Dright) {
-  // Handle to thread block group
-  cg::thread_block cta = cg::this_thread_block();
-  // access thread id
-  const int tidx = blockDim.x * blockIdx.x + threadIdx.x;
-  const int tidy = blockDim.y * blockIdx.y + threadIdx.y;
-  const unsigned int sidx = threadIdx.x + RAD;
-  const unsigned int sidy = threadIdx.y + RAD;
+                                      cudaTextureObject_t tex2Dright)
+{
+    // Handle to thread block group
+    cg::thread_block cta = cg::this_thread_block();
+    // access thread id
+    const int          tidx = blockDim.x * blockIdx.x + threadIdx.x;
+    const int          tidy = blockDim.y * blockIdx.y + threadIdx.y;
+    const unsigned int sidx = threadIdx.x + RAD;
+    const unsigned int sidy = threadIdx.y + RAD;
 
-  unsigned int imLeft;
-  unsigned int imRight;
-  unsigned int cost;
-  unsigned int bestCost = 9999999;
-  unsigned int bestDisparity = 0;
-  __shared__ unsigned int diff[blockSize_y + 2 * RAD][blockSize_x + 2 * RAD];
+    unsigned int            imLeft;
+    unsigned int            imRight;
+    unsigned int            cost;
+    unsigned int            bestCost      = 9999999;
+    unsigned int            bestDisparity = 0;
+    __shared__ unsigned int diff[blockSize_y + 2 * RAD][blockSize_x + 2 * RAD];
 
-  // store needed values for left image into registers (constant indexed local
-  // vars)
-  unsigned int imLeftA[STEPS];
-  unsigned int imLeftB[STEPS];
+    // store needed values for left image into registers (constant indexed local
+    // vars)
+    unsigned int imLeftA[STEPS];
+    unsigned int imLeftB[STEPS];
 
-  for (int i = 0; i < STEPS; i++) {
-    int offset = -RAD + i * RAD;
-    imLeftA[i] = tex2D<unsigned int>(tex2Dleft, tidx - RAD, tidy + offset);
-    imLeftB[i] =
-        tex2D<unsigned int>(tex2Dleft, tidx - RAD + blockSize_x, tidy + offset);
-  }
+    for (int i = 0; i < STEPS; i++) {
+        int offset = -RAD + i * RAD;
+        imLeftA[i] = tex2D<unsigned int>(tex2Dleft, tidx - RAD, tidy + offset);
+        imLeftB[i] = tex2D<unsigned int>(tex2Dleft, tidx - RAD + blockSize_x, tidy + offset);
+    }
 
-  // for a fixed camera system this could be hardcoded and loop unrolled
-  for (int d = minDisparity; d <= maxDisparity; d++) {
+    // for a fixed camera system this could be hardcoded and loop unrolled
+    for (int d = minDisparity; d <= maxDisparity; d++) {
 // LEFT
 #pragma unroll
-    for (int i = 0; i < STEPS; i++) {
-      int offset = -RAD + i * RAD;
-      // imLeft = tex2D( tex2Dleft, tidx-RAD, tidy+offset );
-      imLeft = imLeftA[i];
-      imRight = tex2D<unsigned int>(tex2Dright, tidx - RAD + d, tidy + offset);
-      cost = __usad4(imLeft, imRight);
-      diff[sidy + offset][sidx - RAD] = cost;
-    }
+        for (int i = 0; i < STEPS; i++) {
+            int offset = -RAD + i * RAD;
+            // imLeft = tex2D( tex2Dleft, tidx-RAD, tidy+offset );
+            imLeft                          = imLeftA[i];
+            imRight                         = tex2D<unsigned int>(tex2Dright, tidx - RAD + d, tidy + offset);
+            cost                            = __usad4(imLeft, imRight);
+            diff[sidy + offset][sidx - RAD] = cost;
+        }
 
 // RIGHT
 #pragma unroll
 
-    for (int i = 0; i < STEPS; i++) {
-      int offset = -RAD + i * RAD;
+        for (int i = 0; i < STEPS; i++) {
+            int offset = -RAD + i * RAD;
 
-      if (threadIdx.x < 2 * RAD) {
-        // imLeft = tex2D( tex2Dleft, tidx-RAD+blockSize_x, tidy+offset );
-        imLeft = imLeftB[i];
-        imRight = tex2D<unsigned int>(tex2Dright, tidx - RAD + blockSize_x + d,
-                                      tidy + offset);
-        cost = __usad4(imLeft, imRight);
-        diff[sidy + offset][sidx - RAD + blockSize_x] = cost;
-      }
-    }
+            if (threadIdx.x < 2 * RAD) {
+                // imLeft = tex2D( tex2Dleft, tidx-RAD+blockSize_x, tidy+offset );
+                imLeft  = imLeftB[i];
+                imRight = tex2D<unsigned int>(tex2Dright, tidx - RAD + blockSize_x + d, tidy + offset);
+                cost    = __usad4(imLeft, imRight);
+                diff[sidy + offset][sidx - RAD + blockSize_x] = cost;
+            }
+        }
 
-    cg::sync(cta);
+        cg::sync(cta);
 
 // sum cost horizontally
 #pragma unroll
 
-    for (int j = 0; j < STEPS; j++) {
-      int offset = -RAD + j * RAD;
-      cost = 0;
+        for (int j = 0; j < STEPS; j++) {
+            int offset = -RAD + j * RAD;
+            cost       = 0;
 #pragma unroll
 
-      for (int i = -RAD; i <= RAD; i++) {
-        cost += diff[sidy + offset][sidx + i];
-      }
-
-      cg::sync(cta);
-      diff[sidy + offset][sidx] = cost;
-      cg::sync(cta);
-    }
-
-    // sum cost vertically
-    cost = 0;
-#pragma unroll
-
-    for (int i = -RAD; i <= RAD; i++) {
-      cost += diff[sidy + i][sidx];
-    }
-
-    // see if it is better or not
-    if (cost < bestCost) {
-      bestCost = cost;
-      bestDisparity = d + 8;
-    }
-
-    cg::sync(cta);
-  }
-
-  if (tidy < h && tidx < w) {
-    g_odata[tidy * w + tidx] = bestDisparity;
-  }
-}
-
-void cpu_gold_stereo(unsigned int *img0, unsigned int *img1,
-                     unsigned int *odata, int w, int h, int minDisparity,
-                     int maxDisparity) {
-  for (int y = 0; y < h; y++) {
-    for (int x = 0; x < w; x++) {
-      unsigned int bestCost = 9999999;
-      unsigned int bestDisparity = 0;
-
-      for (int d = minDisparity; d <= maxDisparity; d++) {
-        unsigned int cost = 0;
-
-        for (int i = -RAD; i <= RAD; i++) {
-          for (int j = -RAD; j <= RAD; j++) {
-            // border clamping
-            int yy, xx, xxd;
-            yy = y + i;
-
-            if (yy < 0) yy = 0;
-
-            if (yy >= h) yy = h - 1;
-
-            xx = x + j;
-
-            if (xx < 0) xx = 0;
-
-            if (xx >= w) xx = w - 1;
-
-            xxd = x + j + d;
-
-            if (xxd < 0) xxd = 0;
-
-            if (xxd >= w) xxd = w - 1;
-
-            // sum abs diff across components
-            unsigned char *A = (unsigned char *)&img0[yy * w + xx];
-            unsigned char *B = (unsigned char *)&img1[yy * w + xxd];
-            unsigned int absdiff = 0;
-
-            for (int k = 0; k < 4; k++) {
-              absdiff += abs((int)(A[k] - B[k]));
+            for (int i = -RAD; i <= RAD; i++) {
+                cost += diff[sidy + offset][sidx + i];
             }
 
-            cost += absdiff;
-          }
+            cg::sync(cta);
+            diff[sidy + offset][sidx] = cost;
+            cg::sync(cta);
         }
 
+        // sum cost vertically
+        cost = 0;
+#pragma unroll
+
+        for (int i = -RAD; i <= RAD; i++) {
+            cost += diff[sidy + i][sidx];
+        }
+
+        // see if it is better or not
         if (cost < bestCost) {
-          bestCost = cost;
-          bestDisparity = d + 8;
+            bestCost      = cost;
+            bestDisparity = d + 8;
         }
 
-      }  // end for disparities
-
-      // store to best disparity
-      odata[y * w + x] = bestDisparity;
+        cg::sync(cta);
     }
-  }
+
+    if (tidy < h && tidx < w) {
+        g_odata[tidy * w + tidx] = bestDisparity;
+    }
 }
-#endif  // #ifndef _STEREODISPARITY_KERNEL_H_
+
+void cpu_gold_stereo(unsigned int *img0,
+                     unsigned int *img1,
+                     unsigned int *odata,
+                     int           w,
+                     int           h,
+                     int           minDisparity,
+                     int           maxDisparity)
+{
+    for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+            unsigned int bestCost      = 9999999;
+            unsigned int bestDisparity = 0;
+
+            for (int d = minDisparity; d <= maxDisparity; d++) {
+                unsigned int cost = 0;
+
+                for (int i = -RAD; i <= RAD; i++) {
+                    for (int j = -RAD; j <= RAD; j++) {
+                        // border clamping
+                        int yy, xx, xxd;
+                        yy = y + i;
+
+                        if (yy < 0)
+                            yy = 0;
+
+                        if (yy >= h)
+                            yy = h - 1;
+
+                        xx = x + j;
+
+                        if (xx < 0)
+                            xx = 0;
+
+                        if (xx >= w)
+                            xx = w - 1;
+
+                        xxd = x + j + d;
+
+                        if (xxd < 0)
+                            xxd = 0;
+
+                        if (xxd >= w)
+                            xxd = w - 1;
+
+                        // sum abs diff across components
+                        unsigned char *A       = (unsigned char *)&img0[yy * w + xx];
+                        unsigned char *B       = (unsigned char *)&img1[yy * w + xxd];
+                        unsigned int   absdiff = 0;
+
+                        for (int k = 0; k < 4; k++) {
+                            absdiff += abs((int)(A[k] - B[k]));
+                        }
+
+                        cost += absdiff;
+                    }
+                }
+
+                if (cost < bestCost) {
+                    bestCost      = cost;
+                    bestDisparity = d + 8;
+                }
+
+            } // end for disparities
+
+            // store to best disparity
+            odata[y * w + x] = bestDisparity;
+        }
+    }
+}
+#endif // #ifndef _STEREODISPARITY_KERNEL_H_

@@ -13,4 +13,3 @@ Number of equations solved: 65536
 Time per equation: 0.616870105266571 us
 
 Check against Host computation...
-

@@ -66,15 +66,12 @@ __global__ void ifGraphKernelA(char *dPtr, cudaGraphConditionalHandle handle)
 }
 
 // This kernel will only be executed if the condition is true
-__global__ void ifGraphKernelC(void)
-{
-    printf("GPU: Hello from the GPU! The condition was true.\n");
-}
+__global__ void ifGraphKernelC(void) { printf("GPU: Hello from the GPU! The condition was true.\n"); }
 
 // Setup and launch the graph
 void simpleIfGraph(void)
 {
-    cudaGraph_t graph;
+    cudaGraph_t     graph;
     cudaGraphExec_t graphExec;
     cudaGraphNode_t kernelNode;
     cudaGraphNode_t conditionalNode;
@@ -94,25 +91,25 @@ void simpleIfGraph(void)
 
     // Use a kernel upstream of the conditional to set the handle value
     cudaGraphNodeParams params = {cudaGraphNodeTypeKernel};
-    params.kernel.func = (void *)ifGraphKernelA;
+    params.kernel.func         = (void *)ifGraphKernelA;
     params.kernel.blockDim.x = params.kernel.blockDim.y = params.kernel.blockDim.z = 1;
     params.kernel.gridDim.x = params.kernel.gridDim.y = params.kernel.gridDim.z = 1;
-    params.kernel.kernelParams = kernelArgs;
-    kernelArgs[0] = &dPtr;
-    kernelArgs[1] = &handle;
+    params.kernel.kernelParams                                                  = kernelArgs;
+    kernelArgs[0]                                                               = &dPtr;
+    kernelArgs[1]                                                               = &handle;
     checkCudaErrors(cudaGraphAddNode(&kernelNode, graph, NULL, 0, &params));
 
     cudaGraphNodeParams cParams = {cudaGraphNodeTypeConditional};
-    cParams.conditional.handle = handle;
-    cParams.conditional.type = cudaGraphCondTypeIf;
-    cParams.conditional.size = 1;
+    cParams.conditional.handle  = handle;
+    cParams.conditional.type    = cudaGraphCondTypeIf;
+    cParams.conditional.size    = 1;
     checkCudaErrors(cudaGraphAddNode(&conditionalNode, graph, &kernelNode, 1, &cParams));
 
     cudaGraph_t bodyGraph = cParams.conditional.phGraph_out[0];
 
     // Populate the body of the conditional node
     cudaGraphNode_t bodyNode;
-    params.kernel.func = (void *)ifGraphKernelC;
+    params.kernel.func         = (void *)ifGraphKernelC;
     params.kernel.kernelParams = nullptr;
     checkCudaErrors(cudaGraphAddNode(&bodyNode, bodyGraph, NULL, 0, &params));
 
@@ -159,8 +156,7 @@ __global__ void doWhileEmptyKernel(void)
 
 __global__ void doWhileLoopKernel(char *dPtr, cudaGraphConditionalHandle handle)
 {
-    if (--(*dPtr) == 0)
-    {
+    if (--(*dPtr) == 0) {
         cudaGraphSetConditional(handle, 0);
     }
     printf("GPU: counter = %d\n", *dPtr);
@@ -168,7 +164,7 @@ __global__ void doWhileLoopKernel(char *dPtr, cudaGraphConditionalHandle handle)
 
 void simpleDoWhileGraph(void)
 {
-    cudaGraph_t graph;
+    cudaGraph_t     graph;
     cudaGraphExec_t graphExec;
     cudaGraphNode_t conditionalNode;
 
@@ -183,9 +179,9 @@ void simpleDoWhileGraph(void)
     checkCudaErrors(cudaGraphConditionalHandleCreate(&handle, graph, 1, cudaGraphCondAssignDefault));
 
     cudaGraphNodeParams cParams = {cudaGraphNodeTypeConditional};
-    cParams.conditional.handle = handle;
-    cParams.conditional.type = cudaGraphCondTypeWhile;
-    cParams.conditional.size = 1;
+    cParams.conditional.handle  = handle;
+    cParams.conditional.type    = cudaGraphCondTypeWhile;
+    cParams.conditional.size    = 1;
     checkCudaErrors(cudaGraphAddNode(&conditionalNode, graph, NULL, 0, &cParams));
 
     cudaGraph_t bodyGraph = cParams.conditional.phGraph_out[0];
@@ -193,7 +189,8 @@ void simpleDoWhileGraph(void)
     cudaStream_t captureStream;
     checkCudaErrors(cudaStreamCreate(&captureStream));
 
-    checkCudaErrors(cudaStreamBeginCaptureToGraph(captureStream, bodyGraph, nullptr, nullptr, 0, cudaStreamCaptureModeGlobal));
+    checkCudaErrors(
+        cudaStreamBeginCaptureToGraph(captureStream, bodyGraph, nullptr, nullptr, 0, cudaStreamCaptureModeGlobal));
     doWhileEmptyKernel<<<1, 1, 0, captureStream>>>();
     doWhileEmptyKernel<<<1, 1, 0, captureStream>>>();
     doWhileLoopKernel<<<1, 1, 0, captureStream>>>(dPtr, handle);
@@ -238,8 +235,7 @@ void simpleDoWhileGraph(void)
 __global__ void capturedWhileKernel(char *dPtr, cudaGraphConditionalHandle handle)
 {
     printf("GPU: counter = %d\n", *dPtr);
-    if (*dPtr)
-    {
+    if (*dPtr) {
         (*dPtr)--;
     }
     cudaGraphSetConditional(handle, *dPtr);
@@ -253,12 +249,12 @@ __global__ void capturedWhileEmptyKernel(void)
 
 void capturedWhileGraph(void)
 {
-    cudaGraph_t graph;
+    cudaGraph_t     graph;
     cudaGraphExec_t graphExec;
 
     cudaStreamCaptureStatus status;
-    const cudaGraphNode_t *dependencies;
-    size_t numDependencies;
+    const cudaGraphNode_t  *dependencies;
+    size_t                  numDependencies;
 
     // Allocate a byte of device memory to use as input
     char *dPtr;
@@ -284,17 +280,18 @@ void capturedWhileGraph(void)
     checkCudaErrors(cudaStreamGetCaptureInfo(captureStream, &status, NULL, &graph, &dependencies, &numDependencies));
 
     // Insert conditional node B
-    cudaGraphNode_t conditionalNode;
+    cudaGraphNode_t     conditionalNode;
     cudaGraphNodeParams cParams = {cudaGraphNodeTypeConditional};
-    cParams.conditional.handle = handle;
-    cParams.conditional.type = cudaGraphCondTypeWhile;
-    cParams.conditional.size = 1;
+    cParams.conditional.handle  = handle;
+    cParams.conditional.type    = cudaGraphCondTypeWhile;
+    cParams.conditional.size    = 1;
     checkCudaErrors(cudaGraphAddNode(&conditionalNode, graph, dependencies, numDependencies, &cParams));
 
     cudaGraph_t bodyGraph = cParams.conditional.phGraph_out[0];
 
     // Update stream capture dependencies to account for the node we manually added
-    checkCudaErrors(cudaStreamUpdateCaptureDependencies(captureStream, &conditionalNode, 1, cudaStreamSetCaptureDependencies));
+    checkCudaErrors(
+        cudaStreamUpdateCaptureDependencies(captureStream, &conditionalNode, 1, cudaStreamSetCaptureDependencies));
 
     // Insert kernel node D
     capturedWhileEmptyKernel<<<1, 1, 0, captureStream>>>();
@@ -306,7 +303,8 @@ void capturedWhileGraph(void)
     cudaStream_t bodyStream;
     checkCudaErrors(cudaStreamCreate(&bodyStream));
 
-    checkCudaErrors(cudaStreamBeginCaptureToGraph(bodyStream, bodyGraph, nullptr, nullptr, 0, cudaStreamCaptureModeGlobal));
+    checkCudaErrors(
+        cudaStreamBeginCaptureToGraph(bodyStream, bodyGraph, nullptr, nullptr, 0, cudaStreamCaptureModeGlobal));
 
     // Insert kernel node C
     capturedWhileKernel<<<1, 1, 0, bodyStream>>>(dPtr, handle);
@@ -351,15 +349,12 @@ void capturedWhileGraph(void)
  */
 
 // This kernel will only be executed if the condition is false
-__global__ void ifGraphKernelD(void)
-{
-    printf("GPU: Hello from the GPU! The condition was false.\n");
-}
+__global__ void ifGraphKernelD(void) { printf("GPU: Hello from the GPU! The condition was false.\n"); }
 
 // Setup and launch the graph
 void simpleIfElseGraph(void)
 {
-    cudaGraph_t graph;
+    cudaGraph_t     graph;
     cudaGraphExec_t graphExec;
     cudaGraphNode_t kernelNode;
     cudaGraphNode_t conditionalNode;
@@ -379,25 +374,25 @@ void simpleIfElseGraph(void)
 
     // Use a kernel upstream of the conditional to set the handle value
     cudaGraphNodeParams params = {cudaGraphNodeTypeKernel};
-    params.kernel.func = (void *)ifGraphKernelA;
+    params.kernel.func         = (void *)ifGraphKernelA;
     params.kernel.blockDim.x = params.kernel.blockDim.y = params.kernel.blockDim.z = 1;
     params.kernel.gridDim.x = params.kernel.gridDim.y = params.kernel.gridDim.z = 1;
-    params.kernel.kernelParams = kernelArgs;
-    kernelArgs[0] = &dPtr;
-    kernelArgs[1] = &handle;
+    params.kernel.kernelParams                                                  = kernelArgs;
+    kernelArgs[0]                                                               = &dPtr;
+    kernelArgs[1]                                                               = &handle;
     checkCudaErrors(cudaGraphAddNode(&kernelNode, graph, NULL, 0, &params));
 
     cudaGraphNodeParams cParams = {cudaGraphNodeTypeConditional};
-    cParams.conditional.handle = handle;
-    cParams.conditional.type = cudaGraphCondTypeIf;
-    cParams.conditional.size = 2; // Set size to 2 to indicate an ELSE graph will be used
+    cParams.conditional.handle  = handle;
+    cParams.conditional.type    = cudaGraphCondTypeIf;
+    cParams.conditional.size    = 2; // Set size to 2 to indicate an ELSE graph will be used
     checkCudaErrors(cudaGraphAddNode(&conditionalNode, graph, &kernelNode, 1, &cParams));
 
     cudaGraph_t bodyGraph = cParams.conditional.phGraph_out[0];
 
     // Populate the body of the first graph in the conditional node, executed if the condition is true
     cudaGraphNode_t trueBodyNode;
-    params.kernel.func = (void *)ifGraphKernelC;
+    params.kernel.func         = (void *)ifGraphKernelC;
     params.kernel.kernelParams = nullptr;
     checkCudaErrors(cudaGraphAddNode(&trueBodyNode, bodyGraph, NULL, 0, &params));
 
@@ -405,7 +400,7 @@ void simpleIfElseGraph(void)
     bodyGraph = cParams.conditional.phGraph_out[1];
 
     cudaGraphNode_t falseBodyNode;
-    params.kernel.func = (void *)ifGraphKernelD;
+    params.kernel.func         = (void *)ifGraphKernelD;
     params.kernel.kernelParams = nullptr;
     checkCudaErrors(cudaGraphAddNode(&falseBodyNode, bodyGraph, NULL, 0, &params));
 
@@ -452,30 +447,18 @@ __global__ void switchGraphKernelA(char *dPtr, cudaGraphConditionalHandle handle
     printf("GPU: Handle set to %d\n", value);
 }
 
-__global__ void switchGraphKernelC(void)
-{
-    printf("GPU: Hello from switchGraphKernelC(), running on the GPU!\n");
-}
+__global__ void switchGraphKernelC(void) { printf("GPU: Hello from switchGraphKernelC(), running on the GPU!\n"); }
 
-__global__ void switchGraphKernelD(void)
-{
-    printf("GPU: Hello from switchGraphKernelD(), running on the GPU!\n");
-}
+__global__ void switchGraphKernelD(void) { printf("GPU: Hello from switchGraphKernelD(), running on the GPU!\n"); }
 
-__global__ void switchGraphKernelE(void)
-{
-    printf("GPU: Hello from switchGraphKernelE(), running on the GPU!\n");
-}
+__global__ void switchGraphKernelE(void) { printf("GPU: Hello from switchGraphKernelE(), running on the GPU!\n"); }
 
-__global__ void switchGraphKernelF(void)
-{
-    printf("GPU: Hello from switchGraphKernelF(), running on the GPU!\n");
-}
+__global__ void switchGraphKernelF(void) { printf("GPU: Hello from switchGraphKernelF(), running on the GPU!\n"); }
 
 // Setup and launch the graph
 void simpleSwitchGraph(void)
 {
-    cudaGraph_t graph;
+    cudaGraph_t     graph;
     cudaGraphExec_t graphExec;
     cudaGraphNode_t kernelNode;
     cudaGraphNode_t conditionalNode;
@@ -495,24 +478,24 @@ void simpleSwitchGraph(void)
 
     // Use a kernel upstream of the conditional to set the handle value
     cudaGraphNodeParams params = {cudaGraphNodeTypeKernel};
-    params.kernel.func = (void *)switchGraphKernelA;
+    params.kernel.func         = (void *)switchGraphKernelA;
     params.kernel.blockDim.x = params.kernel.blockDim.y = params.kernel.blockDim.z = 1;
     params.kernel.gridDim.x = params.kernel.gridDim.y = params.kernel.gridDim.z = 1;
-    params.kernel.kernelParams = kernelArgs;
-    kernelArgs[0] = &dPtr;
-    kernelArgs[1] = &handle;
+    params.kernel.kernelParams                                                  = kernelArgs;
+    kernelArgs[0]                                                               = &dPtr;
+    kernelArgs[1]                                                               = &handle;
     checkCudaErrors(cudaGraphAddNode(&kernelNode, graph, NULL, 0, &params));
 
     cudaGraphNodeParams cParams = {cudaGraphNodeTypeConditional};
-    cParams.conditional.handle = handle;
-    cParams.conditional.type = cudaGraphCondTypeSwitch;
-    cParams.conditional.size = 4;
+    cParams.conditional.handle  = handle;
+    cParams.conditional.type    = cudaGraphCondTypeSwitch;
+    cParams.conditional.size    = 4;
     checkCudaErrors(cudaGraphAddNode(&conditionalNode, graph, &kernelNode, 1, &cParams));
 
     // Populate the four graph bodies within the SWITCH conditional graph
     cudaGraphNode_t bodyNode;
     params.kernel.kernelParams = nullptr;
-    params.kernel.func = (void *)switchGraphKernelC;
+    params.kernel.func         = (void *)switchGraphKernelC;
     checkCudaErrors(cudaGraphAddNode(&bodyNode, cParams.conditional.phGraph_out[0], NULL, 0, &params));
     params.kernel.func = (void *)switchGraphKernelD;
     checkCudaErrors(cudaGraphAddNode(&bodyNode, cParams.conditional.phGraph_out[1], NULL, 0, &params));
@@ -523,8 +506,7 @@ void simpleSwitchGraph(void)
 
     checkCudaErrors(cudaGraphInstantiate(&graphExec, graph, NULL, NULL, 0));
 
-    for (char i = 0; i < 5; i++)
-    {
+    for (char i = 0; i < 5; i++) {
         // Initialize device memory and launch the graph
         checkCudaErrors(cudaMemset(dPtr, i, 1));
         printf("Host: Launching graph with device memory set to %d\n", i);
@@ -547,11 +529,9 @@ int main(int argc, char **argv)
     int driverVersion = 0;
 
     cudaDriverGetVersion(&driverVersion);
-    printf("Driver version is: %d.%d\n", driverVersion / 1000,
-           (driverVersion % 100) / 10);
+    printf("Driver version is: %d.%d\n", driverVersion / 1000, (driverVersion % 100) / 10);
 
-    if (driverVersion < 12030)
-    {
+    if (driverVersion < 12030) {
         printf("Skipping execution as driver does not support Graph Conditional Nodes\n");
         return 0;
     }
@@ -560,8 +540,7 @@ int main(int argc, char **argv)
     simpleDoWhileGraph();
     capturedWhileGraph();
 
-    if (driverVersion < 12080)
-    {
+    if (driverVersion < 12080) {
         printf("Skipping execution as driver does not support if/else and switch type Graph Conditional Nodes\n");
         return 0;
     }

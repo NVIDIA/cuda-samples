@@ -15,210 +15,211 @@
 
 // With these flags defined, this source file will dynamically
 // load the corresponding functions.  Disabled by default.
-//#define CUDA_INIT_D3D9
-//#define CUDA_INIT_D3D10
-//#define CUDA_INIT_D3D11
-//#define CUDA_INIT_OPENGL
+// #define CUDA_INIT_D3D9
+// #define CUDA_INIT_D3D10
+// #define CUDA_INIT_D3D11
+// #define CUDA_INIT_OPENGL
 
-#include <stdio.h>
 #include "cuda_drvapi_dynlink.h"
 
-tcuInit                               *_cuInit;
-tcuDriverGetVersion                   *cuDriverGetVersion;
-tcuDeviceGet                          *cuDeviceGet;
-tcuDeviceGetCount                     *cuDeviceGetCount;
-tcuDeviceGetName                      *cuDeviceGetName;
-tcuDeviceComputeCapability            *cuDeviceComputeCapability;
-tcuDeviceTotalMem                     *cuDeviceTotalMem;
-tcuDeviceGetProperties                *cuDeviceGetProperties;
-tcuDeviceGetAttribute                 *cuDeviceGetAttribute;
-tcuGetErrorString                     *cuGetErrorString;
-tcuCtxCreate                          *cuCtxCreate;
-tcuCtxDestroy                         *cuCtxDestroy;
-tcuCtxAttach                          *cuCtxAttach;
-tcuCtxDetach                          *cuCtxDetach;
-tcuCtxPushCurrent                     *cuCtxPushCurrent;
-tcuCtxPopCurrent                      *cuCtxPopCurrent;
-tcuCtxGetCurrent                      *cuCtxGetCurrent;
-tcuCtxSetCurrent                      *cuCtxSetCurrent;
-tcuCtxGetDevice                       *cuCtxGetDevice;
-tcuCtxSynchronize                     *cuCtxSynchronize;
-tcuModuleLoad                         *cuModuleLoad;
-tcuModuleLoadData                     *cuModuleLoadData;
-tcuModuleLoadDataEx                   *cuModuleLoadDataEx;
-tcuModuleLoadFatBinary                *cuModuleLoadFatBinary;
-tcuModuleUnload                       *cuModuleUnload;
-tcuModuleGetFunction                  *cuModuleGetFunction;
-tcuModuleGetGlobal                    *cuModuleGetGlobal;
-tcuModuleGetTexRef                    *cuModuleGetTexRef;
-tcuModuleGetSurfRef                   *cuModuleGetSurfRef;
-tcuMemGetInfo                         *cuMemGetInfo;
-tcuMemAlloc                           *cuMemAlloc;
-tcuMemAllocPitch                      *cuMemAllocPitch;
-tcuMemFree                            *cuMemFree;
-tcuMemGetAddressRange                 *cuMemGetAddressRange;
-tcuMemAllocHost                       *cuMemAllocHost;
-tcuMemFreeHost                        *cuMemFreeHost;
-tcuMemHostAlloc                       *cuMemHostAlloc;
-tcuMemHostGetFlags                    *cuMemHostGetFlags;
+#include <stdio.h>
 
-tcuMemHostGetDevicePointer            *cuMemHostGetDevicePointer;
-tcuDeviceGetByPCIBusId                *cuDeviceGetByPCIBusId;
-tcuDeviceGetPCIBusId                  *cuDeviceGetPCIBusId;
-tcuIpcGetEventHandle                  *cuIpcGetEventHandle;
-tcuIpcOpenEventHandle                 *cuIpcOpenEventHandle;
-tcuIpcGetMemHandle                    *cuIpcGetMemHandle;
-tcuIpcOpenMemHandle                   *cuIpcOpenMemHandle;
-tcuIpcCloseMemHandle                  *cuIpcCloseMemHandle;
+tcuInit                    *_cuInit;
+tcuDriverGetVersion        *cuDriverGetVersion;
+tcuDeviceGet               *cuDeviceGet;
+tcuDeviceGetCount          *cuDeviceGetCount;
+tcuDeviceGetName           *cuDeviceGetName;
+tcuDeviceComputeCapability *cuDeviceComputeCapability;
+tcuDeviceTotalMem          *cuDeviceTotalMem;
+tcuDeviceGetProperties     *cuDeviceGetProperties;
+tcuDeviceGetAttribute      *cuDeviceGetAttribute;
+tcuGetErrorString          *cuGetErrorString;
+tcuCtxCreate               *cuCtxCreate;
+tcuCtxDestroy              *cuCtxDestroy;
+tcuCtxAttach               *cuCtxAttach;
+tcuCtxDetach               *cuCtxDetach;
+tcuCtxPushCurrent          *cuCtxPushCurrent;
+tcuCtxPopCurrent           *cuCtxPopCurrent;
+tcuCtxGetCurrent           *cuCtxGetCurrent;
+tcuCtxSetCurrent           *cuCtxSetCurrent;
+tcuCtxGetDevice            *cuCtxGetDevice;
+tcuCtxSynchronize          *cuCtxSynchronize;
+tcuModuleLoad              *cuModuleLoad;
+tcuModuleLoadData          *cuModuleLoadData;
+tcuModuleLoadDataEx        *cuModuleLoadDataEx;
+tcuModuleLoadFatBinary     *cuModuleLoadFatBinary;
+tcuModuleUnload            *cuModuleUnload;
+tcuModuleGetFunction       *cuModuleGetFunction;
+tcuModuleGetGlobal         *cuModuleGetGlobal;
+tcuModuleGetTexRef         *cuModuleGetTexRef;
+tcuModuleGetSurfRef        *cuModuleGetSurfRef;
+tcuMemGetInfo              *cuMemGetInfo;
+tcuMemAlloc                *cuMemAlloc;
+tcuMemAllocPitch           *cuMemAllocPitch;
+tcuMemFree                 *cuMemFree;
+tcuMemGetAddressRange      *cuMemGetAddressRange;
+tcuMemAllocHost            *cuMemAllocHost;
+tcuMemFreeHost             *cuMemFreeHost;
+tcuMemHostAlloc            *cuMemHostAlloc;
+tcuMemHostGetFlags         *cuMemHostGetFlags;
 
-tcuMemHostRegister                    *cuMemHostRegister;
-tcuMemHostUnregister                  *cuMemHostUnregister;
-tcuMemcpyHtoD                         *cuMemcpyHtoD;
-tcuMemcpyDtoH                         *cuMemcpyDtoH;
-tcuMemcpyDtoD                         *cuMemcpyDtoD;
-tcuMemcpyDtoA                         *cuMemcpyDtoA;
-tcuMemcpyAtoD                         *cuMemcpyAtoD;
-tcuMemcpyHtoA                         *cuMemcpyHtoA;
-tcuMemcpyAtoH                         *cuMemcpyAtoH;
-tcuMemcpyAtoA                         *cuMemcpyAtoA;
-tcuMemcpy2D                           *cuMemcpy2D;
-tcuMemcpy2DUnaligned                  *cuMemcpy2DUnaligned;
-tcuMemcpy3D                           *cuMemcpy3D;
-tcuMemcpyHtoDAsync                    *cuMemcpyHtoDAsync;
-tcuMemcpyDtoHAsync                    *cuMemcpyDtoHAsync;
-tcuMemcpyDtoDAsync                    *cuMemcpyDtoDAsync;
-tcuMemcpyHtoAAsync                    *cuMemcpyHtoAAsync;
-tcuMemcpyAtoHAsync                    *cuMemcpyAtoHAsync;
-tcuMemcpy2DAsync                      *cuMemcpy2DAsync;
-tcuMemcpy3DAsync                      *cuMemcpy3DAsync;
-tcuMemcpy                             *cuMemcpy;
-tcuMemcpyPeer                         *cuMemcpyPeer;
-tcuMemsetD8                           *cuMemsetD8;
-tcuMemsetD16                          *cuMemsetD16;
-tcuMemsetD32                          *cuMemsetD32;
-tcuMemsetD2D8                         *cuMemsetD2D8;
-tcuMemsetD2D16                        *cuMemsetD2D16;
-tcuMemsetD2D32                        *cuMemsetD2D32;
-tcuFuncSetBlockShape                  *cuFuncSetBlockShape;
-tcuFuncSetSharedSize                  *cuFuncSetSharedSize;
-tcuFuncGetAttribute                   *cuFuncGetAttribute;
-tcuFuncSetCacheConfig                 *cuFuncSetCacheConfig;
-tcuFuncSetSharedMemConfig             *cuFuncSetSharedMemConfig;
-tcuLaunchKernel                       *cuLaunchKernel;
-tcuArrayCreate                        *cuArrayCreate;
-tcuArrayGetDescriptor                 *cuArrayGetDescriptor;
-tcuArrayDestroy                       *cuArrayDestroy;
-tcuArray3DCreate                      *cuArray3DCreate;
-tcuArray3DGetDescriptor               *cuArray3DGetDescriptor;
-tcuTexRefCreate                       *cuTexRefCreate;
-tcuTexRefDestroy                      *cuTexRefDestroy;
-tcuTexRefSetArray                     *cuTexRefSetArray;
-tcuTexRefSetAddress                   *cuTexRefSetAddress;
-tcuTexRefSetAddress2D                 *cuTexRefSetAddress2D;
-tcuTexRefSetFormat                    *cuTexRefSetFormat;
-tcuTexRefSetAddressMode               *cuTexRefSetAddressMode;
-tcuTexRefSetFilterMode                *cuTexRefSetFilterMode;
-tcuTexRefSetFlags                     *cuTexRefSetFlags;
-tcuTexRefGetAddress                   *cuTexRefGetAddress;
-tcuTexRefGetArray                     *cuTexRefGetArray;
-tcuTexRefGetAddressMode               *cuTexRefGetAddressMode;
-tcuTexRefGetFilterMode                *cuTexRefGetFilterMode;
-tcuTexRefGetFormat                    *cuTexRefGetFormat;
-tcuTexRefGetFlags                     *cuTexRefGetFlags;
-tcuSurfRefSetArray                    *cuSurfRefSetArray;
-tcuSurfRefGetArray                    *cuSurfRefGetArray;
-tcuParamSetSize                       *cuParamSetSize;
-tcuParamSeti                          *cuParamSeti;
-tcuParamSetf                          *cuParamSetf;
-tcuParamSetv                          *cuParamSetv;
-tcuParamSetTexRef                     *cuParamSetTexRef;
-tcuLaunch                             *cuLaunch;
-tcuLaunchGrid                         *cuLaunchGrid;
-tcuLaunchGridAsync                    *cuLaunchGridAsync;
-tcuEventCreate                        *cuEventCreate;
-tcuEventRecord                        *cuEventRecord;
-tcuEventQuery                         *cuEventQuery;
-tcuEventSynchronize                   *cuEventSynchronize;
-tcuEventDestroy                       *cuEventDestroy;
-tcuEventElapsedTime                   *cuEventElapsedTime;
-tcuStreamCreate                       *cuStreamCreate;
-tcuStreamWaitEvent                    *cuStreamWaitEvent;
-tcuStreamAddCallback                  *cuStreamAddCallback;
-tcuStreamQuery                        *cuStreamQuery;
-tcuStreamSynchronize                  *cuStreamSynchronize;
-tcuStreamDestroy                      *cuStreamDestroy;
-tcuGraphicsUnregisterResource         *cuGraphicsUnregisterResource;
-tcuGraphicsSubResourceGetMappedArray  *cuGraphicsSubResourceGetMappedArray;
-tcuGraphicsResourceGetMappedPointer   *cuGraphicsResourceGetMappedPointer;
-tcuGraphicsResourceSetMapFlags        *cuGraphicsResourceSetMapFlags;
-tcuGraphicsMapResources               *cuGraphicsMapResources;
-tcuGraphicsUnmapResources             *cuGraphicsUnmapResources;
-tcuGetExportTable                     *cuGetExportTable;
-tcuCtxSetLimit                        *cuCtxSetLimit;
-tcuCtxGetLimit                        *cuCtxGetLimit;
-tcuCtxGetCacheConfig                  *cuCtxGetCacheConfig;
-tcuCtxSetCacheConfig                  *cuCtxSetCacheConfig;
-tcuCtxGetSharedMemConfig              *cuCtxGetSharedMemConfig;
-tcuCtxSetSharedMemConfig              *cuCtxSetSharedMemConfig;
-tcuCtxGetApiVersion                   *cuCtxGetApiVersion;
+tcuMemHostGetDevicePointer *cuMemHostGetDevicePointer;
+tcuDeviceGetByPCIBusId     *cuDeviceGetByPCIBusId;
+tcuDeviceGetPCIBusId       *cuDeviceGetPCIBusId;
+tcuIpcGetEventHandle       *cuIpcGetEventHandle;
+tcuIpcOpenEventHandle      *cuIpcOpenEventHandle;
+tcuIpcGetMemHandle         *cuIpcGetMemHandle;
+tcuIpcOpenMemHandle        *cuIpcOpenMemHandle;
+tcuIpcCloseMemHandle       *cuIpcCloseMemHandle;
 
-tcuMipmappedArrayCreate               *cuMipmappedArrayCreate;
-tcuMipmappedArrayGetLevel             *cuMipmappedArrayGetLevel;
-tcuMipmappedArrayDestroy              *cuMipmappedArrayDestroy;
+tcuMemHostRegister                   *cuMemHostRegister;
+tcuMemHostUnregister                 *cuMemHostUnregister;
+tcuMemcpyHtoD                        *cuMemcpyHtoD;
+tcuMemcpyDtoH                        *cuMemcpyDtoH;
+tcuMemcpyDtoD                        *cuMemcpyDtoD;
+tcuMemcpyDtoA                        *cuMemcpyDtoA;
+tcuMemcpyAtoD                        *cuMemcpyAtoD;
+tcuMemcpyHtoA                        *cuMemcpyHtoA;
+tcuMemcpyAtoH                        *cuMemcpyAtoH;
+tcuMemcpyAtoA                        *cuMemcpyAtoA;
+tcuMemcpy2D                          *cuMemcpy2D;
+tcuMemcpy2DUnaligned                 *cuMemcpy2DUnaligned;
+tcuMemcpy3D                          *cuMemcpy3D;
+tcuMemcpyHtoDAsync                   *cuMemcpyHtoDAsync;
+tcuMemcpyDtoHAsync                   *cuMemcpyDtoHAsync;
+tcuMemcpyDtoDAsync                   *cuMemcpyDtoDAsync;
+tcuMemcpyHtoAAsync                   *cuMemcpyHtoAAsync;
+tcuMemcpyAtoHAsync                   *cuMemcpyAtoHAsync;
+tcuMemcpy2DAsync                     *cuMemcpy2DAsync;
+tcuMemcpy3DAsync                     *cuMemcpy3DAsync;
+tcuMemcpy                            *cuMemcpy;
+tcuMemcpyPeer                        *cuMemcpyPeer;
+tcuMemsetD8                          *cuMemsetD8;
+tcuMemsetD16                         *cuMemsetD16;
+tcuMemsetD32                         *cuMemsetD32;
+tcuMemsetD2D8                        *cuMemsetD2D8;
+tcuMemsetD2D16                       *cuMemsetD2D16;
+tcuMemsetD2D32                       *cuMemsetD2D32;
+tcuFuncSetBlockShape                 *cuFuncSetBlockShape;
+tcuFuncSetSharedSize                 *cuFuncSetSharedSize;
+tcuFuncGetAttribute                  *cuFuncGetAttribute;
+tcuFuncSetCacheConfig                *cuFuncSetCacheConfig;
+tcuFuncSetSharedMemConfig            *cuFuncSetSharedMemConfig;
+tcuLaunchKernel                      *cuLaunchKernel;
+tcuArrayCreate                       *cuArrayCreate;
+tcuArrayGetDescriptor                *cuArrayGetDescriptor;
+tcuArrayDestroy                      *cuArrayDestroy;
+tcuArray3DCreate                     *cuArray3DCreate;
+tcuArray3DGetDescriptor              *cuArray3DGetDescriptor;
+tcuTexRefCreate                      *cuTexRefCreate;
+tcuTexRefDestroy                     *cuTexRefDestroy;
+tcuTexRefSetArray                    *cuTexRefSetArray;
+tcuTexRefSetAddress                  *cuTexRefSetAddress;
+tcuTexRefSetAddress2D                *cuTexRefSetAddress2D;
+tcuTexRefSetFormat                   *cuTexRefSetFormat;
+tcuTexRefSetAddressMode              *cuTexRefSetAddressMode;
+tcuTexRefSetFilterMode               *cuTexRefSetFilterMode;
+tcuTexRefSetFlags                    *cuTexRefSetFlags;
+tcuTexRefGetAddress                  *cuTexRefGetAddress;
+tcuTexRefGetArray                    *cuTexRefGetArray;
+tcuTexRefGetAddressMode              *cuTexRefGetAddressMode;
+tcuTexRefGetFilterMode               *cuTexRefGetFilterMode;
+tcuTexRefGetFormat                   *cuTexRefGetFormat;
+tcuTexRefGetFlags                    *cuTexRefGetFlags;
+tcuSurfRefSetArray                   *cuSurfRefSetArray;
+tcuSurfRefGetArray                   *cuSurfRefGetArray;
+tcuParamSetSize                      *cuParamSetSize;
+tcuParamSeti                         *cuParamSeti;
+tcuParamSetf                         *cuParamSetf;
+tcuParamSetv                         *cuParamSetv;
+tcuParamSetTexRef                    *cuParamSetTexRef;
+tcuLaunch                            *cuLaunch;
+tcuLaunchGrid                        *cuLaunchGrid;
+tcuLaunchGridAsync                   *cuLaunchGridAsync;
+tcuEventCreate                       *cuEventCreate;
+tcuEventRecord                       *cuEventRecord;
+tcuEventQuery                        *cuEventQuery;
+tcuEventSynchronize                  *cuEventSynchronize;
+tcuEventDestroy                      *cuEventDestroy;
+tcuEventElapsedTime                  *cuEventElapsedTime;
+tcuStreamCreate                      *cuStreamCreate;
+tcuStreamWaitEvent                   *cuStreamWaitEvent;
+tcuStreamAddCallback                 *cuStreamAddCallback;
+tcuStreamQuery                       *cuStreamQuery;
+tcuStreamSynchronize                 *cuStreamSynchronize;
+tcuStreamDestroy                     *cuStreamDestroy;
+tcuGraphicsUnregisterResource        *cuGraphicsUnregisterResource;
+tcuGraphicsSubResourceGetMappedArray *cuGraphicsSubResourceGetMappedArray;
+tcuGraphicsResourceGetMappedPointer  *cuGraphicsResourceGetMappedPointer;
+tcuGraphicsResourceSetMapFlags       *cuGraphicsResourceSetMapFlags;
+tcuGraphicsMapResources              *cuGraphicsMapResources;
+tcuGraphicsUnmapResources            *cuGraphicsUnmapResources;
+tcuGetExportTable                    *cuGetExportTable;
+tcuCtxSetLimit                       *cuCtxSetLimit;
+tcuCtxGetLimit                       *cuCtxGetLimit;
+tcuCtxGetCacheConfig                 *cuCtxGetCacheConfig;
+tcuCtxSetCacheConfig                 *cuCtxSetCacheConfig;
+tcuCtxGetSharedMemConfig             *cuCtxGetSharedMemConfig;
+tcuCtxSetSharedMemConfig             *cuCtxSetSharedMemConfig;
+tcuCtxGetApiVersion                  *cuCtxGetApiVersion;
 
-tcuProfilerStop                       *cuProfilerStop;
+tcuMipmappedArrayCreate   *cuMipmappedArrayCreate;
+tcuMipmappedArrayGetLevel *cuMipmappedArrayGetLevel;
+tcuMipmappedArrayDestroy  *cuMipmappedArrayDestroy;
+
+tcuProfilerStop *cuProfilerStop;
 
 #ifdef CUDA_INIT_D3D9
 // D3D9/CUDA interop (CUDA 1.x compatible API). These functions
 // are deprecated; please use the ones below
-tcuD3D9Begin                          *cuD3D9Begin;
-tcuD3D9End                            *cuD3DEnd;
-tcuD3D9RegisterVertexBuffer           *cuD3D9RegisterVertexBuffer;
-tcuD3D9MapVertexBuffer                *cuD3D9MapVertexBuffer;
-tcuD3D9UnmapVertexBuffer              *cuD3D9UnmapVertexBuffer;
-tcuD3D9UnregisterVertexBuffer         *cuD3D9UnregisterVertexBuffer;
+tcuD3D9Begin                  *cuD3D9Begin;
+tcuD3D9End                    *cuD3DEnd;
+tcuD3D9RegisterVertexBuffer   *cuD3D9RegisterVertexBuffer;
+tcuD3D9MapVertexBuffer        *cuD3D9MapVertexBuffer;
+tcuD3D9UnmapVertexBuffer      *cuD3D9UnmapVertexBuffer;
+tcuD3D9UnregisterVertexBuffer *cuD3D9UnregisterVertexBuffer;
 
 // D3D9/CUDA interop (CUDA 2.x compatible)
-tcuD3D9GetDirect3DDevice              *cuD3D9GetDirect3DDevice;
-tcuD3D9RegisterResource               *cuD3D9RegisterResource;
-tcuD3D9UnregisterResource             *cuD3D9UnregisterResource;
-tcuD3D9MapResources                   *cuD3D9MapResources;
-tcuD3D9UnmapResources                 *cuD3D9UnmapResources;
-tcuD3D9ResourceSetMapFlags            *cuD3D9ResourceSetMapFlags;
-tcuD3D9ResourceGetSurfaceDimensions   *cuD3D9ResourceGetSurfaceDimensions;
-tcuD3D9ResourceGetMappedArray         *cuD3D9ResourceGetMappedArray;
-tcuD3D9ResourceGetMappedPointer       *cuD3D9ResourceGetMappedPointer;
-tcuD3D9ResourceGetMappedSize          *cuD3D9ResourceGetMappedSize;
-tcuD3D9ResourceGetMappedPitch         *cuD3D9ResourceGetMappedPitch;
+tcuD3D9GetDirect3DDevice            *cuD3D9GetDirect3DDevice;
+tcuD3D9RegisterResource             *cuD3D9RegisterResource;
+tcuD3D9UnregisterResource           *cuD3D9UnregisterResource;
+tcuD3D9MapResources                 *cuD3D9MapResources;
+tcuD3D9UnmapResources               *cuD3D9UnmapResources;
+tcuD3D9ResourceSetMapFlags          *cuD3D9ResourceSetMapFlags;
+tcuD3D9ResourceGetSurfaceDimensions *cuD3D9ResourceGetSurfaceDimensions;
+tcuD3D9ResourceGetMappedArray       *cuD3D9ResourceGetMappedArray;
+tcuD3D9ResourceGetMappedPointer     *cuD3D9ResourceGetMappedPointer;
+tcuD3D9ResourceGetMappedSize        *cuD3D9ResourceGetMappedSize;
+tcuD3D9ResourceGetMappedPitch       *cuD3D9ResourceGetMappedPitch;
 
 // D3D9/CUDA interop (CUDA 2.0+)
-tcuD3D9GetDevice                      *cuD3D9GetDevice;
-tcuD3D9CtxCreate                      *cuD3D9CtxCreate;
-tcuGraphicsD3D9RegisterResource       *cuGraphicsD3D9RegisterResource;
+tcuD3D9GetDevice                *cuD3D9GetDevice;
+tcuD3D9CtxCreate                *cuD3D9CtxCreate;
+tcuGraphicsD3D9RegisterResource *cuGraphicsD3D9RegisterResource;
 #endif
 
 #ifdef CUDA_INIT_D3D10
 // D3D10/CUDA interop (CUDA 3.0+)
-tcuD3D10GetDevice                     *cuD3D10GetDevice;
-tcuD3D10CtxCreate                     *cuD3D10CtxCreate;
-tcuGraphicsD3D10RegisterResource      *cuGraphicsD3D10RegisterResource;
+tcuD3D10GetDevice                *cuD3D10GetDevice;
+tcuD3D10CtxCreate                *cuD3D10CtxCreate;
+tcuGraphicsD3D10RegisterResource *cuGraphicsD3D10RegisterResource;
 #endif
 
 
 #ifdef CUDA_INIT_D3D11
 // D3D11/CUDA interop (CUDA 3.0+)
-tcuD3D11GetDevice                     *cuD3D11GetDevice;
-tcuD3D11CtxCreate                     *cuD3D11CtxCreate;
-tcuGraphicsD3D11RegisterResource      *cuGraphicsD3D11RegisterResource;
+tcuD3D11GetDevice                *cuD3D11GetDevice;
+tcuD3D11CtxCreate                *cuD3D11CtxCreate;
+tcuGraphicsD3D11RegisterResource *cuGraphicsD3D11RegisterResource;
 #endif
 
 // GL/CUDA interop
 #ifdef CUDA_INIT_OPENGL
-tcuGLCtxCreate                        *cuGLCtxCreate;
-tcuGraphicsGLRegisterBuffer           *cuGraphicsGLRegisterBuffer;
-tcuGraphicsGLRegisterImage            *cuGraphicsGLRegisterImage;
+tcuGLCtxCreate              *cuGLCtxCreate;
+tcuGraphicsGLRegisterBuffer *cuGraphicsGLRegisterBuffer;
+tcuGraphicsGLRegisterImage  *cuGraphicsGLRegisterImage;
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
-tcuWGLGetDevice                       *cuWGLGetDevice;
+tcuWGLGetDevice *cuWGLGetDevice;
 #endif
 #endif
 
@@ -239,8 +240,7 @@ static CUresult LOAD_LIBRARY(CUDADRIVER *pInstance)
 {
     *pInstance = LoadLibrary(__CudaLibName);
 
-    if (*pInstance == NULL)
-    {
+    if (*pInstance == NULL) {
         printf("LoadLibrary \"%s\" failed!\n", __CudaLibName);
         return CUDA_ERROR_UNKNOWN;
     }
@@ -248,38 +248,35 @@ static CUresult LOAD_LIBRARY(CUDADRIVER *pInstance)
     return CUDA_SUCCESS;
 }
 
-#define GET_PROC_EX(name, alias, required)                     \
-    alias = (t##name *)GetProcAddress(CudaDrvLib, #name);               \
-    if (alias == NULL && required) {                                    \
-        printf("Failed to find required function \"%s\" in %s\n",       \
-               #name, __CudaLibName);                                  \
-        return CUDA_ERROR_UNKNOWN;                                      \
+#define GET_PROC_EX(name, alias, required)                                               \
+    alias = (t##name *)GetProcAddress(CudaDrvLib, #name);                                \
+    if (alias == NULL && required) {                                                     \
+        printf("Failed to find required function \"%s\" in %s\n", #name, __CudaLibName); \
+        return CUDA_ERROR_UNKNOWN;                                                       \
     }
 
-#define GET_PROC_EX_V2(name, alias, required)                           \
-    alias = (t##name *)GetProcAddress(CudaDrvLib, STRINGIFY(name##_v2));\
-    if (alias == NULL && required) {                                    \
-        printf("Failed to find required function \"%s\" in %s\n",       \
-               STRINGIFY(name##_v2), __CudaLibName);                       \
-        return CUDA_ERROR_UNKNOWN;                                      \
+#define GET_PROC_EX_V2(name, alias, required)                                                           \
+    alias = (t##name *)GetProcAddress(CudaDrvLib, STRINGIFY(name##_v2));                                \
+    if (alias == NULL && required) {                                                                    \
+        printf("Failed to find required function \"%s\" in %s\n", STRINGIFY(name##_v2), __CudaLibName); \
+        return CUDA_ERROR_UNKNOWN;                                                                      \
     }
 
-#define GET_PROC_EX_V3(name, alias, required)                           \
-    alias = (t##name *)GetProcAddress(CudaDrvLib, STRINGIFY(name##_v3));\
-    if (alias == NULL && required) {                                    \
-        printf("Failed to find required function \"%s\" in %s\n",       \
-               STRINGIFY(name##_v3), __CudaLibName);                       \
-        return CUDA_ERROR_UNKNOWN;                                      \
+#define GET_PROC_EX_V3(name, alias, required)                                                           \
+    alias = (t##name *)GetProcAddress(CudaDrvLib, STRINGIFY(name##_v3));                                \
+    if (alias == NULL && required) {                                                                    \
+        printf("Failed to find required function \"%s\" in %s\n", STRINGIFY(name##_v3), __CudaLibName); \
+        return CUDA_ERROR_UNKNOWN;                                                                      \
     }
 
-#elif defined(__unix__) || defined (__QNX__) || defined(__APPLE__) || defined(__MACOSX)
+#elif defined(__unix__) || defined(__QNX__) || defined(__APPLE__) || defined(__MACOSX)
 
 #include <dlfcn.h>
 
 #if defined(__APPLE__) || defined(__MACOSX)
 static char __CudaLibName[] = "/usr/local/cuda/lib/libcuda.dylib";
 #elif defined(__ANDROID__)
-#if defined (__aarch64__)
+#if defined(__aarch64__)
 static char __CudaLibName[] = "/system/vendor/lib64/libcuda.so";
 #elif defined(__arm__)
 static char __CudaLibName[] = "/system/vendor/lib/libcuda.so";
@@ -294,8 +291,7 @@ static CUresult LOAD_LIBRARY(CUDADRIVER *pInstance)
 {
     *pInstance = dlopen(__CudaLibName, RTLD_NOW);
 
-    if (*pInstance == NULL)
-    {
+    if (*pInstance == NULL) {
         printf("dlopen \"%s\" failed!\n", __CudaLibName);
         return CUDA_ERROR_UNKNOWN;
     }
@@ -303,52 +299,49 @@ static CUresult LOAD_LIBRARY(CUDADRIVER *pInstance)
     return CUDA_SUCCESS;
 }
 
-#define GET_PROC_EX(name, alias, required)                              \
-    alias = (t##name *)dlsym(CudaDrvLib, #name);                        \
-    if (alias == NULL && required) {                                    \
-        printf("Failed to find required function \"%s\" in %s\n",       \
-               #name, __CudaLibName);                                  \
-        return CUDA_ERROR_UNKNOWN;                                      \
+#define GET_PROC_EX(name, alias, required)                                               \
+    alias = (t##name *)dlsym(CudaDrvLib, #name);                                         \
+    if (alias == NULL && required) {                                                     \
+        printf("Failed to find required function \"%s\" in %s\n", #name, __CudaLibName); \
+        return CUDA_ERROR_UNKNOWN;                                                       \
     }
 
-#define GET_PROC_EX_V2(name, alias, required)                           \
-    alias = (t##name *)dlsym(CudaDrvLib, STRINGIFY(name##_v2));         \
-    if (alias == NULL && required) {                                    \
-        printf("Failed to find required function \"%s\" in %s\n",       \
-               STRINGIFY(name##_v2), __CudaLibName);                    \
-        return CUDA_ERROR_UNKNOWN;                                      \
+#define GET_PROC_EX_V2(name, alias, required)                                                           \
+    alias = (t##name *)dlsym(CudaDrvLib, STRINGIFY(name##_v2));                                         \
+    if (alias == NULL && required) {                                                                    \
+        printf("Failed to find required function \"%s\" in %s\n", STRINGIFY(name##_v2), __CudaLibName); \
+        return CUDA_ERROR_UNKNOWN;                                                                      \
     }
 
-#define GET_PROC_EX_V3(name, alias, required)                           \
-    alias = (t##name *)dlsym(CudaDrvLib, STRINGIFY(name##_v3));         \
-    if (alias == NULL && required) {                                    \
-        printf("Failed to find required function \"%s\" in %s\n",       \
-               STRINGIFY(name##_v3), __CudaLibName);                    \
-        return CUDA_ERROR_UNKNOWN;                                      \
+#define GET_PROC_EX_V3(name, alias, required)                                                           \
+    alias = (t##name *)dlsym(CudaDrvLib, STRINGIFY(name##_v3));                                         \
+    if (alias == NULL && required) {                                                                    \
+        printf("Failed to find required function \"%s\" in %s\n", STRINGIFY(name##_v3), __CudaLibName); \
+        return CUDA_ERROR_UNKNOWN;                                                                      \
     }
 
 #else
 #error unsupported platform
 #endif
 
-#define CHECKED_CALL(call)              \
-    do {                                \
-        CUresult result = (call);       \
-        if (CUDA_SUCCESS != result) {   \
-            return result;              \
-        }                               \
-    } while(0)
+#define CHECKED_CALL(call)            \
+    do {                              \
+        CUresult result = (call);     \
+        if (CUDA_SUCCESS != result) { \
+            return result;            \
+        }                             \
+    } while (0)
 
-#define GET_PROC_REQUIRED(name) GET_PROC_EX(name,name,1)
-#define GET_PROC_OPTIONAL(name) GET_PROC_EX(name,name,0)
+#define GET_PROC_REQUIRED(name) GET_PROC_EX(name, name, 1)
+#define GET_PROC_OPTIONAL(name) GET_PROC_EX(name, name, 0)
 #define GET_PROC(name)          GET_PROC_REQUIRED(name)
-#define GET_PROC_V2(name)       GET_PROC_EX_V2(name,name,1)
-#define GET_PROC_V3(name)       GET_PROC_EX_V3(name,name,1)
+#define GET_PROC_V2(name)       GET_PROC_EX_V2(name, name, 1)
+#define GET_PROC_V3(name)       GET_PROC_EX_V3(name, name, 1)
 
 CUresult CUDAAPI cuInit(unsigned int Flags, int cudaVersion)
 {
     CUDADRIVER CudaDrvLib;
-    int driverVer = 1000;
+    int        driverVer = 1000;
 
     CHECKED_CALL(LOAD_LIBRARY(&CudaDrvLib));
 
@@ -359,8 +352,7 @@ CUresult CUDAAPI cuInit(unsigned int Flags, int cudaVersion)
     // available since 2.2. if not present, version 1.0 is assumed
     GET_PROC_OPTIONAL(cuDriverGetVersion);
 
-    if (cuDriverGetVersion)
-    {
+    if (cuDriverGetVersion) {
         CHECKED_CALL(cuDriverGetVersion(&driverVer));
     }
 
@@ -428,24 +420,21 @@ CUresult CUDAAPI cuInit(unsigned int Flags, int cudaVersion)
     GET_PROC(cuStreamDestroy);
 
     // These are CUDA 5.0 new functions
-    if (driverVer >= 5000)
-    {
+    if (driverVer >= 5000) {
         GET_PROC(cuMipmappedArrayCreate);
         GET_PROC(cuMipmappedArrayDestroy);
         GET_PROC(cuMipmappedArrayGetLevel);
     }
 
     // These are CUDA 4.2 new functions
-    if (driverVer >= 4020)
-    {
+    if (driverVer >= 4020) {
         GET_PROC(cuFuncSetSharedMemConfig);
         GET_PROC(cuCtxGetSharedMemConfig);
         GET_PROC(cuCtxSetSharedMemConfig);
     }
 
     // These are CUDA 4.1 new functions
-    if (cudaVersion >= 4010 && __CUDA_API_VERSION >= 4010)
-    {
+    if (cudaVersion >= 4010 && __CUDA_API_VERSION >= 4010) {
         GET_PROC(cuDeviceGetByPCIBusId);
         GET_PROC(cuDeviceGetPCIBusId);
         GET_PROC(cuIpcGetEventHandle);
@@ -456,8 +445,7 @@ CUresult CUDAAPI cuInit(unsigned int Flags, int cudaVersion)
     }
 
     // These could be _v2 interfaces
-    if (cudaVersion >= 4000 && __CUDA_API_VERSION >= 4000)
-    {
+    if (cudaVersion >= 4000 && __CUDA_API_VERSION >= 4000) {
         GET_PROC_V2(cuCtxDestroy);
         GET_PROC_V2(cuCtxPopCurrent);
         GET_PROC_V2(cuCtxPushCurrent);
@@ -465,8 +453,7 @@ CUresult CUDAAPI cuInit(unsigned int Flags, int cudaVersion)
         GET_PROC_V2(cuEventDestroy);
     }
 
-    if (cudaVersion >= 3020 && __CUDA_API_VERSION >= 3020)
-    {
+    if (cudaVersion >= 3020 && __CUDA_API_VERSION >= 3020) {
         GET_PROC_V2(cuDeviceTotalMem);
         GET_PROC_V2(cuCtxCreate);
         GET_PROC_V2(cuModuleGetGlobal);
@@ -507,17 +494,14 @@ CUresult CUDAAPI cuInit(unsigned int Flags, int cudaVersion)
         GET_PROC_V2(cuTexRefSetAddress);
         GET_PROC_V2(cuTexRefGetAddress);
 
-        if (cudaVersion >= 4010 && __CUDA_API_VERSION >= 4010)
-        {
+        if (cudaVersion >= 4010 && __CUDA_API_VERSION >= 4010) {
             GET_PROC_V3(cuTexRefSetAddress2D);
         }
-        else
-        {
+        else {
             GET_PROC_V2(cuTexRefSetAddress2D);
         }
     }
-    else
-    {
+    else {
         // versions earlier than 3020
         GET_PROC(cuDeviceTotalMem);
         GET_PROC(cuCtxCreate);
@@ -562,8 +546,7 @@ CUresult CUDAAPI cuInit(unsigned int Flags, int cudaVersion)
     }
 
     // The following functions are specific to CUDA versions
-    if (driverVer >= 4000)
-    {
+    if (driverVer >= 4000) {
         GET_PROC(cuCtxSetCurrent);
         GET_PROC(cuCtxGetCurrent);
         GET_PROC(cuMemHostRegister);
@@ -574,8 +557,7 @@ CUresult CUDAAPI cuInit(unsigned int Flags, int cudaVersion)
         GET_PROC(cuProfilerStop);
     }
 
-    if (driverVer >= 3010)
-    {
+    if (driverVer >= 3010) {
         GET_PROC(cuModuleGetSurfRef);
         GET_PROC(cuSurfRefSetArray);
         GET_PROC(cuSurfRefGetArray);
@@ -583,8 +565,7 @@ CUresult CUDAAPI cuInit(unsigned int Flags, int cudaVersion)
         GET_PROC(cuCtxGetLimit);
     }
 
-    if (driverVer >= 3000)
-    {
+    if (driverVer >= 3000) {
         GET_PROC(cuMemcpyDtoDAsync);
         GET_PROC(cuFuncSetCacheConfig);
 #ifdef CUDA_INIT_D3D11
@@ -595,12 +576,10 @@ CUresult CUDAAPI cuInit(unsigned int Flags, int cudaVersion)
         GET_PROC(cuGraphicsUnregisterResource);
         GET_PROC(cuGraphicsSubResourceGetMappedArray);
 
-        if (cudaVersion >= 3020 && __CUDA_API_VERSION >= 3020)
-        {
+        if (cudaVersion >= 3020 && __CUDA_API_VERSION >= 3020) {
             GET_PROC_V2(cuGraphicsResourceGetMappedPointer);
         }
-        else
-        {
+        else {
             GET_PROC(cuGraphicsResourceGetMappedPointer);
         }
 
@@ -610,8 +589,7 @@ CUresult CUDAAPI cuInit(unsigned int Flags, int cudaVersion)
         GET_PROC(cuGetExportTable);
     }
 
-    if (driverVer >= 2030)
-    {
+    if (driverVer >= 2030) {
         GET_PROC(cuMemHostGetFlags);
 #ifdef CUDA_INIT_D3D10
         GET_PROC(cuD3D10GetDevice);
@@ -624,17 +602,16 @@ CUresult CUDAAPI cuInit(unsigned int Flags, int cudaVersion)
 #endif
     }
 
-    if (driverVer >= 2010)
-    {
+    if (driverVer >= 2010) {
         GET_PROC(cuModuleLoadDataEx);
         GET_PROC(cuModuleLoadFatBinary);
 #ifdef CUDA_INIT_OPENGL
         GET_PROC(cuGLCtxCreate);
         GET_PROC(cuGraphicsGLRegisterBuffer);
         GET_PROC(cuGraphicsGLRegisterImage);
-#  ifdef WIN32
+#ifdef WIN32
         GET_PROC(cuWGLGetDevice);
-#  endif
+#endif
 #endif
 #ifdef CUDA_INIT_D3D9
         GET_PROC(cuD3D9GetDevice);

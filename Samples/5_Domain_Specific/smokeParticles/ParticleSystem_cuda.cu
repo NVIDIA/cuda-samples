@@ -29,131 +29,128 @@
 This file contains simple wrapper functions that call the CUDA kernels
 */
 #define HELPERGL_EXTERN_GL_FUNC_IMPLEMENTATION
-#include <helper_gl.h>
-#include <helper_cuda.h>
-#include <cstdlib>
 #include <cstdio>
-#include <string.h>
+#include <cstdlib>
 #include <cuda_gl_interop.h>
+#include <helper_cuda.h>
+#include <helper_gl.h>
+#include <string.h>
 
+#include "ParticleSystem.cuh"
+#include "particles_kernel_device.cuh"
 #include "thrust/device_ptr.h"
 #include "thrust/for_each.h"
 #include "thrust/iterator/zip_iterator.h"
 #include "thrust/sort.h"
 
-#include "particles_kernel_device.cuh"
-#include "ParticleSystem.cuh"
-
 extern "C"
 {
 
-  cudaArray *noiseArray;
+    cudaArray *noiseArray;
 
-  void setParameters(SimParams *hostParams)
-  {
-    // copy parameters to constant memory
-    checkCudaErrors(cudaMemcpyToSymbol(cudaParams, hostParams, sizeof(SimParams)));
-  }
-
-  // Round a / b to nearest higher integer value
-  int iDivUp(int a, int b) { return (a % b != 0) ? (a / b + 1) : (a / b); }
-
-  // compute grid and thread block size for a given number of elements
-  void computeGridSize(int n, int blockSize, int &numBlocks, int &numThreads)
-  {
-    numThreads = min(blockSize, n);
-    numBlocks = iDivUp(n, numThreads);
-  }
-
-  inline float frand() { return rand() / (float)RAND_MAX; }
-
-  // create 3D texture containing random values
-  void createNoiseTexture(int w, int h, int d)
-  {
-    cudaExtent size = make_cudaExtent(w, h, d);
-    size_t elements = size.width * size.height * size.depth;
-
-    float *volumeData = (float *)malloc(elements * 4 * sizeof(float));
-    float *ptr = volumeData;
-
-    for (size_t i = 0; i < elements; i++)
+    void setParameters(SimParams *hostParams)
     {
-      *ptr++ = frand() * 2.0f - 1.0f;
-      *ptr++ = frand() * 2.0f - 1.0f;
-      *ptr++ = frand() * 2.0f - 1.0f;
-      *ptr++ = frand() * 2.0f - 1.0f;
+        // copy parameters to constant memory
+        checkCudaErrors(cudaMemcpyToSymbol(cudaParams, hostParams, sizeof(SimParams)));
     }
 
-    cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<float4>();
-    checkCudaErrors(cudaMalloc3DArray(&noiseArray, &channelDesc, size));
+    // Round a / b to nearest higher integer value
+    int iDivUp(int a, int b) { return (a % b != 0) ? (a / b + 1) : (a / b); }
 
-    cudaMemcpy3DParms copyParams = {0};
-    copyParams.srcPtr = make_cudaPitchedPtr(
-        (void *)volumeData, size.width * sizeof(float4), size.width, size.height);
-    copyParams.dstArray = noiseArray;
-    copyParams.extent = size;
-    copyParams.kind = cudaMemcpyHostToDevice;
-    checkCudaErrors(cudaMemcpy3D(&copyParams));
+    // compute grid and thread block size for a given number of elements
+    void computeGridSize(int n, int blockSize, int &numBlocks, int &numThreads)
+    {
+        numThreads = min(blockSize, n);
+        numBlocks  = iDivUp(n, numThreads);
+    }
 
-    free(volumeData);
+    inline float frand() { return rand() / (float)RAND_MAX; }
 
-    cudaResourceDesc texRes;
-    memset(&texRes, 0, sizeof(cudaResourceDesc));
+    // create 3D texture containing random values
+    void createNoiseTexture(int w, int h, int d)
+    {
+        cudaExtent size     = make_cudaExtent(w, h, d);
+        size_t     elements = size.width * size.height * size.depth;
 
-    texRes.resType = cudaResourceTypeArray;
-    texRes.res.array.array = noiseArray;
+        float *volumeData = (float *)malloc(elements * 4 * sizeof(float));
+        float *ptr        = volumeData;
 
-    cudaTextureDesc texDescr;
-    memset(&texDescr, 0, sizeof(cudaTextureDesc));
+        for (size_t i = 0; i < elements; i++) {
+            *ptr++ = frand() * 2.0f - 1.0f;
+            *ptr++ = frand() * 2.0f - 1.0f;
+            *ptr++ = frand() * 2.0f - 1.0f;
+            *ptr++ = frand() * 2.0f - 1.0f;
+        }
 
-    texDescr.normalizedCoords = true;
-    texDescr.filterMode = cudaFilterModeLinear;
-    texDescr.addressMode[0] = cudaAddressModeWrap;
-    texDescr.addressMode[1] = cudaAddressModeWrap;
-    texDescr.addressMode[2] = cudaAddressModeWrap;
-    texDescr.readMode = cudaReadModeElementType;
+        cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<float4>();
+        checkCudaErrors(cudaMalloc3DArray(&noiseArray, &channelDesc, size));
 
-    checkCudaErrors(cudaCreateTextureObject(&noiseTex, &texRes, &texDescr, NULL));
-  }
+        cudaMemcpy3DParms copyParams = {0};
+        copyParams.srcPtr =
+            make_cudaPitchedPtr((void *)volumeData, size.width * sizeof(float4), size.width, size.height);
+        copyParams.dstArray = noiseArray;
+        copyParams.extent   = size;
+        copyParams.kind     = cudaMemcpyHostToDevice;
+        checkCudaErrors(cudaMemcpy3D(&copyParams));
 
-  void integrateSystem(float4 *oldPos, float4 *newPos, float4 *oldVel,
-                       float4 *newVel, float deltaTime, int numParticles)
-  {
-    thrust::device_ptr<float4> d_newPos(newPos);
-    thrust::device_ptr<float4> d_newVel(newVel);
-    thrust::device_ptr<float4> d_oldPos(oldPos);
-    thrust::device_ptr<float4> d_oldVel(oldVel);
+        free(volumeData);
 
-    thrust::for_each(thrust::make_zip_iterator(thrust::make_tuple(
-                         d_newPos, d_newVel, d_oldPos, d_oldVel)),
-                     thrust::make_zip_iterator(thrust::make_tuple(
-                         d_newPos + numParticles, d_newVel + numParticles,
-                         d_oldPos + numParticles, d_oldVel + numParticles)),
-                     integrate_functor(deltaTime, noiseTex));
-  }
+        cudaResourceDesc texRes;
+        memset(&texRes, 0, sizeof(cudaResourceDesc));
 
-  void calcDepth(float4 *pos,
-                 float *keys,   // output
-                 uint *indices, // output
-                 float3 sortVector, int numParticles)
-  {
-    thrust::device_ptr<float4> d_pos(pos);
-    thrust::device_ptr<float> d_keys(keys);
-    thrust::device_ptr<uint> d_indices(indices);
+        texRes.resType         = cudaResourceTypeArray;
+        texRes.res.array.array = noiseArray;
 
-    thrust::for_each(thrust::make_zip_iterator(thrust::make_tuple(d_pos, d_keys)),
-                     thrust::make_zip_iterator(thrust::make_tuple(
-                         d_pos + numParticles, d_keys + numParticles)),
-                     calcDepth_functor(sortVector));
+        cudaTextureDesc texDescr;
+        memset(&texDescr, 0, sizeof(cudaTextureDesc));
 
-    thrust::sequence(d_indices, d_indices + numParticles);
-  }
+        texDescr.normalizedCoords = true;
+        texDescr.filterMode       = cudaFilterModeLinear;
+        texDescr.addressMode[0]   = cudaAddressModeWrap;
+        texDescr.addressMode[1]   = cudaAddressModeWrap;
+        texDescr.addressMode[2]   = cudaAddressModeWrap;
+        texDescr.readMode         = cudaReadModeElementType;
 
-  void sortParticles(float *sortKeys, uint *indices, uint numParticles)
-  {
-    thrust::sort_by_key(thrust::device_ptr<float>(sortKeys),
-                        thrust::device_ptr<float>(sortKeys + numParticles),
-                        thrust::device_ptr<uint>(indices));
-  }
+        checkCudaErrors(cudaCreateTextureObject(&noiseTex, &texRes, &texDescr, NULL));
+    }
+
+    void
+    integrateSystem(float4 *oldPos, float4 *newPos, float4 *oldVel, float4 *newVel, float deltaTime, int numParticles)
+    {
+        thrust::device_ptr<float4> d_newPos(newPos);
+        thrust::device_ptr<float4> d_newVel(newVel);
+        thrust::device_ptr<float4> d_oldPos(oldPos);
+        thrust::device_ptr<float4> d_oldVel(oldVel);
+
+        thrust::for_each(
+            thrust::make_zip_iterator(thrust::make_tuple(d_newPos, d_newVel, d_oldPos, d_oldVel)),
+            thrust::make_zip_iterator(thrust::make_tuple(
+                d_newPos + numParticles, d_newVel + numParticles, d_oldPos + numParticles, d_oldVel + numParticles)),
+            integrate_functor(deltaTime, noiseTex));
+    }
+
+    void calcDepth(float4 *pos,
+                   float  *keys,    // output
+                   uint   *indices, // output
+                   float3  sortVector,
+                   int     numParticles)
+    {
+        thrust::device_ptr<float4> d_pos(pos);
+        thrust::device_ptr<float>  d_keys(keys);
+        thrust::device_ptr<uint>   d_indices(indices);
+
+        thrust::for_each(thrust::make_zip_iterator(thrust::make_tuple(d_pos, d_keys)),
+                         thrust::make_zip_iterator(thrust::make_tuple(d_pos + numParticles, d_keys + numParticles)),
+                         calcDepth_functor(sortVector));
+
+        thrust::sequence(d_indices, d_indices + numParticles);
+    }
+
+    void sortParticles(float *sortKeys, uint *indices, uint numParticles)
+    {
+        thrust::sort_by_key(thrust::device_ptr<float>(sortKeys),
+                            thrust::device_ptr<float>(sortKeys + numParticles),
+                            thrust::device_ptr<uint>(indices));
+    }
 
 } // extern "C"

@@ -30,7 +30,7 @@
 
 // To use double precision uncomment the macro DOUBLE_PRECISION below, default
 // is single precision.
-//#define DOUBLE_PRECISION
+// #define DOUBLE_PRECISION
 
 #ifndef DOUBLE_PRECISION
 typedef float real;

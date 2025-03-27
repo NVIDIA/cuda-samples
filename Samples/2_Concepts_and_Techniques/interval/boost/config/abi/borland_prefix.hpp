@@ -1,6 +1,6 @@
-//  (C) Copyright John Maddock 2003. 
-//  Use, modification and distribution are subject to the 
-//  Boost Software License, Version 1.0. (See accompanying file 
+//  (C) Copyright John Maddock 2003.
+//  Use, modification and distribution are subject to the
+//  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 //  for C++ Builder the following options effect the ABI:
@@ -21,7 +21,4 @@
 //  8026 - functions taking class by value arguments are not expanded inline
 
 #pragma nopushoptwarn
-#  pragma option push -Vx -Ve -a8 -b -pc -Vmv -VC- -Vl- -w-8027 -w-8026
-
-
-
+#pragma option push -Vx -Ve -a8 -b -pc -Vmv -VC- -Vl - -w -8027 -w-8026

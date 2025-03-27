@@ -51,51 +51,49 @@
 
 extern EGLStreamKHR g_producerEglStream;
 extern EGLStreamKHR g_consumerEglStream;
-extern EGLDisplay g_producerEglDisplay;
-extern EGLDisplay g_consumerEglDisplay;
-extern int cudaDevIndexCons;
-extern int cudaDevIndexProd;
-extern bool verbose;
+extern EGLDisplay   g_producerEglDisplay;
+extern EGLDisplay   g_consumerEglDisplay;
+extern int          cudaDevIndexCons;
+extern int          cudaDevIndexProd;
+extern bool         verbose;
 
-#define EXTENSION_LIST(T)                                                \
-  T(PFNEGLCREATESTREAMKHRPROC, eglCreateStreamKHR)                       \
-  T(PFNEGLDESTROYSTREAMKHRPROC, eglDestroyStreamKHR)                     \
-  T(PFNEGLQUERYSTREAMKHRPROC, eglQueryStreamKHR)                         \
-  T(PFNEGLQUERYSTREAMU64KHRPROC, eglQueryStreamu64KHR)                   \
-  T(PFNEGLQUERYSTREAMTIMEKHRPROC, eglQueryStreamTimeKHR)                 \
-  T(PFNEGLSTREAMATTRIBKHRPROC, eglStreamAttribKHR)                       \
-  T(PFNEGLSTREAMCONSUMERACQUIREKHRPROC, eglStreamConsumerAcquireKHR)     \
-  T(PFNEGLSTREAMCONSUMERRELEASEKHRPROC, eglStreamConsumerReleaseKHR)     \
-  T(PFNEGLSTREAMCONSUMERGLTEXTUREEXTERNALKHRPROC,                        \
-    eglStreamConsumerGLTextureExternalKHR)                               \
-  T(PFNEGLQUERYDEVICESEXTPROC, eglQueryDevicesEXT)                       \
-  T(PFNEGLGETPLATFORMDISPLAYEXTPROC, eglGetPlatformDisplayEXT)           \
-  T(PFNEGLGETSTREAMFILEDESCRIPTORKHRPROC, eglGetStreamFileDescriptorKHR) \
-  T(PFNEGLQUERYDEVICEATTRIBEXTPROC, eglQueryDeviceAttribEXT)             \
-  T(PFNEGLCREATESTREAMFROMFILEDESCRIPTORKHRPROC,                         \
-    eglCreateStreamFromFileDescriptorKHR)
+#define EXTENSION_LIST(T)                                                                  \
+    T(PFNEGLCREATESTREAMKHRPROC, eglCreateStreamKHR)                                       \
+    T(PFNEGLDESTROYSTREAMKHRPROC, eglDestroyStreamKHR)                                     \
+    T(PFNEGLQUERYSTREAMKHRPROC, eglQueryStreamKHR)                                         \
+    T(PFNEGLQUERYSTREAMU64KHRPROC, eglQueryStreamu64KHR)                                   \
+    T(PFNEGLQUERYSTREAMTIMEKHRPROC, eglQueryStreamTimeKHR)                                 \
+    T(PFNEGLSTREAMATTRIBKHRPROC, eglStreamAttribKHR)                                       \
+    T(PFNEGLSTREAMCONSUMERACQUIREKHRPROC, eglStreamConsumerAcquireKHR)                     \
+    T(PFNEGLSTREAMCONSUMERRELEASEKHRPROC, eglStreamConsumerReleaseKHR)                     \
+    T(PFNEGLSTREAMCONSUMERGLTEXTUREEXTERNALKHRPROC, eglStreamConsumerGLTextureExternalKHR) \
+    T(PFNEGLQUERYDEVICESEXTPROC, eglQueryDevicesEXT)                                       \
+    T(PFNEGLGETPLATFORMDISPLAYEXTPROC, eglGetPlatformDisplayEXT)                           \
+    T(PFNEGLGETSTREAMFILEDESCRIPTORKHRPROC, eglGetStreamFileDescriptorKHR)                 \
+    T(PFNEGLQUERYDEVICEATTRIBEXTPROC, eglQueryDeviceAttribEXT)                             \
+    T(PFNEGLCREATESTREAMFROMFILEDESCRIPTORKHRPROC, eglCreateStreamFromFileDescriptorKHR)
 
-#define EXTLST_DECL(tx, x) tx x = NULL;
+#define EXTLST_DECL(tx, x)   tx x = NULL;
 #define EXTLST_EXTERN(tx, x) extern tx x;
-#define EXTLST_ENTRY(tx, x) {(extlst_fnptr_t *)&x, #x},
+#define EXTLST_ENTRY(tx, x)  {(extlst_fnptr_t *)&x, #x},
 
 #define MAX_STRING_SIZE 256
-#define INIT_DATA 0x01
-#define PROD_DATA 0x07
-#define CONS_DATA 0x04
+#define INIT_DATA       0x01
+#define PROD_DATA       0x07
+#define CONS_DATA       0x04
 
 #define SOCK_PATH "/tmp/tegra_sw_egl_socket"
 
-typedef struct _TestArgs {
-  unsigned int charCnt;
-  bool isProducer;
+typedef struct _TestArgs
+{
+    unsigned int charCnt;
+    bool         isProducer;
 } TestArgs;
 
 extern int WIDTH, HEIGHT;
 
-int eglSetupExtensions(bool is_dgpu);
-int EGLStreamInit(bool isCrossDevice, int isConsumer,
-                  EGLNativeFileDescriptorKHR fileDesc);
+int  eglSetupExtensions(bool is_dgpu);
+int  EGLStreamInit(bool isCrossDevice, int isConsumer, EGLNativeFileDescriptorKHR fileDesc);
 void EGLStreamFini(void);
 
 int EGLStreamSetAttr(EGLDisplay display, EGLStreamKHR eglStream);
@@ -104,10 +102,8 @@ int EGLStreamSendfd(int send_fd, int fd_to_send);
 int UnixSocketCreate(const char *socket_name);
 int EGLStreamReceivefd(int connect_fd);
 
-static clockid_t clock_id = CLOCK_MONOTONIC;  // CLOCK_PROCESS_CPUTIME_ID;
-static double getMicrosecond(struct timespec t) {
-  return ((t.tv_sec) * 1000000.0 + (t.tv_nsec) / 1.0e3);
-}
+static clockid_t clock_id = CLOCK_MONOTONIC; // CLOCK_PROCESS_CPUTIME_ID;
+static double    getMicrosecond(struct timespec t) { return ((t.tv_sec) * 1000000.0 + (t.tv_nsec) / 1.0e3); }
 
 static inline void getTime(struct timespec *t) { clock_gettime(clock_id, t); }
 #endif

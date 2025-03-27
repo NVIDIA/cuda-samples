@@ -56,15 +56,15 @@ The MIT License (MIT)
 
 class DX12CudaSample;
 
-class Win32Application {
- public:
-  static int Run(DX12CudaSample* pSample, HINSTANCE hInstance, int nCmdShow);
-  static HWND GetHwnd() { return m_hwnd; }
+class Win32Application
+{
+public:
+    static int  Run(DX12CudaSample *pSample, HINSTANCE hInstance, int nCmdShow);
+    static HWND GetHwnd() { return m_hwnd; }
 
- protected:
-  static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam,
-                                     LPARAM lParam);
+protected:
+    static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
- private:
-  static HWND m_hwnd;
+private:
+    static HWND m_hwnd;
 };

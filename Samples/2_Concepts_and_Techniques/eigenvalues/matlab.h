@@ -26,17 +26,17 @@
  */
 
 /* Header for utility functionality.
-* Host code.
-*/
+ * Host code.
+ */
 
 #ifndef _MATLAB_H_
 #define _MATLAB_H_
 
 // includes, system
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 // includes, project
 
@@ -51,8 +51,7 @@
 //!                  if these are sorted in ascending order
 //! @param  n  size of the matrix
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" void writeTridiagSymMatlab(const char *filename, float *d, float *s,
-                                      float *eigenvals, const unsigned int n);
+extern "C" void writeTridiagSymMatlab(const char *filename, float *d, float *s, float *eigenvals, const unsigned int n);
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Write matrix to a file in Matlab format
@@ -61,9 +60,7 @@ extern "C" void writeTridiagSymMatlab(const char *filename, float *d, float *s,
 //! @param  mat  matrix to write to the file
 //! @param  mat_size  size of the (square) matrix \a mat
 ////////////////////////////////////////////////////////////////////////////////
-template <class T, class S>
-void writeMatrixMatlab(T &file, const char *mat_name, S *&mat,
-                       const unsigned int mat_size);
+template <class T, class S> void writeMatrixMatlab(T &file, const char *mat_name, S *&mat, const unsigned int mat_size);
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Write vector to a file in Matlab format
@@ -72,9 +69,7 @@ void writeMatrixMatlab(T &file, const char *mat_name, S *&mat,
 //! @param  vec  matrix to write to the file
 //! @param  vec_len  length of the vector
 ////////////////////////////////////////////////////////////////////////////////
-template <class T, class S>
-void writeVectorMatlab(T &file, const char *vec_name, S *&vec,
-                       const unsigned int vec_len);
+template <class T, class S> void writeVectorMatlab(T &file, const char *vec_name, S *&vec, const unsigned int vec_len);
 
 // implementations
 
@@ -85,24 +80,23 @@ void writeVectorMatlab(T &file, const char *vec_name, S *&vec,
 //! @param  mat  matrix to write to the file
 //! @param  mat_size  size of the (square) matrix \a mat
 ////////////////////////////////////////////////////////////////////////////////
-template <class T, class S>
-void writeMatrixMatlab(T &file, const char *mat_name, S *&mat,
-                       const unsigned int mat_size) {
-  const unsigned int pitch = sizeof(S) * mat_size;
+template <class T, class S> void writeMatrixMatlab(T &file, const char *mat_name, S *&mat, const unsigned int mat_size)
+{
+    const unsigned int pitch = sizeof(S) * mat_size;
 
-  file << mat_name << " = [";
+    file << mat_name << " = [";
 
-  for (unsigned int i = 0; i < mat_size; ++i) {
-    for (unsigned int j = 0; j < mat_size; ++j) {
-      file << getMatrix(mat, pitch, i, j) << " ";
+    for (unsigned int i = 0; i < mat_size; ++i) {
+        for (unsigned int j = 0; j < mat_size; ++j) {
+            file << getMatrix(mat, pitch, i, j) << " ";
+        }
+
+        if (i != mat_size - 1) {
+            file << "; ";
+        }
     }
 
-    if (i != mat_size - 1) {
-      file << "; ";
-    }
-  }
-
-  file << "];\n";
+    file << "];\n";
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -112,16 +106,15 @@ void writeMatrixMatlab(T &file, const char *mat_name, S *&mat,
 //! @param  vec  matrix to write to the file
 //! @param  vec_len  length of the vector
 ////////////////////////////////////////////////////////////////////////////////
-template <class T, class S>
-void writeVectorMatlab(T &file, const char *vec_name, S *&vec,
-                       const unsigned int vec_len) {
-  file << vec_name << " = [";
+template <class T, class S> void writeVectorMatlab(T &file, const char *vec_name, S *&vec, const unsigned int vec_len)
+{
+    file << vec_name << " = [";
 
-  for (unsigned int i = 0; i < vec_len; ++i) {
-    file << vec[i] << " ";
-  }
+    for (unsigned int i = 0; i < vec_len; ++i) {
+        file << vec[i] << " ";
+    }
 
-  file << "];\n";
+    file << "];\n";
 }
 
-#endif  // _MATLAB_H_
+#endif // _MATLAB_H_

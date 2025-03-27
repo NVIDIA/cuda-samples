@@ -27,16 +27,14 @@
 
 #ifndef __NVSCI_SETUP_H__
 #define __NVSCI_SETUP_H__
-#include "nvmedia_utils/cmdline.h"
 #include <nvscibuf.h>
 #include <nvscisync.h>
 
-void setupNvMediaSignalerNvSciSync(Blit2DTest *ctx, NvSciSyncObj &syncObj,
-                                   int cudaDeviceId);
-void setupCudaSignalerNvSciSync(Blit2DTest *ctx, NvSciSyncObj &syncObj,
-                                int cudaDeviceId);
-void setupNvSciBuf(NvSciBufObj &bufobj, NvSciBufAttrList &nvmediaAttrlist,
-                   int cudaDeviceId);
+#include "nvmedia_utils/cmdline.h"
+
+void setupNvMediaSignalerNvSciSync(Blit2DTest *ctx, NvSciSyncObj &syncObj, int cudaDeviceId);
+void setupCudaSignalerNvSciSync(Blit2DTest *ctx, NvSciSyncObj &syncObj, int cudaDeviceId);
+void setupNvSciBuf(NvSciBufObj &bufobj, NvSciBufAttrList &nvmediaAttrlist, int cudaDeviceId);
 void cleanupNvSciBuf(NvSciBufObj &Bufobj);
 void cleanupNvSciSync(NvSciSyncObj &syncObj);
 #endif

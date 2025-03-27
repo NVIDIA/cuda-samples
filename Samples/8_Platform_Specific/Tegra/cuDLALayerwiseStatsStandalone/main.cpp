@@ -25,34 +25,31 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "cudla.h"
-#include "nvscierror.h"
-#include "nvscibuf.h"
-#include "nvscisync.h"
-#include "cudlaExternalEtbl.hpp"
-
-#include <unistd.h>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <sys/stat.h>
 #include <fstream>
 #include <sstream>
+#include <sys/stat.h>
+#include <unistd.h>
 
-#define MAX_FILENAME_LEN 200
+#include "cudla.h"
+#include "cudlaExternalEtbl.hpp"
+#include "nvscibuf.h"
+#include "nvscierror.h"
+#include "nvscisync.h"
+
+#define MAX_FILENAME_LEN    200
 #define RESERVED_SUFFIX_LEN 10
 
 #define DPRINTF(...) printf(__VA_ARGS__)
 
-static void printTensorDesc(cudlaModuleTensorDescriptor* tensorDesc) {
+static void printTensorDesc(cudlaModuleTensorDescriptor *tensorDesc)
+{
     DPRINTF("\tTENSOR NAME : %s\n", tensorDesc->name);
     DPRINTF("\tsize: %lu\n", tensorDesc->size);
 
-    DPRINTF("\tdims: [%lu, %lu, %lu, %lu]\n",
-                    tensorDesc->n,
-                    tensorDesc->c,
-                    tensorDesc->h,
-                    tensorDesc->w);
+    DPRINTF("\tdims: [%lu, %lu, %lu, %lu]\n", tensorDesc->n, tensorDesc->c, tensorDesc->h, tensorDesc->w);
 
     DPRINTF("\tdata fmt: %d\n", tensorDesc->dataFormat);
     DPRINTF("\tdata type: %d\n", tensorDesc->dataType);
@@ -65,51 +62,53 @@ static void printTensorDesc(cudlaModuleTensorDescriptor* tensorDesc) {
     DPRINTF("\tstride[3]: %d\n", tensorDesc->stride[3]);
 }
 
-typedef struct {
-    cudlaDevHandle devHandle;
-    cudlaModule moduleHandle;
-    unsigned char* loadableData;
-    uint32_t numInputTensors;
-    uint32_t numOutputTensors;
-    uint32_t numOutputTaskStatistics;
-    unsigned char** inputBuffer;
-    unsigned char** outputBuffer;
-    unsigned char** statisticsOutputBuffer;
-    cudlaModuleTensorDescriptor* inputTensorDesc;
-    cudlaModuleTensorDescriptor* outputTensorDesc;
-    cudlaModuleTensorDescriptor* outputTaskStatisticsDesc;
-    NvSciBufObj* inputBufObj;
-    NvSciBufObj* outputBufObj;
-    NvSciBufObj* statisticsBufObj;
-    NvSciBufModule bufModule;
-    NvSciBufAttrList* inputAttrList;
-    NvSciBufAttrList* reconciledInputAttrList;
-    NvSciBufAttrList* inputConflictList;
-    NvSciBufAttrList* outputAttrList;
-    NvSciBufAttrList* reconciledOutputAttrList;
-    NvSciBufAttrList* outputConflictList;
-    NvSciSyncObj syncObj;
-    NvSciSyncModule syncModule;
-    NvSciSyncCpuWaitContext nvSciCtx;
-    NvSciSyncAttrList waiterAttrListObj;
-    NvSciSyncAttrList signalerAttrListObj;
-    NvSciSyncAttrList nvSciSyncConflictListObj;
-    NvSciSyncAttrList nvSciSyncReconciledListObj;
-    NvSciBufAttrList* statisticsOutputAttrList;
-    NvSciBufAttrList* reconciledStatisticsOutputAttrList;
-    NvSciBufAttrList* statisticsOutputConflictList;
-    uint64_t** inputBufObjRegPtr;
-    uint64_t** outputBufObjRegPtr;
-    uint64_t** statisticsBufObjRegPtr;
-    uint64_t** devPtrs;
-    cudlaSignalEvents* signalEvents;
-    NvSciSyncFence eofFence;
-    void **csv;
+typedef struct
+{
+    cudlaDevHandle               devHandle;
+    cudlaModule                  moduleHandle;
+    unsigned char               *loadableData;
+    uint32_t                     numInputTensors;
+    uint32_t                     numOutputTensors;
+    uint32_t                     numOutputTaskStatistics;
+    unsigned char              **inputBuffer;
+    unsigned char              **outputBuffer;
+    unsigned char              **statisticsOutputBuffer;
+    cudlaModuleTensorDescriptor *inputTensorDesc;
+    cudlaModuleTensorDescriptor *outputTensorDesc;
+    cudlaModuleTensorDescriptor *outputTaskStatisticsDesc;
+    NvSciBufObj                 *inputBufObj;
+    NvSciBufObj                 *outputBufObj;
+    NvSciBufObj                 *statisticsBufObj;
+    NvSciBufModule               bufModule;
+    NvSciBufAttrList            *inputAttrList;
+    NvSciBufAttrList            *reconciledInputAttrList;
+    NvSciBufAttrList            *inputConflictList;
+    NvSciBufAttrList            *outputAttrList;
+    NvSciBufAttrList            *reconciledOutputAttrList;
+    NvSciBufAttrList            *outputConflictList;
+    NvSciSyncObj                 syncObj;
+    NvSciSyncModule              syncModule;
+    NvSciSyncCpuWaitContext      nvSciCtx;
+    NvSciSyncAttrList            waiterAttrListObj;
+    NvSciSyncAttrList            signalerAttrListObj;
+    NvSciSyncAttrList            nvSciSyncConflictListObj;
+    NvSciSyncAttrList            nvSciSyncReconciledListObj;
+    NvSciBufAttrList            *statisticsOutputAttrList;
+    NvSciBufAttrList            *reconciledStatisticsOutputAttrList;
+    NvSciBufAttrList            *statisticsOutputConflictList;
+    uint64_t                   **inputBufObjRegPtr;
+    uint64_t                   **outputBufObjRegPtr;
+    uint64_t                   **statisticsBufObjRegPtr;
+    uint64_t                   **devPtrs;
+    cudlaSignalEvents           *signalEvents;
+    NvSciSyncFence               eofFence;
+    void                       **csv;
 } ResourceList;
 
-void cleanUp(ResourceList* resourceList);
+void cleanUp(ResourceList *resourceList);
 
-void cleanUp(ResourceList* resourceList) {
+void cleanUp(ResourceList *resourceList)
+{
     uint32_t ii = 0;
 
     if (resourceList->inputTensorDesc != NULL) {
@@ -143,7 +142,7 @@ void cleanUp(ResourceList* resourceList) {
 
     if (resourceList->inputBufObj != NULL) {
         for (ii = 0; ii < resourceList->numInputTensors; ii++) {
-            if((resourceList->inputBufObj)[ii] != NULL) {
+            if ((resourceList->inputBufObj)[ii] != NULL) {
                 NvSciBufObjFree((resourceList->inputBufObj)[ii]);
                 (resourceList->inputBufObj)[ii] = NULL;
             }
@@ -152,7 +151,7 @@ void cleanUp(ResourceList* resourceList) {
 
     if (resourceList->outputBufObj != NULL) {
         for (ii = 0; ii < resourceList->numOutputTensors; ii++) {
-            if((resourceList->outputBufObj)[ii] != NULL) {
+            if ((resourceList->outputBufObj)[ii] != NULL) {
                 NvSciBufObjFree((resourceList->outputBufObj)[ii]);
                 (resourceList->outputBufObj)[ii] = NULL;
             }
@@ -161,7 +160,7 @@ void cleanUp(ResourceList* resourceList) {
 
     if (resourceList->statisticsBufObj != NULL) {
         for (ii = 0; ii < resourceList->numOutputTaskStatistics; ii++) {
-            if((resourceList->statisticsBufObj)[ii] != NULL) {
+            if ((resourceList->statisticsBufObj)[ii] != NULL) {
                 NvSciBufObjFree((resourceList->statisticsBufObj)[ii]);
                 (resourceList->statisticsBufObj)[ii] = NULL;
             }
@@ -214,7 +213,7 @@ void cleanUp(ResourceList* resourceList) {
 
     if (resourceList->reconciledInputAttrList != NULL) {
         for (ii = 0; ii < resourceList->numInputTensors; ii++) {
-            if((resourceList->reconciledInputAttrList)[ii] != NULL) {
+            if ((resourceList->reconciledInputAttrList)[ii] != NULL) {
                 NvSciBufAttrListFree((resourceList->reconciledInputAttrList)[ii]);
                 (resourceList->reconciledInputAttrList)[ii] = NULL;
             }
@@ -225,7 +224,7 @@ void cleanUp(ResourceList* resourceList) {
 
     if (resourceList->inputConflictList != NULL) {
         for (ii = 0; ii < resourceList->numInputTensors; ii++) {
-            if((resourceList->inputConflictList)[ii] != NULL) {
+            if ((resourceList->inputConflictList)[ii] != NULL) {
                 NvSciBufAttrListFree((resourceList->inputConflictList)[ii]);
                 (resourceList->inputConflictList)[ii] = NULL;
             }
@@ -236,7 +235,7 @@ void cleanUp(ResourceList* resourceList) {
 
     if (resourceList->inputAttrList != NULL) {
         for (ii = 0; ii < resourceList->numInputTensors; ii++) {
-            if((resourceList->inputAttrList)[ii] != NULL) {
+            if ((resourceList->inputAttrList)[ii] != NULL) {
                 NvSciBufAttrListFree((resourceList->inputAttrList)[ii]);
                 (resourceList->inputAttrList)[ii] = NULL;
             }
@@ -247,7 +246,7 @@ void cleanUp(ResourceList* resourceList) {
 
     if (resourceList->reconciledOutputAttrList != NULL) {
         for (ii = 0; ii < resourceList->numOutputTensors; ii++) {
-            if((resourceList->reconciledOutputAttrList)[ii] != NULL) {
+            if ((resourceList->reconciledOutputAttrList)[ii] != NULL) {
                 NvSciBufAttrListFree((resourceList->reconciledOutputAttrList)[ii]);
                 (resourceList->reconciledOutputAttrList)[ii] = NULL;
             }
@@ -258,7 +257,7 @@ void cleanUp(ResourceList* resourceList) {
 
     if (resourceList->outputConflictList != NULL) {
         for (ii = 0; ii < resourceList->numOutputTensors; ii++) {
-            if((resourceList->outputConflictList)[ii] != NULL) {
+            if ((resourceList->outputConflictList)[ii] != NULL) {
                 NvSciBufAttrListFree((resourceList->outputConflictList)[ii]);
                 (resourceList->outputConflictList)[ii] = NULL;
             }
@@ -269,7 +268,7 @@ void cleanUp(ResourceList* resourceList) {
 
     if (resourceList->outputAttrList != NULL) {
         for (ii = 0; ii < resourceList->numOutputTensors; ii++) {
-            if((resourceList->outputAttrList)[ii] != NULL) {
+            if ((resourceList->outputAttrList)[ii] != NULL) {
                 NvSciBufAttrListFree((resourceList->outputAttrList)[ii]);
                 (resourceList->outputAttrList)[ii] = NULL;
             }
@@ -280,7 +279,7 @@ void cleanUp(ResourceList* resourceList) {
 
     if (resourceList->reconciledStatisticsOutputAttrList != NULL) {
         for (ii = 0; ii < resourceList->numOutputTaskStatistics; ii++) {
-            if((resourceList->reconciledStatisticsOutputAttrList)[ii] != NULL) {
+            if ((resourceList->reconciledStatisticsOutputAttrList)[ii] != NULL) {
                 NvSciBufAttrListFree((resourceList->reconciledStatisticsOutputAttrList)[ii]);
                 (resourceList->reconciledStatisticsOutputAttrList)[ii] = NULL;
             }
@@ -291,7 +290,7 @@ void cleanUp(ResourceList* resourceList) {
 
     if (resourceList->statisticsOutputConflictList != NULL) {
         for (ii = 0; ii < resourceList->numOutputTaskStatistics; ii++) {
-            if((resourceList->statisticsOutputConflictList)[ii] != NULL) {
+            if ((resourceList->statisticsOutputConflictList)[ii] != NULL) {
                 NvSciBufAttrListFree((resourceList->statisticsOutputConflictList)[ii]);
                 (resourceList->statisticsOutputConflictList)[ii] = NULL;
             }
@@ -302,7 +301,7 @@ void cleanUp(ResourceList* resourceList) {
 
     if (resourceList->statisticsOutputAttrList != NULL) {
         for (ii = 0; ii < resourceList->numOutputTaskStatistics; ii++) {
-            if((resourceList->statisticsOutputAttrList)[ii] != NULL) {
+            if ((resourceList->statisticsOutputAttrList)[ii] != NULL) {
                 NvSciBufAttrListFree((resourceList->statisticsOutputAttrList)[ii]);
                 (resourceList->statisticsOutputAttrList)[ii] = NULL;
             }
@@ -381,21 +380,18 @@ void cleanUp(ResourceList* resourceList) {
         resourceList->devPtrs = NULL;
     }
 
-    resourceList->numInputTensors = 0;
-    resourceList->numOutputTensors = 0;
+    resourceList->numInputTensors         = 0;
+    resourceList->numOutputTensors        = 0;
     resourceList->numOutputTaskStatistics = 0;
 }
 
-cudlaStatus createAndSetAttrList(NvSciBufModule module,
-                                 uint64_t bufSize,
-                                 NvSciBufAttrList *attrList);
+cudlaStatus createAndSetAttrList(NvSciBufModule module, uint64_t bufSize, NvSciBufAttrList *attrList);
 
 
-cudlaStatus createAndSetAttrList(NvSciBufModule module,
-                                 uint64_t bufSize,
-                                 NvSciBufAttrList *attrList) {
-    cudlaStatus status = cudlaSuccess;
-    NvSciError sciStatus = NvSciError_Success;
+cudlaStatus createAndSetAttrList(NvSciBufModule module, uint64_t bufSize, NvSciBufAttrList *attrList)
+{
+    cudlaStatus status    = cudlaSuccess;
+    NvSciError  sciStatus = NvSciError_Success;
 
     sciStatus = NvSciBufAttrListCreate(module, attrList);
     if (sciStatus != NvSciError_Success) {
@@ -405,45 +401,28 @@ cudlaStatus createAndSetAttrList(NvSciBufModule module,
     }
 
     // TODO: Refactor into multiple dimensions
-    bool needCpuAccess = true;
-    NvSciBufAttrValAccessPerm perm = NvSciBufAccessPerm_ReadWrite;
-    uint32_t dimcount = 1;
-    uint64_t sizes[] = {bufSize};
-    uint32_t alignment[] = {1};
-    uint32_t dataType = NvSciDataType_Int8;
-    NvSciBufType type = NvSciBufType_Tensor;
-    uint64_t baseAddrAlign = 512;
+    bool                      needCpuAccess = true;
+    NvSciBufAttrValAccessPerm perm          = NvSciBufAccessPerm_ReadWrite;
+    uint32_t                  dimcount      = 1;
+    uint64_t                  sizes[]       = {bufSize};
+    uint32_t                  alignment[]   = {1};
+    uint32_t                  dataType      = NvSciDataType_Int8;
+    NvSciBufType              type          = NvSciBufType_Tensor;
+    uint64_t                  baseAddrAlign = 512;
 
     NvSciBufAttrKeyValuePair setAttrs[] = {
-        {.key = NvSciBufGeneralAttrKey_Types,
-         .value = &type,
-         .len = sizeof(type)},
-        {.key = NvSciBufTensorAttrKey_DataType,
-         .value = &dataType,
-         .len = sizeof(dataType)},
-        {.key = NvSciBufTensorAttrKey_NumDims,
-         .value = &dimcount,
-         .len = sizeof(dimcount)},
-        {.key = NvSciBufTensorAttrKey_SizePerDim,
-         .value = &sizes,
-         .len = sizeof(sizes)},
-        {.key = NvSciBufTensorAttrKey_AlignmentPerDim,
-         .value = &alignment,
-         .len = sizeof(alignment)},
-        {.key = NvSciBufTensorAttrKey_BaseAddrAlign,
-         .value = &baseAddrAlign,
-         .len = sizeof(baseAddrAlign)},
-        {.key = NvSciBufGeneralAttrKey_RequiredPerm,
-         .value = &perm,
-         .len = sizeof(perm)},
-        {.key = NvSciBufGeneralAttrKey_NeedCpuAccess,
-         .value = &needCpuAccess,
-         .len = sizeof(needCpuAccess)}};
+        {.key = NvSciBufGeneralAttrKey_Types, .value = &type, .len = sizeof(type)},
+        {.key = NvSciBufTensorAttrKey_DataType, .value = &dataType, .len = sizeof(dataType)},
+        {.key = NvSciBufTensorAttrKey_NumDims, .value = &dimcount, .len = sizeof(dimcount)},
+        {.key = NvSciBufTensorAttrKey_SizePerDim, .value = &sizes, .len = sizeof(sizes)},
+        {.key = NvSciBufTensorAttrKey_AlignmentPerDim, .value = &alignment, .len = sizeof(alignment)},
+        {.key = NvSciBufTensorAttrKey_BaseAddrAlign, .value = &baseAddrAlign, .len = sizeof(baseAddrAlign)},
+        {.key = NvSciBufGeneralAttrKey_RequiredPerm, .value = &perm, .len = sizeof(perm)},
+        {.key = NvSciBufGeneralAttrKey_NeedCpuAccess, .value = &needCpuAccess, .len = sizeof(needCpuAccess)}};
     size_t length = sizeof(setAttrs) / sizeof(NvSciBufAttrKeyValuePair);
 
     sciStatus = NvSciBufAttrListSetAttrs(*attrList, setAttrs, length);
-    if (sciStatus != NvSciError_Success)
-    {
+    if (sciStatus != NvSciError_Success) {
         status = cudlaErrorNvSci;
         DPRINTF("Error in setting NvSciBuf attribute list\n");
         return status;
@@ -454,33 +433,35 @@ cudlaStatus createAndSetAttrList(NvSciBufModule module,
 
 NvSciError fillCpuWaiterAttrList(NvSciSyncAttrList list);
 
-NvSciError fillCpuWaiterAttrList(NvSciSyncAttrList list) {
-    bool cpuWaiter = true;
+NvSciError fillCpuWaiterAttrList(NvSciSyncAttrList list)
+{
+    bool                      cpuWaiter = true;
     NvSciSyncAttrKeyValuePair keyValue[2];
     memset(keyValue, 0, sizeof(keyValue));
-    keyValue[0].attrKey = NvSciSyncAttrKey_NeedCpuAccess;
-    keyValue[0].value = (void*) &cpuWaiter;
-    keyValue[0].len = sizeof(cpuWaiter);
+    keyValue[0].attrKey         = NvSciSyncAttrKey_NeedCpuAccess;
+    keyValue[0].value           = (void *)&cpuWaiter;
+    keyValue[0].len             = sizeof(cpuWaiter);
     NvSciSyncAccessPerm cpuPerm = NvSciSyncAccessPerm_WaitOnly;
-    keyValue[1].attrKey = NvSciSyncAttrKey_RequiredPerm;
-    keyValue[1].value = (void*) &cpuPerm;
-    keyValue[1].len = sizeof(cpuPerm);
+    keyValue[1].attrKey         = NvSciSyncAttrKey_RequiredPerm;
+    keyValue[1].value           = (void *)&cpuPerm;
+    keyValue[1].len             = sizeof(cpuPerm);
     return NvSciSyncAttrListSetAttrs(list, keyValue, 2);
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
     cudlaDevHandle devHandle;
-    cudlaModule moduleHandle;
-    cudlaStatus err;
-    uint32_t statSupport = 0;
-    uint32_t dlaFreqInMHz = 0;
-    FILE* fp = NULL;
-    struct stat st;
-    size_t file_size;
-    size_t actually_read = 0;
-    unsigned char *loadableData = NULL;
-    char filename[MAX_FILENAME_LEN];
-    const char* suffix = ".csv";
+    cudlaModule    moduleHandle;
+    cudlaStatus    err;
+    uint32_t       statSupport  = 0;
+    uint32_t       dlaFreqInMHz = 0;
+    FILE          *fp           = NULL;
+    struct stat    st;
+    size_t         file_size;
+    size_t         actually_read = 0;
+    unsigned char *loadableData  = NULL;
+    char           filename[MAX_FILENAME_LEN];
+    const char    *suffix = ".csv";
 
 
     ResourceList resourceList;
@@ -488,13 +469,15 @@ int main(int argc, char** argv) {
     memset(&resourceList, 0x00, sizeof(ResourceList));
 
     if ((argc != 4) && (argc != 5)) {
-        DPRINTF("Usage : ./test_cudla_layerwise_stats_L0_standalone_test1 <loadable> <freqMHZ> <statSupport> <filenamePrefix>\n");
+        DPRINTF("Usage : ./test_cudla_layerwise_stats_L0_standalone_test1 <loadable> <freqMHZ> <statSupport> "
+                "<filenamePrefix>\n");
         return 1;
     }
 
     if (argc == 5) {
-        if((strlen(argv[4])) > (MAX_FILENAME_LEN - RESERVED_SUFFIX_LEN)) {
-            DPRINTF("Filename prefix length is too big, greater than maximum permissible prefix length of %u \n",(MAX_FILENAME_LEN - RESERVED_SUFFIX_LEN));
+        if ((strlen(argv[4])) > (MAX_FILENAME_LEN - RESERVED_SUFFIX_LEN)) {
+            DPRINTF("Filename prefix length is too big, greater than maximum permissible prefix length of %u \n",
+                    (MAX_FILENAME_LEN - RESERVED_SUFFIX_LEN));
             return 1;
         }
     }
@@ -515,7 +498,7 @@ int main(int argc, char** argv) {
     DPRINTF("The file size = %ld\n", file_size);
 
     dlaFreqInMHz = atoi(argv[2]);
-    statSupport = atoi(argv[3]);
+    statSupport  = atoi(argv[3]);
 
     loadableData = (unsigned char *)malloc(file_size);
     if (loadableData == NULL) {
@@ -524,7 +507,7 @@ int main(int argc, char** argv) {
     }
 
     actually_read = fread(loadableData, 1, file_size, fp);
-    if ( actually_read != file_size ) {
+    if (actually_read != file_size) {
         free(loadableData);
         DPRINTF("Read wrong size\n");
         return 1;
@@ -548,15 +531,16 @@ int main(int argc, char** argv) {
         DPRINTF("Error in cudlaModuleLoadFromMemory = %d\n", err);
         cleanUp(&resourceList);
         return 1;
-    } else {
+    }
+    else {
         DPRINTF("Successfully loaded module\n");
     }
 
     resourceList.moduleHandle = moduleHandle;
 
     // Get tensor attributes.
-    uint32_t numInputTensors = 0;
-    uint32_t numOutputTensors = 0;
+    uint32_t numInputTensors         = 0;
+    uint32_t numOutputTensors        = 0;
     uint32_t numOutputTaskStatistics = 0;
 
     cudlaModuleAttribute attribute;
@@ -591,30 +575,28 @@ int main(int argc, char** argv) {
     numOutputTaskStatistics = attribute.numOutputTensors;
     DPRINTF("numOutputTaskStatistics = %d\n", numOutputTaskStatistics);
 
-    if(numOutputTaskStatistics == 0) {
+    if (numOutputTaskStatistics == 0) {
         DPRINTF("Layerwise stats is not supported for this Loadable \n");
         cleanUp(&resourceList);
         return 1;
     }
 
-    resourceList.numInputTensors = numInputTensors;
-    resourceList.numOutputTensors = numOutputTensors;
+    resourceList.numInputTensors         = numInputTensors;
+    resourceList.numOutputTensors        = numOutputTensors;
     resourceList.numOutputTaskStatistics = numOutputTaskStatistics;
 
-    cudlaModuleTensorDescriptor* inputTensorDesc =
-        (cudlaModuleTensorDescriptor*)malloc(sizeof(cudlaModuleTensorDescriptor)*numInputTensors);
-    cudlaModuleTensorDescriptor* outputTensorDesc =
-        (cudlaModuleTensorDescriptor*)malloc(sizeof(cudlaModuleTensorDescriptor)*numOutputTensors);
+    cudlaModuleTensorDescriptor *inputTensorDesc =
+        (cudlaModuleTensorDescriptor *)malloc(sizeof(cudlaModuleTensorDescriptor) * numInputTensors);
+    cudlaModuleTensorDescriptor *outputTensorDesc =
+        (cudlaModuleTensorDescriptor *)malloc(sizeof(cudlaModuleTensorDescriptor) * numOutputTensors);
 
     if ((inputTensorDesc == NULL) || (outputTensorDesc == NULL)) {
-        if (inputTensorDesc != NULL)
-        {
+        if (inputTensorDesc != NULL) {
             free(inputTensorDesc);
             inputTensorDesc = NULL;
         }
 
-        if (outputTensorDesc != NULL)
-        {
+        if (outputTensorDesc != NULL) {
             free(outputTensorDesc);
             outputTensorDesc = NULL;
         }
@@ -623,11 +605,11 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    resourceList.inputTensorDesc = inputTensorDesc;
+    resourceList.inputTensorDesc  = inputTensorDesc;
     resourceList.outputTensorDesc = outputTensorDesc;
 
-    cudlaModuleTensorDescriptor* outputTaskStatisticsDesc =
-    (cudlaModuleTensorDescriptor*)malloc(sizeof(cudlaModuleTensorDescriptor)*numOutputTaskStatistics);
+    cudlaModuleTensorDescriptor *outputTaskStatisticsDesc =
+        (cudlaModuleTensorDescriptor *)malloc(sizeof(cudlaModuleTensorDescriptor) * numOutputTaskStatistics);
     if (outputTaskStatisticsDesc == NULL) {
         free(outputTaskStatisticsDesc);
         outputTaskStatisticsDesc = NULL;
@@ -638,9 +620,7 @@ int main(int argc, char** argv) {
     resourceList.outputTaskStatisticsDesc = outputTaskStatisticsDesc;
 
     attribute.inputTensorDesc = inputTensorDesc;
-    err = cudlaModuleGetAttributes(moduleHandle,
-                                   CUDLA_INPUT_TENSOR_DESCRIPTORS,
-                                   &attribute);
+    err                       = cudlaModuleGetAttributes(moduleHandle, CUDLA_INPUT_TENSOR_DESCRIPTORS, &attribute);
     if (err != cudlaSuccess) {
         DPRINTF("Error in getting input tensor descriptor = %d\n", err);
         cleanUp(&resourceList);
@@ -650,9 +630,7 @@ int main(int argc, char** argv) {
     printTensorDesc(inputTensorDesc);
 
     attribute.outputTensorDesc = outputTensorDesc;
-    err = cudlaModuleGetAttributes(moduleHandle,
-                                   CUDLA_OUTPUT_TENSOR_DESCRIPTORS,
-                                   &attribute);
+    err                        = cudlaModuleGetAttributes(moduleHandle, CUDLA_OUTPUT_TENSOR_DESCRIPTORS, &attribute);
     if (err != cudlaSuccess) {
         DPRINTF("Error in getting output tensor descriptor = %d\n", err);
         cleanUp(&resourceList);
@@ -662,9 +640,7 @@ int main(int argc, char** argv) {
     printTensorDesc(outputTensorDesc);
 
     attribute.outputTensorDesc = outputTaskStatisticsDesc;
-    err = cudlaModuleGetAttributes(moduleHandle,
-                                   CUDLA_OUTPUT_TASK_STATISTICS_DESCRIPTORS,
-                                   &attribute);
+    err = cudlaModuleGetAttributes(moduleHandle, CUDLA_OUTPUT_TASK_STATISTICS_DESCRIPTORS, &attribute);
     if (err != cudlaSuccess) {
         DPRINTF("Error in getting task statistics descriptor = %d\n", err);
         cleanUp(&resourceList);
@@ -672,21 +648,21 @@ int main(int argc, char** argv) {
     }
     DPRINTF("Printing output task statistics descriptor size\n");
     for (uint32_t ii = 0; ii < numOutputTaskStatistics; ii++) {
-        DPRINTF("The size of %u descriptor is %lu\n", ii,outputTaskStatisticsDesc[ii].size);
+        DPRINTF("The size of %u descriptor is %lu\n", ii, outputTaskStatisticsDesc[ii].size);
     }
 
     // Setup the input and output buffers.
-    unsigned char** inputBuffer = (unsigned char **)malloc(sizeof(unsigned char *)*numInputTensors);
+    unsigned char **inputBuffer = (unsigned char **)malloc(sizeof(unsigned char *) * numInputTensors);
     if (inputBuffer == NULL) {
         DPRINTF("Error in allocating memory for input buffer array\n");
         cleanUp(&resourceList);
         return 1;
     }
-    memset(inputBuffer, 0x00, sizeof(unsigned char *)*numInputTensors);
+    memset(inputBuffer, 0x00, sizeof(unsigned char *) * numInputTensors);
     resourceList.inputBuffer = inputBuffer;
 
     for (uint32_t ii = 0; ii < numInputTensors; ii++) {
-        inputBuffer[ii] = (unsigned char* )malloc(inputTensorDesc[ii].size);
+        inputBuffer[ii] = (unsigned char *)malloc(inputTensorDesc[ii].size);
         if (inputBuffer[ii] == NULL) {
             DPRINTF("Error in allocating input memory\n");
             cleanUp(&resourceList);
@@ -695,17 +671,17 @@ int main(int argc, char** argv) {
         memset(inputBuffer[ii], 0x01, inputTensorDesc[ii].size);
     }
 
-    unsigned char** outputBuffer = (unsigned char **)malloc(sizeof(unsigned char *)*numOutputTensors);
+    unsigned char **outputBuffer = (unsigned char **)malloc(sizeof(unsigned char *) * numOutputTensors);
     if (outputBuffer == NULL) {
         DPRINTF("Error in allocating memory for output buffer array\n");
         cleanUp(&resourceList);
         return 1;
     }
-    memset(outputBuffer, 0x00, sizeof(unsigned char *)*numOutputTensors);
+    memset(outputBuffer, 0x00, sizeof(unsigned char *) * numOutputTensors);
     resourceList.outputBuffer = outputBuffer;
 
     for (uint32_t ii = 0; ii < numOutputTensors; ii++) {
-        outputBuffer[ii] = (unsigned char* )malloc(outputTensorDesc[ii].size);
+        outputBuffer[ii] = (unsigned char *)malloc(outputTensorDesc[ii].size);
         if (outputBuffer[ii] == NULL) {
             DPRINTF("Error in allocating output memory\n");
             cleanUp(&resourceList);
@@ -714,17 +690,18 @@ int main(int argc, char** argv) {
         memset(outputBuffer[ii], 0x00, outputTensorDesc[ii].size);
     }
 
-    unsigned char** statisticsOutputBuffer = (unsigned char **)malloc(sizeof(unsigned char *)*numOutputTaskStatistics);
+    unsigned char **statisticsOutputBuffer =
+        (unsigned char **)malloc(sizeof(unsigned char *) * numOutputTaskStatistics);
     if (statisticsOutputBuffer == NULL) {
         DPRINTF("Error in allocating memory for output buffer array\n");
         cleanUp(&resourceList);
         return 1;
     }
-    memset(statisticsOutputBuffer, 0x00, sizeof(unsigned char *)*numOutputTaskStatistics);
+    memset(statisticsOutputBuffer, 0x00, sizeof(unsigned char *) * numOutputTaskStatistics);
     resourceList.statisticsOutputBuffer = statisticsOutputBuffer;
 
     for (uint32_t ii = 0; ii < numOutputTaskStatistics; ii++) {
-        statisticsOutputBuffer[ii] = (unsigned char* )malloc(outputTaskStatisticsDesc[ii].size);
+        statisticsOutputBuffer[ii] = (unsigned char *)malloc(outputTaskStatisticsDesc[ii].size);
         if (outputBuffer[ii] == NULL) {
             DPRINTF("Error in allocating output memory\n");
             cleanUp(&resourceList);
@@ -733,17 +710,17 @@ int main(int argc, char** argv) {
         memset(statisticsOutputBuffer[ii], 0x00, outputTaskStatisticsDesc[ii].size);
     }
 
-    NvSciBufModule bufModule = NULL;
-    NvSciBufAttrList *inputAttrList = {NULL};
-    NvSciBufAttrList *outputAttrList = {NULL};
-    NvSciBufAttrList *statisticsOutputAttrList = {NULL};
-    NvSciBufAttrList *reconciledInputAttrList = {NULL};
-    NvSciBufAttrList *reconciledOutputAttrList = {NULL};
+    NvSciBufModule    bufModule                          = NULL;
+    NvSciBufAttrList *inputAttrList                      = {NULL};
+    NvSciBufAttrList *outputAttrList                     = {NULL};
+    NvSciBufAttrList *statisticsOutputAttrList           = {NULL};
+    NvSciBufAttrList *reconciledInputAttrList            = {NULL};
+    NvSciBufAttrList *reconciledOutputAttrList           = {NULL};
     NvSciBufAttrList *reconciledStatisticsOutputAttrList = {NULL};
-    NvSciBufAttrList *inputConflictList = {NULL};
-    NvSciBufAttrList *outputConflictList = {NULL};
-    NvSciBufAttrList *statisticsOutputConflictList = {NULL};
-    NvSciError sciError = NvSciError_Success;
+    NvSciBufAttrList *inputConflictList                  = {NULL};
+    NvSciBufAttrList *outputConflictList                 = {NULL};
+    NvSciBufAttrList *statisticsOutputConflictList       = {NULL};
+    NvSciError        sciError                           = NvSciError_Success;
 
     sciError = NvSciBufModuleOpen(&bufModule);
     if (sciError != NvSciError_Success) {
@@ -755,98 +732,89 @@ int main(int argc, char** argv) {
 
     // creating and setting input attribute list
 
-    inputAttrList = (NvSciBufAttrList *)malloc(sizeof(NvSciBufAttrList)*numInputTensors);
+    inputAttrList = (NvSciBufAttrList *)malloc(sizeof(NvSciBufAttrList) * numInputTensors);
     if (inputAttrList == NULL) {
         DPRINTF("Error in allocating memory for input buffer array\n");
         cleanUp(&resourceList);
         return 1;
     }
-    memset(inputAttrList, 0x00, sizeof(NvSciBufAttrList)*numInputTensors);
+    memset(inputAttrList, 0x00, sizeof(NvSciBufAttrList) * numInputTensors);
     resourceList.inputAttrList = inputAttrList;
 
-    reconciledInputAttrList = (NvSciBufAttrList *)malloc(sizeof(NvSciBufAttrList)*numInputTensors);
+    reconciledInputAttrList = (NvSciBufAttrList *)malloc(sizeof(NvSciBufAttrList) * numInputTensors);
     if (reconciledInputAttrList == NULL) {
         DPRINTF("Error in allocating memory for input buffer array\n");
         cleanUp(&resourceList);
         return 1;
     }
-    memset(reconciledInputAttrList, 0x00, sizeof(NvSciBufAttrList)*numInputTensors);
+    memset(reconciledInputAttrList, 0x00, sizeof(NvSciBufAttrList) * numInputTensors);
     resourceList.reconciledInputAttrList = reconciledInputAttrList;
 
-    inputConflictList = (NvSciBufAttrList *)malloc(sizeof(NvSciBufAttrList)*numInputTensors);
+    inputConflictList = (NvSciBufAttrList *)malloc(sizeof(NvSciBufAttrList) * numInputTensors);
     if (inputConflictList == NULL) {
         DPRINTF("Error in allocating memory for input buffer array\n");
         cleanUp(&resourceList);
         return 1;
     }
-    memset(inputConflictList, 0x00, sizeof(NvSciBufAttrList)*numInputTensors);
+    memset(inputConflictList, 0x00, sizeof(NvSciBufAttrList) * numInputTensors);
     resourceList.inputConflictList = inputConflictList;
 
 
     for (uint32_t ii = 0; ii < numInputTensors; ii++) {
-        err = createAndSetAttrList(bufModule,
-                                   inputTensorDesc[ii].size,
-                                   &inputAttrList[ii]);
+        err = createAndSetAttrList(bufModule, inputTensorDesc[ii].size, &inputAttrList[ii]);
         if (err != cudlaSuccess) {
             DPRINTF("Error in creating NvSciBuf attribute list for input attribute\n");
             cleanUp(&resourceList);
             return 1;
         }
 
-        sciError = NvSciBufAttrListReconcile(&inputAttrList[ii],
-                                             1,
-                                             &reconciledInputAttrList[ii],
-                                             &inputConflictList[ii]);
+        sciError =
+            NvSciBufAttrListReconcile(&inputAttrList[ii], 1, &reconciledInputAttrList[ii], &inputConflictList[ii]);
         if (sciError != NvSciError_Success) {
             DPRINTF("Error in reconciling NvSciBuf attribute list for input attribute\n");
             cleanUp(&resourceList);
             return 1;
         }
-
     }
 
-    outputAttrList = (NvSciBufAttrList *)malloc(sizeof(NvSciBufAttrList)*numOutputTensors);
+    outputAttrList = (NvSciBufAttrList *)malloc(sizeof(NvSciBufAttrList) * numOutputTensors);
     if (outputAttrList == NULL) {
         DPRINTF("Error in allocating memory for input buffer array\n");
         cleanUp(&resourceList);
         return 1;
     }
-    memset(outputAttrList, 0x00, sizeof(NvSciBufAttrList)*numOutputTensors);
+    memset(outputAttrList, 0x00, sizeof(NvSciBufAttrList) * numOutputTensors);
     resourceList.outputAttrList = outputAttrList;
 
-    reconciledOutputAttrList = (NvSciBufAttrList *)malloc(sizeof(NvSciBufAttrList)*numOutputTensors);
+    reconciledOutputAttrList = (NvSciBufAttrList *)malloc(sizeof(NvSciBufAttrList) * numOutputTensors);
     if (reconciledOutputAttrList == NULL) {
         DPRINTF("Error in allocating memory for input buffer array\n");
         cleanUp(&resourceList);
         return 1;
     }
-    memset(reconciledOutputAttrList, 0x00, sizeof(NvSciBufAttrList)*numOutputTensors);
+    memset(reconciledOutputAttrList, 0x00, sizeof(NvSciBufAttrList) * numOutputTensors);
     resourceList.reconciledOutputAttrList = reconciledOutputAttrList;
 
-    outputConflictList = (NvSciBufAttrList *)malloc(sizeof(NvSciBufAttrList)*numOutputTensors);
+    outputConflictList = (NvSciBufAttrList *)malloc(sizeof(NvSciBufAttrList) * numOutputTensors);
     if (outputConflictList == NULL) {
         DPRINTF("Error in allocating memory for input buffer array\n");
         cleanUp(&resourceList);
         return 1;
     }
-    memset(outputConflictList, 0x00, sizeof(NvSciBufAttrList)*numOutputTensors);
+    memset(outputConflictList, 0x00, sizeof(NvSciBufAttrList) * numOutputTensors);
     resourceList.outputConflictList = outputConflictList;
 
     // creating and setting output attribute list
     for (uint32_t ii = 0; ii < numOutputTensors; ii++) {
-        err = createAndSetAttrList(bufModule,
-                                   outputTensorDesc[ii].size,
-                                   &outputAttrList[ii]);
+        err = createAndSetAttrList(bufModule, outputTensorDesc[ii].size, &outputAttrList[ii]);
         if (err != cudlaSuccess) {
             DPRINTF("Error in creating NvSciBuf attribute list for output attibute\n");
             cleanUp(&resourceList);
             return 1;
         }
 
-        sciError = NvSciBufAttrListReconcile(&outputAttrList[ii],
-                                             1,
-                                             &reconciledOutputAttrList[ii],
-                                             &outputConflictList[ii]);
+        sciError =
+            NvSciBufAttrListReconcile(&outputAttrList[ii], 1, &reconciledOutputAttrList[ii], &outputConflictList[ii]);
         if (sciError != NvSciError_Success) {
             DPRINTF("Error in reconciling NvSciBuf attribute list for output attribute\n");
             cleanUp(&resourceList);
@@ -854,38 +822,36 @@ int main(int argc, char** argv) {
         }
     }
 
-    statisticsOutputAttrList = (NvSciBufAttrList *)malloc(sizeof(NvSciBufAttrList)*numOutputTaskStatistics);
+    statisticsOutputAttrList = (NvSciBufAttrList *)malloc(sizeof(NvSciBufAttrList) * numOutputTaskStatistics);
     if (statisticsOutputAttrList == NULL) {
         DPRINTF("Error in allocating memory for input buffer array\n");
         cleanUp(&resourceList);
         return 1;
     }
-    memset(statisticsOutputAttrList, 0x00, sizeof(NvSciBufAttrList)*numOutputTaskStatistics);
+    memset(statisticsOutputAttrList, 0x00, sizeof(NvSciBufAttrList) * numOutputTaskStatistics);
     resourceList.statisticsOutputAttrList = statisticsOutputAttrList;
 
-    reconciledStatisticsOutputAttrList = (NvSciBufAttrList *)malloc(sizeof(NvSciBufAttrList)*numOutputTaskStatistics);
+    reconciledStatisticsOutputAttrList = (NvSciBufAttrList *)malloc(sizeof(NvSciBufAttrList) * numOutputTaskStatistics);
     if (reconciledStatisticsOutputAttrList == NULL) {
         DPRINTF("Error in allocating memory for input buffer array\n");
         cleanUp(&resourceList);
         return 1;
     }
-    memset(reconciledStatisticsOutputAttrList, 0x00, sizeof(NvSciBufAttrList)*numOutputTaskStatistics);
+    memset(reconciledStatisticsOutputAttrList, 0x00, sizeof(NvSciBufAttrList) * numOutputTaskStatistics);
     resourceList.reconciledStatisticsOutputAttrList = reconciledStatisticsOutputAttrList;
 
-    statisticsOutputConflictList = (NvSciBufAttrList *)malloc(sizeof(NvSciBufAttrList)*numOutputTaskStatistics);
+    statisticsOutputConflictList = (NvSciBufAttrList *)malloc(sizeof(NvSciBufAttrList) * numOutputTaskStatistics);
     if (statisticsOutputConflictList == NULL) {
         DPRINTF("Error in allocating memory for input buffer array\n");
         cleanUp(&resourceList);
         return 1;
     }
-    memset(statisticsOutputConflictList, 0x00, sizeof(NvSciBufAttrList)*numOutputTaskStatistics);
+    memset(statisticsOutputConflictList, 0x00, sizeof(NvSciBufAttrList) * numOutputTaskStatistics);
     resourceList.statisticsOutputConflictList = statisticsOutputConflictList;
 
     // creating and setting statistics output attribute list
     for (uint32_t ii = 0; ii < numOutputTaskStatistics; ii++) {
-        err = createAndSetAttrList(bufModule,
-                                   outputTaskStatisticsDesc[ii].size,
-                                   &statisticsOutputAttrList[ii]);
+        err = createAndSetAttrList(bufModule, outputTaskStatisticsDesc[ii].size, &statisticsOutputAttrList[ii]);
         if (err != cudlaSuccess) {
             DPRINTF("Error in creating NvSciBuf attribute list\n");
             cleanUp(&resourceList);
@@ -903,12 +869,12 @@ int main(int argc, char** argv) {
         }
     }
 
-    NvSciBufObj *inputBufObj = (NvSciBufObj *)malloc(sizeof(NvSciBufObj)*numInputTensors);
-    NvSciBufObj *outputBufObj = (NvSciBufObj *)malloc(sizeof(NvSciBufObj)*numOutputTensors);
-    NvSciBufObj *statisticsBufObj = (NvSciBufObj *)malloc(sizeof(NvSciBufObj)*numOutputTaskStatistics);
+    NvSciBufObj *inputBufObj      = (NvSciBufObj *)malloc(sizeof(NvSciBufObj) * numInputTensors);
+    NvSciBufObj *outputBufObj     = (NvSciBufObj *)malloc(sizeof(NvSciBufObj) * numOutputTensors);
+    NvSciBufObj *statisticsBufObj = (NvSciBufObj *)malloc(sizeof(NvSciBufObj) * numOutputTaskStatistics);
 
-    resourceList.inputBufObj = inputBufObj;
-    resourceList.outputBufObj = outputBufObj;
+    resourceList.inputBufObj      = inputBufObj;
+    resourceList.outputBufObj     = outputBufObj;
     resourceList.statisticsBufObj = statisticsBufObj;
 
     for (uint32_t ii = 0; ii < numInputTensors; ii++) {
@@ -938,9 +904,9 @@ int main(int argc, char** argv) {
         }
     }
 
-    uint64_t** inputBufObjRegPtr = (uint64_t **)malloc(sizeof(uint64_t*)*numInputTensors);
-    uint64_t** outputBufObjRegPtr = (uint64_t **)malloc(sizeof(uint64_t*)*numOutputTensors);
-    uint64_t** statisticsBufObjRegPtr = (uint64_t **)malloc(sizeof(uint64_t*)*numOutputTaskStatistics);
+    uint64_t **inputBufObjRegPtr      = (uint64_t **)malloc(sizeof(uint64_t *) * numInputTensors);
+    uint64_t **outputBufObjRegPtr     = (uint64_t **)malloc(sizeof(uint64_t *) * numOutputTensors);
+    uint64_t **statisticsBufObjRegPtr = (uint64_t **)malloc(sizeof(uint64_t *) * numOutputTaskStatistics);
 
     if ((inputBufObjRegPtr == NULL) || (outputBufObjRegPtr == NULL) || (statisticsBufObjRegPtr == NULL)) {
         if (inputBufObjRegPtr != NULL) {
@@ -962,21 +928,21 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    resourceList.inputBufObjRegPtr = inputBufObjRegPtr;
-    resourceList.outputBufObjRegPtr = outputBufObjRegPtr;
+    resourceList.inputBufObjRegPtr      = inputBufObjRegPtr;
+    resourceList.outputBufObjRegPtr     = outputBufObjRegPtr;
     resourceList.statisticsBufObjRegPtr = statisticsBufObjRegPtr;
 
-    void **inputBufObjBuffer = (void **)malloc(sizeof(void*)*numInputTensors);
-    void **outputBufObjBuffer = (void **)malloc(sizeof(void*)*numOutputTensors);
-    void **statisticsBufObjBuffer = (void **)malloc(sizeof(void*)*numOutputTaskStatistics);
+    void **inputBufObjBuffer      = (void **)malloc(sizeof(void *) * numInputTensors);
+    void **outputBufObjBuffer     = (void **)malloc(sizeof(void *) * numOutputTensors);
+    void **statisticsBufObjBuffer = (void **)malloc(sizeof(void *) * numOutputTaskStatistics);
 
-    cudlaExternalMemoryHandleDesc memDesc = { 0 };
+    cudlaExternalMemoryHandleDesc memDesc = {0};
     // importing external memory
     for (uint32_t ii = 0; ii < numInputTensors; ii++) {
         memset(&memDesc, 0, sizeof(memDesc));
         memDesc.extBufObject = (void *)inputBufObj[ii];
-        memDesc.size = inputTensorDesc[ii].size;
-        err = cudlaImportExternalMemory(devHandle, &memDesc, &inputBufObjRegPtr[ii], 0);
+        memDesc.size         = inputTensorDesc[ii].size;
+        err                  = cudlaImportExternalMemory(devHandle, &memDesc, &inputBufObjRegPtr[ii], 0);
         if (err != cudlaSuccess) {
             DPRINTF("Error in importing external memory = %d\n", err);
             cleanUp(&resourceList);
@@ -995,8 +961,8 @@ int main(int argc, char** argv) {
     for (uint32_t ii = 0; ii < numOutputTensors; ii++) {
         memset(&memDesc, 0, sizeof(memDesc));
         memDesc.extBufObject = (void *)outputBufObj[ii];
-        memDesc.size = outputTensorDesc[ii].size;
-        err = cudlaImportExternalMemory(devHandle, &memDesc, &outputBufObjRegPtr[ii], 0);
+        memDesc.size         = outputTensorDesc[ii].size;
+        err                  = cudlaImportExternalMemory(devHandle, &memDesc, &outputBufObjRegPtr[ii], 0);
         if (err != cudlaSuccess) {
             DPRINTF("Error in importing external memory = %d\n", err);
             cleanUp(&resourceList);
@@ -1015,7 +981,7 @@ int main(int argc, char** argv) {
     for (uint32_t ii = 0; ii < numOutputTaskStatistics; ii++) {
         memset(&memDesc, 0, sizeof(memDesc));
         memDesc.extBufObject = (void *)statisticsBufObj[ii];
-        memDesc.size = outputTaskStatisticsDesc[ii].size;
+        memDesc.size         = outputTaskStatisticsDesc[ii].size;
         err = cudlaImportExternalMemory(devHandle, &memDesc, &statisticsBufObjRegPtr[ii], CUDLA_TASK_STATISTICS);
         if (err != cudlaSuccess) {
             DPRINTF("Error in importing external memory = %d\n", err);
@@ -1032,26 +998,26 @@ int main(int argc, char** argv) {
         memset(statisticsBufObjBuffer[ii], 0, outputTaskStatisticsDesc[ii].size);
     }
 
-    uint64_t *outputStatisticsBufferRegisteredPtr[numOutputTensors + numOutputTaskStatistics] = {0} ;
+    uint64_t *outputStatisticsBufferRegisteredPtr[numOutputTensors + numOutputTaskStatistics] = {0};
 
     uint32_t index = 0;
-    for (; index < numOutputTensors ; index++) {
+    for (; index < numOutputTensors; index++) {
         outputStatisticsBufferRegisteredPtr[index] = ((outputBufObjRegPtr[index]));
     }
 
-    for (uint32_t jj=0; jj < numOutputTaskStatistics ; jj++) {
+    for (uint32_t jj = 0; jj < numOutputTaskStatistics; jj++) {
         outputStatisticsBufferRegisteredPtr[index++] = ((statisticsBufObjRegPtr[jj]));
     }
 
-    NvSciSyncObj syncObj;
-    NvSciSyncModule syncModule;
-    NvSciSyncAttrList syncAttrListObj[2];
+    NvSciSyncObj            syncObj;
+    NvSciSyncModule         syncModule;
+    NvSciSyncAttrList       syncAttrListObj[2];
     NvSciSyncCpuWaitContext nvSciCtx;
-    NvSciSyncAttrList waiterAttrListObj = NULL;
-    NvSciSyncAttrList signalerAttrListObj = NULL;
-    NvSciSyncAttrList nvSciSyncConflictListObj;
-    NvSciSyncAttrList nvSciSyncReconciledListObj;
-    
+    NvSciSyncAttrList       waiterAttrListObj   = NULL;
+    NvSciSyncAttrList       signalerAttrListObj = NULL;
+    NvSciSyncAttrList       nvSciSyncConflictListObj;
+    NvSciSyncAttrList       nvSciSyncReconciledListObj;
+
     sciError = NvSciSyncModuleOpen(&syncModule);
     if (sciError != NvSciError_Success) {
         DPRINTF("Error in initializing NvSciSyncModuleOpen\n");
@@ -1059,7 +1025,7 @@ int main(int argc, char** argv) {
         return 1;
     }
     resourceList.syncModule = syncModule;
-    
+
     sciError = NvSciSyncCpuWaitContextAlloc(syncModule, &nvSciCtx);
     if (sciError != NvSciError_Success) {
         DPRINTF("Error in allocating cpu wait context NvSciSyncCpuWaitContextAlloc\n");
@@ -1067,7 +1033,7 @@ int main(int argc, char** argv) {
         return 1;
     }
     resourceList.nvSciCtx = nvSciCtx;
-    
+
     sciError = NvSciSyncAttrListCreate(syncModule, &signalerAttrListObj);
     if (sciError != NvSciError_Success) {
         DPRINTF("Error in creating NvSciSync attribute list\n");
@@ -1075,7 +1041,7 @@ int main(int argc, char** argv) {
         return 1;
     }
     resourceList.signalerAttrListObj = signalerAttrListObj;
-    
+
     sciError = NvSciSyncAttrListCreate(syncModule, &waiterAttrListObj);
     if (sciError != NvSciError_Success) {
         DPRINTF("Error in creating NvSciSync attribute list\n");
@@ -1083,62 +1049,55 @@ int main(int argc, char** argv) {
         return 1;
     }
     resourceList.waiterAttrListObj = waiterAttrListObj;
-    
-    err = cudlaGetNvSciSyncAttributes(reinterpret_cast<uint64_t*>(signalerAttrListObj),
-                                      CUDLA_NVSCISYNC_ATTR_SIGNAL);
+
+    err = cudlaGetNvSciSyncAttributes(reinterpret_cast<uint64_t *>(signalerAttrListObj), CUDLA_NVSCISYNC_ATTR_SIGNAL);
     if (err != cudlaSuccess) {
         DPRINTF("Error in getting cuDLA's NvSciSync attributes\n");
         cleanUp(&resourceList);
         return 1;
     }
-    
+
     sciError = fillCpuWaiterAttrList(waiterAttrListObj);
     if (sciError != NvSciError_Success) {
         DPRINTF("Error in setting NvSciSync attribute list\n");
         cleanUp(&resourceList);
         return 1;
     }
-    
+
     syncAttrListObj[0] = signalerAttrListObj;
     syncAttrListObj[1] = waiterAttrListObj;
-    sciError = NvSciSyncAttrListReconcile(syncAttrListObj,
-                                          2,
-                                          &nvSciSyncReconciledListObj,
-                                          &nvSciSyncConflictListObj);
+    sciError = NvSciSyncAttrListReconcile(syncAttrListObj, 2, &nvSciSyncReconciledListObj, &nvSciSyncConflictListObj);
     if (sciError != NvSciError_Success) {
         DPRINTF("Error in reconciling NvSciSync's attribute lists\n");
         cleanUp(&resourceList);
         return 1;
     }
-    resourceList.nvSciSyncConflictListObj = nvSciSyncConflictListObj;
+    resourceList.nvSciSyncConflictListObj   = nvSciSyncConflictListObj;
     resourceList.nvSciSyncReconciledListObj = nvSciSyncReconciledListObj;
-    
-    sciError = NvSciSyncObjAlloc(nvSciSyncReconciledListObj, &syncObj); 
+
+    sciError = NvSciSyncObjAlloc(nvSciSyncReconciledListObj, &syncObj);
     if (sciError != NvSciError_Success) {
         DPRINTF("Error in allocating NvSciSync object\n");
         cleanUp(&resourceList);
         return 1;
     }
     resourceList.syncObj = syncObj;
-    
+
     // importing external semaphore
-    uint64_t* nvSciSyncObjRegPtr = NULL;
-    cudlaExternalSemaphoreHandleDesc semaMemDesc = { 0 };
+    uint64_t                        *nvSciSyncObjRegPtr = NULL;
+    cudlaExternalSemaphoreHandleDesc semaMemDesc        = {0};
     memset(&semaMemDesc, 0, sizeof(semaMemDesc));
     semaMemDesc.extSyncObject = syncObj;
-    err = cudlaImportExternalSemaphore(devHandle,
-                                       &semaMemDesc,
-                                       &nvSciSyncObjRegPtr,
-                                       0);
+    err                       = cudlaImportExternalSemaphore(devHandle, &semaMemDesc, &nvSciSyncObjRegPtr, 0);
     if (err != cudlaSuccess) {
         DPRINTF("Error in importing external semaphore = %d\n", err);
         cleanUp(&resourceList);
         return 1;
     }
     DPRINTF("ALL MEMORY REGISTERED SUCCESSFULLY\n");
-    
+
     // Signal Events
-    cudlaSignalEvents* signalEvents;
+    cudlaSignalEvents *signalEvents;
     signalEvents = (cudlaSignalEvents *)malloc(sizeof(cudlaSignalEvents));
     if (signalEvents == NULL) {
         DPRINTF("Error in allocating signal events\n");
@@ -1147,48 +1106,47 @@ int main(int argc, char** argv) {
     }
 
     signalEvents->numEvents = 1;
-    uint64_t** devPtrs = (uint64_t **)malloc(signalEvents->numEvents *
-                                             sizeof(uint64_t *));
+    uint64_t **devPtrs      = (uint64_t **)malloc(signalEvents->numEvents * sizeof(uint64_t *));
     if (devPtrs == NULL) {
         DPRINTF("Error in allocating output pointer's array of registered objects\n");
         cleanUp(&resourceList);
         return 1;
     }
-    devPtrs[0] = nvSciSyncObjRegPtr;
+    devPtrs[0]            = nvSciSyncObjRegPtr;
     signalEvents->devPtrs = devPtrs;
-    resourceList.devPtrs = devPtrs;
-    
-    signalEvents->eofFences = (CudlaFence *)malloc(signalEvents->numEvents *
-                                                   sizeof(CudlaFence));
+    resourceList.devPtrs  = devPtrs;
+
+    signalEvents->eofFences = (CudlaFence *)malloc(signalEvents->numEvents * sizeof(CudlaFence));
     if (signalEvents->eofFences == NULL) {
         DPRINTF("Error in allocating eofFence array\n");
         cleanUp(&resourceList);
         return 1;
     }
 
-    NvSciSyncFence eofFence = NvSciSyncFenceInitializer;
+    NvSciSyncFence eofFence          = NvSciSyncFenceInitializer;
     signalEvents->eofFences[0].fence = &eofFence;
-    signalEvents->eofFences[0].type = CUDLA_NVSCISYNC_FENCE;
-    resourceList.signalEvents = signalEvents;
-    resourceList.eofFence = eofFence;
+    signalEvents->eofFences[0].type  = CUDLA_NVSCISYNC_FENCE;
+    resourceList.signalEvents        = signalEvents;
+    resourceList.eofFence            = eofFence;
 
     // Enqueue a cuDLA task.
     cudlaTask task;
     task.moduleHandle = moduleHandle;
-    task.outputTensor = (uint64_t * const*)&outputStatisticsBufferRegisteredPtr;
+    task.outputTensor = (uint64_t *const *)&outputStatisticsBufferRegisteredPtr;
 
-    if(statSupport == 1) {
+    if (statSupport == 1) {
         task.numOutputTensors = (numOutputTensors + numOutputTaskStatistics);
         DPRINTF("Layerwise profiling is requested \n");
-    } else {
+    }
+    else {
         task.numOutputTensors = numOutputTensors;
         DPRINTF("Layerwise profiling is not requested \n");
     }
 
     task.numInputTensors = numInputTensors;
-    task.inputTensor = inputBufObjRegPtr;
-    task.waitEvents = NULL;
-    task.signalEvents = signalEvents;
+    task.inputTensor     = inputBufObjRegPtr;
+    task.waitEvents      = NULL;
+    task.signalEvents    = signalEvents;
 
     err = cudlaSubmitTask(devHandle, &task, 1, NULL, 0);
     if (err != cudlaSuccess) {
@@ -1199,8 +1157,7 @@ int main(int argc, char** argv) {
     DPRINTF("SUBMIT IS DONE !!!\n");
 
     // Wait for operations to finish and bring output buffer to CPU.
-    sciError = NvSciSyncFenceWait(reinterpret_cast<NvSciSyncFence*>(signalEvents->eofFences[0].fence),
-                                  nvSciCtx, -1);
+    sciError = NvSciSyncFenceWait(reinterpret_cast<NvSciSyncFence *>(signalEvents->eofFences[0].fence), nvSciCtx, -1);
     if (sciError != NvSciError_Success) {
         DPRINTF("Error in waiting on NvSciSyncFence\n");
         cleanUp(&resourceList);
@@ -1212,34 +1169,35 @@ int main(int argc, char** argv) {
         memcpy(outputBuffer[ii], outputBufObjBuffer[ii], outputTensorDesc[ii].size);
     }
 
-    if(statSupport == 1) {
+    if (statSupport == 1) {
         for (uint32_t ii = 0; ii < numOutputTaskStatistics; ii++) {
             memcpy(statisticsOutputBuffer[ii], statisticsBufObjBuffer[ii], outputTaskStatisticsDesc[ii].size);
         }
 
-        const cudlaExternalEtbl* etbl = NULL;
-        if (cudlaGetExternalExportTable(&etbl,0) != cudlaSuccess) {
+        const cudlaExternalEtbl *etbl = NULL;
+        if (cudlaGetExternalExportTable(&etbl, 0) != cudlaSuccess) {
             DPRINTF("Error in getting export table\n");
             cleanUp(&resourceList);
             return 1;
         }
 
-        void** csv = (void **)malloc(sizeof(void *)*numOutputTaskStatistics);
+        void **csv = (void **)malloc(sizeof(void *) * numOutputTaskStatistics);
         if (csv == NULL) {
             DPRINTF("Error in allocating memory for csv stream\n");
             cleanUp(&resourceList);
             return 1;
         }
-        memset(csv, 0x00, sizeof(void *)*numOutputTaskStatistics);
+        memset(csv, 0x00, sizeof(void *) * numOutputTaskStatistics);
         resourceList.csv = csv;
         for (uint32_t ii = 0; ii < numOutputTaskStatistics; ii++) {
             cudlaTranslateCsvAttribute csvAttribute;
-            uint64_t csvStreamLength = 0;
+            uint64_t                   csvStreamLength = 0;
 
-            err = etbl->etiTranslateStats(devHandle,statisticsOutputBuffer[ii],dlaFreqInMHz,ii,CUDLA_GET_CSV_LENGTH,&csvAttribute);
-            csv[ii] = (void* )malloc(csvAttribute.csvStreamLength);
+            err = etbl->etiTranslateStats(
+                devHandle, statisticsOutputBuffer[ii], dlaFreqInMHz, ii, CUDLA_GET_CSV_LENGTH, &csvAttribute);
+            csv[ii]         = (void *)malloc(csvAttribute.csvStreamLength);
             csvStreamLength = csvAttribute.csvStreamLength;
-            DPRINTF("size for statistics buffer %u is %lu \n",ii,csvStreamLength);
+            DPRINTF("size for statistics buffer %u is %lu \n", ii, csvStreamLength);
 
             if (csv[ii] == NULL) {
                 DPRINTF("Error in allocating memory for csv stream\n");
@@ -1249,7 +1207,8 @@ int main(int argc, char** argv) {
             memset(csv[ii], 0x00, csvAttribute.csvStreamLength);
 
             csvAttribute.csvStreamStats = csv[ii];
-            err = etbl->etiTranslateStats(devHandle,statisticsOutputBuffer[ii],dlaFreqInMHz,ii,CUDLA_GET_CSV_STATS,&csvAttribute);
+            err                         = etbl->etiTranslateStats(
+                devHandle, statisticsOutputBuffer[ii], dlaFreqInMHz, ii, CUDLA_GET_CSV_STATS, &csvAttribute);
             if (err != cudlaSuccess) {
                 DPRINTF("Error in translating stats\n");
                 cleanUp(&resourceList);
@@ -1257,7 +1216,7 @@ int main(int argc, char** argv) {
             }
 
             if (argc == 5) {
-                sprintf(filename,"%s%u%s", argv[4],(ii+1),suffix);
+                sprintf(filename, "%s%u%s", argv[4], (ii + 1), suffix);
                 fp = fopen(filename, "w+");
                 if (fp == NULL) {
                     DPRINTF("Cannot open file %s\n", filename);
@@ -1265,24 +1224,24 @@ int main(int argc, char** argv) {
                     return 1;
                 }
 
-                uint32_t ret_val = fwrite(csv[ii],sizeof(char),csvStreamLength,fp);
-                if(ret_val != csvStreamLength) {
+                uint32_t ret_val = fwrite(csv[ii], sizeof(char), csvStreamLength, fp);
+                if (ret_val != csvStreamLength) {
                     DPRINTF("number of elements written to file is %u \n", ret_val);
                     cleanUp(&resourceList);
                     return 1;
                 }
 
                 fclose(fp);
-            } else {
-                DPRINTF("%s \n",(char *)csv[ii]);
+            }
+            else {
+                DPRINTF("%s \n", (char *)csv[ii]);
             }
         }
     }
 
     // unregister the CUDA-allocated buffers.
     for (uint32_t ii = 0; ii < numInputTensors; ii++) {
-        err = cudlaMemUnregister(devHandle,
-                                 (inputBufObjRegPtr[ii]));
+        err = cudlaMemUnregister(devHandle, (inputBufObjRegPtr[ii]));
         if (err != cudlaSuccess) {
             DPRINTF("Error in registering input memory = %d\n", err);
             cleanUp(&resourceList);
@@ -1291,8 +1250,7 @@ int main(int argc, char** argv) {
     }
 
     for (uint32_t ii = 0; ii < numOutputTensors; ii++) {
-        err = cudlaMemUnregister(devHandle,
-                                 (outputBufObjRegPtr[ii]));
+        err = cudlaMemUnregister(devHandle, (outputBufObjRegPtr[ii]));
         if (err != cudlaSuccess) {
             DPRINTF("Error in registering output memory = %d\n", err);
             cleanUp(&resourceList);
@@ -1301,8 +1259,7 @@ int main(int argc, char** argv) {
     }
 
     for (uint32_t ii = 0; ii < numOutputTaskStatistics; ii++) {
-        err = cudlaMemUnregister(devHandle,
-                                 (statisticsBufObjRegPtr[ii]));
+        err = cudlaMemUnregister(devHandle, (statisticsBufObjRegPtr[ii]));
         if (err != cudlaSuccess) {
             DPRINTF("Error in registering output memory = %d\n", err);
             cleanUp(&resourceList);
@@ -1325,7 +1282,8 @@ int main(int argc, char** argv) {
         DPRINTF("Error in cudlaModuleUnload = %d\n", err);
         cleanUp(&resourceList);
         return 1;
-    } else {
+    }
+    else {
         DPRINTF("Successfully unloaded module\n");
     }
 

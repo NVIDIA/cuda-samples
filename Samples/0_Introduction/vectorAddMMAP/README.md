@@ -30,4 +30,3 @@ cuMemcpyDtoH, cuDeviceCanAccessPeer, cuModuleGetFunction, cuMemSetAccess, cuMemR
 Download and install the [CUDA Toolkit 12.5](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 
 ## References (for more details)
-

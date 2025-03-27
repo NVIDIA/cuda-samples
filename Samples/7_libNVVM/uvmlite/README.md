@@ -31,7 +31,7 @@ that the attribute can only be used with variables in the global
 address space.)
 
 Accessing a managed variable in the host
----------------------------------------- 
+----------------------------------------
 
 To access a managed variable defined in the NVVM IR code, we should
 retrieve a device pointer first, which can be done using cuModuleGetGlobal().

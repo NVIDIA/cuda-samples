@@ -38,16 +38,14 @@
 #include "common.cuh"
 
 // Functors used with thrust library.
-template <typename Input>
-struct IsGreaterEqualThan
+template <typename Input> struct IsGreaterEqualThan
 {
-    __host__ __device__ IsGreaterEqualThan(uint upperBound) :
-        upperBound_(upperBound) {}
-
-    __host__ __device__ bool operator()(const Input &value) const
+    __host__ __device__ IsGreaterEqualThan(uint upperBound)
+        : upperBound_(upperBound)
     {
-        return value >= upperBound_;
     }
+
+    __host__ __device__ bool operator()(const Input &value) const { return value >= upperBound_; }
 
     uint upperBound_;
 };
@@ -57,94 +55,77 @@ __global__ void addScalar(uint *array, int scalar, uint size)
 {
     uint tid = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (tid < size)
-    {
+    if (tid < size) {
         array[tid] += scalar;
     }
 }
 
-__global__ void markSegments(const uint *verticesOffsets,
-                             uint *flags,
-                             uint verticesCount)
+__global__ void markSegments(const uint *verticesOffsets, uint *flags, uint verticesCount)
 {
     uint tid = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (tid < verticesCount)
-    {
+    if (tid < verticesCount) {
         flags[verticesOffsets[tid]] = 1;
     }
 }
 
 __global__ void getVerticesMapping(const uint *clusteredVerticesIDs,
                                    const uint *newVerticesIDs,
-                                   uint *verticesMapping,
-                                   uint verticesCount)
+                                   uint       *verticesMapping,
+                                   uint        verticesCount)
 {
     uint tid = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (tid < verticesCount)
-    {
-        uint vertexID = clusteredVerticesIDs[tid];
+    if (tid < verticesCount) {
+        uint vertexID             = clusteredVerticesIDs[tid];
         verticesMapping[vertexID] = newVerticesIDs[tid];
     }
 }
 
 __global__ void getSuccessors(const uint *verticesOffsets,
                               const uint *minScannedEdges,
-                              uint *successors,
-                              uint verticesCount,
-                              uint edgesCount)
+                              uint       *successors,
+                              uint        verticesCount,
+                              uint        edgesCount)
 {
     uint tid = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (tid < verticesCount)
-    {
-        uint successorPos = (tid < verticesCount - 1) ?
-                            (verticesOffsets[tid + 1] - 1) :
-                            (edgesCount - 1);
+    if (tid < verticesCount) {
+        uint successorPos = (tid < verticesCount - 1) ? (verticesOffsets[tid + 1] - 1) : (edgesCount - 1);
 
         successors[tid] = minScannedEdges[successorPos];
     }
 }
 
-__global__ void removeCycles(uint *successors,
-                             uint verticesCount)
+__global__ void removeCycles(uint *successors, uint verticesCount)
 {
     uint tid = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (tid < verticesCount)
-    {
-        uint successor = successors[tid];
+    if (tid < verticesCount) {
+        uint successor     = successors[tid];
         uint nextSuccessor = successors[successor];
 
-        if (tid == nextSuccessor)
-        {
-            if (tid < successor)
-            {
+        if (tid == nextSuccessor) {
+            if (tid < successor) {
                 successors[tid] = tid;
             }
-            else
-            {
+            else {
                 successors[successor] = successor;
             }
         }
     }
 }
 
-__global__ void getRepresentatives(const uint *successors,
-                                   uint *representatives,
-                                   uint verticesCount)
+__global__ void getRepresentatives(const uint *successors, uint *representatives, uint verticesCount)
 {
     uint tid = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (tid < verticesCount)
-    {
-        uint successor = successors[tid];
+    if (tid < verticesCount) {
+        uint successor     = successors[tid];
         uint nextSuccessor = successors[successor];
 
-        while (successor != nextSuccessor)
-        {
-            successor = nextSuccessor;
+        while (successor != nextSuccessor) {
+            successor     = nextSuccessor;
             nextSuccessor = successors[nextSuccessor];
         }
 
@@ -152,70 +133,60 @@ __global__ void getRepresentatives(const uint *successors,
     }
 }
 
-__global__ void invalidateLoops(const uint *startpoints,
-                                const uint *verticesMapping,
-                                uint *edges,
-                                uint edgesCount)
+__global__ void invalidateLoops(const uint *startpoints, const uint *verticesMapping, uint *edges, uint edgesCount)
 {
     uint tid = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (tid < edgesCount)
-    {
-        uint startpoint = startpoints[tid];
-        uint &endpoint = edges[tid];
+    if (tid < edgesCount) {
+        uint  startpoint = startpoints[tid];
+        uint &endpoint   = edges[tid];
 
         uint newStartpoint = verticesMapping[startpoint];
-        uint newEndpoint = verticesMapping[endpoint];
+        uint newEndpoint   = verticesMapping[endpoint];
 
-        if (newStartpoint == newEndpoint)
-        {
+        if (newStartpoint == newEndpoint) {
             endpoint = UINT_MAX;
         }
     }
 }
 
-__global__ void calculateEdgesInfo(const uint *startpoints,
-                                   const uint *verticesMapping,
-                                   const uint *edges,
+__global__ void calculateEdgesInfo(const uint  *startpoints,
+                                   const uint  *verticesMapping,
+                                   const uint  *edges,
                                    const float *weights,
-                                   uint *newStartpoints,
-                                   uint *survivedEdgesIDs,
-                                   uint edgesCount,
-                                   uint newVerticesCount)
+                                   uint        *newStartpoints,
+                                   uint        *survivedEdgesIDs,
+                                   uint         edgesCount,
+                                   uint         newVerticesCount)
 {
     uint tid = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (tid < edgesCount)
-    {
+    if (tid < edgesCount) {
         uint startpoint = startpoints[tid];
-        uint endpoint = edges[tid];
+        uint endpoint   = edges[tid];
 
-        newStartpoints[tid] = endpoint < UINT_MAX ?
-                              verticesMapping[startpoint] :
-                              newVerticesCount + verticesMapping[startpoint];
+        newStartpoints[tid] =
+            endpoint < UINT_MAX ? verticesMapping[startpoint] : newVerticesCount + verticesMapping[startpoint];
 
-        survivedEdgesIDs[tid] = endpoint < UINT_MAX ?
-                                tid :
-                                UINT_MAX;
+        survivedEdgesIDs[tid] = endpoint < UINT_MAX ? tid : UINT_MAX;
     }
 }
 
-__global__ void makeNewEdges(const uint *survivedEdgesIDs,
-                             const uint *verticesMapping,
-                             const uint *edges,
+__global__ void makeNewEdges(const uint  *survivedEdgesIDs,
+                             const uint  *verticesMapping,
+                             const uint  *edges,
                              const float *weights,
-                             uint *newEdges,
-                             float *newWeights,
-                             uint edgesCount)
+                             uint        *newEdges,
+                             float       *newWeights,
+                             uint         edgesCount)
 {
     uint tid = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (tid < edgesCount)
-    {
-        uint edgeID = survivedEdgesIDs[tid];
+    if (tid < edgesCount) {
+        uint edgeID  = survivedEdgesIDs[tid];
         uint oldEdge = edges[edgeID];
 
-        newEdges[tid] = verticesMapping[oldEdge];
+        newEdges[tid]   = verticesMapping[oldEdge];
         newWeights[tid] = weights[edgeID];
     }
 }

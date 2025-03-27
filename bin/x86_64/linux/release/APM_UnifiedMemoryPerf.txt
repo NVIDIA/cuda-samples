@@ -2,7 +2,7 @@ GPU Device 0: "Hopper" with compute capability 9.0
 
 Running ........................................................
 
-Overall Time For matrixMultiplyPerf 
+Overall Time For matrixMultiplyPerf
 
 Printing Average of 20 measurements in (ms)
 Size_KB	 UMhint	UMhntAs	 UMeasy	  0Copy	MemCopy	CpAsync	CpHpglk	CpPglAs

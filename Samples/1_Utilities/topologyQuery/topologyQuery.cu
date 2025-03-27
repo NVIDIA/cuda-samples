@@ -35,48 +35,44 @@
 
 // includes, project
 #include <helper_cuda.h>
-#include <helper_functions.h>  // helper for shared that are common to CUDA Samples
+#include <helper_functions.h> // helper for shared that are common to CUDA Samples
 
-int main(int argc, char **argv) {
-  int deviceCount = 0;
-  checkCudaErrors(cudaGetDeviceCount(&deviceCount));
+int main(int argc, char **argv)
+{
+    int deviceCount = 0;
+    checkCudaErrors(cudaGetDeviceCount(&deviceCount));
 
-  // Enumerates Device <-> Device links
-  for (int device1 = 0; device1 < deviceCount; device1++) {
-    for (int device2 = 0; device2 < deviceCount; device2++) {
-      if (device1 == device2) continue;
+    // Enumerates Device <-> Device links
+    for (int device1 = 0; device1 < deviceCount; device1++) {
+        for (int device2 = 0; device2 < deviceCount; device2++) {
+            if (device1 == device2)
+                continue;
 
-      int perfRank = 0;
-      int atomicSupported = 0;
-      int accessSupported = 0;
+            int perfRank        = 0;
+            int atomicSupported = 0;
+            int accessSupported = 0;
 
-      checkCudaErrors(cudaDeviceGetP2PAttribute(
-          &accessSupported, cudaDevP2PAttrAccessSupported, device1, device2));
-      checkCudaErrors(cudaDeviceGetP2PAttribute(
-          &perfRank, cudaDevP2PAttrPerformanceRank, device1, device2));
-      checkCudaErrors(cudaDeviceGetP2PAttribute(
-          &atomicSupported, cudaDevP2PAttrNativeAtomicSupported, device1,
-          device2));
+            checkCudaErrors(
+                cudaDeviceGetP2PAttribute(&accessSupported, cudaDevP2PAttrAccessSupported, device1, device2));
+            checkCudaErrors(cudaDeviceGetP2PAttribute(&perfRank, cudaDevP2PAttrPerformanceRank, device1, device2));
+            checkCudaErrors(
+                cudaDeviceGetP2PAttribute(&atomicSupported, cudaDevP2PAttrNativeAtomicSupported, device1, device2));
 
-      if (accessSupported) {
-        std::cout << "GPU" << device1 << " <-> GPU" << device2 << ":"
-                  << std::endl;
-        std::cout << "  * Atomic Supported: "
-                  << (atomicSupported ? "yes" : "no") << std::endl;
-        std::cout << "  * Perf Rank: " << perfRank << std::endl;
-      }
+            if (accessSupported) {
+                std::cout << "GPU" << device1 << " <-> GPU" << device2 << ":" << std::endl;
+                std::cout << "  * Atomic Supported: " << (atomicSupported ? "yes" : "no") << std::endl;
+                std::cout << "  * Perf Rank: " << perfRank << std::endl;
+            }
+        }
     }
-  }
 
-  // Enumerates Device <-> Host links
-  for (int device = 0; device < deviceCount; device++) {
-    int atomicSupported = 0;
-    checkCudaErrors(cudaDeviceGetAttribute(
-        &atomicSupported, cudaDevAttrHostNativeAtomicSupported, device));
-    std::cout << "GPU" << device << " <-> CPU:" << std::endl;
-    std::cout << "  * Atomic Supported: " << (atomicSupported ? "yes" : "no")
-              << std::endl;
-  }
+    // Enumerates Device <-> Host links
+    for (int device = 0; device < deviceCount; device++) {
+        int atomicSupported = 0;
+        checkCudaErrors(cudaDeviceGetAttribute(&atomicSupported, cudaDevAttrHostNativeAtomicSupported, device));
+        std::cout << "GPU" << device << " <-> CPU:" << std::endl;
+        std::cout << "  * Atomic Supported: " << (atomicSupported ? "yes" : "no") << std::endl;
+    }
 
-  return 0;
+    return 0;
 }

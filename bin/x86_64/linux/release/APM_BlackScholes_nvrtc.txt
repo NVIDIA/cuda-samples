@@ -10,10 +10,10 @@ Initializing data...
 Data init done.
 
 Executing Black-Scholes GPU kernel (512 iterations)...
-Options count             : 8000000     
+Options count             : 8000000
 BlackScholesGPU() time    : 0.047896 msec
 Effective memory bandwidth: 1670.268678 GB/s
-Gigaoptions per second    : 167.026868     
+Gigaoptions per second    : 167.026868
 
 BlackScholes, Throughput = 167.0269 GOptions/s, Time = 0.00005 s, Size = 8000000 options, NumDevsUsed = 1, Workgroup = 128
 

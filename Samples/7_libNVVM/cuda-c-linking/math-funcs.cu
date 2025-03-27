@@ -29,57 +29,56 @@
 
 // Note that this kernel is meant to be a simple, straight-forward
 // implementation, and so may not represent optimized GPU code.
-extern "C"
-__device__
-void mandelbrot(float* Data) {
+extern "C" __device__ void mandelbrot(float *Data)
+{
 
-  // Which pixel am I?
-  unsigned DataX = blockIdx.x * blockDim.x + threadIdx.x;
-  unsigned DataY = blockIdx.y * blockDim.y + threadIdx.y;
-  unsigned Width = gridDim.x * blockDim.x;
-  unsigned Height = gridDim.y * blockDim.y;
+    // Which pixel am I?
+    unsigned DataX  = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned DataY  = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned Width  = gridDim.x * blockDim.x;
+    unsigned Height = gridDim.y * blockDim.y;
 
-  float R, G, B, A;
+    float R, G, B, A;
 
-  // Scale coordinates to (-2.5, 1) and (-1, 1)
+    // Scale coordinates to (-2.5, 1) and (-1, 1)
 
-  float NormX = (float)DataX / (float)Width;
-  NormX *= 3.5f;
-  NormX -= 2.5f;
+    float NormX = (float)DataX / (float)Width;
+    NormX *= 3.5f;
+    NormX -= 2.5f;
 
-  float NormY = (float)DataY / (float)Height;
-  NormY *= 2.0f;
-  NormY -= 1.0f;
+    float NormY = (float)DataY / (float)Height;
+    NormY *= 2.0f;
+    NormY -= 1.0f;
 
-  float X0 = NormX;
-  float Y0 = NormY;
+    float X0 = NormX;
+    float Y0 = NormY;
 
-  float X = 0.0f;
-  float Y = 0.0f;
+    float X = 0.0f;
+    float Y = 0.0f;
 
-  unsigned Iter = 0;
-  unsigned MaxIter = 1000;
+    unsigned Iter    = 0;
+    unsigned MaxIter = 1000;
 
-  // Iterate
-  while(X*X + Y*Y < 4.0f && Iter < MaxIter) {
-    float XTemp = X*X - Y*Y + X0;
-    Y = 2.0f*X*Y + Y0;
+    // Iterate
+    while (X * X + Y * Y < 4.0f && Iter < MaxIter) {
+        float XTemp = X * X - Y * Y + X0;
+        Y           = 2.0f * X * Y + Y0;
 
-    X = XTemp;
+        X = XTemp;
 
-    Iter++;
-  }
+        Iter++;
+    }
 
-  unsigned ColorG = Iter % 50;
-  unsigned ColorB = Iter % 25;
+    unsigned ColorG = Iter % 50;
+    unsigned ColorB = Iter % 25;
 
-  R = 0.0f;
-  G = (float)ColorG / 50.0f;
-  B = (float)ColorB / 25.0f;
-  A = 1.0f;
+    R = 0.0f;
+    G = (float)ColorG / 50.0f;
+    B = (float)ColorB / 25.0f;
+    A = 1.0f;
 
-  Data[DataY*Width*4+DataX*4+0] = R;
-  Data[DataY*Width*4+DataX*4+1] = G;
-  Data[DataY*Width*4+DataX*4+2] = B;
-  Data[DataY*Width*4+DataX*4+3] = A;
+    Data[DataY * Width * 4 + DataX * 4 + 0] = R;
+    Data[DataY * Width * 4 + DataX * 4 + 1] = G;
+    Data[DataY * Width * 4 + DataX * 4 + 2] = B;
+    Data[DataY * Width * 4 + DataX * 4 + 3] = A;
 }

@@ -18,7 +18,7 @@ This sample evaluates fair call and put prices for a given set of European optio
 
 ### [BlackScholes_nvrtc](./BlackScholes_nvrtc)
 This sample evaluates fair call and put prices for a given set of European options by Black-Scholes formula, compiling the CUDA kernels involved at runtime using NVRTC.
-    
+
 
 ### [convolutionFFT2D](./convolutionFFT2D)
 This sample demonstrates how 2D convolutions with very large kernel sizes can be efficiently implemented using FFT transformations.
@@ -152,4 +152,3 @@ This sample demonstrates basic volume rendering using 3D Textures.
 
 ### [vulkanImageCUDA](./vulkanImageCUDA)
 This sample demonstrates Vulkan Image - CUDA Interop. CUDA imports the Vulkan image buffer, performs box filtering over it, and synchronizes with Vulkan through vulkan semaphores imported by CUDA. This sample depends on Vulkan SDK, GLFW3 libraries, for building this sample please refer to "Build_instructions.txt" provided in this sample's directory
-

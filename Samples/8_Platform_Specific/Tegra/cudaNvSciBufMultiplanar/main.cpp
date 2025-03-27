@@ -25,48 +25,48 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include <cuda.h>
-#include <vector>
-#include "cudaNvSciBufMultiplanar.h"
 #include <helper_image.h>
+#include <vector>
+
+#include "cudaNvSciBufMultiplanar.h"
 
 #define MAX_FILE_SIZE 100
 
-int main(int argc, const char **argv) {
-  int numOfGPUs = 0;
-  std::vector<int> deviceIds;
-  (cudaGetDeviceCount(&numOfGPUs));
+int main(int argc, const char **argv)
+{
+    int              numOfGPUs = 0;
+    std::vector<int> deviceIds;
+    (cudaGetDeviceCount(&numOfGPUs));
 
-  printf("%d GPUs found\n", numOfGPUs);
-  if (!numOfGPUs) {
-    exit(EXIT_WAIVED);
-  } else {
-    for (int devID = 0; devID < numOfGPUs; devID++) {
-      int major = 0, minor = 0;
-      (cudaDeviceGetAttribute(
-          &major, cudaDevAttrComputeCapabilityMajor, devID));
-      (cudaDeviceGetAttribute(
-          &minor, cudaDevAttrComputeCapabilityMinor, devID));
-      if (major >= 6) {
-        deviceIds.push_back(devID);
-      }
+    printf("%d GPUs found\n", numOfGPUs);
+    if (!numOfGPUs) {
+        exit(EXIT_WAIVED);
     }
-    if (deviceIds.size() == 0) {
-      printf(
-          "cudaNvSciBufMultiplanar requires one or more GPUs of Pascal(SM 6.0) or higher "
-          "archs\nWaiving..\n");
-      exit(EXIT_WAIVED);
+    else {
+        for (int devID = 0; devID < numOfGPUs; devID++) {
+            int major = 0, minor = 0;
+            (cudaDeviceGetAttribute(&major, cudaDevAttrComputeCapabilityMajor, devID));
+            (cudaDeviceGetAttribute(&minor, cudaDevAttrComputeCapabilityMinor, devID));
+            if (major >= 6) {
+                deviceIds.push_back(devID);
+            }
+        }
+        if (deviceIds.size() == 0) {
+            printf("cudaNvSciBufMultiplanar requires one or more GPUs of Pascal(SM 6.0) or higher "
+                   "archs\nWaiving..\n");
+            exit(EXIT_WAIVED);
+        }
     }
-  }
 
-  std::string image_filename = sdkFindFilePath("yuv_planar_img1.yuv", argv[0]);
-  std::string image_filename_out = "image_out.yuv";
-  uint32_t imageWidth = 720;
-  uint32_t imageHeight = 480;
+    std::string image_filename     = sdkFindFilePath("yuv_planar_img1.yuv", argv[0]);
+    std::string image_filename_out = "image_out.yuv";
+    uint32_t    imageWidth         = 720;
+    uint32_t    imageHeight        = 480;
 
-  printf("input image %s , width = %d, height = %d\n", image_filename.c_str(), imageWidth, imageHeight);
+    printf("input image %s , width = %d, height = %d\n", image_filename.c_str(), imageWidth, imageHeight);
 
-  cudaNvSciBufMultiplanar cudaNvSciBufMultiplanarApp(imageWidth, imageHeight, deviceIds);
-  cudaNvSciBufMultiplanarApp.runCudaNvSciBufPlanar(image_filename, image_filename_out);
+    cudaNvSciBufMultiplanar cudaNvSciBufMultiplanarApp(imageWidth, imageHeight, deviceIds);
+    cudaNvSciBufMultiplanarApp.runCudaNvSciBufPlanar(image_filename, image_filename_out);
 
-  return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }

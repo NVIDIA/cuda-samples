@@ -1,6 +1,6 @@
 ./deviceQueryDrv Starting...
 
-CUDA Device Query (Driver API) statically linked version 
+CUDA Device Query (Driver API) statically linked version
 Detected 1 CUDA Capable device(s)
 
 Device 0: "NVIDIA H100 PCIe"

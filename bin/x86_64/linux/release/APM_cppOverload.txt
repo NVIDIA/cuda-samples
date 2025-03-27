@@ -28,4 +28,3 @@ Number of Registers: 14
 PTX Version: 90
 Binary Version: 90
 simple_kernel(const int *pIn1, const int *pIn2, int *pOut, int a) PASSED
-

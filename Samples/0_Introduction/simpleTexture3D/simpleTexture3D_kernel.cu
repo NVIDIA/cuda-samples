@@ -28,111 +28,111 @@
 #ifndef _SIMPLETEXTURE3D_KERNEL_CU_
 #define _SIMPLETEXTURE3D_KERNEL_CU_
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-
 #include <helper_cuda.h>
 #include <helper_math.h>
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-typedef unsigned int uint;
+typedef unsigned int  uint;
 typedef unsigned char uchar;
 
-cudaArray *d_volumeArray = 0;
-cudaTextureObject_t tex;  // 3D texture
+cudaArray          *d_volumeArray = 0;
+cudaTextureObject_t tex; // 3D texture
 
-__global__ void d_render(uint *d_output, uint imageW, uint imageH, float w,
-                         cudaTextureObject_t texObj) {
-  uint x = __umul24(blockIdx.x, blockDim.x) + threadIdx.x;
-  uint y = __umul24(blockIdx.y, blockDim.y) + threadIdx.y;
+__global__ void d_render(uint *d_output, uint imageW, uint imageH, float w, cudaTextureObject_t texObj)
+{
+    uint x = __umul24(blockIdx.x, blockDim.x) + threadIdx.x;
+    uint y = __umul24(blockIdx.y, blockDim.y) + threadIdx.y;
 
-  float u = x / (float)imageW;
-  float v = y / (float)imageH;
-  // read from 3D texture
-  float voxel = tex3D<float>(texObj, u, v, w);
+    float u = x / (float)imageW;
+    float v = y / (float)imageH;
+    // read from 3D texture
+    float voxel = tex3D<float>(texObj, u, v, w);
 
-  if ((x < imageW) && (y < imageH)) {
-    // write output color
-    uint i = __umul24(y, imageW) + x;
-    d_output[i] = voxel * 255;
-  }
+    if ((x < imageW) && (y < imageH)) {
+        // write output color
+        uint i      = __umul24(y, imageW) + x;
+        d_output[i] = voxel * 255;
+    }
 }
 
-extern "C" void setTextureFilterMode(bool bLinearFilter) {
-  if (tex) {
-    checkCudaErrors(cudaDestroyTextureObject(tex));
-  }
-  cudaResourceDesc texRes;
-  memset(&texRes, 0, sizeof(cudaResourceDesc));
+extern "C" void setTextureFilterMode(bool bLinearFilter)
+{
+    if (tex) {
+        checkCudaErrors(cudaDestroyTextureObject(tex));
+    }
+    cudaResourceDesc texRes;
+    memset(&texRes, 0, sizeof(cudaResourceDesc));
 
-  texRes.resType = cudaResourceTypeArray;
-  texRes.res.array.array = d_volumeArray;
+    texRes.resType         = cudaResourceTypeArray;
+    texRes.res.array.array = d_volumeArray;
 
-  cudaTextureDesc texDescr;
-  memset(&texDescr, 0, sizeof(cudaTextureDesc));
+    cudaTextureDesc texDescr;
+    memset(&texDescr, 0, sizeof(cudaTextureDesc));
 
-  texDescr.normalizedCoords = true;
-  texDescr.filterMode =
-      bLinearFilter ? cudaFilterModeLinear : cudaFilterModePoint;
-  ;
-  texDescr.addressMode[0] = cudaAddressModeWrap;
-  texDescr.addressMode[1] = cudaAddressModeWrap;
-  texDescr.addressMode[2] = cudaAddressModeWrap;
-  texDescr.readMode = cudaReadModeNormalizedFloat;
+    texDescr.normalizedCoords = true;
+    texDescr.filterMode       = bLinearFilter ? cudaFilterModeLinear : cudaFilterModePoint;
+    ;
+    texDescr.addressMode[0] = cudaAddressModeWrap;
+    texDescr.addressMode[1] = cudaAddressModeWrap;
+    texDescr.addressMode[2] = cudaAddressModeWrap;
+    texDescr.readMode       = cudaReadModeNormalizedFloat;
 
-  checkCudaErrors(cudaCreateTextureObject(&tex, &texRes, &texDescr, NULL));
+    checkCudaErrors(cudaCreateTextureObject(&tex, &texRes, &texDescr, NULL));
 }
 
-extern "C" void initCuda(const uchar *h_volume, cudaExtent volumeSize) {
-  // create 3D array
-  cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<uchar>();
-  checkCudaErrors(cudaMalloc3DArray(&d_volumeArray, &channelDesc, volumeSize));
+extern "C" void initCuda(const uchar *h_volume, cudaExtent volumeSize)
+{
+    // create 3D array
+    cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<uchar>();
+    checkCudaErrors(cudaMalloc3DArray(&d_volumeArray, &channelDesc, volumeSize));
 
-  // copy data to 3D array
-  cudaMemcpy3DParms copyParams = {0};
-  copyParams.srcPtr =
-      make_cudaPitchedPtr((void *)h_volume, volumeSize.width * sizeof(uchar),
-                          volumeSize.width, volumeSize.height);
-  copyParams.dstArray = d_volumeArray;
-  copyParams.extent = volumeSize;
-  copyParams.kind = cudaMemcpyHostToDevice;
-  checkCudaErrors(cudaMemcpy3D(&copyParams));
+    // copy data to 3D array
+    cudaMemcpy3DParms copyParams = {0};
+    copyParams.srcPtr =
+        make_cudaPitchedPtr((void *)h_volume, volumeSize.width * sizeof(uchar), volumeSize.width, volumeSize.height);
+    copyParams.dstArray = d_volumeArray;
+    copyParams.extent   = volumeSize;
+    copyParams.kind     = cudaMemcpyHostToDevice;
+    checkCudaErrors(cudaMemcpy3D(&copyParams));
 
-  cudaResourceDesc texRes;
-  memset(&texRes, 0, sizeof(cudaResourceDesc));
+    cudaResourceDesc texRes;
+    memset(&texRes, 0, sizeof(cudaResourceDesc));
 
-  texRes.resType = cudaResourceTypeArray;
-  texRes.res.array.array = d_volumeArray;
+    texRes.resType         = cudaResourceTypeArray;
+    texRes.res.array.array = d_volumeArray;
 
-  cudaTextureDesc texDescr;
-  memset(&texDescr, 0, sizeof(cudaTextureDesc));
+    cudaTextureDesc texDescr;
+    memset(&texDescr, 0, sizeof(cudaTextureDesc));
 
-  // access with normalized texture coordinates
-  texDescr.normalizedCoords = true;
-  // linear interpolation
-  texDescr.filterMode = cudaFilterModeLinear;
-  // wrap texture coordinates
-  texDescr.addressMode[0] = cudaAddressModeWrap;
-  texDescr.addressMode[1] = cudaAddressModeWrap;
-  texDescr.addressMode[2] = cudaAddressModeWrap;
-  texDescr.readMode = cudaReadModeNormalizedFloat;
+    // access with normalized texture coordinates
+    texDescr.normalizedCoords = true;
+    // linear interpolation
+    texDescr.filterMode = cudaFilterModeLinear;
+    // wrap texture coordinates
+    texDescr.addressMode[0] = cudaAddressModeWrap;
+    texDescr.addressMode[1] = cudaAddressModeWrap;
+    texDescr.addressMode[2] = cudaAddressModeWrap;
+    texDescr.readMode       = cudaReadModeNormalizedFloat;
 
-  checkCudaErrors(cudaCreateTextureObject(&tex, &texRes, &texDescr, NULL));
+    checkCudaErrors(cudaCreateTextureObject(&tex, &texRes, &texDescr, NULL));
 }
 
-extern "C" void render_kernel(dim3 gridSize, dim3 blockSize, uint *d_output,
-                              uint imageW, uint imageH, float w) {
-  d_render<<<gridSize, blockSize>>>(d_output, imageW, imageH, w, tex);
+extern "C" void render_kernel(dim3 gridSize, dim3 blockSize, uint *d_output, uint imageW, uint imageH, float w)
+{
+    d_render<<<gridSize, blockSize>>>(d_output, imageW, imageH, w, tex);
 }
 
-void cleanupCuda() {
-  if (tex) {
-    checkCudaErrors(cudaDestroyTextureObject(tex));
-  }
-  if (d_volumeArray) {
-    checkCudaErrors(cudaFreeArray(d_volumeArray));
-  }
+void cleanupCuda()
+{
+    if (tex) {
+        checkCudaErrors(cudaDestroyTextureObject(tex));
+    }
+    if (d_volumeArray) {
+        checkCudaErrors(cudaFreeArray(d_volumeArray));
+    }
 }
 
-#endif  // #ifndef _SIMPLETEXTURE3D_KERNEL_CU_
+#endif // #ifndef _SIMPLETEXTURE3D_KERNEL_CU_

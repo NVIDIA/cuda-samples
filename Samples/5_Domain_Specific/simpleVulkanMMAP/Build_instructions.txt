@@ -21,7 +21,7 @@ For Linux:
 
 
 For Linux aarch64(L4T):
--- Install GLFW3 library using "sudo apt-get install libglfw3-dev" this will provide glfw3 
+-- Install GLFW3 library using "sudo apt-get install libglfw3-dev" this will provide glfw3
 -- install above will also provide libvulkan-dev as dependencies
 -- Add Vulkan and GLFW3 libraries directories to LD_LIBRARY_PATH
 -- Pass path to vulkan sdk while building 'make VULKAN_SDK_PATH=<PATH_TO_VULKAN_SDK>', VULKAN_SDK_PATH in this scenario is typically "/usr"

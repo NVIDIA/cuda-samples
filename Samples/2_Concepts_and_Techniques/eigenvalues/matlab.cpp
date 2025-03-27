@@ -26,20 +26,21 @@
  */
 
 //! includes, system
-#include <cmath>
-#include <iostream>
-#include <iomanip>
-#include <vector>
-#include <cassert>
-#include <fstream>
 #include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
 #include <map>
+#include <vector>
 
 // includes, projcet
 #include "matlab.h"
 
 // namespace, unnamed
-namespace {}  // end namespace, unnamed
+namespace {
+} // namespace
 
 ///////////////////////////////////////////////////////////////////////////////
 //! Write a tridiagonal, symmetric matrix in vector representation and
@@ -52,18 +53,18 @@ namespace {}  // end namespace, unnamed
 //!                  if these are sorted in ascending order
 //! @param  n  size of the matrix
 ///////////////////////////////////////////////////////////////////////////////
-void writeTridiagSymMatlab(const char *filename, float *d, float *s,
-                           float *eigenvals, const unsigned int n) {
-  std::ofstream file(filename, std::ios::out);
+void writeTridiagSymMatlab(const char *filename, float *d, float *s, float *eigenvals, const unsigned int n)
+{
+    std::ofstream file(filename, std::ios::out);
 
-  // write diagonal entries
-  writeVectorMatlab(file, "d", d, n);
+    // write diagonal entries
+    writeVectorMatlab(file, "d", d, n);
 
-  // write superdiagonal entries
-  writeVectorMatlab(file, "s", s, n - 1);
+    // write superdiagonal entries
+    writeVectorMatlab(file, "s", s, n - 1);
 
-  // write eigenvalues
-  writeVectorMatlab(file, "eigvals", eigenvals, n);
+    // write eigenvalues
+    writeVectorMatlab(file, "eigvals", eigenvals, n);
 
-  file.close();
+    file.close();
 }

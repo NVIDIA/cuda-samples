@@ -25,28 +25,28 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "cudla.h"
-#include "cuda_runtime.h"
-#include "cudlaExternalEtbl.hpp"
-
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <sys/stat.h>
 #include <fstream>
 #include <sstream>
+#include <sys/stat.h>
 
-#define MAX_FILENAME_LEN 200
+#include "cuda_runtime.h"
+#include "cudla.h"
+#include "cudlaExternalEtbl.hpp"
+
+#define MAX_FILENAME_LEN    200
 #define RESERVED_SUFFIX_LEN 10
 
 #define DPRINTF(...) printf(__VA_ARGS__)
 
-static void printTensorDesc(cudlaModuleTensorDescriptor* tensorDesc) {
+static void printTensorDesc(cudlaModuleTensorDescriptor *tensorDesc)
+{
     DPRINTF("\tTENSOR NAME : %s\n", tensorDesc->name);
     DPRINTF("\tsize: %lu\n", tensorDesc->size);
 
-    DPRINTF("\tdims: [%lu, %lu, %lu, %lu]\n", tensorDesc->n, tensorDesc->c,
-            tensorDesc->h, tensorDesc->w);
+    DPRINTF("\tdims: [%lu, %lu, %lu, %lu]\n", tensorDesc->n, tensorDesc->c, tensorDesc->h, tensorDesc->w);
 
     DPRINTF("\tdata fmt: %d\n", tensorDesc->dataFormat);
     DPRINTF("\tdata type: %d\n", tensorDesc->dataType);
@@ -59,33 +59,35 @@ static void printTensorDesc(cudlaModuleTensorDescriptor* tensorDesc) {
     DPRINTF("\tstride[3]: %d\n", tensorDesc->stride[3]);
 }
 
-typedef struct {
-    cudlaDevHandle devHandle;
-    cudlaModule moduleHandle;
-    unsigned char* loadableData;
-    cudaStream_t stream;
-    uint32_t numInputTensors;
-    uint32_t numOutputTensors;
-    uint32_t numOutputTaskStatistics;
-    unsigned char** inputBuffer;
-    unsigned char** outputBuffer;
-    unsigned char** statisticsOutputBuffer;
-    void** inputBufferGPU;
-    void** outputBufferGPU;
-    void** outputTaskStatisticsGPU;
-    void **csv;
-    cudlaModuleTensorDescriptor* inputTensorDesc;
-    cudlaModuleTensorDescriptor* outputTensorDesc;
-    cudlaModuleTensorDescriptor* outputTaskStatisticsDesc;
-    uint64_t** inputBufferRegisteredPtr;
-    uint64_t** outputBufferRegisteredPtr;
-    uint64_t** outputTaskStatisticsRegisteredPtr;
-    uint64_t** outputStatisticsBufferRegisteredPtr;
+typedef struct
+{
+    cudlaDevHandle               devHandle;
+    cudlaModule                  moduleHandle;
+    unsigned char               *loadableData;
+    cudaStream_t                 stream;
+    uint32_t                     numInputTensors;
+    uint32_t                     numOutputTensors;
+    uint32_t                     numOutputTaskStatistics;
+    unsigned char              **inputBuffer;
+    unsigned char              **outputBuffer;
+    unsigned char              **statisticsOutputBuffer;
+    void                       **inputBufferGPU;
+    void                       **outputBufferGPU;
+    void                       **outputTaskStatisticsGPU;
+    void                       **csv;
+    cudlaModuleTensorDescriptor *inputTensorDesc;
+    cudlaModuleTensorDescriptor *outputTensorDesc;
+    cudlaModuleTensorDescriptor *outputTaskStatisticsDesc;
+    uint64_t                   **inputBufferRegisteredPtr;
+    uint64_t                   **outputBufferRegisteredPtr;
+    uint64_t                   **outputTaskStatisticsRegisteredPtr;
+    uint64_t                   **outputStatisticsBufferRegisteredPtr;
 } ResourceList;
 
-void cleanUp(ResourceList* resourceList);
+void cleanUp(ResourceList *resourceList);
 
-void cleanUp(ResourceList* resourceList) {
+void cleanUp(ResourceList *resourceList)
+{
     uint32_t ii = 0;
     if (resourceList->inputTensorDesc != NULL) {
         free(resourceList->inputTensorDesc);
@@ -152,8 +154,7 @@ void cleanUp(ResourceList* resourceList) {
 
     if (resourceList->csv != NULL) {
         for (ii = 0; ii < resourceList->numOutputTaskStatistics; ii++) {
-            if ((resourceList->csv)[ii] != NULL)
-            {
+            if ((resourceList->csv)[ii] != NULL) {
                 free((resourceList->csv)[ii]);
                 (resourceList->csv)[ii] = NULL;
             }
@@ -175,8 +176,7 @@ void cleanUp(ResourceList* resourceList) {
 
     if (resourceList->outputBuffer != NULL) {
         for (ii = 0; ii < resourceList->numOutputTensors; ii++) {
-            if ((resourceList->outputBuffer)[ii] != NULL)
-            {
+            if ((resourceList->outputBuffer)[ii] != NULL) {
                 free((resourceList->outputBuffer)[ii]);
                 (resourceList->outputBuffer)[ii] = NULL;
             }
@@ -221,42 +221,44 @@ void cleanUp(ResourceList* resourceList) {
         resourceList->outputStatisticsBufferRegisteredPtr = NULL;
     }
 
-    resourceList->numInputTensors = 0;
-    resourceList->numOutputTensors = 0;
+    resourceList->numInputTensors         = 0;
+    resourceList->numOutputTensors        = 0;
     resourceList->numOutputTaskStatistics = 0;
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
     cudlaDevHandle devHandle;
-    cudlaModule moduleHandle;
-    cudlaStatus err;
-    uint32_t statSupport = 0;
-    uint32_t dlaFreqInMHz = 0;
-    FILE* fp = NULL;
-    struct stat st;
-    size_t file_size;
-    size_t actually_read = 0;
-    unsigned char *loadableData = NULL;
-    char filename[MAX_FILENAME_LEN];
-    const char* suffix = ".csv";
+    cudlaModule    moduleHandle;
+    cudlaStatus    err;
+    uint32_t       statSupport  = 0;
+    uint32_t       dlaFreqInMHz = 0;
+    FILE          *fp           = NULL;
+    struct stat    st;
+    size_t         file_size;
+    size_t         actually_read = 0;
+    unsigned char *loadableData  = NULL;
+    char           filename[MAX_FILENAME_LEN];
+    const char    *suffix = ".csv";
 
     cudaStream_t stream;
-    cudaError_t result;
-    const char* errPtr = NULL;
+    cudaError_t  result;
+    const char  *errPtr = NULL;
 
     ResourceList resourceList;
 
     memset(&resourceList, 0x00, sizeof(ResourceList));
 
     if ((argc != 4) && (argc != 5)) {
-        DPRINTF("Usage : ./test_cudla_layerwise_stats_L0_hybrid_test1 <loadable> <freqMHZ> <statSupport> <filename prefix>\n");
+        DPRINTF("Usage : ./test_cudla_layerwise_stats_L0_hybrid_test1 <loadable> <freqMHZ> <statSupport> <filename "
+                "prefix>\n");
         return 1;
     }
 
     if (argc == 5) {
-        if((strlen(argv[4])) > (MAX_FILENAME_LEN - RESERVED_SUFFIX_LEN))
-        {
-            DPRINTF("Filename prefix length is too big, greater than maximum permissible prefix length of %u \n",(MAX_FILENAME_LEN - RESERVED_SUFFIX_LEN));
+        if ((strlen(argv[4])) > (MAX_FILENAME_LEN - RESERVED_SUFFIX_LEN)) {
+            DPRINTF("Filename prefix length is too big, greater than maximum permissible prefix length of %u \n",
+                    (MAX_FILENAME_LEN - RESERVED_SUFFIX_LEN));
             return 1;
         }
     }
@@ -277,7 +279,7 @@ int main(int argc, char** argv) {
     DPRINTF("The file size = %ld\n", file_size);
 
     dlaFreqInMHz = atoi(argv[2]);
-    statSupport = atoi(argv[3]);
+    statSupport  = atoi(argv[3]);
 
     loadableData = (unsigned char *)malloc(file_size);
     if (loadableData == NULL) {
@@ -286,7 +288,7 @@ int main(int argc, char** argv) {
     }
 
     actually_read = fread(loadableData, 1, file_size, fp);
-    if ( actually_read != file_size ) {
+    if (actually_read != file_size) {
         free(loadableData);
         DPRINTF("Read wrong size\n");
         return 1;
@@ -327,8 +329,9 @@ int main(int argc, char** argv) {
         DPRINTF("Error in cudlaModuleLoadFromMemory = %d\n", err);
         cleanUp(&resourceList);
         return 1;
-    } else {
-      DPRINTF("Successfully loaded module\n");
+    }
+    else {
+        DPRINTF("Successfully loaded module\n");
     }
 
     resourceList.moduleHandle = moduleHandle;
@@ -346,8 +349,8 @@ int main(int argc, char** argv) {
     resourceList.stream = stream;
 
     // Get tensor attributes.
-    uint32_t numInputTensors = 0;
-    uint32_t numOutputTensors = 0;
+    uint32_t numInputTensors         = 0;
+    uint32_t numOutputTensors        = 0;
     uint32_t numOutputTaskStatistics = 0;
 
     cudlaModuleAttribute attribute;
@@ -382,20 +385,20 @@ int main(int argc, char** argv) {
     numOutputTaskStatistics = attribute.numOutputTensors;
     DPRINTF("numOutputTaskStatistics = %d\n", numOutputTaskStatistics);
 
-    if(numOutputTaskStatistics == 0) {
+    if (numOutputTaskStatistics == 0) {
         DPRINTF("Layerwise stats is not supported for this Loadable \n");
         cleanUp(&resourceList);
         return 1;
     }
 
-    resourceList.numInputTensors = numInputTensors;
-    resourceList.numOutputTensors = numOutputTensors;
+    resourceList.numInputTensors         = numInputTensors;
+    resourceList.numOutputTensors        = numOutputTensors;
     resourceList.numOutputTaskStatistics = numOutputTaskStatistics;
 
-    cudlaModuleTensorDescriptor* inputTensorDesc =
-        (cudlaModuleTensorDescriptor*)malloc(sizeof(cudlaModuleTensorDescriptor)*numInputTensors);
-    cudlaModuleTensorDescriptor* outputTensorDesc =
-        (cudlaModuleTensorDescriptor*)malloc(sizeof(cudlaModuleTensorDescriptor)*numOutputTensors);
+    cudlaModuleTensorDescriptor *inputTensorDesc =
+        (cudlaModuleTensorDescriptor *)malloc(sizeof(cudlaModuleTensorDescriptor) * numInputTensors);
+    cudlaModuleTensorDescriptor *outputTensorDesc =
+        (cudlaModuleTensorDescriptor *)malloc(sizeof(cudlaModuleTensorDescriptor) * numOutputTensors);
 
     if ((inputTensorDesc == NULL) || (outputTensorDesc == NULL)) {
         if (inputTensorDesc != NULL) {
@@ -412,11 +415,11 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    resourceList.inputTensorDesc = inputTensorDesc;
+    resourceList.inputTensorDesc  = inputTensorDesc;
     resourceList.outputTensorDesc = outputTensorDesc;
 
-    cudlaModuleTensorDescriptor* outputTaskStatisticsDesc =
-    (cudlaModuleTensorDescriptor*)malloc(sizeof(cudlaModuleTensorDescriptor)*numOutputTaskStatistics);
+    cudlaModuleTensorDescriptor *outputTaskStatisticsDesc =
+        (cudlaModuleTensorDescriptor *)malloc(sizeof(cudlaModuleTensorDescriptor) * numOutputTaskStatistics);
     if (outputTaskStatisticsDesc == NULL) {
         free(outputTaskStatisticsDesc);
         outputTaskStatisticsDesc = NULL;
@@ -427,9 +430,7 @@ int main(int argc, char** argv) {
     resourceList.outputTaskStatisticsDesc = outputTaskStatisticsDesc;
 
     attribute.inputTensorDesc = inputTensorDesc;
-    err = cudlaModuleGetAttributes(moduleHandle,
-                                   CUDLA_INPUT_TENSOR_DESCRIPTORS,
-                                   &attribute);
+    err                       = cudlaModuleGetAttributes(moduleHandle, CUDLA_INPUT_TENSOR_DESCRIPTORS, &attribute);
     if (err != cudlaSuccess) {
         DPRINTF("Error in getting input tensor descriptor = %d\n", err);
         cleanUp(&resourceList);
@@ -439,9 +440,7 @@ int main(int argc, char** argv) {
     printTensorDesc(inputTensorDesc);
 
     attribute.outputTensorDesc = outputTensorDesc;
-    err = cudlaModuleGetAttributes(moduleHandle,
-                                   CUDLA_OUTPUT_TENSOR_DESCRIPTORS,
-                                   &attribute);
+    err                        = cudlaModuleGetAttributes(moduleHandle, CUDLA_OUTPUT_TENSOR_DESCRIPTORS, &attribute);
     if (err != cudlaSuccess) {
         DPRINTF("Error in getting output tensor descriptor = %d\n", err);
         cleanUp(&resourceList);
@@ -451,9 +450,7 @@ int main(int argc, char** argv) {
     printTensorDesc(outputTensorDesc);
 
     attribute.outputTensorDesc = outputTaskStatisticsDesc;
-    err = cudlaModuleGetAttributes(moduleHandle,
-                                   CUDLA_OUTPUT_TASK_STATISTICS_DESCRIPTORS,
-                                   &attribute);
+    err = cudlaModuleGetAttributes(moduleHandle, CUDLA_OUTPUT_TASK_STATISTICS_DESCRIPTORS, &attribute);
     if (err != cudlaSuccess) {
         DPRINTF("Error in getting task statistics descriptor = %d\n", err);
         cleanUp(&resourceList);
@@ -462,20 +459,20 @@ int main(int argc, char** argv) {
 
     DPRINTF("Printing output task statistics descriptor size\n");
     for (uint32_t ii = 0; ii < numOutputTaskStatistics; ii++) {
-        DPRINTF("The size of %u descriptor is %lu\n", ii,outputTaskStatisticsDesc[ii].size);
+        DPRINTF("The size of %u descriptor is %lu\n", ii, outputTaskStatisticsDesc[ii].size);
     }
 
     // Setup the input and output buffers which will be used as an input to CUDA.
-    unsigned char** inputBuffer = (unsigned char **)malloc(sizeof(unsigned char *)*numInputTensors);
+    unsigned char **inputBuffer = (unsigned char **)malloc(sizeof(unsigned char *) * numInputTensors);
     if (inputBuffer == NULL) {
         DPRINTF("Error in allocating memory for input buffer array\n");
         cleanUp(&resourceList);
         return 1;
     }
-    memset(inputBuffer, 0x00, sizeof(unsigned char *)*numInputTensors);
+    memset(inputBuffer, 0x00, sizeof(unsigned char *) * numInputTensors);
     resourceList.inputBuffer = inputBuffer;
     for (uint32_t ii = 0; ii < numInputTensors; ii++) {
-        inputBuffer[ii] = (unsigned char* )malloc(inputTensorDesc[ii].size);
+        inputBuffer[ii] = (unsigned char *)malloc(inputTensorDesc[ii].size);
         if (inputBuffer[ii] == NULL) {
             DPRINTF("Error in allocating input memory\n");
             cleanUp(&resourceList);
@@ -484,17 +481,17 @@ int main(int argc, char** argv) {
         memset(inputBuffer[ii], 0x01, inputTensorDesc[ii].size);
     }
 
-    unsigned char** outputBuffer = (unsigned char **)malloc(sizeof(unsigned char *)*numOutputTensors);
+    unsigned char **outputBuffer = (unsigned char **)malloc(sizeof(unsigned char *) * numOutputTensors);
     if (outputBuffer == NULL) {
         DPRINTF("Error in allocating memory for output buffer array\n");
         cleanUp(&resourceList);
         return 1;
     }
-    memset(outputBuffer, 0x00, sizeof(unsigned char *)*numOutputTensors);
+    memset(outputBuffer, 0x00, sizeof(unsigned char *) * numOutputTensors);
     resourceList.outputBuffer = outputBuffer;
 
     for (uint32_t ii = 0; ii < numOutputTensors; ii++) {
-        outputBuffer[ii] = (unsigned char* )malloc(outputTensorDesc[ii].size);
+        outputBuffer[ii] = (unsigned char *)malloc(outputTensorDesc[ii].size);
         if (outputBuffer[ii] == NULL) {
             DPRINTF("Error in allocating output memory\n");
             cleanUp(&resourceList);
@@ -503,17 +500,18 @@ int main(int argc, char** argv) {
         memset(outputBuffer[ii], 0x00, outputTensorDesc[ii].size);
     }
 
-    unsigned char** statisticsOutputBuffer = (unsigned char **)malloc(sizeof(unsigned char *)*numOutputTaskStatistics);
+    unsigned char **statisticsOutputBuffer =
+        (unsigned char **)malloc(sizeof(unsigned char *) * numOutputTaskStatistics);
     if (statisticsOutputBuffer == NULL) {
         DPRINTF("Error in allocating memory for output buffer array\n");
         cleanUp(&resourceList);
         return 1;
     }
-    memset(statisticsOutputBuffer, 0x00, sizeof(unsigned char *)*numOutputTaskStatistics);
+    memset(statisticsOutputBuffer, 0x00, sizeof(unsigned char *) * numOutputTaskStatistics);
     resourceList.statisticsOutputBuffer = statisticsOutputBuffer;
 
     for (uint32_t ii = 0; ii < numOutputTaskStatistics; ii++) {
-        statisticsOutputBuffer[ii] = (unsigned char* )malloc(outputTaskStatisticsDesc[ii].size);
+        statisticsOutputBuffer[ii] = (unsigned char *)malloc(outputTaskStatisticsDesc[ii].size);
         if (outputBuffer[ii] == NULL) {
             DPRINTF("Error in allocating output memory\n");
             cleanUp(&resourceList);
@@ -523,32 +521,31 @@ int main(int argc, char** argv) {
     }
 
     // Allocate memory on GPU.
-    void** inputBufferGPU = (void **)malloc(sizeof(void *)*numInputTensors);
+    void **inputBufferGPU = (void **)malloc(sizeof(void *) * numInputTensors);
     if (inputBufferGPU == NULL) {
         DPRINTF("Error in allocating memory for input buffer GPU array\n");
         cleanUp(&resourceList);
         return 1;
     }
-    memset(inputBufferGPU, 0x00, sizeof(void *)*numInputTensors);
+    memset(inputBufferGPU, 0x00, sizeof(void *) * numInputTensors);
     resourceList.inputBufferGPU = inputBufferGPU;
 
     for (uint32_t ii = 0; ii < numInputTensors; ii++) {
         result = cudaMalloc(&(inputBufferGPU[ii]), inputTensorDesc[ii].size);
-        if (result != cudaSuccess)
-        {
+        if (result != cudaSuccess) {
             DPRINTF("Error in allocating input memory on GPU\n");
             cleanUp(&resourceList);
             return 1;
         }
     }
 
-    void** outputBufferGPU = (void **)malloc(sizeof(void *)*numOutputTensors);
+    void **outputBufferGPU = (void **)malloc(sizeof(void *) * numOutputTensors);
     if (outputBufferGPU == NULL) {
         DPRINTF("Error in allocating memory for output buffer GPU array\n");
         cleanUp(&resourceList);
         return 1;
     }
-    memset(outputBufferGPU, 0x00, sizeof(void *)*numOutputTensors);
+    memset(outputBufferGPU, 0x00, sizeof(void *) * numOutputTensors);
     resourceList.outputBufferGPU = outputBufferGPU;
 
     for (uint32_t ii = 0; ii < numOutputTensors; ii++) {
@@ -560,13 +557,13 @@ int main(int argc, char** argv) {
         }
     }
 
-    void** outputTaskStatisticsGPU = (void **)malloc(sizeof(void *)*numOutputTaskStatistics);
+    void **outputTaskStatisticsGPU = (void **)malloc(sizeof(void *) * numOutputTaskStatistics);
     if (outputTaskStatisticsGPU == NULL) {
         DPRINTF("Error in allocating memory for output task statistics GPU array\n");
         cleanUp(&resourceList);
         return 1;
     }
-    memset(outputTaskStatisticsGPU, 0x00, sizeof(void *)*numOutputTaskStatistics);
+    memset(outputTaskStatisticsGPU, 0x00, sizeof(void *) * numOutputTaskStatistics);
     resourceList.outputTaskStatisticsGPU = outputTaskStatisticsGPU;
 
     for (uint32_t ii = 0; ii < numOutputTaskStatistics; ii++) {
@@ -578,11 +575,12 @@ int main(int argc, char** argv) {
         }
     }
 
-    uint64_t** inputBufferRegisteredPtr = (uint64_t **)malloc(sizeof(uint64_t*)*numInputTensors);
-    uint64_t** outputBufferRegisteredPtr = (uint64_t **)malloc(sizeof(uint64_t*)*numOutputTensors);
-    uint64_t** outputTaskStatisticsRegisteredPtr = (uint64_t **)malloc(sizeof(uint64_t*)*numOutputTaskStatistics);
+    uint64_t **inputBufferRegisteredPtr          = (uint64_t **)malloc(sizeof(uint64_t *) * numInputTensors);
+    uint64_t **outputBufferRegisteredPtr         = (uint64_t **)malloc(sizeof(uint64_t *) * numOutputTensors);
+    uint64_t **outputTaskStatisticsRegisteredPtr = (uint64_t **)malloc(sizeof(uint64_t *) * numOutputTaskStatistics);
 
-    if ((inputBufferRegisteredPtr == NULL) || (outputBufferRegisteredPtr == NULL) || (outputTaskStatisticsRegisteredPtr == NULL)) {
+    if ((inputBufferRegisteredPtr == NULL) || (outputBufferRegisteredPtr == NULL)
+        || (outputTaskStatisticsRegisteredPtr == NULL)) {
         if (inputBufferRegisteredPtr != NULL) {
             free(inputBufferRegisteredPtr);
             inputBufferRegisteredPtr = NULL;
@@ -602,17 +600,14 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    resourceList.inputBufferRegisteredPtr = inputBufferRegisteredPtr;
-    resourceList.outputBufferRegisteredPtr = outputBufferRegisteredPtr;
+    resourceList.inputBufferRegisteredPtr          = inputBufferRegisteredPtr;
+    resourceList.outputBufferRegisteredPtr         = outputBufferRegisteredPtr;
     resourceList.outputTaskStatisticsRegisteredPtr = outputTaskStatisticsRegisteredPtr;
 
     // Register the CUDA-allocated buffers.
     for (uint32_t ii = 0; ii < numInputTensors; ii++) {
-        err = cudlaMemRegister(devHandle,
-                               (uint64_t* )(inputBufferGPU[ii]),
-                               inputTensorDesc[ii].size,
-                               &(inputBufferRegisteredPtr[ii]),
-                               0);
+        err = cudlaMemRegister(
+            devHandle, (uint64_t *)(inputBufferGPU[ii]), inputTensorDesc[ii].size, &(inputBufferRegisteredPtr[ii]), 0);
         if (err != cudlaSuccess) {
             DPRINTF("Error in registering input memory = %d\n", err);
             cleanUp(&resourceList);
@@ -622,7 +617,7 @@ int main(int argc, char** argv) {
 
     for (uint32_t ii = 0; ii < numOutputTensors; ii++) {
         err = cudlaMemRegister(devHandle,
-                               (uint64_t* )(outputBufferGPU[ii]),
+                               (uint64_t *)(outputBufferGPU[ii]),
                                outputTensorDesc[ii].size,
                                &(outputBufferRegisteredPtr[ii]),
                                0);
@@ -635,7 +630,7 @@ int main(int argc, char** argv) {
 
     for (uint32_t ii = 0; ii < numOutputTaskStatistics; ii++) {
         err = cudlaMemRegister(devHandle,
-                               (uint64_t* )(outputTaskStatisticsGPU[ii]),
+                               (uint64_t *)(outputTaskStatisticsGPU[ii]),
                                outputTaskStatisticsDesc[ii].size,
                                &(outputTaskStatisticsRegisteredPtr[ii]),
                                CUDLA_TASK_STATISTICS);
@@ -650,7 +645,8 @@ int main(int argc, char** argv) {
 
     // Copy data from CPU buffers to GPU buffers.
     for (uint32_t ii = 0; ii < numInputTensors; ii++) {
-        result = cudaMemcpyAsync(inputBufferGPU[ii], inputBuffer[ii], inputTensorDesc[ii].size, cudaMemcpyHostToDevice, stream);
+        result = cudaMemcpyAsync(
+            inputBufferGPU[ii], inputBuffer[ii], inputTensorDesc[ii].size, cudaMemcpyHostToDevice, stream);
         if (result != cudaSuccess) {
             DPRINTF("Error in enqueueing memcpy for input\n");
             cleanUp(&resourceList);
@@ -677,36 +673,37 @@ int main(int argc, char** argv) {
     }
 
     uint64_t *outputStatisticsBufferRegisteredPtr[numOutputTensors + numOutputTaskStatistics] = {0};
-    uint32_t index = 0;
-    for (; index < numOutputTensors ; index++) {
+    uint32_t  index                                                                           = 0;
+    for (; index < numOutputTensors; index++) {
         outputStatisticsBufferRegisteredPtr[index] = ((outputBufferRegisteredPtr[index]));
     }
 
-    for (uint32_t jj=0; jj < numOutputTaskStatistics ; jj++) {
+    for (uint32_t jj = 0; jj < numOutputTaskStatistics; jj++) {
         outputStatisticsBufferRegisteredPtr[index++] = ((outputTaskStatisticsRegisteredPtr[jj]));
     }
 
     // Enqueue a cuDLA task.
     cudlaTask task;
     task.moduleHandle = moduleHandle;
-    task.outputTensor = (uint64_t * const*)&outputStatisticsBufferRegisteredPtr;
+    task.outputTensor = (uint64_t *const *)&outputStatisticsBufferRegisteredPtr;
 
-    if(statSupport == 1) {
+    if (statSupport == 1) {
         task.numOutputTensors = (numOutputTensors + numOutputTaskStatistics);
         DPRINTF("Layerwise profiling is requested \n");
-    } else {
-      task.numOutputTensors = numOutputTensors;
-      DPRINTF("Layerwise profiling is not requested \n");
+    }
+    else {
+        task.numOutputTensors = numOutputTensors;
+        DPRINTF("Layerwise profiling is not requested \n");
     }
 
     task.numInputTensors = numInputTensors;
-    task.inputTensor = inputBufferRegisteredPtr;
-    task.waitEvents = NULL;
-    task.signalEvents = NULL;
+    task.inputTensor     = inputBufferRegisteredPtr;
+    task.waitEvents      = NULL;
+    task.signalEvents    = NULL;
 
     err = cudlaSubmitTask(devHandle, &task, 1, stream, 0);
     if (err != cudlaSuccess) {
-        DPRINTF("no of output tensor %u \n",(task.numOutputTensors));
+        DPRINTF("no of output tensor %u \n", (task.numOutputTensors));
         DPRINTF("Error in submitting task\n");
         cleanUp(&resourceList);
         return 1;
@@ -722,8 +719,8 @@ int main(int argc, char** argv) {
 
     // Wait for stream operations to finish and bring output buffer to CPU.
     for (uint32_t ii = 0; ii < numOutputTensors; ii++) {
-        result = cudaMemcpyAsync(outputBuffer[ii], outputBufferGPU[ii],
-                                 outputTensorDesc[ii].size, cudaMemcpyDeviceToHost, stream);
+        result = cudaMemcpyAsync(
+            outputBuffer[ii], outputBufferGPU[ii], outputTensorDesc[ii].size, cudaMemcpyDeviceToHost, stream);
         if (result != cudaSuccess) {
             DPRINTF("Error in bringing result back to CPU\n");
             cleanUp(&resourceList);
@@ -738,11 +735,14 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    if(statSupport == 1) {
+    if (statSupport == 1) {
         // copy statistics data to cpu
         for (uint32_t ii = 0; ii < numOutputTaskStatistics; ii++) {
-            result = cudaMemcpyAsync(statisticsOutputBuffer[ii], outputTaskStatisticsGPU[ii],
-                                     outputTaskStatisticsDesc[ii].size, cudaMemcpyDeviceToHost, stream);
+            result = cudaMemcpyAsync(statisticsOutputBuffer[ii],
+                                     outputTaskStatisticsGPU[ii],
+                                     outputTaskStatisticsDesc[ii].size,
+                                     cudaMemcpyDeviceToHost,
+                                     stream);
             if (result != cudaSuccess) {
                 DPRINTF("Error in bringing result back to CPU\n");
                 cleanUp(&resourceList);
@@ -760,35 +760,36 @@ int main(int argc, char** argv) {
         // To get the last index of the filename prefix in which statistics will be dumped
         uint32_t index = 0;
         if (argc == 5) {
-            while(argv[4][index]!='\0') {
+            while (argv[4][index] != '\0') {
                 index++;
             }
         }
 
-        const cudlaExternalEtbl* etbl = NULL;
-        if (cudlaGetExternalExportTable(&etbl,0) != cudlaSuccess) {
+        const cudlaExternalEtbl *etbl = NULL;
+        if (cudlaGetExternalExportTable(&etbl, 0) != cudlaSuccess) {
             DPRINTF("Error in getting export table\n");
             cleanUp(&resourceList);
             return 1;
         }
 
-        void** csv = (void **)malloc(sizeof(void *)*numOutputTaskStatistics);
+        void **csv = (void **)malloc(sizeof(void *) * numOutputTaskStatistics);
         if (csv == NULL) {
             DPRINTF("Error in allocating memory for csv stream\n");
             cleanUp(&resourceList);
             return 1;
         }
-        memset(csv, 0x00, sizeof(void *)*numOutputTaskStatistics);
+        memset(csv, 0x00, sizeof(void *) * numOutputTaskStatistics);
         resourceList.csv = csv;
 
         for (uint32_t ii = 0; ii < numOutputTaskStatistics; ii++) {
             cudlaTranslateCsvAttribute csvAttribute;
-            uint64_t csvStreamLength = 0;
+            uint64_t                   csvStreamLength = 0;
 
-            err = etbl->etiTranslateStats(devHandle,statisticsOutputBuffer[ii],dlaFreqInMHz,ii,CUDLA_GET_CSV_LENGTH,&csvAttribute);
-            csv[ii] = (void* )malloc(csvAttribute.csvStreamLength);
+            err = etbl->etiTranslateStats(
+                devHandle, statisticsOutputBuffer[ii], dlaFreqInMHz, ii, CUDLA_GET_CSV_LENGTH, &csvAttribute);
+            csv[ii]         = (void *)malloc(csvAttribute.csvStreamLength);
             csvStreamLength = csvAttribute.csvStreamLength;
-            DPRINTF("size for statistics buffer %u is %lu \n",ii,csvStreamLength);
+            DPRINTF("size for statistics buffer %u is %lu \n", ii, csvStreamLength);
 
             if (csv[ii] == NULL) {
                 DPRINTF("Error in allocating memory for csv stream\n");
@@ -798,7 +799,8 @@ int main(int argc, char** argv) {
             memset(csv[ii], 0x00, csvAttribute.csvStreamLength);
 
             csvAttribute.csvStreamStats = csv[ii];
-            err = etbl->etiTranslateStats(devHandle,statisticsOutputBuffer[ii],dlaFreqInMHz,ii,CUDLA_GET_CSV_STATS,&csvAttribute);
+            err                         = etbl->etiTranslateStats(
+                devHandle, statisticsOutputBuffer[ii], dlaFreqInMHz, ii, CUDLA_GET_CSV_STATS, &csvAttribute);
             if (err != cudlaSuccess) {
                 DPRINTF("Error in translating stats\n");
                 cleanUp(&resourceList);
@@ -806,7 +808,7 @@ int main(int argc, char** argv) {
             }
 
             if (argc == 5) {
-                sprintf(filename,"%s%u%s", argv[4],(ii+1),suffix);
+                sprintf(filename, "%s%u%s", argv[4], (ii + 1), suffix);
                 fp = fopen(filename, "w+");
                 if (fp == NULL) {
                     DPRINTF("Cannot open file %s\n", filename);
@@ -814,23 +816,23 @@ int main(int argc, char** argv) {
                     return 1;
                 }
 
-                uint32_t ret_val = fwrite(csv[ii],sizeof(char),csvStreamLength,fp);
-                if(ret_val != csvStreamLength) {
+                uint32_t ret_val = fwrite(csv[ii], sizeof(char), csvStreamLength, fp);
+                if (ret_val != csvStreamLength) {
                     DPRINTF("number of elements written to file is %u \n", ret_val);
                     cleanUp(&resourceList);
                     return 1;
                 }
                 fclose(fp);
-            } else {
-              DPRINTF("%s \n",(char *)csv[ii]);
+            }
+            else {
+                DPRINTF("%s \n", (char *)csv[ii]);
             }
         }
     }
 
     // unregister the CUDA-allocated buffers.
     for (uint32_t ii = 0; ii < numInputTensors; ii++) {
-        err = cudlaMemUnregister(devHandle,
-                                 (inputBufferRegisteredPtr[ii]));
+        err = cudlaMemUnregister(devHandle, (inputBufferRegisteredPtr[ii]));
         if (err != cudlaSuccess) {
             DPRINTF("Error in registering input memory = %d\n", err);
             cleanUp(&resourceList);
@@ -839,8 +841,7 @@ int main(int argc, char** argv) {
     }
 
     for (uint32_t ii = 0; ii < numOutputTensors; ii++) {
-        err = cudlaMemUnregister(devHandle,
-                                 (outputBufferRegisteredPtr[ii]));
+        err = cudlaMemUnregister(devHandle, (outputBufferRegisteredPtr[ii]));
         if (err != cudlaSuccess) {
             DPRINTF("Error in registering output memory = %d\n", err);
             cleanUp(&resourceList);
@@ -849,8 +850,7 @@ int main(int argc, char** argv) {
     }
 
     for (uint32_t ii = 0; ii < numOutputTaskStatistics; ii++) {
-        err = cudlaMemUnregister(devHandle,
-                                 (outputTaskStatisticsRegisteredPtr[ii]));
+        err = cudlaMemUnregister(devHandle, (outputTaskStatisticsRegisteredPtr[ii]));
         if (err != cudlaSuccess) {
             DPRINTF("Error in registering output memory = %d\n", err);
             cleanUp(&resourceList);
@@ -875,7 +875,8 @@ int main(int argc, char** argv) {
         DPRINTF("Error in cudlaModuleUnload = %d\n", err);
         cleanUp(&resourceList);
         return 1;
-    } else {
+    }
+    else {
         DPRINTF("Successfully unloaded module\n");
     }
 

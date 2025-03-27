@@ -35,10 +35,10 @@
 
 /* Nvidia headers */
 #include "cmdline.h"
-#include "log_utils.h"
-#include "misc_utils.h"
 #include "config_parser.h"
 #include "helper_cuda.h"
+#include "log_utils.h"
+#include "misc_utils.h"
 
 /* see cmdline.h for details */
 void PrintUsage()
@@ -59,11 +59,11 @@ SectionMap sectionsMap[] = {
 /* see cmdline.h for details */
 int ParseArgs(int argc, char *argv[], TestArgs *args)
 {
-    NvMediaBool bLastArg = NVMEDIA_FALSE;
-    NvMediaBool bDataAvailable = NVMEDIA_FALSE;
-    NvMediaStatus status = NVMEDIA_STATUS_OK;
-    const char* filename = NULL;
-    int i;
+    NvMediaBool   bLastArg       = NVMEDIA_FALSE;
+    NvMediaBool   bDataAvailable = NVMEDIA_FALSE;
+    NvMediaStatus status         = NVMEDIA_STATUS_OK;
+    const char   *filename       = NULL;
+    int           i;
 
     args->srcSurfAllocAttrs[0].type = args->dstSurfAllocAttrs[0].type = NVM_SURF_ATTR_WIDTH;
     args->srcSurfAllocAttrs[1].type = args->dstSurfAllocAttrs[1].type = NVM_SURF_ATTR_HEIGHT;
@@ -73,7 +73,7 @@ int ParseArgs(int argc, char *argv[], TestArgs *args)
     args->srcSurfAllocAttrs[5].type = args->dstSurfAllocAttrs[5].type = NVM_SURF_ATTR_ALLOC_TYPE;
     args->srcSurfAllocAttrs[6].type = args->dstSurfAllocAttrs[6].type = NVM_SURF_ATTR_SCAN_TYPE;
     args->srcSurfAllocAttrs[7].type = args->dstSurfAllocAttrs[7].type = NVM_SURF_ATTR_COLOR_STD_TYPE;
-    args->numSurfAllocAttrs = 8;
+    args->numSurfAllocAttrs                                           = 8;
 
     args->srcSurfFormatAttrs[0].type = args->dstSurfFormatAttrs[0].type = NVM_SURF_ATTR_SURF_TYPE;
     args->srcSurfFormatAttrs[1].type = args->dstSurfFormatAttrs[1].type = NVM_SURF_ATTR_LAYOUT;
@@ -87,56 +87,74 @@ int ParseArgs(int argc, char *argv[], TestArgs *args)
      * See nvmedia_2d.h and sample config file(s) for details.
      */
     ConfigParamsMap paramsMap[] = {
-        /*ParamName,             &args->variableName,                                paramType,     D, LimitType,   Mn, Mx, CharSize,       p2C, section   */
-        {"transformMode",        &args->blitParams.dstTransform,                     TYPE_UINT,     0, LIMITS_BOTH,  0,  7,  0,              0, SECTION_NONE},
-        {"filterMode",           &args->blitParams.filter,                           TYPE_UINT,     1, LIMITS_BOTH,  1,  4,  0,              0, SECTION_NONE},
-        {"colorStd",             &args->blitParams.colorStandard,                    TYPE_UINT,     0, LIMITS_MIN,   0,  3,  0,              0, SECTION_NONE},
-        {"validOperations",      &args->blitParams.validFields,                      TYPE_UINT,     0, LIMITS_BOTH,  0,  15, 0,              0, SECTION_NONE},
-        {"inputfile",            &args->inputFileName,                               TYPE_CHAR_ARR, 0, LIMITS_NONE,  0,  0,  FILE_NAME_SIZE, 0, SECTION_NONE},
+        /*ParamName,             &args->variableName,                                paramType,     D, LimitType,   Mn,
+           Mx, CharSize,       p2C, section   */
+        {"transformMode", &args->blitParams.dstTransform, TYPE_UINT, 0, LIMITS_BOTH, 0, 7, 0, 0, SECTION_NONE},
+        {"filterMode", &args->blitParams.filter, TYPE_UINT, 1, LIMITS_BOTH, 1, 4, 0, 0, SECTION_NONE},
+        {"colorStd", &args->blitParams.colorStandard, TYPE_UINT, 0, LIMITS_MIN, 0, 3, 0, 0, SECTION_NONE},
+        {"validOperations", &args->blitParams.validFields, TYPE_UINT, 0, LIMITS_BOTH, 0, 15, 0, 0, SECTION_NONE},
+        {"inputfile", &args->inputFileName, TYPE_CHAR_ARR, 0, LIMITS_NONE, 0, 0, FILE_NAME_SIZE, 0, SECTION_NONE},
 
         /*src surface alloc attributes*/
-        {"srcWidth",             &args->srcSurfAllocAttrs[0].value,                  TYPE_UINT,     0, LIMITS_MIN,   0,  0,  0,              0, SECTION_NONE},
-        {"srcHeight",            &args->srcSurfAllocAttrs[1].value,                  TYPE_UINT,     0, LIMITS_MIN,   0,  0,  0,              0, SECTION_NONE},
-        {"srcCPUAccess",         &args->srcSurfAllocAttrs[4].value,                  TYPE_UINT,     1, LIMITS_BOTH,  1,  3,  0,              0, SECTION_NONE},
-        {"srcAllocType",         &args->srcSurfAllocAttrs[5].value,                  TYPE_UINT,     0, LIMITS_BOTH,  0,  1,  0,              0, SECTION_NONE},
-        {"srcScanType",          &args->srcSurfAllocAttrs[6].value,                  TYPE_UINT,     1, LIMITS_BOTH,  1,  1,  0,              0, SECTION_NONE},
-        {"srcColorStd",          &args->srcSurfAllocAttrs[7].value,                  TYPE_UINT,     1, LIMITS_BOTH,  1,  12, 0,              0, SECTION_NONE},
+        {"srcWidth", &args->srcSurfAllocAttrs[0].value, TYPE_UINT, 0, LIMITS_MIN, 0, 0, 0, 0, SECTION_NONE},
+        {"srcHeight", &args->srcSurfAllocAttrs[1].value, TYPE_UINT, 0, LIMITS_MIN, 0, 0, 0, 0, SECTION_NONE},
+        {"srcCPUAccess", &args->srcSurfAllocAttrs[4].value, TYPE_UINT, 1, LIMITS_BOTH, 1, 3, 0, 0, SECTION_NONE},
+        {"srcAllocType", &args->srcSurfAllocAttrs[5].value, TYPE_UINT, 0, LIMITS_BOTH, 0, 1, 0, 0, SECTION_NONE},
+        {"srcScanType", &args->srcSurfAllocAttrs[6].value, TYPE_UINT, 1, LIMITS_BOTH, 1, 1, 0, 0, SECTION_NONE},
+        {"srcColorStd", &args->srcSurfAllocAttrs[7].value, TYPE_UINT, 1, LIMITS_BOTH, 1, 12, 0, 0, SECTION_NONE},
         /*src surface format attributes*/
-        {"srcSurfType",          &args->srcSurfFormatAttrs[0].value,                 TYPE_UINT,     1, LIMITS_BOTH,  1,  3,  0,              0, SECTION_NONE},
-        {"srcLayout",            &args->srcSurfFormatAttrs[1].value,                 TYPE_UINT,     1, LIMITS_BOTH,  1,  2,  0,              0, SECTION_NONE},
-        {"srcDataType",          &args->srcSurfFormatAttrs[2].value,                 TYPE_UINT,     1, LIMITS_BOTH,  1,  4,  0,              0, SECTION_NONE},
-        {"srcMemory",            &args->srcSurfFormatAttrs[3].value,                 TYPE_UINT,     1, LIMITS_BOTH,  1,  3,  0,              0, SECTION_NONE},
-        {"srcSubSamplingType",   &args->srcSurfFormatAttrs[4].value,                 TYPE_UINT,     1, LIMITS_BOTH,  0,  4,  0,              0, SECTION_NONE},
-        {"srcBitsPerComponent",  &args->srcSurfFormatAttrs[5].value,                 TYPE_UINT,     1, LIMITS_BOTH,  1,  10, 0,              0, SECTION_NONE},
-        {"srcComponentOrder",    &args->srcSurfFormatAttrs[6].value,                 TYPE_UINT,     2, LIMITS_BOTH,  1,  45, 0,              0, SECTION_NONE},
+        {"srcSurfType", &args->srcSurfFormatAttrs[0].value, TYPE_UINT, 1, LIMITS_BOTH, 1, 3, 0, 0, SECTION_NONE},
+        {"srcLayout", &args->srcSurfFormatAttrs[1].value, TYPE_UINT, 1, LIMITS_BOTH, 1, 2, 0, 0, SECTION_NONE},
+        {"srcDataType", &args->srcSurfFormatAttrs[2].value, TYPE_UINT, 1, LIMITS_BOTH, 1, 4, 0, 0, SECTION_NONE},
+        {"srcMemory", &args->srcSurfFormatAttrs[3].value, TYPE_UINT, 1, LIMITS_BOTH, 1, 3, 0, 0, SECTION_NONE},
+        {"srcSubSamplingType", &args->srcSurfFormatAttrs[4].value, TYPE_UINT, 1, LIMITS_BOTH, 0, 4, 0, 0, SECTION_NONE},
+        {"srcBitsPerComponent",
+         &args->srcSurfFormatAttrs[5].value,
+         TYPE_UINT,
+         1,
+         LIMITS_BOTH,
+         1,
+         10,
+         0,
+         0,
+         SECTION_NONE},
+        {"srcComponentOrder", &args->srcSurfFormatAttrs[6].value, TYPE_UINT, 2, LIMITS_BOTH, 1, 45, 0, 0, SECTION_NONE},
         /*srcRect*/
-        {"srcRectx0",            &args->srcRect.x0,                                  TYPE_USHORT,   0, LIMITS_MIN,   0,  0,  0,              0, SECTION_NONE},
-        {"srcRecty0",            &args->srcRect.y0,                                  TYPE_USHORT,   0, LIMITS_MIN,   0,  0,  0,              0, SECTION_NONE},
-        {"srcRectx1",            &args->srcRect.x1,                                  TYPE_USHORT,   0, LIMITS_MIN,   0,  0,  0,              0, SECTION_NONE},
-        {"srcRecty1",            &args->srcRect.y1,                                  TYPE_USHORT,   0, LIMITS_MIN,   0,  0,  0,              0, SECTION_NONE},
+        {"srcRectx0", &args->srcRect.x0, TYPE_USHORT, 0, LIMITS_MIN, 0, 0, 0, 0, SECTION_NONE},
+        {"srcRecty0", &args->srcRect.y0, TYPE_USHORT, 0, LIMITS_MIN, 0, 0, 0, 0, SECTION_NONE},
+        {"srcRectx1", &args->srcRect.x1, TYPE_USHORT, 0, LIMITS_MIN, 0, 0, 0, 0, SECTION_NONE},
+        {"srcRecty1", &args->srcRect.y1, TYPE_USHORT, 0, LIMITS_MIN, 0, 0, 0, 0, SECTION_NONE},
         /*dst surface alloc attributes*/
-        {"dstWidth",             &args->dstSurfAllocAttrs[0].value,                  TYPE_UINT,     0, LIMITS_MIN,   0,  0,  0,              0, SECTION_NONE},
-        {"dstHeight",            &args->dstSurfAllocAttrs[1].value,                  TYPE_UINT,     0, LIMITS_MIN,   0,  0,  0,              0, SECTION_NONE},
-        {"dstCPUAccess",         &args->dstSurfAllocAttrs[4].value,                  TYPE_UINT,     1, LIMITS_BOTH,  1,  3,  0,              0, SECTION_NONE},
-        {"dstAllocType",         &args->dstSurfAllocAttrs[5].value,                  TYPE_UINT,     0, LIMITS_BOTH,  0,  1,  0,              0, SECTION_NONE},
-        {"dstScanType",          &args->dstSurfAllocAttrs[6].value,                  TYPE_UINT,     1, LIMITS_BOTH,  1,  1,  0,              0, SECTION_NONE},
-        {"dstColorStd",          &args->dstSurfAllocAttrs[7].value,                  TYPE_UINT,     1, LIMITS_BOTH,  1,  12, 0,              0, SECTION_NONE},
+        {"dstWidth", &args->dstSurfAllocAttrs[0].value, TYPE_UINT, 0, LIMITS_MIN, 0, 0, 0, 0, SECTION_NONE},
+        {"dstHeight", &args->dstSurfAllocAttrs[1].value, TYPE_UINT, 0, LIMITS_MIN, 0, 0, 0, 0, SECTION_NONE},
+        {"dstCPUAccess", &args->dstSurfAllocAttrs[4].value, TYPE_UINT, 1, LIMITS_BOTH, 1, 3, 0, 0, SECTION_NONE},
+        {"dstAllocType", &args->dstSurfAllocAttrs[5].value, TYPE_UINT, 0, LIMITS_BOTH, 0, 1, 0, 0, SECTION_NONE},
+        {"dstScanType", &args->dstSurfAllocAttrs[6].value, TYPE_UINT, 1, LIMITS_BOTH, 1, 1, 0, 0, SECTION_NONE},
+        {"dstColorStd", &args->dstSurfAllocAttrs[7].value, TYPE_UINT, 1, LIMITS_BOTH, 1, 12, 0, 0, SECTION_NONE},
         /*dst surface format attributes*/
-        {"dstSurfType",          &args->dstSurfFormatAttrs[0].value,                 TYPE_UINT,     1, LIMITS_BOTH,  1,  3,  0,              0, SECTION_NONE},
-        {"dstLayout",            &args->dstSurfFormatAttrs[1].value,                 TYPE_UINT,     1, LIMITS_BOTH,  1,  2,  0,              0, SECTION_NONE},
-        {"dstDataType",          &args->dstSurfFormatAttrs[2].value,                 TYPE_UINT,     1, LIMITS_BOTH,  1,  4,  0,              0, SECTION_NONE},
-        {"dstMemory",            &args->dstSurfFormatAttrs[3].value,                 TYPE_UINT,     1, LIMITS_BOTH,  1,  3,  0,              0, SECTION_NONE},
-        {"dstSubSamplingType",   &args->dstSurfFormatAttrs[4].value,                 TYPE_UINT,     1, LIMITS_BOTH,  0,  4,  0,              0, SECTION_NONE},
-        {"dstBitsPerComponent",  &args->dstSurfFormatAttrs[5].value,                 TYPE_UINT,     1, LIMITS_BOTH,  1,  10, 0,              0, SECTION_NONE},
-        {"dstComponentOrder",    &args->dstSurfFormatAttrs[6].value,                 TYPE_UINT,     2, LIMITS_BOTH,  1,  45, 0,              0, SECTION_NONE},
+        {"dstSurfType", &args->dstSurfFormatAttrs[0].value, TYPE_UINT, 1, LIMITS_BOTH, 1, 3, 0, 0, SECTION_NONE},
+        {"dstLayout", &args->dstSurfFormatAttrs[1].value, TYPE_UINT, 1, LIMITS_BOTH, 1, 2, 0, 0, SECTION_NONE},
+        {"dstDataType", &args->dstSurfFormatAttrs[2].value, TYPE_UINT, 1, LIMITS_BOTH, 1, 4, 0, 0, SECTION_NONE},
+        {"dstMemory", &args->dstSurfFormatAttrs[3].value, TYPE_UINT, 1, LIMITS_BOTH, 1, 3, 0, 0, SECTION_NONE},
+        {"dstSubSamplingType", &args->dstSurfFormatAttrs[4].value, TYPE_UINT, 1, LIMITS_BOTH, 0, 4, 0, 0, SECTION_NONE},
+        {"dstBitsPerComponent",
+         &args->dstSurfFormatAttrs[5].value,
+         TYPE_UINT,
+         1,
+         LIMITS_BOTH,
+         1,
+         10,
+         0,
+         0,
+         SECTION_NONE},
+        {"dstComponentOrder", &args->dstSurfFormatAttrs[6].value, TYPE_UINT, 2, LIMITS_BOTH, 1, 45, 0, 0, SECTION_NONE},
         /*dstRect*/
-        {"dstRectx0",            &args->dstRect.x0,                                  TYPE_USHORT,   0, LIMITS_MIN,   0,  0,  0,              0, SECTION_NONE},
-        {"dstRecty0",            &args->dstRect.y0,                                  TYPE_USHORT,   0, LIMITS_MIN,   0,  0,  0,              0, SECTION_NONE},
-        {"dstRectx1",            &args->dstRect.x1,                                  TYPE_USHORT,   0, LIMITS_MIN,   0,  0,  0,              0, SECTION_NONE},
-        {"dstRecty1",            &args->dstRect.y1,                                  TYPE_USHORT,   0, LIMITS_MIN,   0,  0,  0,              0, SECTION_NONE},
+        {"dstRectx0", &args->dstRect.x0, TYPE_USHORT, 0, LIMITS_MIN, 0, 0, 0, 0, SECTION_NONE},
+        {"dstRecty0", &args->dstRect.y0, TYPE_USHORT, 0, LIMITS_MIN, 0, 0, 0, 0, SECTION_NONE},
+        {"dstRectx1", &args->dstRect.x1, TYPE_USHORT, 0, LIMITS_MIN, 0, 0, 0, 0, SECTION_NONE},
+        {"dstRecty1", &args->dstRect.y1, TYPE_USHORT, 0, LIMITS_MIN, 0, 0, 0, 0, SECTION_NONE},
         /*End of the array */
-        {NULL,                   NULL,                                               TYPE_UINT,     0, LIMITS_NONE,  0,  0, 0,               0, SECTION_NONE}
-    };
+        {NULL, NULL, TYPE_UINT, 0, LIMITS_NONE, 0, 0, 0, 0, SECTION_NONE}};
 
     args->iterations = 100; // Set default iterations value.
 
@@ -146,7 +164,7 @@ int ParseArgs(int argc, char *argv[], TestArgs *args)
     if (checkCmdLineFlag(argc, (const char **)argv, "cf")) {
 
         char *inputFileName = NULL;
-        getCmdLineArgumentString(argc, (const char **)argv, "cf", (char**)&inputFileName);
+        getCmdLineArgumentString(argc, (const char **)argv, "cf", (char **)&inputFileName);
         if (!inputFileName) {
             printf("ERR: Invalid config file name\n");
             return -1;
@@ -162,8 +180,7 @@ int ParseArgs(int argc, char *argv[], TestArgs *args)
         filename = sdkFindFilePath("sample.cfg", ".");
     }
 
-    if (filename != NULL)
-    {
+    if (filename != NULL) {
         printf("Using config file %s\n", filename);
 
         /* Init Parser Map*/
@@ -173,7 +190,7 @@ int ParseArgs(int argc, char *argv[], TestArgs *args)
             return -1;
         }
 
-        status = ConfigParser_ParseFile(paramsMap, 1, sectionsMap, (char*)filename);
+        status = ConfigParser_ParseFile(paramsMap, 1, sectionsMap, (char *)filename);
         if (status != NVMEDIA_STATUS_OK) {
             printf("ERR: Failed to parse config file. status:%x\n", status);
             return -1;
@@ -189,4 +206,3 @@ int ParseArgs(int argc, char *argv[], TestArgs *args)
 
     return 0;
 }
-

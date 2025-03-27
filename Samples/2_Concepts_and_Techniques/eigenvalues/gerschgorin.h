@@ -38,7 +38,6 @@
 //! @param  lg  lower limit of Gerschgorin interval
 //! @param  ug  upper limit of Gerschgorin interval
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" void computeGerschgorin(float *d, float *s, unsigned int n,
-                                   float &lg, float &ug);
+extern "C" void computeGerschgorin(float *d, float *s, unsigned int n, float &lg, float &ug);
 
-#endif  // #ifndef _GERSCHGORIN_H_
+#endif // #ifndef _GERSCHGORIN_H_

@@ -20,5 +20,5 @@ CPU sum (naive) took 0.017810 ms
 Computing Integral Image Test on size 1920 x 1080 synthetic data
 ---------------------------------------------------
 Method: Fast  Time (GPU Timer): 0.008032 ms Diff = 0
-Method: Vertical Scan  Time (GPU Timer): 0.068576 ms 
+Method: Vertical Scan  Time (GPU Timer): 0.068576 ms
 CheckSum: 2073600, (expect 1920x1080=2073600)

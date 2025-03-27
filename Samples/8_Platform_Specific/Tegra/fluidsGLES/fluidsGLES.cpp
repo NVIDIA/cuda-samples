@@ -10,22 +10,20 @@
  */
 
 // Includes
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdarg.h>
-
-#include <unistd.h>
-
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
-void error_exit(const char* format, ... )
+void error_exit(const char *format, ...)
 {
     va_list args;
-    va_start( args, format );
-    vfprintf( stderr, format, args );
-    va_end( args );
+    va_start(args, format);
+    vfprintf(stderr, format, args);
+    va_end(args);
     exit(1);
 }
 
@@ -33,19 +31,19 @@ void error_exit(const char* format, ... )
 #include "graphics_interface.h"
 
 // CUDA standard includes
-#include <cuda_runtime.h>
 #include <cuda_gl_interop.h>
+#include <cuda_runtime.h>
 
 // CUDA FFT Libraries
 #include <cufft.h>
 
 // CUDA helper functions
-#include "helper_functions.h"
-#include <rendercheck_gles.h>
 #include <helper_cuda.h>
+#include <rendercheck_gles.h>
 
 #include "defines.h"
 #include "fluidsGLES_kernels.h"
+#include "helper_functions.h"
 
 typedef float matrix4[4][4];
 typedef float vector3[3];
@@ -65,20 +63,20 @@ void cleanup(void);
 void reshape(int x, int y);
 
 // CUFFT plan handle
-cufftHandle planr2c;
-cufftHandle planc2r;
+cufftHandle   planr2c;
+cufftHandle   planc2r;
 static cData *vxfield = NULL;
 static cData *vyfield = NULL;
 
-cData *hvfield = NULL;
-cData *dvfield = NULL;
+cData     *hvfield = NULL;
+cData     *dvfield = NULL;
 static int wWidth  = MAX(512, DIM);
 static int wHeight = MAX(512, DIM);
 
-static int clicked  = 0;
-static int fpsCount = 0;
-static int fpsLimit = 1;
-StopWatchInterface *timer = NULL;
+static int          clicked  = 0;
+static int          fpsCount = 0;
+static int          fpsLimit = 1;
+StopWatchInterface *timer    = NULL;
 
 int gui_mode; // For X window
 // Rotate & translate variable temp., will remove and use shaders.
@@ -87,19 +85,19 @@ float translate_z = -3.0;
 
 
 // Particle data
-GLuint vbo = 0,vao = 0;                 // OpenGLES vertex buffer object
-GLuint m_texture = 0;
+GLuint                       vbo = 0, vao = 0; // OpenGLES vertex buffer object
+GLuint                       m_texture = 0;
 struct cudaGraphicsResource *cuda_vbo_resource; // handles OpenGLES-CUDA exchange
-static cData *particles = NULL; // particle positions in host memory
-static int lastx = 0, lasty = 0;
+static cData                *particles = NULL;  // particle positions in host memory
+static int                   lastx = 0, lasty = 0;
 
 // Texture pitch
 size_t tPitch = 0; // Now this is compatible with gcc in 64-bit
 
-char *ref_file         = NULL;
-bool g_bQAAddTestForce = true;
-int  g_iFrameToCompare = 100;
-int  g_TotalErrors     = 0;
+char *ref_file          = NULL;
+bool  g_bQAAddTestForce = true;
+int   g_iFrameToCompare = 100;
+int   g_TotalErrors     = 0;
 
 bool g_bExitESC = false;
 
@@ -107,7 +105,7 @@ const unsigned int window_width  = 512;
 const unsigned int window_height = 512;
 
 // CheckFBO/BackBuffer class objects
-CheckRender       *g_CheckRender = NULL;
+CheckRender *g_CheckRender = NULL;
 
 void autoTest(char **);
 void displayFrame();
@@ -132,8 +130,8 @@ GLuint mesh_shader = 0;
 
 void mat_identity(matrix4 m)
 {
-    m[0][1] = m[0][2] = m[0][3] = m[1][0] = m[1][2] = m[1][3] = m[2][0] = 
-    m[2][1] = m[2][3] = m[3][0] = m[3][1] = m[3][2] = 0.0f;
+    m[0][1] = m[0][2] = m[0][3] = m[1][0] = m[1][2] = m[1][3] = m[2][0] = m[2][1] = m[2][3] = m[3][0] = m[3][1] =
+        m[3][2]                                                                                       = 0.0f;
 
     m[0][0] = m[1][1] = m[2][2] = m[3][3] = 1.0f;
 }
@@ -141,18 +139,14 @@ void mat_identity(matrix4 m)
 void mat_multiply(matrix4 m0, matrix4 m1)
 {
     float m[4];
-    for(int r = 0; r < 4; r++)
-    {
+    for (int r = 0; r < 4; r++) {
         m[0] = m[1] = m[2] = m[3] = 0.0f;
-        for(int c = 0; c < 4; c++)
-        {
-            for(int i = 0; i < 4; i++)
-            {
+        for (int c = 0; c < 4; c++) {
+            for (int i = 0; i < 4; i++) {
                 m[c] += m0[i][r] * m1[c][i];
             }
         }
-        for(int c = 0; c < 4; c++)
-        {
+        for (int c = 0; c < 4; c++) {
             m0[c][r] = m[c];
         }
     }
@@ -163,52 +157,52 @@ void mat4f_Ortho(float left, float right, float bottom, float top, float near, f
     float r_l = right - left;
     float t_b = top - bottom;
     float f_n = far - near;
-    float tx = - (right + left) / (right - left);
-    float ty = - (top + bottom) / (top - bottom);
-    float tz = - (far + near) / (far - near);
+    float tx  = -(right + left) / (right - left);
+    float ty  = -(top + bottom) / (top - bottom);
+    float tz  = -(far + near) / (far - near);
 
     matrix4 m2;
 
-    m2[0][0] = 2.0f/ r_l;
+    m2[0][0] = 2.0f / r_l;
     m2[0][1] = 0.0f;
     m2[0][2] = 0.0f;
     m2[0][3] = 0.0f;
 
-    m2[1][0] = 0.0f; 
+    m2[1][0] = 0.0f;
     m2[1][1] = 2.0f / t_b;
     m2[1][2] = 0.0f;
     m2[1][3] = 0.0f;
 
     m2[2][0] = 0.0f;
-    m2[2][1] = 0.0f; 
+    m2[2][1] = 0.0f;
     m2[2][2] = -2.0f / f_n;
     m2[2][3] = 0.0f;
 
     m2[3][0] = tx;
-    m2[3][1] = ty; 
+    m2[3][1] = ty;
     m2[3][2] = tz;
     m2[3][3] = 1.0f;
 
-    mat_multiply(m, m2); 
+    mat_multiply(m, m2);
 }
 
 void readAndCompileShaderFromGLSLFile(GLuint new_shaderprogram, const char *filename, GLenum shaderType)
 {
-    FILE *file = fopen(filename,"rb"); // open shader text file
-    if (!file) 
+    FILE *file = fopen(filename, "rb"); // open shader text file
+    if (!file)
         error_exit("Filename %s does not exist\n", filename);
 
     /* get the size of the file and read it */
-    fseek(file,0,SEEK_END);
+    fseek(file, 0, SEEK_END);
     GLint size = ftell(file);
-    char *data = (char*)malloc(sizeof(char)*(size + 1));
-    memset(data, 0, sizeof(char)*(size + 1));
-    fseek(file,0,SEEK_SET);
-    size_t res = fread(data,1,size,file);
+    char *data = (char *)malloc(sizeof(char) * (size + 1));
+    memset(data, 0, sizeof(char) * (size + 1));
+    fseek(file, 0, SEEK_SET);
+    size_t res = fread(data, 1, size, file);
     fclose(file);
 
     GLuint shader = glCreateShader(shaderType);
-    glShaderSource(shader, 1, (const GLchar**)&data, &size);
+    glShaderSource(shader, 1, (const GLchar **)&data, &size);
     glCompileShader(shader);
 
     GET_GLERROR(0);
@@ -216,19 +210,18 @@ void readAndCompileShaderFromGLSLFile(GLuint new_shaderprogram, const char *file
     glGetShaderiv(shader, GL_COMPILE_STATUS, &compile_success);
     GET_GLERROR(0);
 
-    if (compile_success == GL_FALSE)
-    {
+    if (compile_success == GL_FALSE) {
         printf("Compilation of %s failed!\n Reason:\n", filename);
 
         GLint maxLength = 0;
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
-      
+
         char errorLog[maxLength];
         glGetShaderInfoLog(shader, maxLength, &maxLength, &errorLog[0]);
-      
+
         printf("%s", errorLog);
 
-        glDeleteShader(shader); 
+        glDeleteShader(shader);
         exit(1);
     }
 
@@ -259,8 +252,7 @@ GLuint ShaderCreate(const char *vshader_filename, const char *fshader_filename)
     GLint link_success;
     glGetProgramiv(new_shaderprogram, GL_LINK_STATUS, &link_success);
 
-    if (link_success == GL_FALSE)
-    {
+    if (link_success == GL_FALSE) {
         printf("Linking of %s with %s failed!\n Reason:\n", vshader_filename, fshader_filename);
 
         GLint maxLength = 0;
@@ -282,17 +274,16 @@ void motion(int x, int y)
     // Convert motion coordinates to domain
     float fx = (lastx / (float)wWidth);
     float fy = (lasty / (float)wHeight);
-    int nx = (int)(fx * DIM);
-    int ny = (int)(fy * DIM);
+    int   nx = (int)(fx * DIM);
+    int   ny = (int)(fy * DIM);
 
-    if (clicked && nx < DIM-FR && nx > FR-1 && ny < DIM-FR && ny > FR-1)
-    {
+    if (clicked && nx < DIM - FR && nx > FR - 1 && ny < DIM - FR && ny > FR - 1) {
         int ddx = x - lastx;
         int ddy = y - lasty;
-        fx = ddx / (float)wWidth;
-        fy = ddy / (float)wHeight;
-        int spy = ny-FR;
-        int spx = nx-FR;
+        fx      = ddx / (float)wWidth;
+        fy      = ddy / (float)wHeight;
+        int spy = ny - FR;
+        int spx = nx - FR;
         addForces(dvfield, DIM, DIM, spx, spy, FORCE * DT * fx, FORCE * DT * fy, FR);
         lastx = x;
         lasty = y;
@@ -302,12 +293,12 @@ void motion(int x, int y)
 //===========================================================================
 // InitGraphicsState() - initialize OpenGLES
 //===========================================================================
-static void InitGraphicsState(int argc, char** argv)
+static void InitGraphicsState(int argc, char **argv)
 {
     char *GL_version  = (char *)glGetString(GL_VERSION);
     char *GL_vendor   = (char *)glGetString(GL_VENDOR);
     char *GL_renderer = (char *)glGetString(GL_RENDERER);
-  
+
     printf("Version: %s\n", GL_version);
     printf("Vendor: %s\n", GL_vendor);
     printf("Renderer: %s\n", GL_renderer);
@@ -316,26 +307,24 @@ static void InitGraphicsState(int argc, char** argv)
     GLint bsize;
 
     // initialize buffer object
-    glGenBuffers(1, &vbo);  
+    glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cData) * DS, particles, GL_DYNAMIC_DRAW);
 
     glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &bsize);
 
-    if (bsize != (sizeof(cData) * DS))
-    {
+    if (bsize != (sizeof(cData) * DS)) {
         printf("Failed to initialize GL extensions.\n");
         exit(EXIT_FAILURE);
     }
 
     checkCudaErrors(cudaGraphicsGLRegisterBuffer(&cuda_vbo_resource, vbo, cudaGraphicsMapFlagsNone));
-   
+
     // GLSL stuff
-    char *vertex_shader_path = sdkFindFilePath("mesh.vert.glsl", argv[0]);
+    char *vertex_shader_path   = sdkFindFilePath("mesh.vert.glsl", argv[0]);
     char *fragment_shader_path = sdkFindFilePath("mesh.frag.glsl", argv[0]);
 
-    if (vertex_shader_path == NULL || fragment_shader_path == NULL)
-    {
+    if (vertex_shader_path == NULL || fragment_shader_path == NULL) {
         printf("Error finding shader file\n");
         exit(EXIT_FAILURE);
     }
@@ -345,19 +334,18 @@ static void InitGraphicsState(int argc, char** argv)
 
     free(vertex_shader_path);
     free(fragment_shader_path);
-  
+
     glUseProgram(mesh_shader);
 }
 
 void displayFrame(void)
 {
-    if (!ref_file)
-    {
+    if (!ref_file) {
         sdkStartTimer(&timer);
         simulateFluids();
     }
 
-    GLint view_arr[4];	
+    GLint view_arr[4];
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -366,20 +354,20 @@ void displayFrame(void)
     glDepthMask(GL_FALSE);
 
     glUseProgram(mesh_shader);
-   
+
     // Set modelview and projection matricies
-    GLint h_ModelViewMatrix = glGetUniformLocation(mesh_shader, "modelview");
-    GLint h_ProjectionMatrix = glGetUniformLocation(mesh_shader, "projection");
+    GLint   h_ModelViewMatrix  = glGetUniformLocation(mesh_shader, "modelview");
+    GLint   h_ProjectionMatrix = glGetUniformLocation(mesh_shader, "projection");
     matrix4 modelview;
     matrix4 projection;
     mat_identity(modelview);
     mat_identity(projection);
 
-// (float left, float right, float bottom, float top, float near, float far, matrix4 m)
+    // (float left, float right, float bottom, float top, float near, float far, matrix4 m)
     mat4f_Ortho(0.0, 1.0, 1.0, 0.0, 0.0, 1.0, projection);
- 
-    glUniformMatrix4fv(h_ModelViewMatrix, 1, GL_FALSE, (GLfloat*)modelview);
-    glUniformMatrix4fv(h_ProjectionMatrix, 1, GL_FALSE, (GLfloat*)projection);
+
+    glUniformMatrix4fv(h_ModelViewMatrix, 1, GL_FALSE, (GLfloat *)modelview);
+    glUniformMatrix4fv(h_ProjectionMatrix, 1, GL_FALSE, (GLfloat *)projection);
 
     // Set position coords
     GLint h_position = glGetAttribLocation(mesh_shader, "a_position");
@@ -388,7 +376,7 @@ void displayFrame(void)
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-    glDrawArrays(GL_POINTS, 0, DS*sizeof(cData));
+    glDrawArrays(GL_POINTS, 0, DS * sizeof(cData));
     glDisableVertexAttribArray(h_position);
 
     glDisable(GL_DEPTH_TEST);
@@ -396,8 +384,7 @@ void displayFrame(void)
     glDisable(GL_BLEND);
     glDepthMask(GL_TRUE);
 
-    if (ref_file)
-    {
+    if (ref_file) {
         return;
     }
 
@@ -408,9 +395,8 @@ void displayFrame(void)
 
     fpsCount++;
 
-    if (fpsCount == fpsLimit)
-    {
-        char fps[256];
+    if (fpsCount == fpsLimit) {
+        char  fps[256];
         float ifps = 1.f / (sdkGetAverageTimerValue(&timer) / 1000.f);
         sprintf(fps, "Cuda/GL Stable Fluids (%d x %d): %3.1f fps", DIM, DIM, ifps);
         graphics_set_windowtitle(fps);
@@ -423,7 +409,7 @@ void displayFrame(void)
 void autoTest(char **argv)
 {
     CFrameBufferObject *fbo = new CFrameBufferObject(wWidth, wHeight, 4, false, GL_TEXTURE_2D);
-    g_CheckRender = new CheckFBO(wWidth, wHeight, 4, fbo);
+    g_CheckRender           = new CheckFBO(wWidth, wHeight, 4, fbo);
 
     g_CheckRender->setPixelFormat(GL_RGBA);
     g_CheckRender->setExecPath(argv[0]);
@@ -431,26 +417,24 @@ void autoTest(char **argv)
 
     fbo->bindRenderPath();
 
-    for (int count=0; count<g_iFrameToCompare; count++)
-    {
+    for (int count = 0; count < g_iFrameToCompare; count++) {
         simulateFluids();
 
         // add in a little force so the automated testing is interesing.
-        if (ref_file)
-        {
-            int x = wWidth/(count+1);
-            int y = wHeight/(count+1);
+        if (ref_file) {
+            int   x  = wWidth / (count + 1);
+            int   y  = wHeight / (count + 1);
             float fx = (x / (float)wWidth);
             float fy = (y / (float)wHeight);
-            int nx = (int)(fx * DIM);
-            int ny = (int)(fy * DIM);
+            int   nx = (int)(fx * DIM);
+            int   ny = (int)(fy * DIM);
 
             int ddx = 35;
             int ddy = 35;
-            fx = ddx / (float)wWidth;
-            fy = ddy / (float)wHeight;
-            int spy = ny-FR;
-            int spx = nx-FR;
+            fx      = ddx / (float)wWidth;
+            fy      = ddy / (float)wHeight;
+            int spy = ny - FR;
+            int spx = nx - FR;
 
             addForces(dvfield, DIM, DIM, spx, spy, FORCE * DT * fx, FORCE * DT * fy, FR);
 
@@ -469,8 +453,7 @@ void autoTest(char **argv)
     g_CheckRender->readback(wWidth, wHeight);
     g_CheckRender->savePPM("fluidsGLES.ppm", true, NULL);
 
-    if (!g_CheckRender->PPMvsPPM("fluidsGLES.ppm", ref_file, MAX_EPSILON_ERROR, 0.25f))
-    {
+    if (!g_CheckRender->PPMvsPPM("fluidsGLES.ppm", ref_file, MAX_EPSILON_ERROR, 0.25f)) {
         g_TotalErrors++;
     }
 }
@@ -482,18 +465,16 @@ bool runFluidsSimulation(int argc, char **argv, char *ref_file)
     sdkCreateTimer(&timer);
 
 
-    if (ref_file != NULL)
-    {
-    // command line mode only - auto test
-        graphics_setup_window(0,0, wWidth, wHeight, sSDKname);
+    if (ref_file != NULL) {
+        // command line mode only - auto test
+        graphics_setup_window(0, 0, wWidth, wHeight, sSDKname);
         InitGraphicsState(argc, argv); // set up GLES stuff
         autoTest(argv);
         cleanup();
     }
-    else
-    {
+    else {
         // create X11 window and set up associated OpenGL ES context
-        graphics_setup_window(0,0, wWidth, wHeight, sSDKname);
+        graphics_setup_window(0, 0, wWidth, wHeight, sSDKname);
 
         InitGraphicsState(argc, argv); // set up GLES stuff
 
@@ -501,60 +482,50 @@ bool runFluidsSimulation(int argc, char **argv, char *ref_file)
         graphics_swap_buffers();
         XEvent event;
         KeySym key;
-        char text[255];
+        char   text[255];
 
-        while (1)
-        {
-            while (XPending(display) > 0)
-            {
+        while (1) {
+            while (XPending(display) > 0) {
                 XNextEvent(display, &event);
 
-                if (event.type==Expose && event.xexpose.count==0)
-                {
+                if (event.type == Expose && event.xexpose.count == 0) {
                     printf("Redraw requested!\n");
-                }    
-
-                if (event.type==KeyPress && XLookupString(&event.xkey,text,255,&key,0)==1)
-                {
-                    if (text[0] == 27 || text[0] == 'q' || text[0] == 'Q')
-                    {
-                        keyboard(text[0], 0, 0, argc, argv);
-                        return true; 
-                    }
-
-                    if (text[0] == 114)
-                    {
-                        keyboard(text[0], 0, 0, argc, argv);
-                    }
-                    
-                    printf("You pressed the %c key!\n",text[0]);
                 }
 
-                if (event.type==ButtonPress)
-                {
-                    lastx = event.xbutton.x;
-                    lasty = event.xbutton.y;
+                if (event.type == KeyPress && XLookupString(&event.xkey, text, 255, &key, 0) == 1) {
+                    if (text[0] == 27 || text[0] == 'q' || text[0] == 'Q') {
+                        keyboard(text[0], 0, 0, argc, argv);
+                        return true;
+                    }
+
+                    if (text[0] == 114) {
+                        keyboard(text[0], 0, 0, argc, argv);
+                    }
+
+                    printf("You pressed the %c key!\n", text[0]);
+                }
+
+                if (event.type == ButtonPress) {
+                    lastx   = event.xbutton.x;
+                    lasty   = event.xbutton.y;
                     clicked = !clicked;
                 }
 
-                if (event.type==ButtonRelease)
-                {
-                    lastx = event.xbutton.x;
-                    lasty = event.xbutton.y;
+                if (event.type == ButtonRelease) {
+                    lastx   = event.xbutton.x;
+                    lasty   = event.xbutton.y;
                     clicked = !clicked;
                 }
 
-                if (event.type == MotionNotify)
-                {
-                    motion(event.xmotion.x, event.xmotion.y);               
+                if (event.type == MotionNotify) {
+                    motion(event.xmotion.x, event.xmotion.y);
                 }
-                else
-                {
+                else {
                     XFlush(display);
                 }
             }
             displayFrame();
-            usleep(1000);  // need not take full CPU and GPU
+            usleep(1000); // need not take full CPU and GPU
         }
     }
 
@@ -567,70 +538,65 @@ bool runFluidsSimulation(int argc, char **argv, char *ref_file)
 float myrand(void)
 {
     static int seed = 72191;
-    char sq[22];
+    char       sq[22];
 
-    if (ref_file)
-    {
+    if (ref_file) {
         seed *= seed;
         sprintf(sq, "%010d", seed);
         // pull the middle 5 digits out of sq
         sq[8] = 0;
-        seed = atoi(&sq[3]);
+        seed  = atoi(&sq[3]);
 
-        return seed/99999.f;
+        return seed / 99999.f;
     }
-    else
-    {
-        return rand()/(float)RAND_MAX;
+    else {
+        return rand() / (float)RAND_MAX;
     }
 }
 
 void initParticles(cData *p, int dx, int dy)
 {
     int i, j;
-    for (i = 0; i < dy; i++)
-    {
-        for (j = 0; j < dx; j++)
-        {
-            p[i*dx+j].x = (j+0.5f+(myrand() - 0.5f))/dx;
-            p[i*dx+j].y = (i+0.5f+(myrand() - 0.5f))/dy;
+    for (i = 0; i < dy; i++) {
+        for (j = 0; j < dx; j++) {
+            p[i * dx + j].x = (j + 0.5f + (myrand() - 0.5f)) / dx;
+            p[i * dx + j].y = (i + 0.5f + (myrand() - 0.5f)) / dy;
         }
     }
 }
 
 void keyboard(unsigned char key, int x, int y, int argc, char **argv)
 {
-    switch (key)
-    {
-        case 'q':
-        case 'Q':
-        case  27:
-            g_bExitESC = true;
-            cleanup();
-            graphics_close_window(); // close window and destroy OpenGL ES context
-            return;
-            break;
-        case 'r':
-            printf("\nResetting\n");
-            memset(hvfield, 0, sizeof(cData) * DS);
-            cudaMemcpy(dvfield, hvfield, sizeof(cData) * DS, cudaMemcpyHostToDevice);
+    switch (key) {
+    case 'q':
+    case 'Q':
+    case 27:
+        g_bExitESC = true;
+        cleanup();
+        graphics_close_window(); // close window and destroy OpenGL ES context
+        return;
+        break;
+    case 'r':
+        printf("\nResetting\n");
+        memset(hvfield, 0, sizeof(cData) * DS);
+        cudaMemcpy(dvfield, hvfield, sizeof(cData) * DS, cudaMemcpyHostToDevice);
 
-            initParticles(particles, DIM, DIM);
+        initParticles(particles, DIM, DIM);
 
-            checkCudaErrors(cudaGraphicsUnregisterResource(cuda_vbo_resource));
+        checkCudaErrors(cudaGraphicsUnregisterResource(cuda_vbo_resource));
 
-            getLastCudaError("cudaGraphicsUnregisterBuffer failed");
+        getLastCudaError("cudaGraphicsUnregisterBuffer failed");
 
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-            glDeleteBuffers(1, &vbo);
-            InitGraphicsState(argc, argv); // set up GLES stuff
-            graphics_swap_buffers();
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glDeleteBuffers(1, &vbo);
+        InitGraphicsState(argc, argv); // set up GLES stuff
+        graphics_swap_buffers();
 
-            getLastCudaError("cudaGraphicsGLRegisterBuffer failed");
-            break;
+        getLastCudaError("cudaGraphicsGLRegisterBuffer failed");
+        break;
 
-        default:
-            break;
+    default:
+        break;
     }
 }
 
@@ -657,18 +623,19 @@ void cleanup(void)
 
 int main(int argc, char **argv)
 {
-    int devID;
+    int            devID;
     cudaDeviceProp deviceProps;
 
 #if defined(__linux__)
-    setenv ("DISPLAY", ":0", 0);
+    setenv("DISPLAY", ":0", 0);
 #endif
 
     printf("%s Starting...\n\n", sSDKname);
 
-    printf("NOTE: The CUDA Samples are not meant for performance measurements. Results may vary when GPU Boost is enabled.\n\n");
+    printf("NOTE: The CUDA Samples are not meant for performance measurements. Results may vary when GPU Boost is "
+           "enabled.\n\n");
 
-#if defined (__aarch64__) || defined(__arm__)
+#if defined(__aarch64__) || defined(__arm__)
     // find iGPU on the system which is compute capable which will perform GLES-CUDA interop
     devID = findIntegratedGPU();
 #else
@@ -678,12 +645,10 @@ int main(int argc, char **argv)
 
     // get number of SMs on this GPU
     checkCudaErrors(cudaGetDeviceProperties(&deviceProps, devID));
-    printf("CUDA device [%s] has %d Multi-Processors\n",
-           deviceProps.name, deviceProps.multiProcessorCount);
+    printf("CUDA device [%s] has %d Multi-Processors\n", deviceProps.name, deviceProps.multiProcessorCount);
 
     // automated build testing harness
-    if (checkCmdLineFlag(argc, (const char **)argv, "file"))
-    {
+    if (checkCmdLineFlag(argc, (const char **)argv, "file")) {
         getCmdLineArgumentString(argc, (const char **)argv, "file", &ref_file);
     }
 
@@ -694,7 +659,7 @@ int main(int argc, char **argv)
     memset(hvfield, 0, sizeof(cData) * DS);
 
     // Allocate and initialize device data
-    checkCudaErrors(cudaMallocPitch((void **)&dvfield, &tPitch, sizeof(cData)*DIM, DIM));
+    checkCudaErrors(cudaMallocPitch((void **)&dvfield, &tPitch, sizeof(cData) * DIM, DIM));
 
     checkCudaErrors(cudaMemcpy(dvfield, hvfield, sizeof(cData) * DS, cudaMemcpyHostToDevice));
     // Temporary complex velocity field data
@@ -715,16 +680,14 @@ int main(int argc, char **argv)
 
     runFluidsSimulation(argc, argv, ref_file);
 
-    if (ref_file)
-    {
+    if (ref_file) {
         printf("[fluidsGLES] - Test Results: %d Failures\n", g_TotalErrors);
         exit(g_TotalErrors == 0 ? EXIT_SUCCESS : EXIT_FAILURE);
     }
 
     sdkDeleteTimer(&timer);
 
-    if (!ref_file)
-    {
+    if (!ref_file) {
         exit(EXIT_SUCCESS);
     }
 
