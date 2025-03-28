@@ -139,6 +139,158 @@ Note that in the current branch sample cross-compilation for QNX is not fully va
 near future with QNX cross-compilation instructions. In the meantime, if you want to cross-compile for QNX please check out one
 of the previous tags prior to the CMake build system transition in 12.8.
 
+## Running All Samples as Tests
+
+It's important to note that the CUDA samples are _not_ intended as a validation suite for CUDA. They do not cover corner cases, they do not completely cover the
+runtime and driver APIs, etc. That said, it can sometimes be useful to run all of the samples as a quick sanity check and we provide a script to do so, `run_tests.py`.
+
+This Python3 script finds all executables in a subdirectory you choose, matching application names with command line arguments specified in `test_args.json`. It accepts
+the following command line arguments:
+
+| Switch   | Purpose                                                                                                        | Example                 |
+| -------- | -------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| --dir    | Specify the root directory to search for executables (recursively)                                             | --dir ./build/Samples   |
+| --config | JSON configuration file for executable arguments                                                               | --config test_args.json |
+| --output | Output directory for test results (stdout saved to .txt files - directory will be created if it doesn't exist) | --output ./test         |
+| --args   | Global arguments to pass to all executables (not currently used)                                               | --args arg_1 arg_2 ...  |
+
+Application configurations are loaded from `test_args.json` and matched against executable names (discarding the `.exe` extension on Windows).
+
+The script returns 0 on success, or the first non-zero error code encountered during testing on failure. It will also print a condensed list of samples that failed, if any.
+
+There are three primary modes of configuration:
+
+**Skip**
+
+An executable configured with "skip" will not be executed. These generally rely on having attached graphical displays and are not suited to this kind of automation.
+
+Configuration example:
+```json
+"fluidsGL": {
+    "skip": true
+}
+```
+
+You will see:
+```
+Skipping fluidsGL (marked as skip in config)
+```
+
+**Single Run**
+
+For executables to run one time only with arguments, specify each argument as a list entry. Each entry in the JSON file will be appended to the command line, separated
+by a space.
+
+Configuration example:
+```json
+"ptxgen": {
+    "args": [
+        "test.ll",
+        "-arch=compute_75"
+    ]
+}
+```
+
+You will see:
+```
+Running ptxgen
+    Command: ./ptxgen test.ll -arch=compute_75
+    Test completed with return code 0
+```
+
+**Multiple Runs**
+
+For executables to run multiple times with different command line arguments, specify any number of sets of args within a "runs" list.
+
+Configuration example:
+```json
+"recursiveGaussian": {
+    "runs": [
+        {
+            "args": [
+                "-sigma=10",
+                "-file=data/ref_10.ppm"
+            ]
+        },
+        {
+            "args": [
+                "-sigma=14",
+                "-file=data/ref_14.ppm"
+            ]
+        },
+        {
+            "args": [
+                "-sigma=18",
+                "-file=data/ref_18.ppm"
+            ]
+        },
+        {
+            "args": [
+                "-sigma=22",
+                "-file=data/ref_22.ppm"
+            ]
+        }
+    ]
+}
+```
+
+You will see:
+```
+Running recursiveGaussian (run 1/4)
+    Command: ./recursiveGaussian -sigma=10 -file=data/ref_10.ppm
+    Test completed with return code 0
+Running recursiveGaussian (run 2/4)
+    Command: ./recursiveGaussian -sigma=14 -file=data/ref_14.ppm
+    Test completed with return code 0
+Running recursiveGaussian (run 3/4)
+    Command: ./recursiveGaussian -sigma=18 -file=data/ref_18.ppm
+    Test completed with return code 0
+Running recursiveGaussian (run 4/4)
+    Command: ./recursiveGaussian -sigma=22 -file=data/ref_22.ppm
+    Test completed with return code 0
+```
+
+### Example Usage
+
+Here is an example set of commands to build and test all of the samples.
+
+First, build:
+```bash
+mkdir build
+cd build
+cmake ..
+make -j$(nproc)
+```
+
+Now, return to the samples root directory and run the test script:
+```bash
+cd ..
+python3 run_tests.py --output ./test --dir ./build/Samples --config test_args.json
+```
+
+If all applications run successfully, you will see something similar to this (the specific number of samples will depend on your build type
+and system configuration):
+
+```
+Test Summary:
+Ran 181 tests
+All tests passed!
+```
+
+If some samples fail, you will see something like this:
+
+```
+Test Summary:
+Ran 181 tests
+Failed tests (2):
+  volumeFiltering: returned 1
+  postProcessGL: returned 1
+```
+
+You can inspect the stdout logs in the output directory (generally `APM_<application_name>.txt` or `APM_<application_name>.run<n>.txt`) to help
+determine what may have gone wrong from the output logs. Please file issues against the samples repository if you believe a sample is failing
+incorrectly on your system.
+
 ## Samples list
 
 ### [0. Introduction](./Samples/0_Introduction/README.md)
