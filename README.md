@@ -142,7 +142,8 @@ of the previous tags prior to the CMake build system transition in 12.8.
 ## Running All Samples as Tests
 
 It's important to note that the CUDA samples are _not_ intended as a validation suite for CUDA. They do not cover corner cases, they do not completely cover the
-runtime and driver APIs, etc. That said, it can sometimes be useful to run all of the samples as a quick sanity check and we provide a script to do so, `run_tests.py`.
+runtime and driver APIs, are not intended for performance benchmarking, etc. That said, it can sometimes be useful to run all of the samples as a quick sanity check and
+we provide a script to do so, `run_tests.py`.
 
 This Python3 script finds all executables in a subdirectory you choose, matching application names with command line arguments specified in `test_args.json`. It accepts
 the following command line arguments:
@@ -181,6 +182,11 @@ Skipping fluidsGL (marked as skip in config)
 For executables to run one time only with arguments, specify each argument as a list entry. Each entry in the JSON file will be appended to the command line, separated
 by a space.
 
+All applications execute from their current directory, so all paths are relative to the application's location.
+
+Note that if an application needs no arguments, this entry is optional. An executable found without a matching entry in the JSON will just run as `./application` from its
+current directory.
+
 Configuration example:
 ```json
 "ptxgen": {
@@ -201,6 +207,8 @@ Running ptxgen
 **Multiple Runs**
 
 For executables to run multiple times with different command line arguments, specify any number of sets of args within a "runs" list.
+
+As with single runs, all applications execute from their current directory, so all paths are relative to the application's location.
 
 Configuration example:
 ```json
