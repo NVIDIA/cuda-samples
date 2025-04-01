@@ -46,12 +46,12 @@
 #endif
 
 // includes
+#include <helper_gl.h>
 #include <cuda_gl_interop.h>
 #include <cuda_runtime.h>
 #include <cufft.h>
 #include <helper_cuda.h>
 #include <helper_functions.h>
-#include <helper_gl.h>
 #include <math.h>
 #include <math_constants.h>
 #include <stdio.h>

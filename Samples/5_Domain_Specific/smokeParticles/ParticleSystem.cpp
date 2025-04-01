@@ -33,11 +33,11 @@
 #include <memory.h>
 
 #define HELPERGL_EXTERN_GL_FUNC_IMPLEMENTATION
+#include <helper_gl.h>
 #include <cuda_gl_interop.h>
 #include <cuda_runtime.h>
 #include <helper_cuda.h>
 #include <helper_functions.h>
-#include <helper_gl.h>
 
 #include "ParticleSystem.cuh"
 #include "ParticleSystem.h"
