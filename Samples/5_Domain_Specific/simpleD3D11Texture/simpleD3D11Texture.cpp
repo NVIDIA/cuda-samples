@@ -31,8 +31,8 @@
 
 #pragma warning(disable : 4312)
 
-#include <mmsystem.h>
 #include <windows.h>
+#include <mmsystem.h>
 
 // This header inclues all the necessary D3D11 and CUDA includes
 #include <cuda_d3d11_interop.h>
