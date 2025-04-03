@@ -27,10 +27,12 @@
 
 #include "render_particles.h"
 
+#define HELPERGL_EXTERN_GL_FUNC_IMPLEMENTATION
+
 // includes for OpenGL
 #include <helper_gl.h>
 
-#define HELPERGL_EXTERN_GL_FUNC_IMPLEMENTATION
+// includes
 #include <assert.h>
 #include <cuda_gl_interop.h>
 #include <cuda_runtime.h>
