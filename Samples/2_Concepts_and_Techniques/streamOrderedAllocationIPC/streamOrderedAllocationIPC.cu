@@ -104,7 +104,7 @@ static void childProcess(int id)
     std::vector<void *> ptrs;
     pid_t               pid;
     char                pidString[20] = {0};
-    char                lshmName[40] = {0};
+    char                lshmName[40]  = {0};
 
     std::vector<char> verification_buffer(DATA_SIZE);
 
@@ -257,7 +257,7 @@ static void parentProcess(char *app)
     cudaMemAllocationHandleType handleType = cudaMemHandleTypeNone;
     pid_t                       pid;
     char                        pidString[20] = {0};
-    char                        lshmName[40] = {0};
+    char                        lshmName[40]  = {0};
 
     pid = getpid();
     snprintf(pidString, sizeof(pidString), "%d", pid);

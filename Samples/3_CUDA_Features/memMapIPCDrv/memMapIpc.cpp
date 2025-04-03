@@ -311,8 +311,8 @@ static void childProcess(int devId, int id, char **argv)
     int                 blocks         = 0;
     int                 threads        = 128;
     pid_t               pid;
-    char                pidString[20]  = {0};
-    char                lshmName[40]   = {0};
+    char                pidString[20] = {0};
+    char                lshmName[40]  = {0};
 
     pid = getppid();
     snprintf(pidString, sizeof(pidString), "%d", pid);

@@ -86,8 +86,10 @@
 #include <windows.h>
 #endif
 
-// includes
+// includes for OpenGL
 #include <helper_gl.h>
+
+// includes
 #include <cuda_gl_interop.h>
 #include <cuda_runtime.h>
 #include <helper_cuda.h> // includes cuda.h and cuda_runtime_api.h

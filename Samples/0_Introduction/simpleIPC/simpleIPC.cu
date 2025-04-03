@@ -101,7 +101,7 @@ static void childProcess(int id)
     std::vector<char>        verification_buffer(DATA_SIZE);
     pid_t                    pid;
     char                     pidString[20] = {0};
-    char                     lshmName[40] = {0};
+    char                     lshmName[40]  = {0};
 
     pid = getppid();
     snprintf(pidString, sizeof(pidString), "%d", pid);
@@ -207,7 +207,7 @@ static void parentProcess(char *app)
     std::vector<Process>     processes;
     pid_t                    pid;
     char                     pidString[20] = {0};
-    char                     lshmName[40] = {0};
+    char                     lshmName[40]  = {0};
 
     pid = getpid();
     snprintf(pidString, sizeof(pidString), "%d", pid);

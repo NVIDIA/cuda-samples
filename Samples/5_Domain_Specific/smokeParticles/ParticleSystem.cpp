@@ -33,7 +33,11 @@
 #include <memory.h>
 
 #define HELPERGL_EXTERN_GL_FUNC_IMPLEMENTATION
+
+// includes for OpenGL
 #include <helper_gl.h>
+
+// includes
 #include <cuda_gl_interop.h>
 #include <cuda_runtime.h>
 #include <helper_cuda.h>
