@@ -158,11 +158,13 @@ int main(int argc, char **argv) {
     // Grid/Block configuration
     int threadsPerBlock = 256;
     int blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock;
-
+    void *kernel_launch_config[5] = {CU_LAUNCH_PARAM_BUFFER_POINTER,
+                                     argBuffer, CU_LAUNCH_PARAM_BUFFER_SIZE,
+                                     &offset, CU_LAUNCH_PARAM_END};
     // Launch the CUDA kernel
     checkCudaErrors(cuLaunchKernel(vecAdd_kernel, blocksPerGrid, 1, 1,
                                    threadsPerBlock, 1, 1, 0, NULL, NULL,
-                                   argBuffer));
+                                   kernel_launch_config));
   }
 
 #ifdef _DEBUG
