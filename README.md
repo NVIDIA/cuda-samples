@@ -148,12 +148,14 @@ we provide a script to do so, `run_tests.py`.
 This Python3 script finds all executables in a subdirectory you choose, matching application names with command line arguments specified in `test_args.json`. It accepts
 the following command line arguments:
 
-| Switch   | Purpose                                                                                                        | Example                 |
-| -------- | -------------------------------------------------------------------------------------------------------------- | ----------------------- |
-| --dir    | Specify the root directory to search for executables (recursively)                                             | --dir ./build/Samples   |
-| --config | JSON configuration file for executable arguments                                                               | --config test_args.json |
-| --output | Output directory for test results (stdout saved to .txt files - directory will be created if it doesn't exist) | --output ./test         |
-| --args   | Global arguments to pass to all executables (not currently used)                                               | --args arg_1 arg_2 ...  |
+| Switch     | Purpose                                                                                                        | Example                 |
+| ---------- | -------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| --dir      | Specify the root directory to search for executables (recursively)                                             | --dir ./build/Samples   |
+| --config   | JSON configuration file for executable arguments                                                               | --config test_args.json |
+| --output   | Output directory for test results (stdout saved to .txt files - directory will be created if it doesn't exist) | --output ./test         |
+| --args     | Global arguments to pass to all executables (not currently used)                                               | --args arg_1 arg_2 ...  |
+| --parallel | Number of applications to execute in parallel.                                                                 | --parallel 8            |
+
 
 Application configurations are loaded from `test_args.json` and matched against executable names (discarding the `.exe` extension on Windows).
 
@@ -281,18 +283,18 @@ and system configuration):
 
 ```
 Test Summary:
-Ran 181 tests
-All tests passed!
+Ran 199 test runs for 180 executables.
+All test runs passed!
 ```
 
 If some samples fail, you will see something like this:
 
 ```
 Test Summary:
-Ran 181 tests
-Failed tests (2):
-  volumeFiltering: returned 1
-  postProcessGL: returned 1
+Ran 199 test runs for 180 executables.
+Failed runs (2):
+  bicubicTexture (run 1/5): Failed (code 1)
+  Mandelbrot (run 1/2): Failed (code 1)
 ```
 
 You can inspect the stdout logs in the output directory (generally `APM_<application_name>.txt` or `APM_<application_name>.run<n>.txt`) to help

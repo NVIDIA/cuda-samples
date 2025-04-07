@@ -33,6 +33,15 @@ import json
 import subprocess
 import argparse
 from pathlib import Path
+import concurrent.futures
+import threading
+
+print_lock = threading.Lock()
+
+def safe_print(*args, **kwargs):
+    """Thread-safe print function"""
+    with print_lock:
+        print(*args, **kwargs)
 
 def normalize_exe_name(name):
     """Normalize executable name across platforms by removing .exe if present"""
@@ -78,96 +87,49 @@ def find_executables(root_dir):
 
     return executables
 
-def run_test(executable, output_dir, args_config, global_args=None):
-    """Run a single test and capture output"""
+def run_single_test_instance(executable, args, output_file, global_args, run_description):
+    """Run a single instance of a test executable with specific arguments."""
     exe_path = str(executable)
     exe_name = executable.name
-    base_name = normalize_exe_name(exe_name)
 
-    # Check if this executable should be skipped
-    if base_name in args_config and args_config[base_name].get("skip", False):
-        print(f"Skipping {exe_name} (marked as skip in config)")
-        return 0
+    safe_print(f"Starting {exe_name} {run_description}")
 
-    # Get argument sets for this executable
-    arg_sets = []
-    if base_name in args_config:
-        config = args_config[base_name]
-        if "args" in config:
-            # Single argument set (backwards compatibility)
-            if isinstance(config["args"], list):
-                arg_sets.append(config["args"])
-            else:
-                print(f"Warning: Arguments for {base_name} must be a list")
-        elif "runs" in config:
-            # Multiple argument sets
-            for run in config["runs"]:
-                if isinstance(run.get("args", []), list):
-                    arg_sets.append(run.get("args", []))
-                else:
-                    print(f"Warning: Arguments for {base_name} run must be a list")
+    try:
+        cmd = [f"./{exe_name}"]
+        cmd.extend(args)
+        if global_args:
+            cmd.extend(global_args)
 
-    # If no specific args defined, run once with no args
-    if not arg_sets:
-        arg_sets.append([])
+        safe_print(f"    Command ({exe_name} {run_description}): {' '.join(cmd)}")
 
-    # Run for each argument set
-    failed = False
-    run_number = 1
-    for args in arg_sets:
-        # Create output file name with run number if multiple runs
-        if len(arg_sets) > 1:
-            output_file = os.path.abspath(f"{output_dir}/APM_{exe_name}.run{run_number}.txt")
-            print(f"Running {exe_name} (run {run_number}/{len(arg_sets)})")
-        else:
-            output_file = os.path.abspath(f"{output_dir}/APM_{exe_name}.txt")
-            print(f"Running {exe_name}")
+        # Run the executable in its own directory using cwd
+        with open(output_file, 'w') as f:
+            result = subprocess.run(
+                cmd,
+                stdout=f,
+                stderr=subprocess.STDOUT,
+                timeout=300,  # 5 minute timeout
+                cwd=os.path.dirname(exe_path) # Execute in the executable's directory
+            )
 
-        try:
-            # Prepare command with arguments
-            cmd = [f"./{exe_name}"]
-            cmd.extend(args)
+        status = "Passed" if result.returncode == 0 else "Failed"
+        safe_print(f"    Finished {exe_name} {run_description}: {status} (code {result.returncode})")
+        return {"name": exe_name, "description": run_description, "return_code": result.returncode, "status": status}
 
-            # Add global arguments if provided
-            if global_args:
-                cmd.extend(global_args)
+    except subprocess.TimeoutExpired:
+        safe_print(f"Error ({exe_name} {run_description}): Timed out after 5 minutes")
+        return {"name": exe_name, "description": run_description, "return_code": -1, "status": "Timeout"}
+    except Exception as e:
+        safe_print(f"Error running {exe_name} {run_description}: {str(e)}")
+        return {"name": exe_name, "description": run_description, "return_code": -1, "status": f"Error: {str(e)}"}
 
-            print(f"    Command: {' '.join(cmd)}")
-
-            # Store current directory
-            original_dir = os.getcwd()
-
-            try:
-                # Change to executable's directory
-                os.chdir(os.path.dirname(exe_path))
-
-                # Run the executable and capture output
-                with open(output_file, 'w') as f:
-                    result = subprocess.run(
-                        cmd,
-                        stdout=f,
-                        stderr=subprocess.STDOUT,
-                        timeout=300  # 5 minute timeout
-                    )
-
-                if result.returncode != 0:
-                    failed = True
-                print(f"    Test completed with return code {result.returncode}")
-
-            finally:
-                # Always restore original directory
-                os.chdir(original_dir)
-
-        except subprocess.TimeoutExpired:
-            print(f"Error: {exe_name} timed out after 5 minutes")
-            failed = True
-        except Exception as e:
-            print(f"Error running {exe_name}: {str(e)}")
-            failed = True
-
-        run_number += 1
-
-    return 1 if failed else 0
+def run_test(executable, output_dir, args_config, global_args=None):
+    """Deprecated: This function is replaced by the parallel execution logic in main."""
+    # This function is no longer called directly by the main logic.
+    # It remains here temporarily in case it's needed for reference or single-threaded debugging.
+    # The core logic is now in run_single_test_instance and managed by ThreadPoolExecutor.
+    print("Warning: run_test function called directly - this indicates an issue in the refactoring.")
+    return 1 # Indicate failure if called
 
 def main():
     parser = argparse.ArgumentParser(description='Run all executables and capture output')
@@ -175,6 +137,7 @@ def main():
     parser.add_argument('--config', help='JSON configuration file for executable arguments')
     parser.add_argument('--output', default='.',  # Default to current directory
                        help='Output directory for test results')
+    parser.add_argument('--parallel', type=int, default=1, help='Number of parallel tests to run')
     parser.add_argument('--args', nargs=argparse.REMAINDER,
                        help='Global arguments to pass to all executables')
     args = parser.parse_args()
@@ -192,23 +155,104 @@ def main():
         return 1
 
     print(f"Found {len(executables)} executables")
+    print(f"Running tests with up to {args.parallel} parallel tasks.")
+
+    tasks = []
+    for exe in executables:
+        exe_name = exe.name
+        base_name = normalize_exe_name(exe_name)
+
+        # Check if this executable should be skipped globally
+        if base_name in args_config and args_config[base_name].get("skip", False):
+            safe_print(f"Skipping {exe_name} (marked as skip in config)")
+            continue
+
+        arg_sets_configs = []
+        if base_name in args_config:
+            config = args_config[base_name]
+            if "args" in config:
+                if isinstance(config["args"], list):
+                    arg_sets_configs.append({"args": config["args"]}) # Wrap in dict for consistency
+                else:
+                    safe_print(f"Warning: Arguments for {base_name} must be a list")
+            elif "runs" in config:
+                for i, run_config in enumerate(config["runs"]):
+                    if run_config.get("skip", False):
+                         safe_print(f"Skipping run {i+1} for {exe_name} (marked as skip in config)")
+                         continue
+                    if isinstance(run_config.get("args", []), list):
+                        arg_sets_configs.append(run_config)
+                    else:
+                        safe_print(f"Warning: Arguments for {base_name} run {i+1} must be a list")
+
+        # If no specific args defined, create one run with no args
+        if not arg_sets_configs:
+            arg_sets_configs.append({"args": []})
+
+        # Create tasks for each run configuration
+        num_runs = len(arg_sets_configs)
+        for i, run_config in enumerate(arg_sets_configs):
+            current_args = run_config.get("args", [])
+            run_desc = f"(run {i+1}/{num_runs})" if num_runs > 1 else ""
+
+            # Create output file name
+            if num_runs > 1:
+                output_file = os.path.abspath(f"{args.output}/APM_{exe_name}.run{i+1}.txt")
+            else:
+                output_file = os.path.abspath(f"{args.output}/APM_{exe_name}.txt")
+
+            tasks.append({
+                "executable": exe,
+                "args": current_args,
+                "output_file": output_file,
+                "global_args": args.args,
+                "description": run_desc
+            })
 
     failed = []
-    for exe in executables:
-        ret_code = run_test(exe, args.output, args_config, args.args)
-        if ret_code != 0:
-            failed.append((exe.name, ret_code))
+    total_runs = len(tasks)
+    completed_runs = 0
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=args.parallel) as executor:
+        future_to_task = {
+            executor.submit(run_single_test_instance,
+                            task["executable"],
+                            task["args"],
+                            task["output_file"],
+                            task["global_args"],
+                            task["description"]): task
+            for task in tasks
+        }
+
+        for future in concurrent.futures.as_completed(future_to_task):
+            task_info = future_to_task[future]
+            completed_runs += 1
+            safe_print(f"Progress: {completed_runs}/{total_runs} runs completed.")
+            try:
+                result = future.result()
+                if result["return_code"] != 0:
+                    failed.append(result)
+            except Exception as exc:
+                safe_print(f'Task {task_info["executable"].name} {task_info["description"]} generated an exception: {exc}')
+                failed.append({
+                    "name": task_info["executable"].name,
+                    "description": task_info["description"],
+                    "return_code": -1,
+                    "status": f"Execution Exception: {exc}"
+                })
 
     # Print summary
     print("\nTest Summary:")
-    print(f"Ran {len(executables)} tests")
+    print(f"Ran {total_runs} test runs for {len(executables)} executables.")
     if failed:
-        print(f"Failed tests ({len(failed)}):")
-        for name, code in failed:
-            print(f"  {name}: returned {code}")
-        return failed[0][1]  # Return first failure code
+        print(f"Failed runs ({len(failed)}):")
+        for fail in failed:
+            print(f"  {fail['name']} {fail['description']}: {fail['status']} (code {fail['return_code']})")
+        # Return the return code of the first failure, or 1 if only exceptions occurred
+        first_failure_code = next((f["return_code"] for f in failed if f["return_code"] != -1), 1)
+        return first_failure_code
     else:
-        print("All tests passed!")
+        print("All test runs passed!")
         return 0
 
 if __name__ == '__main__':
