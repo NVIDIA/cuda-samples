@@ -99,12 +99,15 @@ static void childProcess(int id)
     std::vector<void *>      ptrs;
     std::vector<cudaEvent_t> events;
     std::vector<char>        verification_buffer(DATA_SIZE);
-    pid_t                    pid;
     char                     pidString[20] = {0};
     char                     lshmName[40]  = {0};
 
+    // Use parent process ID to create a unique shared memory name for Linux multi-process
+#ifdef __linux__
+    pid_t pid;
     pid = getppid();
     snprintf(pidString, sizeof(pidString), "%d", pid);
+#endif
     strcat(lshmName, shmName);
     strcat(lshmName, pidString);
 
@@ -205,12 +208,15 @@ static void parentProcess(char *app)
     std::vector<void *>      ptrs;
     std::vector<cudaEvent_t> events;
     std::vector<Process>     processes;
-    pid_t                    pid;
     char                     pidString[20] = {0};
     char                     lshmName[40]  = {0};
 
+    // Use current process ID to create a unique shared memory name for Linux multi-process
+#ifdef __linux__
+    pid_t pid;
     pid = getpid();
     snprintf(pidString, sizeof(pidString), "%d", pid);
+#endif
     strcat(lshmName, shmName);
     strcat(lshmName, pidString);
 
