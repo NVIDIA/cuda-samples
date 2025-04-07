@@ -310,12 +310,16 @@ static void childProcess(int devId, int id, char **argv)
     ipcHandle          *ipcChildHandle = NULL;
     int                 blocks         = 0;
     int                 threads        = 128;
-    pid_t               pid;
-    char                pidString[20] = {0};
-    char                lshmName[40]  = {0};
+    char                pidString[20]  = {0};
+    char                lshmName[40]   = {0};
 
+
+    // Use parent process ID to create a unique shared memory name for Linux multi-process
+#ifdef __linux__
+    pid_t pid;
     pid = getppid();
     snprintf(pidString, sizeof(pidString), "%d", pid);
+#endif
     strcat(lshmName, shmName);
     strcat(lshmName, pidString);
 
@@ -431,16 +435,20 @@ static void parentProcess(char *app)
     volatile shmStruct  *shm = NULL;
     sharedMemoryInfo     info;
     std::vector<Process> processes;
-    pid_t                pid;
     char                 pidString[20] = {0};
     char                 lshmName[40]  = {0};
 
+    // Use current process ID to create a unique shared memory name for Linux multi-process
+#ifdef __linux__
+    pid_t pid;
     pid = getpid();
     snprintf(pidString, sizeof(pidString), "%d", pid);
+#endif
     strcat(lshmName, shmName);
     strcat(lshmName, pidString);
 
     printf("PP: lshmName = %s\n", lshmName);
+
     checkCudaErrors(cuDeviceGetCount(&devCount));
     std::vector<CUdevice> devices(devCount);
 
