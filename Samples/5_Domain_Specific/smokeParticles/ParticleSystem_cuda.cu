@@ -29,11 +29,15 @@
 This file contains simple wrapper functions that call the CUDA kernels
 */
 #define HELPERGL_EXTERN_GL_FUNC_IMPLEMENTATION
+
+// includes for OpenGL
+#include <helper_gl.h>
+
+// includes
 #include <cstdio>
 #include <cstdlib>
 #include <cuda_gl_interop.h>
 #include <helper_cuda.h>
-#include <helper_gl.h>
 #include <string.h>
 
 #include "ParticleSystem.cuh"

@@ -310,10 +310,24 @@ static void childProcess(int devId, int id, char **argv)
     ipcHandle          *ipcChildHandle = NULL;
     int                 blocks         = 0;
     int                 threads        = 128;
+    char                pidString[20]  = {0};
+    char                lshmName[40]   = {0};
+
+
+    // Use parent process ID to create a unique shared memory name for Linux multi-process
+#ifdef __linux__
+    pid_t pid;
+    pid = getppid();
+    snprintf(pidString, sizeof(pidString), "%d", pid);
+#endif
+    strcat(lshmName, shmName);
+    strcat(lshmName, pidString);
+
+    printf("CP: lshmName = %s\n", lshmName);
 
     checkIpcErrors(ipcOpenSocket(ipcChildHandle));
 
-    if (sharedMemoryOpen(shmName, sizeof(shmStruct), &info) != 0) {
+    if (sharedMemoryOpen(lshmName, sizeof(shmStruct), &info) != 0) {
         printf("Failed to create shared memory slab\n");
         exit(EXIT_FAILURE);
     }
@@ -421,11 +435,24 @@ static void parentProcess(char *app)
     volatile shmStruct  *shm = NULL;
     sharedMemoryInfo     info;
     std::vector<Process> processes;
+    char                 pidString[20] = {0};
+    char                 lshmName[40]  = {0};
+
+    // Use current process ID to create a unique shared memory name for Linux multi-process
+#ifdef __linux__
+    pid_t pid;
+    pid = getpid();
+    snprintf(pidString, sizeof(pidString), "%d", pid);
+#endif
+    strcat(lshmName, shmName);
+    strcat(lshmName, pidString);
+
+    printf("PP: lshmName = %s\n", lshmName);
 
     checkCudaErrors(cuDeviceGetCount(&devCount));
     std::vector<CUdevice> devices(devCount);
 
-    if (sharedMemoryCreate(shmName, sizeof(*shm), &info) != 0) {
+    if (sharedMemoryCreate(lshmName, sizeof(*shm), &info) != 0) {
         printf("Failed to create shared memory slab\n");
         exit(EXIT_FAILURE);
     }

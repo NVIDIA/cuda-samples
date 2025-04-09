@@ -28,11 +28,15 @@
 #include "render_particles.h"
 
 #define HELPERGL_EXTERN_GL_FUNC_IMPLEMENTATION
+
+// includes for OpenGL
+#include <helper_gl.h>
+
+// includes
 #include <assert.h>
 #include <cuda_gl_interop.h>
 #include <cuda_runtime.h>
 #include <helper_cuda.h>
-#include <helper_gl.h>
 #include <math.h>
 
 #define GL_POINT_SPRITE_ARB             0x8861

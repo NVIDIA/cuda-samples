@@ -2,6 +2,12 @@
 
 ### CUDA 12.9
 * Updated toolchain for cross-compilation for Tegra Linux platforms.
+* Repository has been updated with consistent code formatting across all samples
+* Many small code tweaks and bug fixes (see commit history for details)
+* Removed the following outdated samples:
+  * `1_Utilities`
+    * `bandwidthTest` - this sample was out of date and did not produce accurate results. For bandwidth
+    testing of NVIDIA GPU platforms, please refer to [NVBandwidth](https://github.com/NVIDIA/nvbandwidth)
 
 ### CUDA 12.8
 * Updated build system across the repository to CMake. Removed Visual Studio project files and Makefiles.
