@@ -928,7 +928,7 @@ void reduce(int size, int threads, int blocks, int whichKernel, T *d_idata,
       } else {
         switch (threads) {
           case 1024:
-            reduce7<T, 1024, true>
+            reduce7<T, 1024, false>
                 <<<dimGrid, dimBlock, smemSize>>>(d_idata, d_odata, size);
             break;
           case 512:
