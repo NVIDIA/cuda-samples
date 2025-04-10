@@ -89,7 +89,7 @@ initCUDA(CUcontext *phContext, CUdevice *phDevice, CUmodule *phModule, CUfunctio
     assert(phContext && phDevice && phModule && phKernel && ptx);
 
     // Create a CUDA context on the device.
-    checkCudaErrors(cuCtxCreate(phContext, 0, *phDevice));
+    checkCudaErrors(cuCtxCreate(phContext, NULL, 0, *phDevice));
 
     // Load the PTX.
     checkCudaErrors(cuModuleLoadDataEx(phModule, ptx, 0, 0, 0));

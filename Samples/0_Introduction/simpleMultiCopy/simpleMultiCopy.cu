@@ -218,9 +218,11 @@ int main(int argc, char *argv[])
 
     printf("\n");
     printf("Relevant properties of this CUDA device\n");
+    int canOverlap;
+    checkCudaErrors(cudaDeviceGetAttribute(&canOverlap, cudaDevAttrGpuOverlap, cuda_device));
     printf("(%s) Can overlap one CPU<>GPU data transfer with GPU kernel execution "
-           "(device property \"deviceOverlap\")\n",
-           deviceProp.deviceOverlap ? "X" : " ");
+           "(device property \"cudaDevAttrGpuOverlap\")\n",
+           canOverlap ? "X" : " ");
     // printf("(%s) Can execute several GPU kernels simultaneously (compute
     // capability >= 2.0)\n", deviceProp.major >= 2 ? "X": " ");
     printf("(%s) Can overlap two CPU<>GPU data transfers with GPU kernel execution\n"

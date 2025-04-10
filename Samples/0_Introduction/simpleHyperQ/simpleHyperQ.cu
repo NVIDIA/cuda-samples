@@ -127,6 +127,10 @@ int main(int argc, char **argv)
     checkCudaErrors(cudaGetDevice(&cuda_device));
     checkCudaErrors(cudaGetDeviceProperties(&deviceProp, cuda_device));
 
+    // Get device clock rate
+    int clockRate;
+    checkCudaErrors(cudaDeviceGetAttribute(&clockRate, cudaDevAttrClockRate, cuda_device));
+
     // HyperQ is available in devices of Compute Capability 3.5 and higher
     if (deviceProp.major < 3 || (deviceProp.major == 3 && deviceProp.minor < 5)) {
         if (deviceProp.concurrentKernels == 0) {
@@ -170,9 +174,9 @@ int main(int argc, char **argv)
 #if defined(__arm__) || defined(__aarch64__)
     // the kernel takes more time than the channel reset time on arm archs, so to
     // prevent hangs reduce time_clocks.
-    clock_t time_clocks = (clock_t)(kernel_time * (deviceProp.clockRate / 100));
+    clock_t time_clocks = (clock_t)(kernel_time * (clockRate / 100));
 #else
-    clock_t time_clocks = (clock_t)(kernel_time * deviceProp.clockRate);
+    clock_t time_clocks = (clock_t)(kernel_time * clockRate);
 #endif
     clock_t total_clocks = 0;
 

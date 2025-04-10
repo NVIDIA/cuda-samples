@@ -309,10 +309,11 @@ void runTest(int argc, char **argv)
 ////////////////////////////////////////////////////////////////////////////////
 static CUresult initCUDA(int argc, char **argv, CUfunction *transform)
 {
-    CUfunction cuFunction = 0;
-    int        major = 0, minor = 0, devID = 0;
-    char       deviceName[100];
-    string     module_path;
+    CUfunction        cuFunction = 0;
+    int               major = 0, minor = 0, devID = 0;
+    char              deviceName[100];
+    string            module_path;
+    CUctxCreateParams ctxCreateParams = {};
 
     cuDevice = findCudaDeviceDRV(argc, (const char **)argv);
 
@@ -322,7 +323,7 @@ static CUresult initCUDA(int argc, char **argv, CUfunction *transform)
     checkCudaErrors(cuDeviceGetName(deviceName, sizeof(deviceName), cuDevice));
     printf("> GPU Device has SM %d.%d compute capability\n", major, minor);
 
-    checkCudaErrors(cuCtxCreate(&cuContext, 0, cuDevice));
+    checkCudaErrors(cuCtxCreate(&cuContext, &ctxCreateParams, 0, cuDevice));
 
     // first search for the module_path before we try to load the results
     std::ostringstream fatbin;

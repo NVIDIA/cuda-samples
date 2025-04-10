@@ -206,7 +206,7 @@ static CUresult buildKernel(CUcontext *phContext, CUdevice *phDevice, CUmodule *
     *phDevice = cudaDeviceInit(&major, &minor);
 
     // Create a context on the device.
-    checkCudaErrors(cuCtxCreate(phContext, 0, *phDevice));
+    checkCudaErrors(cuCtxCreate(phContext, NULL, 0, *phDevice));
 
     // Get the NVVM IR from file.
     size_t      size     = 0;

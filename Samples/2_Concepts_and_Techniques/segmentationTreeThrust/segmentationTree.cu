@@ -69,6 +69,9 @@
 #include <thrust/sort.h>
 #include <thrust/unique.h>
 
+// for cuda::std::identity
+#include <cuda/std/functional>
+
 // Sample framework includes.
 #include <helper_cuda.h>
 #include <helper_functions.h>
@@ -680,7 +683,7 @@ private:
                         thrust::make_counting_iterator(validEdgesCount),
                         dEdgesFlags,
                         dVertices_,
-                        thrust::identity<uint>())
+                        cuda::std::identity())
             .get();
 
         pools.uintEdges.put(dEdgesFlags);

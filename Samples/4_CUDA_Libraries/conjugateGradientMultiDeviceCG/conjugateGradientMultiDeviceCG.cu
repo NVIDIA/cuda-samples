@@ -585,9 +585,12 @@ int main(int argc, char **argv)
     genTridiag(I, J, val_cpu, N, nz);
 
     memcpy(val, val_cpu, sizeof(float) * nz);
-    checkCudaErrors(cudaMemAdvise(I, sizeof(int) * (N + 1), cudaMemAdviseSetReadMostly, 0));
-    checkCudaErrors(cudaMemAdvise(J, sizeof(int) * nz, cudaMemAdviseSetReadMostly, 0));
-    checkCudaErrors(cudaMemAdvise(val, sizeof(float) * nz, cudaMemAdviseSetReadMostly, 0));
+    cudaMemLocation deviceLoc;
+    deviceLoc.type = cudaMemLocationTypeDevice;
+    deviceLoc.id   = 0; // Device location with initial device 0
+    checkCudaErrors(cudaMemAdvise(I, sizeof(int) * (N + 1), cudaMemAdviseSetReadMostly, deviceLoc));
+    checkCudaErrors(cudaMemAdvise(J, sizeof(int) * nz, cudaMemAdviseSetReadMostly, deviceLoc));
+    checkCudaErrors(cudaMemAdvise(val, sizeof(float) * nz, cudaMemAdviseSetReadMostly, deviceLoc));
 
     checkCudaErrors(cudaMallocManaged((void **)&x, sizeof(float) * N));
 
@@ -648,26 +651,30 @@ int main(int argc, char **argv)
         int offset_p   = device_count * totalThreadsPerGPU;
         int offset_x   = device_count * totalThreadsPerGPU;
 
-        checkCudaErrors(cudaMemPrefetchAsync(I, sizeof(int) * N, *deviceId, nStreams[device_count]));
-        checkCudaErrors(cudaMemPrefetchAsync(val, sizeof(float) * nz, *deviceId, nStreams[device_count]));
-        checkCudaErrors(cudaMemPrefetchAsync(J, sizeof(float) * nz, *deviceId, nStreams[device_count]));
+        // Create device location with specific device ID
+        cudaMemLocation deviceLoc;
+        deviceLoc.type = cudaMemLocationTypeDevice;
+        deviceLoc.id   = *deviceId;
+        checkCudaErrors(cudaMemPrefetchAsync(I, sizeof(int) * N, deviceLoc, 0, nStreams[device_count]));
+        checkCudaErrors(cudaMemPrefetchAsync(val, sizeof(float) * nz, deviceLoc, 0, nStreams[device_count]));
+        checkCudaErrors(cudaMemPrefetchAsync(J, sizeof(float) * nz, deviceLoc, 0, nStreams[device_count]));
 
         if (offset_Ax <= N) {
             for (int i = 0; i < perGPUIter; i++) {
                 cudaMemAdvise(
-                    Ax + offset_Ax, sizeof(float) * totalThreadsPerGPU, cudaMemAdviseSetPreferredLocation, *deviceId);
+                    Ax + offset_Ax, sizeof(float) * totalThreadsPerGPU, cudaMemAdviseSetPreferredLocation, deviceLoc);
                 cudaMemAdvise(
-                    r + offset_r, sizeof(float) * totalThreadsPerGPU, cudaMemAdviseSetPreferredLocation, *deviceId);
+                    r + offset_r, sizeof(float) * totalThreadsPerGPU, cudaMemAdviseSetPreferredLocation, deviceLoc);
                 cudaMemAdvise(
-                    x + offset_x, sizeof(float) * totalThreadsPerGPU, cudaMemAdviseSetPreferredLocation, *deviceId);
+                    x + offset_x, sizeof(float) * totalThreadsPerGPU, cudaMemAdviseSetPreferredLocation, deviceLoc);
                 cudaMemAdvise(
-                    p + offset_p, sizeof(float) * totalThreadsPerGPU, cudaMemAdviseSetPreferredLocation, *deviceId);
+                    p + offset_p, sizeof(float) * totalThreadsPerGPU, cudaMemAdviseSetPreferredLocation, deviceLoc);
 
                 cudaMemAdvise(
-                    Ax + offset_Ax, sizeof(float) * totalThreadsPerGPU, cudaMemAdviseSetAccessedBy, *deviceId);
-                cudaMemAdvise(r + offset_r, sizeof(float) * totalThreadsPerGPU, cudaMemAdviseSetAccessedBy, *deviceId);
-                cudaMemAdvise(p + offset_p, sizeof(float) * totalThreadsPerGPU, cudaMemAdviseSetAccessedBy, *deviceId);
-                cudaMemAdvise(x + offset_x, sizeof(float) * totalThreadsPerGPU, cudaMemAdviseSetAccessedBy, *deviceId);
+                    Ax + offset_Ax, sizeof(float) * totalThreadsPerGPU, cudaMemAdviseSetAccessedBy, deviceLoc);
+                cudaMemAdvise(r + offset_r, sizeof(float) * totalThreadsPerGPU, cudaMemAdviseSetAccessedBy, deviceLoc);
+                cudaMemAdvise(p + offset_p, sizeof(float) * totalThreadsPerGPU, cudaMemAdviseSetAccessedBy, deviceLoc);
+                cudaMemAdvise(x + offset_x, sizeof(float) * totalThreadsPerGPU, cudaMemAdviseSetAccessedBy, deviceLoc);
 
                 offset_Ax += totalThreadsPerGPU * kNumGpusRequired;
                 offset_r += totalThreadsPerGPU * kNumGpusRequired;
@@ -739,8 +746,11 @@ int main(int argc, char **argv)
         deviceId++;
     }
 
-    checkCudaErrors(cudaMemPrefetchAsync(x, sizeof(float) * N, cudaCpuDeviceId));
-    checkCudaErrors(cudaMemPrefetchAsync(dot_result, sizeof(double), cudaCpuDeviceId));
+    // Use cudaMemLocationTypeHost for optimal host memory location
+    cudaMemLocation hostLoc;
+    hostLoc.type = cudaMemLocationTypeHost;
+    checkCudaErrors(cudaMemPrefetchAsync(x, sizeof(float) * N, hostLoc, 0));
+    checkCudaErrors(cudaMemPrefetchAsync(dot_result, sizeof(double), hostLoc, 0));
 
     deviceId     = bestFitDeviceIds.begin();
     device_count = 0;

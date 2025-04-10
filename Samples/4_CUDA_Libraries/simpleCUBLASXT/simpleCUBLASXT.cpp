@@ -84,13 +84,17 @@ void findMultipleBestGPUs(int &num_of_devices, int *device_ids)
 
     cudaDeviceProp deviceProp;
     int            devices_prohibited = 0;
+    int            computeMode;
+    int            clockRate;
+
     while (current_device < device_count) {
         cudaGetDeviceProperties(&deviceProp, current_device);
-
+        checkCudaErrors(cudaDeviceGetAttribute(&computeMode, cudaDevAttrComputeMode, current_device));
+        checkCudaErrors(cudaDeviceGetAttribute(&clockRate, cudaDevAttrClockRate, current_device));
         // If this GPU is not running on Compute Mode prohibited,
         // then we can add it to the list
         int sm_per_multiproc;
-        if (deviceProp.computeMode != cudaComputeModeProhibited) {
+        if (computeMode != cudaComputeModeProhibited) {
             if (deviceProp.major == 9999 && deviceProp.minor == 9999) {
                 sm_per_multiproc = 1;
             }
@@ -99,7 +103,7 @@ void findMultipleBestGPUs(int &num_of_devices, int *device_ids)
             }
 
             gpu_stats[current_device].compute_perf =
-                (uint64_t)deviceProp.multiProcessorCount * sm_per_multiproc * deviceProp.clockRate;
+                (uint64_t)deviceProp.multiProcessorCount * sm_per_multiproc * clockRate;
             gpu_stats[current_device].device_id = current_device;
         }
         else {

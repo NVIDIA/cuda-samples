@@ -146,13 +146,14 @@ int main(int argc, char *argv[])
     getLTOIR(lto_saxpy, "lto_saxpy.cu", &ltoIR1, &ltoIR1Size);
     getLTOIR(lto_compute, "lto_compute.cu", &ltoIR2, &ltoIR2Size);
 
-    CUdevice   cuDevice;
-    CUcontext  context;
-    CUmodule   module;
-    CUfunction kernel;
+    CUdevice          cuDevice;
+    CUcontext         context;
+    CUmodule          module;
+    CUfunction        kernel;
+    CUctxCreateParams ctxCreateParams = {};
     CUDA_SAFE_CALL(cuInit(0));
     CUDA_SAFE_CALL(cuDeviceGet(&cuDevice, 0));
-    CUDA_SAFE_CALL(cuCtxCreate(&context, 0, cuDevice));
+    CUDA_SAFE_CALL(cuCtxCreate(&context, &ctxCreateParams, 0, cuDevice));
 
     // Dynamically determine the arch to link for
     int major = 0;

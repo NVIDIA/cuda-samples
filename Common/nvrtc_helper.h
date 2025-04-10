@@ -187,6 +187,7 @@ CUmodule loadCUBIN(char *cubin, int argc, char **argv) {
   CUcontext context;
   int major = 0, minor = 0;
   char deviceName[256];
+  CUctxCreateParams ctxCreateParams = {};
 
   // Picks the best CUDA device available
   CUdevice cuDevice = findCudaDeviceDRV(argc, (const char **)argv);
@@ -200,7 +201,7 @@ CUmodule loadCUBIN(char *cubin, int argc, char **argv) {
   printf("> GPU Device has SM %d.%d compute capability\n", major, minor);
 
   checkCudaErrors(cuInit(0));
-  checkCudaErrors(cuCtxCreate(&context, 0, cuDevice));
+  checkCudaErrors(cuCtxCreate(&context, &ctxCreateParams, 0, cuDevice));
 
   checkCudaErrors(cuModuleLoadData(&module, cubin));
   free(cubin);

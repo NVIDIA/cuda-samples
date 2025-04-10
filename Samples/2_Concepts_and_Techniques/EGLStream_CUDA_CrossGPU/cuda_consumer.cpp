@@ -190,8 +190,9 @@ done:
 
 CUresult cudaDeviceCreateConsumer(test_cuda_consumer_s *cudaConsumer)
 {
-    CUdevice device;
-    CUresult status = CUDA_SUCCESS;
+    CUdevice          device;
+    CUresult          status          = CUDA_SUCCESS;
+    CUctxCreateParams ctxCreateParams = {};
 
     if (CUDA_SUCCESS != (status = cuInit(0))) {
         printf("Failed to initialize CUDA\n");
@@ -203,7 +204,7 @@ CUresult cudaDeviceCreateConsumer(test_cuda_consumer_s *cudaConsumer)
         return status;
     }
 
-    if (CUDA_SUCCESS != (status = cuCtxCreate(&cudaConsumer->context, 0, device))) {
+    if (CUDA_SUCCESS != (status = cuCtxCreate(&cudaConsumer->context, &ctxCreateParams, 0, device))) {
         printf("failed to create CUDA context\n");
         return status;
     }
