@@ -268,9 +268,10 @@ void randomInit(float *data, int size)
 
 static int initCUDA(int argc, char **argv, CUfunction *pMatrixMul, int *blk_size)
 {
-    CUfunction cuFunction = 0;
-    int        major = 0, minor = 0;
-    char       deviceName[100];
+    CUfunction        cuFunction = 0;
+    int               major = 0, minor = 0;
+    char              deviceName[100];
+    CUctxCreateParams ctxCreateParams = {};
 
     cuDevice = findCudaDeviceDRV(argc, (const char **)argv);
 
@@ -283,7 +284,7 @@ static int initCUDA(int argc, char **argv, CUfunction *pMatrixMul, int *blk_size
     checkCudaErrors(cuDeviceTotalMem(&totalGlobalMem, cuDevice));
     printf("  Total amount of global memory:     %llu bytes\n", (long long unsigned int)totalGlobalMem);
 
-    checkCudaErrors(cuCtxCreate(&cuContext, 0, cuDevice));
+    checkCudaErrors(cuCtxCreate(&cuContext, &ctxCreateParams, 0, cuDevice));
 
     // first search for the module path before we load the results
     std::string        module_path;

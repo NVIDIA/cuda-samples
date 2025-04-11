@@ -287,7 +287,9 @@ int main(int argc, char **argv)
         exit(EXIT_WAIVED);
     }
 
-    if (device_prop.computeMode == cudaComputeModeProhibited) {
+    int computeMode;
+    checkCudaErrors(cudaDeviceGetAttribute(&computeMode, cudaDevAttrComputeMode, dev_id));
+    if (computeMode == cudaComputeModeProhibited) {
         // This sample requires being run with a default or process exclusive mode
         fprintf(stderr,
                 "This sample requires a device in either default or process "

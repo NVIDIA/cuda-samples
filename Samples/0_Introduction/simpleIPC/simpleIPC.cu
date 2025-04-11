@@ -247,7 +247,9 @@ static void parentProcess(char *app)
         }
         // This sample requires two processes accessing each device, so we need
         // to ensure exclusive or prohibited mode is not set
-        if (prop.computeMode != cudaComputeModeDefault) {
+        int computeMode;
+        checkCudaErrors(cudaDeviceGetAttribute(&computeMode, cudaDevAttrComputeMode, i));
+        if (computeMode != cudaComputeModeDefault) {
             printf("Device %d is in an unsupported compute mode for this sample\n", i);
             continue;
         }

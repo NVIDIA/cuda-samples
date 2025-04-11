@@ -118,13 +118,14 @@ bool runTest(int argc, char **argv);
 // to be setup and the CUDA module (CUBIN) is built by NVCC
 static CUresult InitCUDAContext(CUDAContext *pContext, CUdevice hcuDevice, int deviceID, char **argv)
 {
-    CUcontext   hcuContext  = 0;
-    CUmodule    hcuModule   = 0;
-    CUfunction  hcuFunction = 0;
-    CUdeviceptr dptr        = 0;
+    CUcontext         hcuContext      = 0;
+    CUmodule          hcuModule       = 0;
+    CUfunction        hcuFunction     = 0;
+    CUdeviceptr       dptr            = 0;
+    CUctxCreateParams ctxCreateParams = {};
 
     // cuCtxCreate: Function works on floating contexts and current context
-    CUresult status = cuCtxCreate(&hcuContext, 0, hcuDevice);
+    CUresult status = cuCtxCreate(&hcuContext, &ctxCreateParams, 0, hcuDevice);
 
     if (CUDA_SUCCESS != status) {
         fprintf(stderr, "cuCtxCreate for <deviceID=%d> failed %d\n", deviceID, status);

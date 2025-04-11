@@ -149,9 +149,9 @@ void createSimpleAllocFreeGraph(cudaGraphExec_t *graphExec, float **dPtr, size_t
     checkCudaErrors(cudaGraphAddMemAllocNode(&allocNodeA, graph, NULL, 0, &allocParams));
     *dPtr = (float *)allocParams.dptr;
 
-    cudaDeviceProp deviceProp;
-    checkCudaErrors(cudaGetDeviceProperties(&deviceProp, device));
-    clock_t time_clocks = (clock_t)((kernelTime / 1000.0) * deviceProp.clockRate);
+    int clockRate;
+    checkCudaErrors(cudaDeviceGetAttribute(&clockRate, cudaDevAttrClockRate, device));
+    clock_t time_clocks = (clock_t)((kernelTime / 1000.0) * clockRate);
 
     void *blockDeviceArgs[1] = {(void *)&time_clocks};
 

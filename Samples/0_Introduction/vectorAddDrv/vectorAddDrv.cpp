@@ -75,15 +75,16 @@ bool findModulePath(const char *, string &, char **, string &);
 int main(int argc, char **argv)
 {
     printf("Vector Addition (Driver API)\n");
-    int    N = 50000, devID = 0;
-    size_t size = N * sizeof(float);
+    int               N = 50000, devID = 0;
+    size_t            size            = N * sizeof(float);
+    CUctxCreateParams ctxCreateParams = {};
 
     // Initialize
     checkCudaErrors(cuInit(0));
 
     cuDevice = findCudaDeviceDRV(argc, (const char **)argv);
     // Create context
-    checkCudaErrors(cuCtxCreate(&cuContext, 0, cuDevice));
+    checkCudaErrors(cuCtxCreate(&cuContext, &ctxCreateParams, 0, cuDevice));
 
     // first search for the module path before we load the results
     string module_path;

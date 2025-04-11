@@ -195,7 +195,7 @@ static CUresult buildKernel(CUcontext *phContext, CUdevice *phDevice, CUmodule *
     // Initialize CUDA and obtain the device's compute capability.
     int major = 0, minor = 0;
     *phDevice = cudaDeviceInit(&major, &minor);
-    checkCudaErrors(cuCtxCreate(phContext, 0, *phDevice));
+    checkCudaErrors(cuCtxCreate(phContext, NULL, 0, *phDevice));
 
     // Get the NVVM IR from file.
     size_t      size     = 0;

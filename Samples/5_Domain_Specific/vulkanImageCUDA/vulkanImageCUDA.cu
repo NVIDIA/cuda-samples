@@ -830,6 +830,7 @@ private:
         int devices_prohibited = 0;
 
         cudaDeviceProp deviceProp;
+        int            computeMode;
         checkCudaErrors(cudaGetDeviceCount(&device_count));
 
         if (device_count == 0) {
@@ -840,8 +841,8 @@ private:
         // Find the GPU which is selected by Vulkan
         while (current_device < device_count) {
             cudaGetDeviceProperties(&deviceProp, current_device);
-
-            if ((deviceProp.computeMode != cudaComputeModeProhibited)) {
+            checkCudaErrors(cudaDeviceGetAttribute(&computeMode, cudaDevAttrComputeMode, current_device));
+            if ((computeMode != cudaComputeModeProhibited)) {
                 // Compare the cuda device UUID with vulkan UUID
                 int ret = memcmp(&deviceProp.uuid, &vkDeviceUUID, VK_UUID_SIZE);
                 if (ret == 0) {
