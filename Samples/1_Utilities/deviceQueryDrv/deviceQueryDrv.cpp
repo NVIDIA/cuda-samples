@@ -107,7 +107,7 @@ int main(int argc, char **argv) {
     int memoryClock;
     getCudaAttribute<int>(&memoryClock, CU_DEVICE_ATTRIBUTE_MEMORY_CLOCK_RATE,
                           dev);
-    printf("  Memory Clock rate:                             %.0f Mhz\n",
+    printf("  Memory Clock rate:                             %.0f MHz\n",
            memoryClock * 1e-3f);
     int memBusWidth;
     getCudaAttribute<int>(&memBusWidth,
