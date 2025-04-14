@@ -253,8 +253,6 @@ int main(int argc, char **argv){
     checkCudaErrors(cudaMemcpy(
         d_val, val, nz * sizeof(float), cudaMemcpyHostToDevice));
     checkCudaErrors(cudaMemcpy(
-        d_val, val, nz * sizeof(float), cudaMemcpyHostToDevice));
-    checkCudaErrors(cudaMemcpy(
         d_x, x, N*sizeof(float), cudaMemcpyHostToDevice));
     checkCudaErrors(cudaMemcpy(
         d_r, rhs, N * sizeof(float), cudaMemcpyHostToDevice));
