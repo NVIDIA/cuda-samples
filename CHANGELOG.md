@@ -1,5 +1,62 @@
 ## Changelog
 
+### CUDA 13.0
+* Updated the samples using the cudaDeviceProp fields which are deprecated and removed in CUDA 13.0, replacing the fields with the equivalents in "cudaDeviceGetAttribute":
+    * Deprecated "cudaDeviceProp" fields
+        `int clockRate; // - Replaced with "cudaDevAttrClockRate"`
+        `int deviceOverlap; // - Replaced with "cudaDevAttrGpuOverlap */`
+        `int kernelExecTimeoutEnabled; // - Replaced with "cudaDevAttrKernelExecTimeout`
+        `int computeMode; // - Replaced with "cudaDevAttrComputeMode" */`
+        `int memoryClockRate; // - Replaced with "cudaDevAttrMemoryClockRate"`
+        `int cooperativeMultiDeviceLaunch; // - Deprecated, cudaLaunchCooperativeKernelMultiDevice is deprecated.`
+    * `0_Introduction`
+        * `UnifiedMemoryStreams`
+        * `simpleHyperQ`
+        * `simpleIPC`
+        * `simpleMultiCopy`
+        * `systemWideAtomics`
+    * `1_Utilitie`
+        * `deviceQuery`
+    * `2_Concepts_and_Techniques`
+        * `streamOrderedAllocationIPC`
+    * `4_CUDA_Libraries`
+        * `simpleCUBLASXT`
+    * `5_Domain_Specific`
+        * `simpleVulkan`
+        * `vulkanImageCUDA`
+* Updated the samples using the CUDA driver API "cuCtxCreate" with adding the parameter "CUctxCreateParams" as "cuCtxCreate" is updated to "cuCtxCreate_v4" by default in CUDA 13.0:
+    * `Common`
+        * `nvrtc_helper.h`
+    * `0_Introduction`
+        * `UnifiedMemoryStreams`
+        * `matrixMulDrv`
+        * `simpleTextureDrv`
+        * `vectorAddDrv`
+    * `2_Concepts_and_Techniques`
+        * `EGLStream_CUDA_CrossGPU`
+        * `EGLStream_CUDA_Interop`
+        * `threadMigration`
+    * `3_CUDA_Features`
+        * `graphMemoryFootprint`
+        * `memMapIPCDrv`
+    * `4_CUDA_Libraries`
+        * `jitLto`
+    * `7_libNVVM`
+        * `device-side-launch`
+        * `simple`
+        * `uvmlite`
+* Updated the sample using CUDA API "cudaGraphAddNode"/"cudaStreamGetCaptureInfo" with adding "cudaGraphEdgeData" pointer parameter as they are updated to "cudaGraphAddNode_v2"/"cudaStreamGetCaptureInfo_v3" by default in CUDA 13.0:
+    * `3_CUDA_Features`
+        * `graphConditionalNodes`
+* Updated the samples using CUDA API "cudaMemAdvise"/"cudaMemPrefetchAsync" with changing the parameter "int device" to "cudaMemLocation location" as they are updated to "cudaMemAdvise_v2"/"cudaMemPrefetchAsyn_v2" by default in CUDA 13.0.
+    * `4_CUDA_Libraries`
+        * `conjugateGradientMultiDeviceCG`
+    * `6_Performance`
+        * `UnifiedMemoryPerf`
+* Replaced "thrust::identity<uint>()" with "cuda::std::identity()" as it is deprecated in CUDA 13.0.
+    * `2_Concepts_and_Techniques`
+        * `segmentationTreeThrust`
+
 ### CUDA 12.9
 * Updated toolchain for cross-compilation for Tegra Linux platforms.
 * Repository has been updated with consistent code formatting across all samples
