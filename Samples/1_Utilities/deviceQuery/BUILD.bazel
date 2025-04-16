@@ -1,0 +1,16 @@
+load("@rules_cuda//cuda:defs.bzl", "cuda_binary")
+
+cuda_binary(
+    name = "deviceQuery",
+    srcs = ["deviceQuery.cpp"],
+    deps = ["//Common:common"],  # assuming you've defined a cc_library there
+    copts = ["--extended-lambda",  "-lineinfo"],
+    visibility = ["//visibility:public"],
+)
+
+sh_test(
+    name = "deviceQuery_memcheck_test",
+    srcs = ["//:run_memcheck.sh"],  # Now resolvable
+    data = [":deviceQuery"],
+    args = ["$(location :deviceQuery)"],
+)

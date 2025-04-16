@@ -1,0 +1,22 @@
+cc_library(
+    name = "common",
+    hdrs = glob([
+        "*.h",
+        "**/*.h",
+    ]),
+    srcs = glob([
+        "*.cpp",
+        "**/*.cpp",
+    ], exclude = [
+        "rendercheck_d3d11.cpp",
+        "rendercheck_d3d11.h",
+        "rendercheck_gl.h",
+        "rendercheck_gles.h",
+        "dynlink_d3d11.h",
+        "GL/**",
+        "UtilNPP/**",  # Optional if unused
+    ]),
+    includes = ["."],
+    visibility = ["//visibility:public"],
+)
+

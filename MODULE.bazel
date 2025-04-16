@@ -1,0 +1,1 @@
+bazel_dep(name = "rules_cuda", version = "0.2.4")

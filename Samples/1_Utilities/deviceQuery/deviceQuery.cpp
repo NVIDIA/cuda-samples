@@ -63,6 +63,14 @@ inline void getCudaAttribute(T *attribute, CUdevice_attribute device_attribute,
 
 #endif /* CUDART_VERSION < 5000 */
 
+// A simple dummy kernel
+__global__ void myKernel()
+{
+    int tid = threadIdx.x + blockIdx.x * blockDim.x;
+    // Dummy operation
+    if (tid == -1) printf("Should never happen\n");
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
@@ -335,6 +343,27 @@ int main(int argc, char **argv) {
   sProfileString += cTemp;
   sProfileString += "\n";
   printf("%s", sProfileString.c_str());
+
+  printf("------- Updated Statistics ----------");
+  int threadsPerBlock = 256;
+  int sharedMemPerBlock = 0;  // in bytes
+
+  int maxBlocks;
+  cudaError_t err = cudaOccupancyMaxActiveBlocksPerMultiprocessor(
+        &maxBlocks,
+        myKernel,
+        threadsPerBlock,
+        sharedMemPerBlock
+  );
+
+  if (err != cudaSuccess) {
+      printf("Error: %s\n", cudaGetErrorString(err));
+      return -1;
+  }
+
+  printf("Max active blocks per SM for kernel: %d\n", maxBlocks);
+
+  printf("Max active blocks per SM: %d\n", maxBlocks);
 
   printf("Result = PASS\n");
 

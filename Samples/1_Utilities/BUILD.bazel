@@ -1,0 +1,13 @@
+package(default_visibility = ["//visibility:public"])
+
+# Aggregator target for all utilities
+filegroup(
+    name = "all_utilities",
+    srcs = [],
+    deps = [
+        "//Samples/1_Utilities/bandwidthTest:bandwidthTest",
+        "//Samples/1_Utilities/deviceQuery:deviceQuery",
+        "//Samples/1_Utilities/deviceQueryDrv:deviceQueryDrv",
+        "//Samples/1_Utilities/topologyQuery:topologyQuery",
+    ],
+)
