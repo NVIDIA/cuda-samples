@@ -32,6 +32,7 @@
         * `matrixMulDrv`
         * `simpleTextureDrv`
         * `vectorAddDrv`
+        * `vectorAddMMAP`
     * `2_Concepts_and_Techniques`
         * `EGLStream_CUDA_CrossGPU`
         * `EGLStream_CUDA_Interop`
