@@ -52,6 +52,9 @@ The MIT License (MIT)
 
 #pragma once
 
+#include <d3d12.h>
+#include <dxgi1_6.h>
+
 #include "DXSampleHelper.h"
 #include "Win32Application.h"
 
