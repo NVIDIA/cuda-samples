@@ -52,7 +52,13 @@ The MIT License (MIT)
 
 #pragma once
 
+// includes for Windows
+#include <d3d12.h> // DirectX 12 header
 #include <stdexcept>
+#include <windows.h>                   // Windows Platform SDK - must come first
+#include <wrl.h>                       // For basic WRL support
+#include <wrl/client.h>                // For ComPtr
+#include <wrl/wrappers/corewrappers.h> // For Wrappers::FileHandle
 // Note that while ComPtr is used to manage the lifetime of resources on the
 // CPU, it has no understanding of the lifetime of resources on the GPU. Apps
 // must account for the GPU lifetime of resources to avoid destroying objects
