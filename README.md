@@ -380,7 +380,7 @@ To set up GLFW on a Windows system, Download the pre-built binaries from [GLFW w
 
 #### OpenMP
 
-OpenMP is an API for multiprocessing programming. OpenMP can be installed using your Linux distribution's package manager system. It usually comes preinstalled with GCC. It can also be found at the [OpenMP website](http://openmp.org/).
+OpenMP is an API for multiprocessing programming. OpenMP can be installed using your Linux distribution's package manager system. It usually comes preinstalled with GCC. It can also be found at the [OpenMP website](http://openmp.org/). For compiler like Clang, libomp.so for llvm need to be install separately, and also the flags need to be set in cmake configuration, such as `-DOpenMP_CXX_FLAGS="-fopenmp=libomp" -DOpenMP_CXX_LIB_NAMES="omp" -DOpenMP_omp_LIBRARY="/path/to/libomp.so"`.
 
 #### Screen
 

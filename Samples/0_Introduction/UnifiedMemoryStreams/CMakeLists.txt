@@ -20,7 +20,11 @@ endif()
 include_directories(../../../Common)
 
 # Source file
-find_package(OpenMP REQUIRED)
+if(CMAKE_GENERATOR MATCHES "Visual Studio")
+    find_package(OpenMP REQUIRED C CXX)
+else()
+    find_package(OpenMP REQUIRED)
+endif()
 
 if(${OpenMP_FOUND})
     # Add target for UnifiedMemoryStreams
