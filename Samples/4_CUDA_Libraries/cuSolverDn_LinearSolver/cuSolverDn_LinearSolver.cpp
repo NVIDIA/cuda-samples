@@ -260,7 +260,7 @@ int linearSolverQR(cusolverDnHandle_t handle, int n, const double *Acopy, int ld
     checkCudaErrors(cudaMemcpy(&h_info, info, sizeof(int), cudaMemcpyDeviceToHost));
 
     if (0 != h_info) {
-        fprintf(stderr, "Error: LU factorization failed\n");
+        fprintf(stderr, "Error: QR factorization failed\n");
     }
 
     checkCudaErrors(cudaMemcpy(x, b, sizeof(double) * n, cudaMemcpyDeviceToDevice));
