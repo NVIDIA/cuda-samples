@@ -123,13 +123,44 @@ def run_single_test_instance(executable, args, output_file, global_args, run_des
         safe_print(f"Error running {exe_name} {run_description}: {str(e)}")
         return {"name": exe_name, "description": run_description, "return_code": -1, "status": f"Error: {str(e)}"}
 
-def run_test(executable, output_dir, args_config, global_args=None):
-    """Deprecated: This function is replaced by the parallel execution logic in main."""
-    # This function is no longer called directly by the main logic.
-    # It remains here temporarily in case it's needed for reference or single-threaded debugging.
-    # The core logic is now in run_single_test_instance and managed by ThreadPoolExecutor.
-    print("Warning: run_test function called directly - this indicates an issue in the refactoring.")
-    return 1 # Indicate failure if called
+def get_gpu_count():
+    """Return the number of NVIDIA GPUs visible on the system.
+
+    The function first tries to use the `nvidia-smi` CLI which should be
+    available on most systems with a CUDA-capable driver installed.  If the
+    command is not present or fails we fall back to checking the
+    CUDA_VISIBLE_DEVICES environment variable.  The fallback is conservative
+    – if we cannot determine the GPU count we assume 0."""
+
+    # Try the recommended NVML/nvidia-smi approach first
+    try:
+        smi = subprocess.run(
+            ["nvidia-smi", "-L"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            check=False,
+        )
+        if smi.returncode == 0:
+            # Each GPU is reported on its own line that starts with "GPU 0:" etc.
+            gpu_lines = [ln for ln in smi.stdout.strip().splitlines() if ln.strip().lower().startswith("gpu ")]
+            if gpu_lines:
+                return len(gpu_lines)
+    except FileNotFoundError:
+        # nvidia-smi is missing – may be WSL/no driver inside container etc.
+        pass
+    except Exception:
+        # Any unexpected error – treat as unknown → 0
+        pass
+
+    # Fallback: attempt to infer from CUDA_VISIBLE_DEVICES if it is set and not empty
+    visible = os.environ.get("CUDA_VISIBLE_DEVICES", "").strip()
+    if visible and visible not in {"no", "none"}:
+        # Handles comma-separated list like "0,1,2" or single values
+        return len([v for v in visible.split(',') if v])
+
+    # Unable to determine, assume no GPUs
+    return 0
 
 def main():
     parser = argparse.ArgumentParser(description='Run all executables and capture output')
@@ -149,6 +180,14 @@ def main():
     # Load arguments configuration
     args_config = load_args_config(args.config)
 
+    # Determine how many GPUs are available
+    gpu_count = get_gpu_count()
+    if gpu_count == 0:
+        print("No NVIDIA GPU detected – cannot run CUDA samples. Exiting.")
+        return 1
+    else:
+        print(f"Detected {gpu_count} GPU(s).")
+
     executables = find_executables(args.dir)
     if not executables:
         print("No executables found!")
@@ -165,6 +204,14 @@ def main():
         # Check if this executable should be skipped globally
         if base_name in args_config and args_config[base_name].get("skip", False):
             safe_print(f"Skipping {exe_name} (marked as skip in config)")
+            continue
+
+        # Skip if the sample requires more GPUs than available
+        required_gpus = args_config.get(base_name, {}).get("min_gpus", 1)
+        if required_gpus > gpu_count:
+            safe_print(
+                f"Skipping {exe_name} (requires {required_gpus} GPU(s), only {gpu_count} available)"
+            )
             continue
 
         arg_sets_configs = []
