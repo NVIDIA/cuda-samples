@@ -27,6 +27,6 @@ cudaMemcpy, cudaDeviceGetAttribute, cudaDriverGetVersion, cudaGraphLaunch, cudaE
 
 ## Prerequisites
 
-Download and install the [CUDA Toolkit 12.5](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 
 ## References (for more details)
