@@ -325,5 +325,23 @@
                 ]
             }
         ]
+    },
+    "simpleP2P": {
+        "min_gpus": 2
+    },
+    "conjugateGradientMultiDeviceCG": {
+        "min_gpus": 2
+    },
+    "simpleCUFFT_2d_MGPU": {
+        "min_gpus": 2
+    },
+    "simpleCUFFT_MGPU": {
+        "min_gpus": 2
+    },
+    "streamOrderedAllocationP2P": {
+        "min_gpus": 2
+    },
+    "EGLStream_CUDA_CrossGPU": {
+        "min_gpus": 2
     }
 }
