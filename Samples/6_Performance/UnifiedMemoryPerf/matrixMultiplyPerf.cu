@@ -335,9 +335,11 @@ void runMatrixMultiplyKernel(unsigned int matrixDim,
             checkCudaErrors(cudaMallocManaged(&dptrA, size));
             checkCudaErrors(cudaMallocManaged(&dptrB, size));
             checkCudaErrors(cudaMallocManaged(&dptrC, size));
-            checkCudaErrors(cudaMemPrefetchAsync(dptrA, size, cudaCpuDeviceId));
-            checkCudaErrors(cudaMemPrefetchAsync(dptrB, size, cudaCpuDeviceId));
-            checkCudaErrors(cudaMemPrefetchAsync(dptrC, size, cudaCpuDeviceId));
+            cudaMemLocation hostLoc;
+            hostLoc.type = cudaMemLocationTypeHost;
+            checkCudaErrors(cudaMemPrefetchAsync(dptrA, size, hostLoc, 0));
+            checkCudaErrors(cudaMemPrefetchAsync(dptrB, size, hostLoc, 0));
+            checkCudaErrors(cudaMemPrefetchAsync(dptrC, size, hostLoc, 0));
         }
         else {
             checkCudaErrors(cudaMallocManaged(&dptrA, size, cudaMemAttachHost));
@@ -402,9 +404,12 @@ void runMatrixMultiplyKernel(unsigned int matrixDim,
             }
             if (hintsRequired) {
                 if (deviceProp.concurrentManagedAccess) {
-                    checkCudaErrors(cudaMemPrefetchAsync(dptrA, size, device_id, streamToRunOn));
-                    checkCudaErrors(cudaMemPrefetchAsync(dptrB, size, device_id, streamToRunOn));
-                    checkCudaErrors(cudaMemPrefetchAsync(dptrC, size, device_id, streamToRunOn));
+                    cudaMemLocation deviceLoc;
+                    deviceLoc.type = cudaMemLocationTypeDevice;
+                    deviceLoc.id   = device_id;
+                    checkCudaErrors(cudaMemPrefetchAsync(dptrA, size, deviceLoc, 0, streamToRunOn));
+                    checkCudaErrors(cudaMemPrefetchAsync(dptrB, size, deviceLoc, 0, streamToRunOn));
+                    checkCudaErrors(cudaMemPrefetchAsync(dptrC, size, deviceLoc, 0, streamToRunOn));
                 }
                 else {
                     checkCudaErrors(cudaStreamAttachMemAsync(streamToRunOn, dptrA, 0, cudaMemAttachGlobal));
@@ -437,9 +442,11 @@ void runMatrixMultiplyKernel(unsigned int matrixDim,
             sdkStartTimer(&gpuTransferCallsTimer);
             if (hintsRequired) {
                 if (deviceProp.concurrentManagedAccess) {
-                    checkCudaErrors(cudaMemPrefetchAsync(dptrA, size, cudaCpuDeviceId));
-                    checkCudaErrors(cudaMemPrefetchAsync(dptrB, size, cudaCpuDeviceId));
-                    checkCudaErrors(cudaMemPrefetchAsync(dptrC, size, cudaCpuDeviceId));
+                    cudaMemLocation hostLoc;
+                    hostLoc.type = cudaMemLocationTypeHost;
+                    checkCudaErrors(cudaMemPrefetchAsync(dptrA, size, hostLoc, 0));
+                    checkCudaErrors(cudaMemPrefetchAsync(dptrB, size, hostLoc, 0));
+                    checkCudaErrors(cudaMemPrefetchAsync(dptrC, size, hostLoc, 0));
                 }
                 else {
                     checkCudaErrors(cudaStreamAttachMemAsync(streamToRunOn, dptrA, 0, cudaMemAttachHost));

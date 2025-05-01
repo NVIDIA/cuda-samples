@@ -59,6 +59,7 @@ template <class T> inline void getCudaAttribute(T *attribute, CUdevice_attribute
 
 #endif /* CUDART_VERSION < 5000 */
 
+
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
@@ -128,14 +129,20 @@ int main(int argc, char **argv)
                deviceProp.multiProcessorCount,
                _ConvertSMVer2Cores(deviceProp.major, deviceProp.minor),
                _ConvertSMVer2Cores(deviceProp.major, deviceProp.minor) * deviceProp.multiProcessorCount);
+        int clockRate;
+        checkCudaErrors(cudaDeviceGetAttribute(&clockRate, cudaDevAttrClockRate, dev));
         printf("  GPU Max Clock rate:                            %.0f MHz (%0.2f "
                "GHz)\n",
-               deviceProp.clockRate * 1e-3f,
-               deviceProp.clockRate * 1e-6f);
-
+               clockRate * 1e-3f,
+               clockRate * 1e-6f);
 #if CUDART_VERSION >= 5000
-        // This is supported in CUDA 5.0 (runtime API device properties)
-        printf("  Memory Clock rate:                             %.0f Mhz\n", deviceProp.memoryClockRate * 1e-3f);
+        int memoryClockRate;
+#if CUDART_VERSION >= 13000
+        checkCudaErrors(cudaDeviceGetAttribute(&memoryClockRate, cudaDevAttrMemoryClockRate, dev));
+#else
+        memoryClockRate = deviceProp.memoryClockRate;
+#endif
+        printf("  Memory Clock rate:                             %.0f Mhz\n", memoryClockRate * 1e-3f);
         printf("  Memory Bus Width:                              %d-bit\n", deviceProp.memoryBusWidth);
 
         if (deviceProp.l2CacheSize) {
@@ -194,12 +201,15 @@ int main(int argc, char **argv)
                deviceProp.maxGridSize[2]);
         printf("  Maximum memory pitch:                          %zu bytes\n", deviceProp.memPitch);
         printf("  Texture alignment:                             %zu bytes\n", deviceProp.textureAlignment);
+        int gpuOverlap;
+        checkCudaErrors(cudaDeviceGetAttribute(&gpuOverlap, cudaDevAttrGpuOverlap, dev));
         printf("  Concurrent copy and kernel execution:          %s with %d copy "
                "engine(s)\n",
-               (deviceProp.deviceOverlap ? "Yes" : "No"),
+               (gpuOverlap ? "Yes" : "No"),
                deviceProp.asyncEngineCount);
-        printf("  Run time limit on kernels:                     %s\n",
-               deviceProp.kernelExecTimeoutEnabled ? "Yes" : "No");
+        int kernelExecTimeout;
+        checkCudaErrors(cudaDeviceGetAttribute(&kernelExecTimeout, cudaDevAttrKernelExecTimeout, dev));
+        printf("  Run time limit on kernels:                     %s\n", kernelExecTimeout ? "Yes" : "No");
         printf("  Integrated GPU sharing Host Memory:            %s\n", deviceProp.integrated ? "Yes" : "No");
         printf("  Support host page-locked memory mapping:       %s\n", deviceProp.canMapHostMemory ? "Yes" : "No");
         printf("  Alignment requirement for Surfaces:            %s\n", deviceProp.surfaceAlignment ? "Yes" : "No");
@@ -213,8 +223,11 @@ int main(int argc, char **argv)
         printf("  Device supports Compute Preemption:            %s\n",
                deviceProp.computePreemptionSupported ? "Yes" : "No");
         printf("  Supports Cooperative Kernel Launch:            %s\n", deviceProp.cooperativeLaunch ? "Yes" : "No");
+        // The property cooperativeMultiDeviceLaunch is deprecated in CUDA 13.0
+#if CUDART_VERSION < 13000
         printf("  Supports MultiDevice Co-op Kernel Launch:      %s\n",
                deviceProp.cooperativeMultiDeviceLaunch ? "Yes" : "No");
+#endif
         printf("  Device PCI Domain ID / Bus ID / location ID:   %d / %d / %d\n",
                deviceProp.pciDomainID,
                deviceProp.pciBusID,
@@ -230,8 +243,10 @@ int main(int argc, char **argv)
                                       "::cudaSetDevice() with this device)",
                                       "Unknown",
                                       NULL};
+        int         computeMode;
+        checkCudaErrors(cudaDeviceGetAttribute(&computeMode, cudaDevAttrComputeMode, dev));
         printf("  Compute Mode:\n");
-        printf("     < %s >\n", sComputeMode[deviceProp.computeMode]);
+        printf("     < %s >\n", sComputeMode[computeMode]);
     }
 
     // If there are 2 or more GPUs, query to determine whether RDMA is supported

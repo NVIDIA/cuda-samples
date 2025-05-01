@@ -141,10 +141,11 @@ int main(int argc, char **argv)
 
     // Collect devices accessible by the mapping device (cuDevice) into the
     // backingDevices vector.
-    vector<CUdevice> backingDevices = getBackingDevices(cuDevice);
+    vector<CUdevice>  backingDevices  = getBackingDevices(cuDevice);
+    CUctxCreateParams ctxCreateParams = {};
 
     // Create context
-    checkCudaErrors(cuCtxCreate(&cuContext, 0, cuDevice));
+    checkCudaErrors(cuCtxCreate(&cuContext, &ctxCreateParams, 0, cuDevice));
 
     // first search for the module path before we load the results
     string module_path;

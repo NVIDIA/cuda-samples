@@ -93,7 +93,7 @@ message(STATUS "Using rpath: ${CMAKE_INSTALL_RPATH}")
 
 # On Windows, locate the nvvm.dll so we can install it.
 if (WIN32)
-  find_file(NVVM_DLL nvvm64_40_0.dll PATHS "${LIBNVVM_HOME}/bin")
+  find_file(NVVM_DLL nvvm64_40_0.dll PATHS "${LIBNVVM_HOME}/bin" "${LIBNVVM_HOME}/bin/x64/")
   if (NOT NVVM_DLL)
     message(FATAL_ERROR "Found nvvm .h/.lib, but not .dll")
   endif()

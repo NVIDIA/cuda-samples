@@ -57,12 +57,12 @@ endif()
 ##############################
 
 ### The math library can be built to support a number of GPU platforms using the
-### common compute_50 architecture.
+### common compute_75 architecture.
 ### For a collection of specific architecutres, the compiler options
 ### "-gencode=compute_XX,code=sm_XX"... can be used multiple times in the same
 ### nvcc invocation.
 ### The result is bundled into a system library using the 'nvcc -lib' feature.
-### >> nvcc -m64 -arch=compute_50 -dc math-funcs.cu -o math-funcs64.o
+### >> nvcc -m64 -arch=compute_75 -dc math-funcs.cu -o math-funcs64.o
 ### >> nvcc -m64 -lib math-funcs64.o -o libmathfuncs64.a
 
 enable_language(CUDA)

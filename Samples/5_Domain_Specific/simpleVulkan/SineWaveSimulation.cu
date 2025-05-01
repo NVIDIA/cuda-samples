@@ -94,8 +94,10 @@ int SineWaveSimulation::initCuda(uint8_t *vkDeviceUUID, size_t UUID_SIZE)
     // Find the GPU which is selected by Vulkan
     while (current_device < device_count) {
         cudaGetDeviceProperties(&deviceProp, current_device);
+        int computeMode;
+        checkCudaErrors(cudaDeviceGetAttribute(&computeMode, cudaDevAttrComputeMode, current_device));
 
-        if ((deviceProp.computeMode != cudaComputeModeProhibited)) {
+        if ((computeMode != cudaComputeModeProhibited)) {
             // Compare the cuda device UUID with vulkan UUID
             int ret = memcmp((void *)&deviceProp.uuid, vkDeviceUUID, UUID_SIZE);
             if (ret == 0) {

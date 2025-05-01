@@ -302,7 +302,8 @@ CUresult cudaDeviceCreateConsumer(test_cuda_consumer_s *cudaConsumer, CUdevice d
            major,
            minor);
 
-    if (CUDA_SUCCESS != (status = cuCtxCreate(&cudaConsumer->context, 0, device))) {
+    CUctxCreateParams ctxCreateParams = {};
+    if (CUDA_SUCCESS != (status = cuCtxCreate(&cudaConsumer->context, &ctxCreateParams, 0, device))) {
         printf("failed to create CUDA context\n");
         return status;
     }

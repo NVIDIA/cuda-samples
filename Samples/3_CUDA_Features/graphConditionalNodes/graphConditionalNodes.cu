@@ -97,13 +97,13 @@ void simpleIfGraph(void)
     params.kernel.kernelParams                                                  = kernelArgs;
     kernelArgs[0]                                                               = &dPtr;
     kernelArgs[1]                                                               = &handle;
-    checkCudaErrors(cudaGraphAddNode(&kernelNode, graph, NULL, 0, &params));
+    checkCudaErrors(cudaGraphAddNode(&kernelNode, graph, NULL, NULL, 0, &params));
 
     cudaGraphNodeParams cParams = {cudaGraphNodeTypeConditional};
     cParams.conditional.handle  = handle;
     cParams.conditional.type    = cudaGraphCondTypeIf;
     cParams.conditional.size    = 1;
-    checkCudaErrors(cudaGraphAddNode(&conditionalNode, graph, &kernelNode, 1, &cParams));
+    checkCudaErrors(cudaGraphAddNode(&conditionalNode, graph, &kernelNode, NULL, 0, &cParams));
 
     cudaGraph_t bodyGraph = cParams.conditional.phGraph_out[0];
 
@@ -111,7 +111,7 @@ void simpleIfGraph(void)
     cudaGraphNode_t bodyNode;
     params.kernel.func         = (void *)ifGraphKernelC;
     params.kernel.kernelParams = nullptr;
-    checkCudaErrors(cudaGraphAddNode(&bodyNode, bodyGraph, NULL, 0, &params));
+    checkCudaErrors(cudaGraphAddNode(&bodyNode, bodyGraph, NULL, NULL, 0, &params));
 
     checkCudaErrors(cudaGraphInstantiate(&graphExec, graph, NULL, NULL, 0));
 
@@ -182,7 +182,7 @@ void simpleDoWhileGraph(void)
     cParams.conditional.handle  = handle;
     cParams.conditional.type    = cudaGraphCondTypeWhile;
     cParams.conditional.size    = 1;
-    checkCudaErrors(cudaGraphAddNode(&conditionalNode, graph, NULL, 0, &cParams));
+    checkCudaErrors(cudaGraphAddNode(&conditionalNode, graph, NULL, NULL, 0, &cParams));
 
     cudaGraph_t bodyGraph = cParams.conditional.phGraph_out[0];
 
@@ -267,7 +267,8 @@ void capturedWhileGraph(void)
     checkCudaErrors(cudaStreamBeginCapture(captureStream, cudaStreamCaptureModeGlobal));
 
     // Obtain the handle of the graph
-    checkCudaErrors(cudaStreamGetCaptureInfo(captureStream, &status, NULL, &graph, &dependencies, &numDependencies));
+    checkCudaErrors(
+        cudaStreamGetCaptureInfo(captureStream, &status, NULL, &graph, &dependencies, NULL, &numDependencies));
 
     // Create the conditional handle
     cudaGraphConditionalHandle handle;
@@ -277,7 +278,8 @@ void capturedWhileGraph(void)
     capturedWhileKernel<<<1, 1, 0, captureStream>>>(dPtr, handle);
 
     // Obtain the handle for node A
-    checkCudaErrors(cudaStreamGetCaptureInfo(captureStream, &status, NULL, &graph, &dependencies, &numDependencies));
+    checkCudaErrors(
+        cudaStreamGetCaptureInfo(captureStream, &status, NULL, &graph, &dependencies, NULL, &numDependencies));
 
     // Insert conditional node B
     cudaGraphNode_t     conditionalNode;
@@ -285,13 +287,13 @@ void capturedWhileGraph(void)
     cParams.conditional.handle  = handle;
     cParams.conditional.type    = cudaGraphCondTypeWhile;
     cParams.conditional.size    = 1;
-    checkCudaErrors(cudaGraphAddNode(&conditionalNode, graph, dependencies, numDependencies, &cParams));
+    checkCudaErrors(cudaGraphAddNode(&conditionalNode, graph, dependencies, NULL, numDependencies, &cParams));
 
     cudaGraph_t bodyGraph = cParams.conditional.phGraph_out[0];
 
     // Update stream capture dependencies to account for the node we manually added
-    checkCudaErrors(
-        cudaStreamUpdateCaptureDependencies(captureStream, &conditionalNode, 1, cudaStreamSetCaptureDependencies));
+    checkCudaErrors(cudaStreamUpdateCaptureDependencies(
+        captureStream, &conditionalNode, NULL, 1, cudaStreamSetCaptureDependencies));
 
     // Insert kernel node D
     capturedWhileEmptyKernel<<<1, 1, 0, captureStream>>>();
@@ -380,13 +382,13 @@ void simpleIfElseGraph(void)
     params.kernel.kernelParams                                                  = kernelArgs;
     kernelArgs[0]                                                               = &dPtr;
     kernelArgs[1]                                                               = &handle;
-    checkCudaErrors(cudaGraphAddNode(&kernelNode, graph, NULL, 0, &params));
+    checkCudaErrors(cudaGraphAddNode(&kernelNode, graph, NULL, NULL, 0, &params));
 
     cudaGraphNodeParams cParams = {cudaGraphNodeTypeConditional};
     cParams.conditional.handle  = handle;
     cParams.conditional.type    = cudaGraphCondTypeIf;
     cParams.conditional.size    = 2; // Set size to 2 to indicate an ELSE graph will be used
-    checkCudaErrors(cudaGraphAddNode(&conditionalNode, graph, &kernelNode, 1, &cParams));
+    checkCudaErrors(cudaGraphAddNode(&conditionalNode, graph, &kernelNode, NULL, 0, &cParams));
 
     cudaGraph_t bodyGraph = cParams.conditional.phGraph_out[0];
 
@@ -394,7 +396,7 @@ void simpleIfElseGraph(void)
     cudaGraphNode_t trueBodyNode;
     params.kernel.func         = (void *)ifGraphKernelC;
     params.kernel.kernelParams = nullptr;
-    checkCudaErrors(cudaGraphAddNode(&trueBodyNode, bodyGraph, NULL, 0, &params));
+    checkCudaErrors(cudaGraphAddNode(&trueBodyNode, bodyGraph, NULL, NULL, 0, &params));
 
     // Populate the body of the second graph in the conditional node, executed if the condition is false
     bodyGraph = cParams.conditional.phGraph_out[1];
@@ -402,7 +404,7 @@ void simpleIfElseGraph(void)
     cudaGraphNode_t falseBodyNode;
     params.kernel.func         = (void *)ifGraphKernelD;
     params.kernel.kernelParams = nullptr;
-    checkCudaErrors(cudaGraphAddNode(&falseBodyNode, bodyGraph, NULL, 0, &params));
+    checkCudaErrors(cudaGraphAddNode(&falseBodyNode, bodyGraph, NULL, NULL, 0, &params));
 
     checkCudaErrors(cudaGraphInstantiate(&graphExec, graph, NULL, NULL, 0));
 
@@ -484,25 +486,25 @@ void simpleSwitchGraph(void)
     params.kernel.kernelParams                                                  = kernelArgs;
     kernelArgs[0]                                                               = &dPtr;
     kernelArgs[1]                                                               = &handle;
-    checkCudaErrors(cudaGraphAddNode(&kernelNode, graph, NULL, 0, &params));
+    checkCudaErrors(cudaGraphAddNode(&kernelNode, graph, NULL, NULL, 0, &params));
 
     cudaGraphNodeParams cParams = {cudaGraphNodeTypeConditional};
     cParams.conditional.handle  = handle;
     cParams.conditional.type    = cudaGraphCondTypeSwitch;
     cParams.conditional.size    = 4;
-    checkCudaErrors(cudaGraphAddNode(&conditionalNode, graph, &kernelNode, 1, &cParams));
+    checkCudaErrors(cudaGraphAddNode(&conditionalNode, graph, &kernelNode, NULL, 0, &cParams));
 
     // Populate the four graph bodies within the SWITCH conditional graph
     cudaGraphNode_t bodyNode;
     params.kernel.kernelParams = nullptr;
     params.kernel.func         = (void *)switchGraphKernelC;
-    checkCudaErrors(cudaGraphAddNode(&bodyNode, cParams.conditional.phGraph_out[0], NULL, 0, &params));
+    checkCudaErrors(cudaGraphAddNode(&bodyNode, cParams.conditional.phGraph_out[0], NULL, NULL, 0, &params));
     params.kernel.func = (void *)switchGraphKernelD;
-    checkCudaErrors(cudaGraphAddNode(&bodyNode, cParams.conditional.phGraph_out[1], NULL, 0, &params));
+    checkCudaErrors(cudaGraphAddNode(&bodyNode, cParams.conditional.phGraph_out[1], NULL, NULL, 0, &params));
     params.kernel.func = (void *)switchGraphKernelE;
-    checkCudaErrors(cudaGraphAddNode(&bodyNode, cParams.conditional.phGraph_out[2], NULL, 0, &params));
+    checkCudaErrors(cudaGraphAddNode(&bodyNode, cParams.conditional.phGraph_out[2], NULL, NULL, 0, &params));
     params.kernel.func = (void *)switchGraphKernelF;
-    checkCudaErrors(cudaGraphAddNode(&bodyNode, cParams.conditional.phGraph_out[3], NULL, 0, &params));
+    checkCudaErrors(cudaGraphAddNode(&bodyNode, cParams.conditional.phGraph_out[3], NULL, NULL, 0, &params));
 
     checkCudaErrors(cudaGraphInstantiate(&graphExec, graph, NULL, NULL, 0));
 

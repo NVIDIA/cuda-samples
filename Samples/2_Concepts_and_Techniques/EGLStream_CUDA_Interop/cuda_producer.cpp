@@ -316,7 +316,8 @@ CUresult cudaDeviceCreateProducer(test_cuda_producer_s *cudaProducer, CUdevice d
         exit(2); // EXIT_WAIVED
     }
 
-    if (CUDA_SUCCESS != (status = cuCtxCreate(&cudaProducer->context, 0, device))) {
+    CUctxCreateParams ctxCreateParams = {};
+    if (CUDA_SUCCESS != (status = cuCtxCreate(&cudaProducer->context, &ctxCreateParams, 0, device))) {
         printf("failed to create CUDA context\n");
         return status;
     }

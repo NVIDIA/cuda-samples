@@ -80,19 +80,20 @@ static void check(CUresult result, char const *const func, const char *const fil
 int main(int argc, char **argv)
 {
     printf("simpleDrvRuntime..\n");
-    int        N = 50000, devID = 0;
-    size_t     size = N * sizeof(float);
-    CUdevice   cuDevice;
-    CUfunction vecAdd_kernel;
-    CUmodule   cuModule = 0;
-    CUcontext  cuContext;
+    int               N = 50000, devID = 0;
+    size_t            size = N * sizeof(float);
+    CUdevice          cuDevice;
+    CUfunction        vecAdd_kernel;
+    CUmodule          cuModule = 0;
+    CUcontext         cuContext;
+    CUctxCreateParams ctxCreateParams = {};
 
     // Initialize
     checkCudaDrvErrors(cuInit(0));
 
     cuDevice = findCudaDevice(argc, (const char **)argv);
     // Create context
-    checkCudaDrvErrors(cuCtxCreate(&cuContext, 0, cuDevice));
+    checkCudaDrvErrors(cuCtxCreate(&cuContext, &ctxCreateParams, 0, cuDevice));
 
     // first search for the module path before we load the results
     string        module_path;

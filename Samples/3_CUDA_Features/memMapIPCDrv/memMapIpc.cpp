@@ -340,13 +340,14 @@ static void childProcess(int devId, int id, char **argv)
     std::vector<ShareableHandle> shHandle(procCount);
     checkIpcErrors(ipcRecvShareableHandles(ipcChildHandle, shHandle));
 
-    CUcontext ctx;
-    CUdevice  device;
-    CUstream  stream;
-    int       multiProcessorCount;
+    CUcontext         ctx;
+    CUdevice          device;
+    CUstream          stream;
+    int               multiProcessorCount;
+    CUctxCreateParams ctx_params = {};
 
     checkCudaErrors(cuDeviceGet(&device, devId));
-    checkCudaErrors(cuCtxCreate(&ctx, 0, device));
+    checkCudaErrors(cuCtxCreate(&ctx, &ctx_params, 0, device));
     checkCudaErrors(cuStreamCreate(&stream, CU_STREAM_NON_BLOCKING));
 
     // Obtain kernel function for the sample
@@ -518,8 +519,9 @@ static void parentProcess(char *app)
             }
         }
         if (allPeers) {
-            CUcontext ctx;
-            checkCudaErrors(cuCtxCreate(&ctx, 0, devices[i]));
+            CUcontext         ctx;
+            CUctxCreateParams ctx_params = {};
+            checkCudaErrors(cuCtxCreate(&ctx, &ctx_params, 0, devices[i]));
             ctxs.push_back(ctx);
 
             // Enable peers here.  This isn't necessary for IPC, but it will
