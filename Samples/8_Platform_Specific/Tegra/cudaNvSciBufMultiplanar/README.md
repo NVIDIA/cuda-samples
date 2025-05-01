@@ -30,7 +30,7 @@ cudaDeviceGetAttribute, cudaNvSciBufMultiplanar, cudaDestroyExternalMemory, cuDr
 
 ## Prerequisites
 
-Download and install the [CUDA Toolkit 12.8](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 Make sure the dependencies mentioned in [Dependencies]() section above are installed.
 
 ## References (for more details)

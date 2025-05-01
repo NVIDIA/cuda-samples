@@ -194,7 +194,8 @@ def main():
         return 1
 
     print(f"Found {len(executables)} executables")
-    print(f"Running tests with up to {args.parallel} parallel tasks.")
+    print(f"Running tests with up to {args.parallel} parallel tasks")
+    print("------------------------------------------\n")
 
     tasks = []
     for exe in executables:

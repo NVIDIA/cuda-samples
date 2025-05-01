@@ -14,7 +14,7 @@ This section describes the release notes for the CUDA Samples on GitHub only.
 
 ### Prerequisites
 
-Download and install the [CUDA Toolkit 12.8](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 For system requirements and installation instructions of cuda toolkit, please refer to the [Linux Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/), and the [Windows Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html).
 
 ### Getting the CUDA Samples
@@ -122,7 +122,7 @@ Instead of being in the default location, `/usr/local/cuda/include` or `/usr/loc
 
 `/usr/local/cuda/<ARCH>/targets/aarch64-linux/lib`
 and
-`/usr/local/cuda-12.8/<ARCH>/include`
+`/usr/local/cuda/<ARCH>/include`
 
 An example build might look like this:
 

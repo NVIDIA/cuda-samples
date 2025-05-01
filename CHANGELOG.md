@@ -60,6 +60,7 @@
 
 ### CUDA 12.9
 * Updated toolchain for cross-compilation for Tegra Linux platforms.
+* Added `run_tests.py` utility to exercise all samples. See README.md for details
 * Repository has been updated with consistent code formatting across all samples
 * Many small code tweaks and bug fixes (see commit history for details)
 * Removed the following outdated samples:
