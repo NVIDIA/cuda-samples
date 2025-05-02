@@ -597,7 +597,7 @@ int main(int argc, char **argv)
                1,
                TILE_DIM * BLOCK_ROWS);
 
-        // Reset d_odata to zero at the start of each loop iteration to avoid 
+        // Reset d_odata to zero before starting the next loop iteration to avoid 
         // carrying over results from previous kernels. Without this reset, residual 
         // data from a prior kernel (e.g., 'copy') could make a subsequent 
         // kernel (e.g., 'copySharedMem') appear correct even if it performs no work, 
