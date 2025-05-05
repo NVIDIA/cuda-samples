@@ -103,7 +103,7 @@ __global__ void copySharedMem(float *odata, float *idata, int width, int height)
 
     for (int i = 0; i < TILE_DIM; i += BLOCK_ROWS) {
         if (xIndex < width && yIndex < height) {
-            tile[threadIdx.y][threadIdx.x] = idata[index];
+            tile[threadIdx.y + i][threadIdx.x] = idata[index + i * width];
         }
     }
 
@@ -111,7 +111,7 @@ __global__ void copySharedMem(float *odata, float *idata, int width, int height)
 
     for (int i = 0; i < TILE_DIM; i += BLOCK_ROWS) {
         if (xIndex < height && yIndex < width) {
-            odata[index] = tile[threadIdx.y][threadIdx.x];
+            odata[index + i * width] = tile[threadIdx.y + i][threadIdx.x];
         }
     }
 }
@@ -596,6 +596,18 @@ int main(int argc, char **argv)
                (size_x * size_y),
                1,
                TILE_DIM * BLOCK_ROWS);
+
+        // Reset d_odata to zero before starting the next loop iteration to avoid 
+        // carrying over results from previous kernels. Without this reset, residual 
+        // data from a prior kernel (e.g., 'copy') could make a subsequent 
+        // kernel (e.g., 'copySharedMem') appear correct even if it performs no work, 
+        // leading to false positives in compareData.
+        for (int i = 0; i < (size_x * size_y); ++i) {
+            h_odata[i] = 0;
+        }
+        // copy host data to device
+        checkCudaErrors(
+            cudaMemcpy(d_odata, h_odata, mem_size, cudaMemcpyHostToDevice));
     }
 
     // cleanup
