@@ -575,6 +575,9 @@ int main(int argc, char *argv[])
 
     printf("Running qsort on %d elements with seed %d, on %s\n", size, seed, properties.name);
 
+    // Increase the pending kernel launch limit
+    cudaDeviceSetLimit(cudaLimitDevRuntimePendingLaunchCount, 4096);
+
     run_qsort(size, seed, debug, loop, verbose);
 
     exit(EXIT_SUCCESS);
