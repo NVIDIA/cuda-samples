@@ -259,7 +259,8 @@ void checkSync(int argc, char **argv)
     unsigned char *pSurf_read = NULL, *pSurf_write = NULL;
     int            integrated;
 
-    CUresult status = CUDA_SUCCESS;
+    CUresult          status          = CUDA_SUCCESS;
+    CUctxCreateParams ctxCreateParams = {};
 
     // Init values for variables
     x = y = 0;
@@ -269,7 +270,7 @@ void checkSync(int argc, char **argv)
     }
     device = findCudaDeviceDRV(argc, (const char **)argv);
 
-    if (CUDA_SUCCESS != (status = cuCtxCreate(&context, 0, device))) {
+    if (CUDA_SUCCESS != (status = cuCtxCreate(&context, &ctxCreateParams, 0, device))) {
         printf("failed to create CUDA context\n");
     }
     cuCtxPushCurrent(context);
