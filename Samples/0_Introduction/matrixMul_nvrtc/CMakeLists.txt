@@ -45,10 +45,10 @@ add_custom_command(TARGET matrixMul_nvrtc POST_BUILD
 
 add_custom_command(TARGET matrixMul_nvrtc POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CUDAToolkit_BIN_DIR}/../include/nv ${CMAKE_CURRENT_BINARY_DIR}/nv
+    ${CUDAToolkit_BIN_DIR}/../include/cccl/nv ${CMAKE_CURRENT_BINARY_DIR}/nv
 )
 
 add_custom_command(TARGET matrixMul_nvrtc POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CUDAToolkit_BIN_DIR}/../include/cuda ${CMAKE_CURRENT_BINARY_DIR}/cuda
+    ${CUDAToolkit_BIN_DIR}/../include/cccl/cuda ${CMAKE_CURRENT_BINARY_DIR}/cuda
 )

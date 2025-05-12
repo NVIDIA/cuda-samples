@@ -17,7 +17,7 @@ else()
 endif()
 
 # Include directories and libraries
-include_directories(../../../Common)
+include_directories(../../../../Common)
 
 find_package(EGL)
 find_package(X11)
