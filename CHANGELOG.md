@@ -43,9 +43,12 @@
     * `4_CUDA_Libraries`
         * `jitLto`
     * `7_libNVVM`
+        * `cuda-c-linking`
         * `device-side-launch`
         * `simple`
         * `uvmlite`
+    * `8_Platform_Specific/Tegra`
+        * `EGLSync_CUDAEvent_Interop`
 * Updated the sample using CUDA API "cudaGraphAddNode"/"cudaStreamGetCaptureInfo" with adding "cudaGraphEdgeData" pointer parameter as they are updated to "cudaGraphAddNode_v2"/"cudaStreamGetCaptureInfo_v3" by default in CUDA 13.0:
     * `3_CUDA_Features`
         * `graphConditionalNodes`
