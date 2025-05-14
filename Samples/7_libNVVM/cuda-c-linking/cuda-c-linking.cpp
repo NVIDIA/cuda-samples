@@ -248,7 +248,6 @@ int main(int argc, char **argv)
 
     // Create the CUDA context.
     CUcontext context;
-
     checkCudaErrors(cuCtxCreate(&context, NULL, 0, device));
 
     // Create a JIT linker and generate the result CUBIN.
