@@ -182,14 +182,6 @@ int runTest(int argc, char **argv)
     checkCudaErrors(cudaMemcpyFromSymbol(&hostCopyOfCallbackPtr, myOwnCallbackPtr, sizeof(hostCopyOfCallbackPtr)));
 
     // Now associate the load callback with the plan.
-    cufftResult status =
-        cufftXtSetCallback(cb_plan, (void **)&hostCopyOfCallbackPtr, CUFFT_CB_LD_COMPLEX, (void **)&d_params);
-    if (status == CUFFT_LICENSE_ERROR) {
-        printf("This sample requires a valid license file.\n");
-        printf("The file was either not found, out of date, or otherwise invalid.\n");
-        return EXIT_WAIVED;
-    }
-
     checkCudaErrors(
         cufftXtSetCallback(cb_plan, (void **)&hostCopyOfCallbackPtr, CUFFT_CB_LD_COMPLEX, (void **)&d_params));
 
