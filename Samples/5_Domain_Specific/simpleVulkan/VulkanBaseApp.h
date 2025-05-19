@@ -34,8 +34,10 @@
 #include <vulkan/vulkan.h>
 #ifdef _WIN64
 #define NOMINMAX
-#include <vulkan/vulkan_win32.h>
+// Add windows.h to the include path firstly as dependency for other Windows headers
 #include <windows.h>
+// Add other Windows headers
+#include <vulkan/vulkan_win32.h>
 #endif /* _WIN64 */
 
 /* remove _VK_TIMELINE_SEMAPHORE to use binary semaphores */
@@ -54,6 +56,7 @@ public:
     void            init();
     void           *getMemHandle(VkDeviceMemory memory, VkExternalMemoryHandleTypeFlagBits handleType);
     void           *getSemaphoreHandle(VkSemaphore semaphore, VkExternalSemaphoreHandleTypeFlagBits handleType);
+    bool            isVkPhysicalDeviceUuid(void *Uuid);
     void            createExternalSemaphore(VkSemaphore &semaphore, VkExternalSemaphoreHandleTypeFlagBits handleType);
     void            createBuffer(VkDeviceSize          size,
                                  VkBufferUsageFlags    usage,
@@ -85,6 +88,7 @@ protected:
     VkDebugUtilsMessengerEXT                                   m_debugMessenger;
     VkSurfaceKHR                                               m_surface;
     VkPhysicalDevice                                           m_physicalDevice;
+    uint8_t                                                    m_deviceUUID[VK_UUID_SIZE];
     VkDevice                                                   m_device;
     VkQueue                                                    m_graphicsQueue;
     VkQueue                                                    m_presentQueue;
@@ -105,17 +109,15 @@ protected:
     std::vector<VkFence>                                       m_inFlightFences;
     std::vector<VkBuffer>                                      m_uniformBuffers;
     std::vector<VkDeviceMemory>                                m_uniformMemory;
-    VkSemaphore                                                m_vkPresentationSemaphore;
-    VkSemaphore                                                m_vkTimelineSemaphore;
     VkDescriptorSetLayout                                      m_descriptorSetLayout;
     VkDescriptorPool                                           m_descriptorPool;
     std::vector<VkDescriptorSet>                               m_descriptorSets;
-    VkImage                                                    m_depthImage;
-    VkDeviceMemory                                             m_depthImageMemory;
-    VkImageView                                                m_depthImageView;
-    size_t                                                     m_currentFrame;
-    bool                                                       m_framebufferResized;
-    uint8_t                                                    m_vkDeviceUUID[VK_UUID_SIZE];
+
+    VkImage        m_depthImage;
+    VkDeviceMemory m_depthImageMemory;
+    VkImageView    m_depthImageView;
+    size_t         m_currentFrame;
+    bool           m_framebufferResized;
 
     virtual void                      initVulkanApp() {}
     virtual void                      fillRenderingCommandBuffer(VkCommandBuffer &buffer) {}
@@ -128,7 +130,7 @@ protected:
                                                              std::vector<VkPipelineStageFlags> &waitStages) const;
     virtual void                      getSignalFrameSemaphores(std::vector<VkSemaphore> &signal) const;
     virtual VkDeviceSize              getUniformSize() const;
-    virtual void                      updateUniformBuffer(uint32_t imageIndex);
+    virtual void                      updateUniformBuffer(uint32_t imageIndex, size_t globalFrame);
     virtual void                      drawFrame();
 
 private:

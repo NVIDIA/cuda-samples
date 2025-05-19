@@ -34,8 +34,10 @@
 #include <vulkan/vulkan.h>
 #ifdef _WIN64
 #define NOMINMAX
-#include <vulkan/vulkan_win32.h>
+// Add windows.h to the include path firstly as dependency for other Windows headers
 #include <windows.h>
+// Add other Windows headers
+#include <vulkan/vulkan_win32.h>
 #endif /* _WIN64 */
 
 struct GLFWwindow;

@@ -27,10 +27,12 @@
 
 #define GLFW_INCLUDE_VULKAN
 #ifdef _WIN64
+// Add windows.h to the include path firstly as dependency for other Windows headers
+#include <windows.h>
+// Add other Windows headers
 #include <VersionHelpers.h>
 #include <aclapi.h>
 #include <dxgi1_2.h>
-#include <windows.h>
 #define _USE_MATH_DEFINES
 #endif
 
