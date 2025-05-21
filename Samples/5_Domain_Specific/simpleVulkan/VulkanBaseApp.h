@@ -34,8 +34,10 @@
 #include <vulkan/vulkan.h>
 #ifdef _WIN64
 #define NOMINMAX
-#include <vulkan/vulkan_win32.h>
+// Add windows.h to the include path
 #include <windows.h>
+// Add vulkan_win32.h to the include path
+#include <vulkan/vulkan_win32.h>
 #endif /* _WIN64 */
 
 /* remove _VK_TIMELINE_SEMAPHORE to use binary semaphores */
