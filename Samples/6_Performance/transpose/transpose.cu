@@ -597,17 +597,16 @@ int main(int argc, char **argv)
                1,
                TILE_DIM * BLOCK_ROWS);
 
-        // Reset d_odata to zero before starting the next loop iteration to avoid 
-        // carrying over results from previous kernels. Without this reset, residual 
-        // data from a prior kernel (e.g., 'copy') could make a subsequent 
-        // kernel (e.g., 'copySharedMem') appear correct even if it performs no work, 
+        // Reset d_odata to zero before starting the next loop iteration to avoid
+        // carrying over results from previous kernels. Without this reset, residual
+        // data from a prior kernel (e.g., 'copy') could make a subsequent
+        // kernel (e.g., 'copySharedMem') appear correct even if it performs no work,
         // leading to false positives in compareData.
         for (int i = 0; i < (size_x * size_y); ++i) {
             h_odata[i] = 0;
         }
         // copy host data to device
-        checkCudaErrors(
-            cudaMemcpy(d_odata, h_odata, mem_size, cudaMemcpyHostToDevice));
+        checkCudaErrors(cudaMemcpy(d_odata, h_odata, mem_size, cudaMemcpyHostToDevice));
     }
 
     // cleanup
