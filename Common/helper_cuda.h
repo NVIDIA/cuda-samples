@@ -673,7 +673,10 @@ inline int _ConvertSMVer2Cores(int major, int minor) {
       {0x90, 128},
       {0xa0, 128},
       {0xa1, 128},
+      {0xa3, 128},
+      {0xb0, 128},
       {0xc0, 128},
+      {0xc1, 128},
       {-1, -1}};
 
   int index = 0;
@@ -725,7 +728,10 @@ inline const char* _ConvertSMVer2ArchName(int major, int minor) {
       {0x90, "Hopper"},
       {0xa0, "Blackwell"},
       {0xa1, "Blackwell"},
+      {0xa3, "Blackwell"},
+      {0xb0, "Blackwell"},
       {0xc0, "Blackwell"},
+      {0xc1, "Blackwell"},
       {-1, "Graphics Device"}};
 
   int index = 0;
