@@ -43,9 +43,12 @@
     * `4_CUDA_Libraries`
         * `jitLto`
     * `7_libNVVM`
+        * `cuda-c-linking`
         * `device-side-launch`
         * `simple`
         * `uvmlite`
+    * `8_Platform_Specific/Tegra`
+        * `EGLSync_CUDAEvent_Interop`
 * Updated the sample using CUDA API "cudaGraphAddNode"/"cudaStreamGetCaptureInfo" with adding "cudaGraphEdgeData" pointer parameter as they are updated to "cudaGraphAddNode_v2"/"cudaStreamGetCaptureInfo_v3" by default in CUDA 13.0:
     * `3_CUDA_Features`
         * `graphConditionalNodes`
@@ -57,6 +60,23 @@
 * Replaced "thrust::identity<uint>()" with "cuda::std::identity()" as it is deprecated in CUDA 13.0.
     * `2_Concepts_and_Techniques`
         * `segmentationTreeThrust`
+* Updated the the headers file and samples for CUFFT error codes update.
+    * Deprecated CUFFT errors:
+        * `CUFFT_INCOMPLETE_PARAMETER_LIST`
+        * `CUFFT_PARSE_ERROR`
+        * `CUFFT_LICENSE_ERROR`
+    * New added CUFFT errors:
+        * `CUFFT_MISSING_DEPENDENCY`
+        * `CUFFT_NVRTC_FAILURE`
+        * `CUFFT_NVJITLINK_FAILURE`
+        * `CUFFT_NVSHMEM_FAILURE`
+    * Header files and samples that are related with this change:
+        * `Common/helper_cuda.h`
+        * `4_CUDA_Libraries`
+            * `simpleCUFFT`
+            * `simpleCUFFT_2d_MGPU`
+            * `simpleCUFFT_MGPU`
+            * `simpleCUFFT_callback`
 
 ### CUDA 12.9
 * Updated toolchain for cross-compilation for Tegra Linux platforms.
