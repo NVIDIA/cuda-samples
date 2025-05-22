@@ -68,7 +68,7 @@ endif()
 enable_language(CUDA)
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -dc") # -dc: Build for device only.
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.18.0)
-  set(CMAKE_CUDA_ARCHITECTURES 50)
+  set(CMAKE_CUDA_ARCHITECTURES 75)
   set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Wno-deprecated-gpu-targets")
 endif ()
 if (WIN32)
