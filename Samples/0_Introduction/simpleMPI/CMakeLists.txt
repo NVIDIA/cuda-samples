@@ -37,6 +37,7 @@ target_compile_features(simpleMPI PRIVATE cxx_std_17 cuda_std_17)
     )
 
     target_link_libraries(simpleMPI PUBLIC
+        ${MPI_C_LIBRARIES}
         ${MPI_CXX_LIBRARIES}
     )
 
