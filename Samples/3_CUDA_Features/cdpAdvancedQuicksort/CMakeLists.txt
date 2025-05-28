@@ -8,13 +8,10 @@ find_package(CUDAToolkit REQUIRED)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
-    # Need to differentiate Tegra_aarch64 and other aarch64 systems(sbsa_aarch64) as they have different CUDA_ARCHITECTURES list
-    if(${BUILD_TEGRA})
-        set(CMAKE_CUDA_ARCHITECTURES 87 110)
-    else()
-        set(CMAKE_CUDA_ARCHITECTURES 75 80 86 90)
-    endif()
+# The aarch64/sbsa_aarch64 CUDA toolkit are support on Tegra since 13.0, so need to check which version of the toolkit is installed
+string(FIND "${CUDAToolkit_INCLUDE_DIRS}" "aarch64-linux" _aarch64_ctk)
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64" AND NOT _aarch64_ctk EQUAL -1)
+    set(CMAKE_CUDA_ARCHITECTURES 87 110)
 else()
     set(CMAKE_CUDA_ARCHITECTURES 75 80 86 89 90 100 110 120)
 endif()
