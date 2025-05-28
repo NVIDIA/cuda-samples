@@ -15,9 +15,15 @@ set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -ccbin ${CMAKE_CXX_COMPILER}" CACHE ST
 
 # Use a local sysroot copy
 if(DEFINED TARGET_FS)
+    # The aarch64/sbsa_aarch64 CUDA toolkit are support on Tegra since 13.0, so need to check which version of the toolkit is installed
+    set(CUDA_AARCH64_TARGET "aarch64-linux")
+    if(NOT EXISTS "/usr/local/cuda/targets/${CUDA_AARCH64_TARGET}")
+        set(CUDA_AARCH64_TARGET "sbsa-linux")
+    endif()
+
     set(CMAKE_SYSROOT "${TARGET_FS}")
     list(APPEND CMAKE_FIND_ROOT_PATH
-        "/usr/local/cuda/targets/aarch64-linux"
+        "/usr/local/cuda/targets/${CUDA_AARCH64_TARGET}"
     )
 
     set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
@@ -51,7 +57,7 @@ if(DEFINED TARGET_FS)
     endif()
 
     if (DEFINED TARGET_CUDA_ROOT)
-        list(APPEND CMAKE_LIBRARY_PATH "${TARGET_CUDA_ROOT}/targets/aarch64-linux/lib")
+        list(APPEND CMAKE_LIBRARY_PATH "${TARGET_CUDA_ROOT}/targets/${CUDA_AARCH64_TARGET}/lib")
         # Define NVVM paths for build and runtime
         set(ENV{LIBNVVM_HOME} "${TARGET_CUDA_ROOT}")
         set(RUNTIME_LIBNVVM_PATH "${TARGET_CUDA_ROOT}/nvvm/lib64")
