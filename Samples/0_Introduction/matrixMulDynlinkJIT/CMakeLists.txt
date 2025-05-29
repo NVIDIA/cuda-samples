@@ -37,6 +37,6 @@ target_link_libraries(matrixMulDynlinkJIT PUBLIC
     CUDA::cuda_driver
 )
 
-if(UNIX)
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     target_link_libraries(matrixMulDynlinkJIT PUBLIC dl)
 endif()

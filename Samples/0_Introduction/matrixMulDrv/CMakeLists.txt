@@ -46,6 +46,14 @@ foreach(arch ${CMAKE_CUDA_ARCHITECTURES})
     list(APPEND GENCODE_FLAGS "-gencode=arch=compute_${arch},code=sm_${arch}")
 endforeach()
 
+if(CMAKE_SYSTEM_NAME STREQUAL "QNX")
+    set(INCLUDES_LIST)
+    foreach(dir ${CUDAToolkit_INCLUDE_DIRS})
+        list(APPEND INCLUDES_LIST "-I${dir}") 
+    endforeach()
+    string(JOIN " " INCLUDES "${INCLUDES_LIST}")
+endif()
+
 add_custom_command(
     OUTPUT ${CUDA_FATBIN_FILE}
     COMMAND ${CMAKE_CUDA_COMPILER} ${INCLUDES} ${ALL_CCFLAGS} -Wno-deprecated-gpu-targets  ${GENCODE_FLAGS} -o ${CUDA_FATBIN_FILE} -fatbin ${CUDA_KERNEL_SOURCE}
