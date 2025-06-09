@@ -41,6 +41,14 @@ target_link_libraries(ptxjit PUBLIC
 set(CUDA_PTX_FILE "${CMAKE_CURRENT_BINARY_DIR}/ptxjit_kernel64.ptx")
 set(CUDA_KERNEL_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/ptxjit_kernel.cu")
 
+if(CMAKE_SYSTEM_NAME STREQUAL "QNX")
+    set(INCLUDES_LIST)
+    foreach(dir ${CUDAToolkit_INCLUDE_DIRS})
+        list(APPEND INCLUDES_LIST "-I${dir}") 
+    endforeach()
+    string(JOIN " " INCLUDES "${INCLUDES_LIST}")
+endif()
+
 add_custom_command(
     OUTPUT ${CUDA_PTX_FILE}
     COMMAND ${CMAKE_CUDA_COMPILER} ${INCLUDES} ${ALL_CCFLAGS} -Wno-deprecated-gpu-targets -o ${CUDA_PTX_FILE} -ptx ${CUDA_KERNEL_SOURCE}
