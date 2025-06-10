@@ -37,7 +37,7 @@ target_link_libraries(memMapIPCDrv PUBLIC
     CUDA::cuda_driver
 )
 
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+if(UNIX AND NOT ${CMAKE_SYSTEM_NAME} STREQUAL "QNX")
     target_link_libraries(memMapIPCDrv PUBLIC rt)
 endif()
 

@@ -37,7 +37,7 @@ target_link_libraries(threadMigration PUBLIC
     CUDA::cuda_driver
 )
 
-if(UNIX)
+if(UNIX AND NOT ${CMAKE_SYSTEM_NAME} STREQUAL "QNX")
     target_link_libraries(threadMigration PUBLIC pthread)
 endif()
 
