@@ -4,6 +4,11 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake/Module
 
 project(simpleCUFFT_MGPU LANGUAGES CUDA)
 
+# Disable response file for libraries on QNX as qcc does not support lib paths with double quotes
+if(CMAKE_SYSTEM_NAME STREQUAL "QNX")
+    set(CMAKE_CUDA_USE_RESPONSE_FILE_FOR_LIBRARIES OFF)
+endif()
+
 find_package(CUDAToolkit REQUIRED)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
