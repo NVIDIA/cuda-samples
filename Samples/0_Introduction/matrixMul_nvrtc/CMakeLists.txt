@@ -32,23 +32,26 @@ target_link_libraries(matrixMul_nvrtc PRIVATE
     CUDA::cuda_driver
 )
 
+# The primary directory of CUDAToolkit_INCLUDE_DIRS is the CUDA Toolkit's include directory for finding the header files.
+list(GET CUDAToolkit_INCLUDE_DIRS 0 CUDA_INCLUDE_DIR)
+
 # Copy clock_kernel.cu to the output directory
 add_custom_command(TARGET matrixMul_nvrtc POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    ${CMAKE_CURRENT_SOURCE_DIR}/matrixMul_kernel.cu ${CUDAToolkit_BIN_DIR}/../include/cooperative_groups.h ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/matrixMul_kernel.cu ${CUDA_INCLUDE_DIR}/cooperative_groups.h ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 add_custom_command(TARGET matrixMul_nvrtc POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CUDAToolkit_BIN_DIR}/../include/cooperative_groups ${CMAKE_CURRENT_BINARY_DIR}/cooperative_groups
+    ${CUDA_INCLUDE_DIR}/cooperative_groups ${CMAKE_CURRENT_BINARY_DIR}/cooperative_groups
 )
 
 add_custom_command(TARGET matrixMul_nvrtc POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CUDAToolkit_BIN_DIR}/../include/cccl/nv ${CMAKE_CURRENT_BINARY_DIR}/nv
+    ${CUDA_INCLUDE_DIR}/cccl/nv ${CMAKE_CURRENT_BINARY_DIR}/nv
 )
 
 add_custom_command(TARGET matrixMul_nvrtc POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CUDAToolkit_BIN_DIR}/../include/cccl/cuda ${CMAKE_CURRENT_BINARY_DIR}/cuda
+    ${CUDA_INCLUDE_DIR}/cccl/cuda ${CMAKE_CURRENT_BINARY_DIR}/cuda
 )
