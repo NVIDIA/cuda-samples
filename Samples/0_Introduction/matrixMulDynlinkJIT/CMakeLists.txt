@@ -31,7 +31,12 @@ set_target_properties(matrixMulDynlinkJIT PROPERTIES
     CUDA_SEPARABLE_COMPILATION ON
     POSITION_INDEPENDENT_CODE OFF
 )
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -no-pie")
+
+# Only add -no-pie for GCC or Clang
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -no-pie")
+endif()
+
 target_link_libraries(matrixMulDynlinkJIT PUBLIC
     CUDA::cudart
     CUDA::cuda_driver
