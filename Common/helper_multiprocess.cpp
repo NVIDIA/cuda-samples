@@ -222,10 +222,10 @@ int ipcOpenSocket(ipcHandle *&handle) {
 
   memset(&cliaddr, 0, sizeof(cliaddr));
   cliaddr.sun_family = AF_UNIX;
-  char temp[10];
+  char temp[20];
 
   // Create unique name for the socket.
-  sprintf(temp, "%u", getpid());
+  sprintf(temp, "%s%u", SOCK_FOLDER, getpid());
 
   strcpy(cliaddr.sun_path, temp);
   if (bind(sock, (struct sockaddr *)&cliaddr, sizeof(cliaddr)) < 0) {
@@ -361,8 +361,8 @@ int ipcSendShareableHandle(ipcHandle *handle,
   // Construct client address to send this SHareable handle to
   memset(&cliaddr, 0, sizeof(cliaddr));
   cliaddr.sun_family = AF_UNIX;
-  char temp[10];
-  sprintf(temp, "%u", process);
+  char temp[20];
+  sprintf(temp, "%s%u", SOCK_FOLDER, process);
   strcpy(cliaddr.sun_path, temp);
   len = sizeof(cliaddr);
 
