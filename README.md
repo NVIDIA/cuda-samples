@@ -144,6 +144,14 @@ $ cd build
 QNX_HOST=/path/to/qnx/host QNX_TARGET=/path/to/qnx/target cmake .. -DBUILD_TEGRA=True -DCMAKE_CUDA_COMPILER=/usr/local/cuda-safe-13.0/bin/nvcc -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/toolchain-aarch64-qnx.cmake -DCMAKE_LIBRARY_PATH=/usr/local/cuda-safe-13.0/thor/targets/aarch64-qnx/lib/stubs/ -DCMAKE_INCLUDE_PATH=/usr/local/cuda-safe-13.0/thor/targets/aarch64-qnx/include/
 ```
 
+### Forward Compatibility
+
+To build samples with new CUDA Toolkit(CUDA 13.0 or later) and UMD(version 580 or later) and old KMD(version 535 or earlier)，you need to set the `CMAKE_PREFIX_PATH` for using new driver library, the command might like this:
+
+```
+cmake -DCMAKE_PREFIX_PATH=/usr/local/cuda/lib64/stubs/ ..
+```
+
 ## Running All Samples as Tests
 
 It's important to note that the CUDA samples are _not_ intended as a validation suite for CUDA. They do not cover corner cases, they do not completely cover the
