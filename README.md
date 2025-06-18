@@ -146,7 +146,7 @@ QNX_HOST=/path/to/qnx/host QNX_TARGET=/path/to/qnx/target cmake .. -DBUILD_TEGRA
 
 ### Forward Compatibility
 
-To build samples with new CUDA Toolkit(CUDA 13.0 or later) and UMD(version 580 or later) and old KMD(version 535 or earlier)，you need to set the `CMAKE_PREFIX_PATH` for using new driver library, the command might like this:
+To build samples with new CUDA Toolkit(CUDA 13.0 or later) and UMD(Version 580 or later) and old KMD(Version 550 or earlier)，you need to set the `CMAKE_PREFIX_PATH` for using new driver library, the command might like this:
 
 ```
 cmake -DCMAKE_PREFIX_PATH=/usr/local/cuda/lib64/stubs/ ..
