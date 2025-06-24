@@ -17,6 +17,12 @@ else()
     set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -lineinfo") # add line information to all builds for debug tools (exclusive to -G option)
 endif()
 
+# This sample is not supported on QNX
+if(CMAKE_SYSTEM_NAME STREQUAL "QNX")
+    message(STATUS "Will not build sample ${PROJECT_NAME} - not supported on QNX")
+    return()
+endif()
+
 # Include directories and libraries
 include_directories(../../../Common)
 

@@ -37,12 +37,24 @@ target_link_libraries(memMapIPCDrv PUBLIC
     CUDA::cuda_driver
 )
 
-if(UNIX)
+if(UNIX AND NOT ${CMAKE_SYSTEM_NAME} STREQUAL "QNX")
     target_link_libraries(memMapIPCDrv PUBLIC rt)
+endif()
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL "QNX")
+    target_link_libraries(memMapIPCDrv PUBLIC socket)
 endif()
 
 set(CUDA_PTX_FILE "${CMAKE_CURRENT_BINARY_DIR}/memMapIpc_kernel64.ptx")
 set(CUDA_KERNEL_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/memMapIpc_kernel.cu")
+
+if(CMAKE_SYSTEM_NAME STREQUAL "QNX")
+    set(INCLUDES_LIST)
+    foreach(dir ${CUDAToolkit_INCLUDE_DIRS})
+        list(APPEND INCLUDES_LIST "-I${dir}")
+    endforeach()
+    string(JOIN " " INCLUDES "${INCLUDES_LIST}")
+endif()
 
 add_custom_command(
     OUTPUT ${CUDA_PTX_FILE}

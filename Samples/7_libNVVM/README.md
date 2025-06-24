@@ -58,6 +58,12 @@ Alternatively, we provide a Makefile that will automatically build these
 samples on Linux as part of the toplevel cuda-samples build.  Windows users
 should build manually via utils/built.bat or Visual Studio's CMake integration.
 
+To build and run samples with new CUDA Toolkit(CUDA 13.0 or later) and UMD
+(Version 580 or later) and old KMD(Version 550 or earlier)，user need to
+update the CMake invocation in utils/build.sh or build.bat with adding
+`CMAKE_PREFIX_PATH` with stubs path like this:
+"-DCMAKE_PREFIX_PATH=/usr/local/cuda/lib64/stubs/"
+
 A Note About the cuda-c-linking Sample
 --------------------------------------
 

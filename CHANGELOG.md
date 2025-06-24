@@ -77,6 +77,7 @@
             * `simpleCUFFT_2d_MGPU`
             * `simpleCUFFT_MGPU`
             * `simpleCUFFT_callback`
+* Updated toolchain for cross-compilation for Tegra QNX platforms.
 
 ### CUDA 12.9
 * Updated toolchain for cross-compilation for Tegra Linux platforms.

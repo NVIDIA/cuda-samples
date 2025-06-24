@@ -20,6 +20,12 @@ endif()
 # Include directories and libraries
 include_directories(../../../Common)
 
+# This sample is not supported on QNX
+if(CMAKE_SYSTEM_NAME STREQUAL "QNX")
+    message(STATUS "simpleAWBarrier is not supported on QNX")
+    return()
+endif()
+
 # Source file
 # Add target for simpleAWBarrier
 add_executable(simpleAWBarrier simpleAWBarrier.cu)

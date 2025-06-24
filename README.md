@@ -135,9 +135,22 @@ $ cmake -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc -DCMAKE_LIBRARY_PATH=/usr
 
 ### QNX
 
-Note that in the current branch sample cross-compilation for QNX is not fully validated. This placeholder will be updated in the
-near future with QNX cross-compilation instructions. In the meantime, if you want to cross-compile for QNX please check out one
-of the previous tags prior to the CMake build system transition in 12.8.
+The sample cross-compilation for QNX is supported since v13.0 CUDA Samples. An example build for Tegra Thor QNX platform might like this:
+
+```
+$ mkdir build
+$ cd build
+
+QNX_HOST=/path/to/qnx/host QNX_TARGET=/path/to/qnx/target cmake .. -DBUILD_TEGRA=True -DCMAKE_CUDA_COMPILER=/usr/local/cuda-safe-13.0/bin/nvcc -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/toolchain-aarch64-qnx.cmake -DCMAKE_LIBRARY_PATH=/usr/local/cuda-safe-13.0/thor/targets/aarch64-qnx/lib/stubs/ -DCMAKE_INCLUDE_PATH=/usr/local/cuda-safe-13.0/thor/targets/aarch64-qnx/include/
+```
+
+### Forward Compatibility
+
+To build samples with new CUDA Toolkit(CUDA 13.0 or later) and UMD(Version 580 or later) and old KMD(Version 550 or earlier)，you need to set the `CMAKE_PREFIX_PATH` for using new driver library, the command might like this:
+
+```
+cmake -DCMAKE_PREFIX_PATH=/usr/local/cuda/lib64/stubs/ ..
+```
 
 ## Running All Samples as Tests
 

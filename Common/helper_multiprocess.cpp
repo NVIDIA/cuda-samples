@@ -186,7 +186,7 @@ int ipcCreateSocket(ipcHandle *&handle, const char *name,
   }
 
   unlink(name);
-  bzero(&servaddr, sizeof(servaddr));
+  memset(&servaddr, 0, sizeof(servaddr));
   servaddr.sun_family = AF_UNIX;
 
   size_t len = strlen(name);
@@ -220,12 +220,12 @@ int ipcOpenSocket(ipcHandle *&handle) {
     return -1;
   }
 
-  bzero(&cliaddr, sizeof(cliaddr));
+  memset(&cliaddr, 0, sizeof(cliaddr));
   cliaddr.sun_family = AF_UNIX;
-  char temp[10];
+  char temp[20];
 
   // Create unique name for the socket.
-  sprintf(temp, "%u", getpid());
+  sprintf(temp, "%s%u", SOCK_FOLDER, getpid());
 
   strcpy(cliaddr.sun_path, temp);
   if (bind(sock, (struct sockaddr *)&cliaddr, sizeof(cliaddr)) < 0) {
@@ -326,7 +326,7 @@ int ipcSendDataToServer(ipcHandle *handle, const char *serverName,
   ssize_t sendResult;
   struct sockaddr_un serveraddr;
 
-  bzero(&serveraddr, sizeof(serveraddr));
+  memset(&serveraddr, 0, sizeof(serveraddr));
   serveraddr.sun_family = AF_UNIX;
   strncpy(serveraddr.sun_path, serverName, sizeof(serveraddr.sun_path) - 1);
 
@@ -359,10 +359,10 @@ int ipcSendShareableHandle(ipcHandle *handle,
   socklen_t len = sizeof(cliaddr);
 
   // Construct client address to send this SHareable handle to
-  bzero(&cliaddr, sizeof(cliaddr));
+  memset(&cliaddr, 0, sizeof(cliaddr));
   cliaddr.sun_family = AF_UNIX;
-  char temp[10];
-  sprintf(temp, "%u", process);
+  char temp[20];
+  sprintf(temp, "%s%u", SOCK_FOLDER, process);
   strcpy(cliaddr.sun_path, temp);
   len = sizeof(cliaddr);
 

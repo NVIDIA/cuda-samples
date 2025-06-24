@@ -54,6 +54,13 @@
 #endif
 #include <vector>
 
+// Define "/tmp" as socket creating folder for QNX
+#if defined(__QNX__)
+#define SOCK_FOLDER "/tmp/" 
+#else
+#define SOCK_FOLDER ""
+#endif
+
 typedef struct sharedMemoryInfo_st {
     void *addr;
     size_t size;

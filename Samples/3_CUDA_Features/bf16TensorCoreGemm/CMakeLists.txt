@@ -18,6 +18,12 @@ endif()
 # Include directories and libraries
 include_directories(../../../Common)
 
+# This sample is not supported on QNX
+if(CMAKE_SYSTEM_NAME STREQUAL "QNX")
+    message(STATUS "Will not build sample ${PROJECT_NAME} - not supported on QNX")
+    return()
+endif()
+
 # Source file
 # Add target for bf16TensorCoreGemm
 add_executable(bf16TensorCoreGemm bf16TensorCoreGemm.cu)
