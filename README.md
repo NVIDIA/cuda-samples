@@ -135,13 +135,21 @@ $ cmake -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc -DCMAKE_LIBRARY_PATH=/usr
 
 ### QNX
 
-The sample cross-compilation for QNX is supported since v13.0 CUDA Samples. An example build for Tegra Thor QNX platform might like this:
+Cross-compilation for QNX with CMake is supported in the CUDA 13.0 samples release and newer. An example build for
+the Tegra Thor QNX platform might look like this:
 
 ```
 $ mkdir build
 $ cd build
 
-QNX_HOST=/path/to/qnx/host QNX_TARGET=/path/to/qnx/target cmake .. -DBUILD_TEGRA=True -DCMAKE_CUDA_COMPILER=/usr/local/cuda-safe-13.0/bin/nvcc -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/toolchain-aarch64-qnx.cmake -DCMAKE_LIBRARY_PATH=/usr/local/cuda-safe-13.0/thor/targets/aarch64-qnx/lib/stubs/ -DCMAKE_INCLUDE_PATH=/usr/local/cuda-safe-13.0/thor/targets/aarch64-qnx/include/
+QNX_HOST=/path/to/qnx/host \
+QNX_TARGET=/path/to/qnx/target \
+cmake .. \
+-DBUILD_TEGRA=True \
+-DCMAKE_CUDA_COMPILER=/usr/local/cuda-safe-13.0/bin/nvcc \
+-DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/toolchain-aarch64-qnx.cmake \
+-DCMAKE_LIBRARY_PATH=/usr/local/cuda-safe-13.0/thor/targets/aarch64-qnx/lib/stubs/ \
+-DCMAKE_INCLUDE_PATH=/usr/local/cuda-safe-13.0/thor/targets/aarch64-qnx/include/
 ```
 
 ### Forward Compatibility

@@ -58,11 +58,13 @@ Alternatively, we provide a Makefile that will automatically build these
 samples on Linux as part of the toplevel cuda-samples build.  Windows users
 should build manually via utils/built.bat or Visual Studio's CMake integration.
 
-To build and run samples with new CUDA Toolkit(CUDA 13.0 or later) and UMD
-(Version 580 or later) and old KMD(Version 550 or earlier)，user need to
-update the CMake invocation in utils/build.sh or build.bat with adding
-`CMAKE_PREFIX_PATH` with stubs path like this:
-"-DCMAKE_PREFIX_PATH=/usr/local/cuda/lib64/stubs/"
+To build and run the libNVVM samples with CUDA Toolkits 13.0 or newer, user-mode
+driver 580 and newer, old kernel-mode drivers (version 550 or earlier)，youm must
+update the CMake invocation in utils/build.sh or build.bat by adding
+`CMAKE_PREFIX_PATH` with a stubs path as follows:
+```
+-DCMAKE_PREFIX_PATH=/usr/local/cuda/lib64/stubs/
+```
 
 A Note About the cuda-c-linking Sample
 --------------------------------------
