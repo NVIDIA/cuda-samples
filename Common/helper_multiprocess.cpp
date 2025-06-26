@@ -185,25 +185,30 @@ int ipcCreateSocket(ipcHandle *&handle, const char *name,
     return -1;
   }
 
-  unlink(name);
+  char path_name[50];
+
+  // Create unique name for the socket with path if SOCK_FOLDER is set.
+  sprintf(path_name, "%s%u", SOCK_FOLDER, getpid());
+
+  unlink(path_name);
   memset(&servaddr, 0, sizeof(servaddr));
   servaddr.sun_family = AF_UNIX;
 
-  size_t len = strlen(name);
+  size_t len = strlen(path_name);
   if (len > (sizeof(servaddr.sun_path) - 1)) {
     perror("IPC failure: Cannot bind provided name to socket. Name too large");
     return -1;
   }
 
-  strncpy(servaddr.sun_path, name, len);
+  strncpy(servaddr.sun_path, path_name, len);
 
   if (bind(server_fd, (struct sockaddr *)&servaddr, SUN_LEN(&servaddr)) < 0) {
     perror("IPC failure: Binding socket failed");
     return -1;
   }
 
-  handle->socketName = new char[strlen(name) + 1];
-  strcpy(handle->socketName, name);
+  handle->socketName = new char[strlen(path_name) + 1];
+  strcpy(handle->socketName, path_name);
   handle->socket = server_fd;
   return 0;
 }
@@ -219,12 +224,12 @@ int ipcOpenSocket(ipcHandle *&handle) {
     perror("IPC failure:Socket creation error");
     return -1;
   }
-
+  
   memset(&cliaddr, 0, sizeof(cliaddr));
   cliaddr.sun_family = AF_UNIX;
-  char temp[20];
+  char temp[50];
 
-  // Create unique name for the socket.
+  // Create unique name for the socket with path if SOCK_FOLDER is set.
   sprintf(temp, "%s%u", SOCK_FOLDER, getpid());
 
   strcpy(cliaddr.sun_path, temp);
