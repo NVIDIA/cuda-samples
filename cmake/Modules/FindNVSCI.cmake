@@ -19,8 +19,8 @@ find_library(NVSCIBUF_LIBRARY
 find_library(NVSCISYNC_LIBRARY
     NAMES nvscisync libnvscisync
     PATHS 
-        $/usr/lib
-        $/usr/lib/${CMAKE_SYSTEM_PROCESSOR}-linux-gnu
+        /usr/lib
+        /usr/lib/${CMAKE_SYSTEM_PROCESSOR}-linux-gnu
     PATH_SUFFIXES nvidia
 )
 
