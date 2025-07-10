@@ -59,7 +59,7 @@ samples on Linux as part of the toplevel cuda-samples build.  Windows users
 should build manually via utils/built.bat or Visual Studio's CMake integration.
 
 To build and run the libNVVM samples with CUDA Toolkits 13.0 or newer, user-mode
-driver 580 and newer, old kernel-mode drivers (version 550 or earlier)，youm must
+driver 580 and newer, old kernel-mode drivers (version 550 or earlier)，you must
 update the CMake invocation in utils/build.sh or build.bat by adding
 `CMAKE_PREFIX_PATH` with a stubs path as follows:
 ```
