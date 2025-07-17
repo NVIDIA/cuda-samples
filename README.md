@@ -47,6 +47,9 @@ Configure the project with CMake:
 ```
 cmake ..
 ```
+> [!TIP]
+> If you encounter an error such as `CMAKE_CUDA_ARCHITECTURES must be non-empty if set`, you may need to set CUDACXX explicitly (ex: if using cuda-12, run `CUDACXX=/usr/local/cuda-12/bin/nvcc cmake ..` instead)
+
 Build the samples:
 ```
 make -j$(nproc)
