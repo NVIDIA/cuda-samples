@@ -133,6 +133,58 @@ $ cd build
 $ cmake -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc -DCMAKE_LIBRARY_PATH=/usr/local/cuda/orin/lib64/ -DCMAKE_INCLUDE_PATH=/usr/local/cuda/orin/include -DBUILD_TEGRA=True ..
 ```
 
+### Cross Building for Automotive Linux Platforms from the DriveOS Docker containers
+
+To build CUDA samples to the target platform from the DriveOS Docker containers, use the following instructions.
+
+Mount the target Root Filesystem (RFS) in the container so that the CUDA cmake process has the correct paths to CUDA and other system libraries required to build the samples.
+
+Create a temporary directory, `<temp>` is any temporary directory of your choosing, for example, you can use `/drive/temp`:
+
+```
+$ mkdir /drive/<temp>
+```
+
+Mount the filesystem by running the following command:
+
+```
+$ mount /drive/drive-linux/filesystem/targetfs-images/dev_nsr_desktop_ubuntu-24.04_thor_rfs.img /drive/temp
+```
+
+Configure the project by running the following cmake command:
+
+```
+$ mkdir build && cd build
+$ cmake .. -DBUILD_TEGRA=True \
+  -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc \
+  -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/toolchain-aarch64-linux.cmake \
+  -DTARGET_FS=/drive/temp \
+  -DCMAKE_LIBRARY_PATH=/drive/temp/usr/local/cuda-13.0/thor/lib64/ \
+  -DCMAKE_INCLUDE_PATH=/drive/temp/usr/local/cuda-13.0/thor/include/
+```
+
+Please note that the following libraries are not pre-installed in the DriveOS dev-nsr target filesystem:
+* libdrm-dev
+* Vulkan
+
+This causes the cmake command to throw errors related to the missing files, and as a result, the related samples will not build in later steps. This issue will be addressed in a future DriveOS release.
+
+To build the samples with ignore the error mentioned above, you can use `--ignore-errors`/`--keep-going` or comment out the comment out the corresponding `add_subdirectory` command in the CMakeLists.txt in the parent folder for the samples requiring Vulkan and libdrm_dev:
+
+```
+$ make -j$(nproc) --ignore-errors # or --keep-going
+```
+
+```
+# In Samples/5_Domain_Specific/CMakeList.txt
+# add_subdirectory(simpleGL)
+# add_subdirectory(simpleVulkan)
+# add_subdirectory(simpleVulkanMMAP)
+
+# In Samples/8_Platform_Specific/Tegra/CMakeList.txt
+# add_subdirectory(simpleGLES_EGLOutput)
+```
+
 ### QNX
 
 Cross-compilation for QNX with CMake is supported in the CUDA 13.0 samples release and newer. An example build for
