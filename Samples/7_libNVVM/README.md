@@ -4,7 +4,9 @@ libNVVM and NVVM IR Samples
 Introduction
 ------------
 
-The following samples illustrate the use of libNVVM and NVVM IR.
+The following samples illustrate the use of libNVVM and NVVM IR. Running and
+testing these samples requires an NVIDIA driver compatible with the CUDA
+Toolkit being used for compilation.
 
 - cuda-shared-memory - A directory containing NVVM IR programs that demonstrate
   CUDA 'shared' memory usage.
