@@ -224,7 +224,7 @@ __global__ void compute_gemm(const half *A, const half *B, const float *C, float
     // there's no such tile, all warps in this CTA exit.
     for (unsigned int block_pos = blockIdx.x;; block_pos += gridDim.x) {
         const unsigned int block_tile_i = ((block_pos * BLOCK_ROW_TILES) / N_TILES) * (BLOCK_COL_TILES);
-        const unsigned int block_tile_j = (block_pos * BLOCK_COL_TILES) % N_TILES;
+        const unsigned int block_tile_j = (block_pos * BLOCK_ROW_TILES) % N_TILES;
 
         // Stop when there are no more D matrix tiles to compute in this CTA.
         if (block_tile_i >= M_TILES) {
