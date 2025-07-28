@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2023, NVIDIA CORPORATION. All rights reserved.
+// Copyright (c) 2014-2025, NVIDIA CORPORATION. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -181,8 +181,8 @@ static CUdevice cudaDeviceInit(int *major, int *minor)
     checkCudaErrors(cuDeviceGetAttribute(major, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, cuDevice));
     checkCudaErrors(cuDeviceGetAttribute(minor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, cuDevice));
     printf("compute capability = %d.%d\n", *major, *minor);
-    if (*major < 5) {
-        fprintf(stderr, "Device 0 is not sm_50 or later\n");
+    if (*major < 7 && *minor < 5) {
+        fprintf(stderr, "Device 0 is not sm_75 or later\n");
         exit(EXIT_FAILURE);
     }
     return cuDevice;

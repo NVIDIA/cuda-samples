@@ -1,4 +1,4 @@
-// Copyright (c) 1993-2023, NVIDIA CORPORATION. All rights reserved.
+// Copyright (c) 1993-2025, NVIDIA CORPORATION. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -216,8 +216,8 @@ int main(int argc, char **argv)
     checkCudaErrors(cuDeviceGetAttribute(&devMajor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, device));
     checkCudaErrors(cuDeviceGetAttribute(&devMinor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, device));
     outs() << "Device Compute Capability: " << devMajor << "." << devMinor << "\n";
-    if (devMajor < 5) {
-        errs() << "ERROR: Device 0 is not sm_50 or later.\n";
+    if (devMajor < 7 && devMinor < 5) {
+        errs() << "ERROR: Device 0 is not sm_75 or later.\n";
         return 1;
     }
 
