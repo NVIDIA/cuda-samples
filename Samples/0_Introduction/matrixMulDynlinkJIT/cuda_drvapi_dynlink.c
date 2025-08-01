@@ -345,17 +345,6 @@ CUresult CUDAAPI cuInit(unsigned int Flags, int cudaVersion)
 
     CHECKED_CALL(LOAD_LIBRARY(&CudaDrvLib));
 
-    // cuInit is required; alias it to _cuInit
-    GET_PROC_EX(cuInit, _cuInit, 1);
-    CHECKED_CALL(_cuInit(Flags));
-
-    // available since 2.2. if not present, version 1.0 is assumed
-    GET_PROC_OPTIONAL(cuDriverGetVersion);
-
-    if (cuDriverGetVersion) {
-        CHECKED_CALL(cuDriverGetVersion(&driverVer));
-    }
-
     // fetch all function pointers
     GET_PROC(cuDeviceGet);
     GET_PROC(cuDeviceGetCount);
@@ -620,5 +609,16 @@ CUresult CUDAAPI cuInit(unsigned int Flags, int cudaVersion)
 #endif
     }
 
+    // cuInit is required; alias it to _cuInit
+    GET_PROC_EX(cuInit, _cuInit, 1);
+    CHECKED_CALL(_cuInit(Flags));
+
+    // available since 2.2. if not present, version 1.0 is assumed
+    GET_PROC_OPTIONAL(cuDriverGetVersion);
+
+    if (cuDriverGetVersion) {
+        CHECKED_CALL(cuDriverGetVersion(&driverVer));
+    }
+    
     return CUDA_SUCCESS;
 }
