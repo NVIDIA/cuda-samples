@@ -74,11 +74,11 @@ static CUdevice cudaDeviceInit(int *devMajor, int *devMinor)
 
     // Obtain the device's compute capability.
     checkCudaErrors(cuDeviceGetAttribute(devMajor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, cuDevice));
+    checkCudaErrors(cuDeviceGetAttribute(devMinor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, cuDevice));
     if (*devMajor < 7 && *devMinor < 5) {
         fprintf(stderr, "Device 0 is not sm_75 or later\n");
         exit(EXIT_FAILURE);
     }
-    checkCudaErrors(cuDeviceGetAttribute(devMinor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, cuDevice));
 
     return cuDevice;
 }
