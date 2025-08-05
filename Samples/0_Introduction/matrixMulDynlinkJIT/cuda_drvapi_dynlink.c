@@ -342,9 +342,21 @@ CUresult CUDAAPI cuInit(unsigned int Flags, int cudaVersion)
 {
     CUDADRIVER CudaDrvLib;
     int        driverVer = 1000;
+    CUresult result = CUDA_SUCCESS;
 
-    CHECKED_CALL(LOAD_LIBRARY(&CudaDrvLib));
+    result = LOAD_LIBRARY(&CudaDrvLib);
 
+    // cuInit is required; alias it to _cuInit
+    GET_PROC_EX(cuInit, _cuInit, 1);
+    result = _cuInit(Flags);
+
+    // available since 2.2. if not present, version 1.0 is assumed
+    GET_PROC_OPTIONAL(cuDriverGetVersion);
+
+    if (cuDriverGetVersion) {
+        result = cuDriverGetVersion(&driverVer);
+    }
+ 
     // fetch all function pointers
     GET_PROC(cuDeviceGet);
     GET_PROC(cuDeviceGetCount);
@@ -608,17 +620,5 @@ CUresult CUDAAPI cuInit(unsigned int Flags, int cudaVersion)
         GET_PROC(cuGraphicsD3D9RegisterResource);
 #endif
     }
-
-    // cuInit is required; alias it to _cuInit
-    GET_PROC_EX(cuInit, _cuInit, 1);
-    CHECKED_CALL(_cuInit(Flags));
-
-    // available since 2.2. if not present, version 1.0 is assumed
-    GET_PROC_OPTIONAL(cuDriverGetVersion);
-
-    if (cuDriverGetVersion) {
-        CHECKED_CALL(cuDriverGetVersion(&driverVer));
-    }
-    
-    return CUDA_SUCCESS;
+   return result;
 }
