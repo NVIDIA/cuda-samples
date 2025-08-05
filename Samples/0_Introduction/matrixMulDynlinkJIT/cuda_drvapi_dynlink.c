@@ -324,14 +324,6 @@ static CUresult LOAD_LIBRARY(CUDADRIVER *pInstance)
 #error unsupported platform
 #endif
 
-#define CHECKED_CALL(call)            \
-    do {                              \
-        CUresult result = (call);     \
-        if (CUDA_SUCCESS != result) { \
-            return result;            \
-        }                             \
-    } while (0)
-
 #define GET_PROC_REQUIRED(name) GET_PROC_EX(name, name, 1)
 #define GET_PROC_OPTIONAL(name) GET_PROC_EX(name, name, 0)
 #define GET_PROC(name)          GET_PROC_REQUIRED(name)
