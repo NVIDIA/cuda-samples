@@ -319,7 +319,7 @@ static CUresult LOAD_LIBRARY(CUDADRIVER *pInstance)
 
 CUresult GET_DRIVER_HANDLE(CUDADRIVER* pInstance)
 { 
-    *pInstance = dlopen(__CudaLibName, RTLD_NOLOAD);
+    *pInstance = dlopen(__CudaLibName, RTLD_LAZY);
     if (*pInstance) {
         return CUDA_SUCCESS;
     }
