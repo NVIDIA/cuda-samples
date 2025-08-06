@@ -242,10 +242,21 @@ static CUresult LOAD_LIBRARY(CUDADRIVER *pInstance)
 
     if (*pInstance == NULL) {
         printf("LoadLibrary \"%s\" failed!\n", __CudaLibName);
-        return CUDA_ERROR_UNKNOWN;
+        exit(EXIT_FAILURE);
     }
 
     return CUDA_SUCCESS;
+}
+
+CUresult GET_DRIVER_HANDLE(CUDADRIVER* pInstance)
+{ 
+    *pInstance = GetModuleHandle(__CudaLibName);
+    if (*pInstance) {
+        return CUDA_SUCCESS;
+    }
+    else {
+        return CUDA_ERROR_UNKNOWN;
+    }
 }
 
 #define GET_PROC_EX(name, alias, required)                                               \
@@ -268,6 +279,13 @@ static CUresult LOAD_LIBRARY(CUDADRIVER *pInstance)
         printf("Failed to find required function \"%s\" in %s\n", STRINGIFY(name##_v3), __CudaLibName); \
         return CUDA_ERROR_UNKNOWN;                                                                      \
     }
+
+#define GET_PROC_ERROR_FUNCTIONS(name, alias, required)                                           \
+		alias = (t##name *)GetProcAddress(CudaDrvLib, #name);                                 \
+		if (alias == NULL && required) {                                                      \
+			printf("Failed to find error function \"%s\" in %s\n", #name, __CudaLibName);    \
+			exit(EXIT_FAILURE);                                                               \
+		}                                                                                     \
 
 #elif defined(__unix__) || defined(__QNX__) || defined(__APPLE__) || defined(__MACOSX)
 
@@ -293,10 +311,21 @@ static CUresult LOAD_LIBRARY(CUDADRIVER *pInstance)
 
     if (*pInstance == NULL) {
         printf("dlopen \"%s\" failed!\n", __CudaLibName);
-        return CUDA_ERROR_UNKNOWN;
+        exit(EXIT_FAILURE);
     }
 
     return CUDA_SUCCESS;
+}
+
+CUresult GET_DRIVER_HANDLE(CUDADRIVER* pInstance)
+{ 
+    *pInstance = dlopen(__CudaLibName, RTLD_NOLOAD);
+    if (*pInstance) {
+        return CUDA_SUCCESS;
+    }
+    else {
+        return CUDA_ERROR_UNKNOWN;
+    }
 }
 
 #define GET_PROC_EX(name, alias, required)                                               \
@@ -320,9 +349,24 @@ static CUresult LOAD_LIBRARY(CUDADRIVER *pInstance)
         return CUDA_ERROR_UNKNOWN;                                                                      \
     }
 
+#define GET_PROC_ERROR_FUNCTIONS(name, alias, required)                                      \
+    alias = (t##name *)dlsym(CudaDrvLib, #name);                                         \
+    if (alias == NULL && required) {                                                     \
+        printf("Failed to find error function \"%s\" in %s\n", #name, __CudaLibName);    \
+        exit(EXIT_FAILURE);                                                              \
+    }
+
 #else
 #error unsupported platform
 #endif
+
+#define CHECKED_CALL(call)                                                \
+    do {                                                                  \
+        CUresult result = (call);                                         \
+        if (CUDA_SUCCESS != result) {                                     \
+            return result;                                                \
+        }                                                                 \
+    } while (0)
 
 #define GET_PROC_REQUIRED(name) GET_PROC_EX(name, name, 1)
 #define GET_PROC_OPTIONAL(name) GET_PROC_EX(name, name, 0)
@@ -330,23 +374,31 @@ static CUresult LOAD_LIBRARY(CUDADRIVER *pInstance)
 #define GET_PROC_V2(name)       GET_PROC_EX_V2(name, name, 1)
 #define GET_PROC_V3(name)       GET_PROC_EX_V3(name, name, 1)
 
+CUresult INIT_ERROR_FUNCTIONS(void)
+{
+    CUDADRIVER CudaDrvLib;
+    CUresult    result = CUDA_SUCCESS;
+    result             = GET_DRIVER_HANDLE(&CudaDrvLib);
+    GET_PROC_ERROR_FUNCTIONS(cuGetErrorString, cuGetErrorString, 1);
+    return result;
+}
+
 CUresult CUDAAPI cuInit(unsigned int Flags, int cudaVersion)
 {
     CUDADRIVER CudaDrvLib;
     int        driverVer = 1000;
-    CUresult result = CUDA_SUCCESS;
-
-    result = LOAD_LIBRARY(&CudaDrvLib);
+    
+    CHECKED_CALL(LOAD_LIBRARY(&CudaDrvLib));
 
     // cuInit is required; alias it to _cuInit
     GET_PROC_EX(cuInit, _cuInit, 1);
-    result = _cuInit(Flags);
+    CHECKED_CALL(_cuInit(Flags));
 
     // available since 2.2. if not present, version 1.0 is assumed
     GET_PROC_OPTIONAL(cuDriverGetVersion);
 
     if (cuDriverGetVersion) {
-        result = cuDriverGetVersion(&driverVer);
+        CHECKED_CALL(cuDriverGetVersion(&driverVer));
     }
  
     // fetch all function pointers
@@ -612,5 +664,5 @@ CUresult CUDAAPI cuInit(unsigned int Flags, int cudaVersion)
         GET_PROC(cuGraphicsD3D9RegisterResource);
 #endif
     }
-   return result;
+    return CUDA_SUCCESS;
 }

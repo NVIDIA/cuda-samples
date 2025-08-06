@@ -42,11 +42,21 @@ inline int ftoi(float value) { return (value >= 0 ? static_cast<int>(value + 0.5
 #ifndef checkCudaErrors
 #define checkCudaErrors(err) __checkCudaErrors(err, __FILE__, __LINE__)
 
+extern "C" CUresult INIT_ERROR_FUNCTIONS(void);
+
 // These are the inline versions for all of the SDK helper functions
 inline void __checkCudaErrors(CUresult err, const char *file, const int line)
 {
     if (CUDA_SUCCESS != err) {
         const char *errorStr = NULL;
+        
+        if (!cuGetErrorString) {
+            CUresult result = INIT_ERROR_FUNCTIONS();
+            if (result != CUDA_SUCCESS) {
+                printf("CUDA driver API failed");
+                exit(EXIT_FAILURE);
+            }
+        }
         cuGetErrorString(err, &errorStr);
         fprintf(stderr,
                 "checkCudaErrors() Driver API error = %04d \"%s\" from file <%s>, "
