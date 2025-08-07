@@ -31,6 +31,7 @@
 #define CUDAMATH_H
 
 #include <cooperative_groups.h>
+#include <helper_math.h>
 
 namespace cg = cooperative_groups;
 
