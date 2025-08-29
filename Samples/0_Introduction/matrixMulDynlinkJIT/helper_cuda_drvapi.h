@@ -49,7 +49,7 @@ inline void __checkCudaErrors(CUresult err, const char *file, const int line)
 {
     if (CUDA_SUCCESS != err) {
         const char *errorStr = NULL;
-        
+
         if (!cuGetErrorString) {
             CUresult result = INIT_ERROR_FUNCTIONS();
             if (result != CUDA_SUCCESS) {
