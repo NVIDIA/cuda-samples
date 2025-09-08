@@ -96,6 +96,9 @@ namespace npp
         // swap the user given image with our result image, effecively
         // moving our newly loaded image data into the user provided shell
         oImage.swap(rImage);
+
+        // unloads the image loaded by FreeImage_Load
+        FreeImage_Unload(pBitmap);
     }
 
     // Save an gray-scale image to disk.
@@ -122,6 +125,9 @@ namespace npp
         bool bSuccess;
         bSuccess = FreeImage_Save(FIF_PGM, pResultBitmap, rFileName.c_str(), 0) == TRUE;
         NPP_ASSERT_MSG(bSuccess, "Failed to save result image.");
+
+        // unloads the image loaded by FreeImage_Allocate
+        FreeImage_Unload(pBitmap);
     }
 
     // Load a gray-scale image from disk.
