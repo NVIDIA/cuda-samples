@@ -26,6 +26,8 @@ git clone https://github.com/NVIDIA/cuda-samples.git
 
 Without using git the easiest way to use these samples is to download the zip file containing the current version by clicking the "Download ZIP" button on the repo page. You can then unzip the entire archive and use the samples.
 
+Be sure to use the cuda-samples version corresponding to your installed CUDA version
+
 ## Building CUDA Samples
 
 ### Building CUDA Samples
