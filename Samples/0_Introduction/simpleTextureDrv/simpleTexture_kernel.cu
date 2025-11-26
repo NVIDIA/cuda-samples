@@ -33,23 +33,22 @@
 //! Transform an image using texture lookups
 //! @param g_odata  output data in global memory
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" __global__ void transformKernel(float *g_odata, int width,
-                                           int height, float theta,
-                                           CUtexObject tex) {
-  // calculate normalized texture coordinates
-  unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
-  unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
+extern "C" __global__ void transformKernel(float *g_odata, int width, int height, float theta, CUtexObject tex)
+{
+    // calculate normalized texture coordinates
+    unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-  float u = (float)x - (float)width / 2;
-  float v = (float)y - (float)height / 2;
-  float tu = u * cosf(theta) - v * sinf(theta);
-  float tv = v * cosf(theta) + u * sinf(theta);
+    float u  = (float)x - (float)width / 2;
+    float v  = (float)y - (float)height / 2;
+    float tu = u * cosf(theta) - v * sinf(theta);
+    float tv = v * cosf(theta) + u * sinf(theta);
 
-  tu /= (float)width;
-  tv /= (float)height;
+    tu /= (float)width;
+    tv /= (float)height;
 
-  // read from texture and write to global memory
-  g_odata[y * width + x] = tex2D<float>(tex, tu + 0.5f, tv + 0.5f);
+    // read from texture and write to global memory
+    g_odata[y * width + x] = tex2D<float>(tex, tu + 0.5f, tv + 0.5f);
 }
 
-#endif  // #ifndef _SIMPLETEXTURE_KERNEL_H_
+#endif // #ifndef _SIMPLETEXTURE_KERNEL_H_

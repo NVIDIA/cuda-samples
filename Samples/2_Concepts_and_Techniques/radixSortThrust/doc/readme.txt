@@ -31,7 +31,7 @@ The RadixSort class can also be used within your application by building the rad
 CITATION
 --------
 
-Satish, N., Harris, M., and Garland, M. "Designing Efficient Sorting 
+Satish, N., Harris, M., and Garland, M. "Designing Efficient Sorting
 Algorithms for Manycore GPUs". In Proceedings of IEEE International
 Parallel & Distributed Processing Symposium 2009 (IPDPS 2009).
 

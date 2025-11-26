@@ -1,4 +1,4 @@
-# Copyright (c) 1993-2023, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 1993-2025, NVIDIA CORPORATION. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -29,16 +29,15 @@ if (LLVM_PACKAGE_VERSION VERSION_GREATER_EQUAL "15" OR
     LLVM_PACKAGE_VERSION VERSION_LESS "7")
   message(STATUS "The cuda-c-linking sample is expected to build with "
                  "LLVM development libraries v7 to v14, opaque pointers are "
-                 "not yet supported in libNVVM.")
+                 "not supported in libNVVM for pre-Blackwell architectures.")
   return()
 endif ()
 
 add_executable(cuda-c-linking cuda-c-linking.cpp)
-add_custom_target(clobber)
-add_custom_target(testrun)
+
 add_test(NAME cuda-c-linking
    COMMAND cuda-c-linking
-   WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+   WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 target_link_libraries(cuda-c-linking ${NVVM_LIB} ${CUDA_LIB})
 
 # See https://llvm.org/docs/CMake.html#developing-llvm-passes-out-of-source
@@ -58,18 +57,19 @@ endif()
 ##############################
 
 ### The math library can be built to support a number of GPU platforms using the
-### common compute_50 architecture.
+### common compute_75 architecture.
 ### For a collection of specific architecutres, the compiler options
 ### "-gencode=compute_XX,code=sm_XX"... can be used multiple times in the same
 ### nvcc invocation.
 ### The result is bundled into a system library using the 'nvcc -lib' feature.
-### >> nvcc -m64 -arch=compute_50 -dc math-funcs.cu -o math-funcs64.o
+### >> nvcc -m64 -arch=compute_75 -dc math-funcs.cu -o math-funcs64.o
 ### >> nvcc -m64 -lib math-funcs64.o -o libmathfuncs64.a
 
 enable_language(CUDA)
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -dc") # -dc: Build for device only.
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.18.0)
-  set(CMAKE_CUDA_ARCHITECTURES 50)
+  set(CMAKE_CUDA_ARCHITECTURES 75)
+  set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Wno-deprecated-gpu-targets")
 endif ()
 if (WIN32)
   set(CMAKE_CUDA_USE_RESPONSE_FILE_FOR_INCLUDES 0)
@@ -81,3 +81,12 @@ set_target_properties(mathfuncs64 PROPERTIES PREFIX "lib"
                       OUTPUT_NAME "mathfuncs64"
                       SUFFIX ".a" CUDA_SEPERABLE_COMPILATION ON)
 install(TARGETS cuda-c-linking mathfuncs64 DESTINATION bin)
+
+if (WIN32)
+  add_custom_command(
+      TARGET cuda-c-linking
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+              "${CMAKE_BINARY_DIR}/nvvm64_40_0.dll" "$<TARGET_FILE_DIR:cuda-c-linking>"
+  )
+endif ()

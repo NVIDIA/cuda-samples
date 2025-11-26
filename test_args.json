@@ -1,0 +1,347 @@
+{
+    "simpleCUDA2GL": {
+        "skip": true
+    },
+    "simpleTexture3D": {
+        "args": [
+            "--file=ref_texture3D.bin"
+        ]
+    },
+    "ptxgen": {
+        "args": [
+            "test.ll",
+            "-arch=compute_75"
+        ]
+    },
+    "volumeRender": {
+        "args": [
+            "--file=ref_volume.ppm"
+        ]
+    },
+    "fluidsGL": {
+        "skip": true
+    },
+    "simpleD3D11Texture": {
+        "skip": true
+    },
+    "recursiveGaussian": {
+        "runs": [
+            {
+                "args": [
+                    "-sigma=10",
+                    "-file=data/ref_10.ppm"
+                ]
+            },
+            {
+                "args": [
+                    "-sigma=14",
+                    "-file=data/ref_14.ppm"
+                ]
+            },
+            {
+                "args": [
+                    "-sigma=18",
+                    "-file=data/ref_18.ppm"
+                ]
+            },
+            {
+                "args": [
+                    "-sigma=22",
+                    "-file=data/ref_22.ppm"
+                ]
+            }
+        ]
+    },
+    "simpleGL": {
+        "args": [
+            "-file=data/ref_simpleGL.bin"
+        ]
+    },
+    "bicubicTexture": {
+        "runs": [
+            {
+                "args": [
+                    "-mode=0",
+                    "-file=data/0_nearest.ppm"
+                ]
+            },
+            {
+                "args": [
+                    "-mode=1",
+                    "-file=data/1_bilinear.ppm"
+                ]
+            },
+            {
+                "args": [
+                    "-mode=2",
+                    "-file=data/2_bicubic.ppm"
+                ]
+            },
+            {
+                "args": [
+                    "-mode=3",
+                    "-file=data/3_fastcubic.ppm"
+                ]
+            },
+            {
+                "args": [
+                    "-mode=4",
+                    "-file=data/4_catmull-rom.ppm"
+                ]
+            }
+        ]
+    },
+    "simpleVulkan": {
+        "skip": true
+    },
+    "smokeParticles": {
+        "args": [
+            "-qatest"
+        ]
+    },
+    "Mandelbrot": {
+        "runs": [
+            {
+                "args": [
+                    "-mode=0",
+                    "-file=data/Mandelbrot_fp32.ppm"
+                ]
+            },
+            {
+                "args": [
+                    "-mode=1",
+                    "-file=data/referenceJulia_fp32.ppm"
+                ]
+            }
+        ]
+    },
+    "vulkanImageCUDA": {
+        "skip": true
+    },
+    "SobelFilter": {
+        "runs": [
+            {
+                "args": [
+                    "-mode=0",
+                    "-file=data/ref_orig.pgm"
+                ]
+            },
+            {
+                "args": [
+                    "-mode=1",
+                    "-file=data/ref_tex.pgm"
+                ]
+            },
+            {
+                "args": [
+                    "-mode=2",
+                    "-file=data/ref_shared.pgm"
+                ]
+            }
+        ]
+    },
+    "bilateralFilter": {
+        "runs": [
+            {
+                "args": [
+                    "-radius=5",
+                    "-file=data/ref_05.ppm"
+                ]
+            },
+            {
+                "args": [
+                    "-radius=6",
+                    "-file=data/ref_06.ppm"
+                ]
+            },
+            {
+                "args": [
+                    "-radius=7",
+                    "-file=data/ref_07.ppm"
+                ]
+            },
+            {
+                "args": [
+                    "-radius=8",
+                    "-file=data/ref_08.ppm"
+                ]
+            }
+        ]
+    },
+    "nbody": {
+        "args": [
+            "-benchmark",
+            "-compare",
+            "-cpu"
+        ]
+    },
+    "volumeFiltering": {
+        "args": [
+            "-file=data/ref_volumefilter.ppm"
+        ]
+    },
+    "simpleVulkanMMAP": {
+        "skip": true
+    },
+    "postProcessGL": {
+        "skip": true
+    },
+    "marchingCubes": {
+        "runs": [
+            {
+                "args": [
+                    "-dump=0",
+                    "-file=data/posArray.bin"
+                ]
+            },
+            {
+                "args": [
+                    "-dump=1",
+                    "-file=data/normalArray.bin"
+                ]
+            },
+            {
+                "args": [
+                    "-dump=2",
+                    "-file=data/compVoxelArray.bin"
+                ]
+            }
+        ]
+    },
+    "bindlessTexture": {
+        "args": [
+            "-file=data/ref_bindlessTexture.bin"
+        ]
+    },
+    "cuSolverSp_LinearSolver": {
+        "runs": [
+            {
+                "args": [
+                    "-R=qr"
+                ]
+            },
+            {
+                "args": [
+                    "-R=chol"
+                ]
+            },
+            {
+                "args": [
+                    "-R=qr",
+                    "-P=symamd"
+                ]
+            },
+            {
+                "args": [
+                    "-R=chol",
+                    "-P=symamd"
+                ]
+            },
+            {
+                "args": [
+                    "-R=lu",
+                    "-P=symamd"
+                ]
+            }
+        ]
+    },
+    "randomFog": {
+        "args": [
+            "-qatest"
+        ]
+    },
+    "oceanFFT": {
+        "args": [
+            "-qatest"
+        ]
+    },
+    "FunctionPointers": {
+        "runs": [
+            {
+                "args": [
+                    "-mode=0",
+                    "-file=data/ref_orig.pgm"
+                ]
+            },
+            {
+                "args": [
+                    "-mode=1",
+                    "-file=data/ref_tex.pgm"
+                ]
+            },
+            {
+                "args": [
+                    "-mode=2",
+                    "-file=data/ref_shared.pgm"
+                ]
+            }
+        ]
+    },
+    "particles": {
+        "args": [
+            "-file=data/ref_particles.bin"
+        ]
+    },
+    "imageDenoising": {
+        "runs": [
+            {
+                "args": [
+                    "-kernel=0",
+                    "-file=data/ref_passthru.ppm"
+                ]
+            },
+            {
+                "args": [
+                    "-kernel=1",
+                    "-file=data/ref_knn.ppm"
+                ]
+            },
+            {
+                "args": [
+                    "-kernel=2",
+                    "-file=data/ref_nlm.ppm"
+                ]
+            },
+            {
+                "args": [
+                    "-kernel=3",
+                    "-file=data/ref_nlm2.ppm"
+                ]
+            }
+        ]
+    },
+    "boxFilter": {
+        "runs": [
+            {
+                "args": [
+                    "-radius=14",
+                    "-file=data/ref_14.ppm"
+                ]
+            },
+            {
+                "args": [
+                    "-radius=22",
+                    "-file=data/ref_22.ppm"
+                ]
+            }
+        ]
+    },
+    "simpleP2P": {
+        "min_gpus": 2
+    },
+    "conjugateGradientMultiDeviceCG": {
+        "min_gpus": 2
+    },
+    "simpleCUFFT_2d_MGPU": {
+        "min_gpus": 2
+    },
+    "simpleCUFFT_MGPU": {
+        "min_gpus": 2
+    },
+    "streamOrderedAllocationP2P": {
+        "min_gpus": 2
+    },
+    "EGLStream_CUDA_CrossGPU": {
+        "min_gpus": 2
+    }
+}

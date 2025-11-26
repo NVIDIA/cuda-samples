@@ -168,7 +168,7 @@ int waitProcess(Process *process) {
 #endif
 }
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__QNX__)
 int ipcCreateSocket(ipcHandle *&handle, const char *name,
                     const std::vector<Process> &processes) {
   int server_fd;
@@ -185,25 +185,30 @@ int ipcCreateSocket(ipcHandle *&handle, const char *name,
     return -1;
   }
 
-  unlink(name);
-  bzero(&servaddr, sizeof(servaddr));
+  char path_name[50];
+
+  // Create unique name for the socket with path if SOCK_FOLDER is set.
+  sprintf(path_name, "%s%u", SOCK_FOLDER, getpid());
+
+  unlink(path_name);
+  memset(&servaddr, 0, sizeof(servaddr));
   servaddr.sun_family = AF_UNIX;
 
-  size_t len = strlen(name);
+  size_t len = strlen(path_name);
   if (len > (sizeof(servaddr.sun_path) - 1)) {
     perror("IPC failure: Cannot bind provided name to socket. Name too large");
     return -1;
   }
 
-  strncpy(servaddr.sun_path, name, len);
+  strncpy(servaddr.sun_path, path_name, len);
 
   if (bind(server_fd, (struct sockaddr *)&servaddr, SUN_LEN(&servaddr)) < 0) {
     perror("IPC failure: Binding socket failed");
     return -1;
   }
 
-  handle->socketName = new char[strlen(name) + 1];
-  strcpy(handle->socketName, name);
+  handle->socketName = new char[strlen(path_name) + 1];
+  strcpy(handle->socketName, path_name);
   handle->socket = server_fd;
   return 0;
 }
@@ -219,13 +224,13 @@ int ipcOpenSocket(ipcHandle *&handle) {
     perror("IPC failure:Socket creation error");
     return -1;
   }
-
-  bzero(&cliaddr, sizeof(cliaddr));
+  
+  memset(&cliaddr, 0, sizeof(cliaddr));
   cliaddr.sun_family = AF_UNIX;
-  char temp[10];
+  char temp[50];
 
-  // Create unique name for the socket.
-  sprintf(temp, "%u", getpid());
+  // Create unique name for the socket with path if SOCK_FOLDER is set.
+  sprintf(temp, "%s%u", SOCK_FOLDER, getpid());
 
   strcpy(cliaddr.sun_path, temp);
   if (bind(sock, (struct sockaddr *)&cliaddr, sizeof(cliaddr)) < 0) {
@@ -262,41 +267,48 @@ int ipcRecvShareableHandle(ipcHandle *handle, ShareableHandle *shHandle) {
   // Union to guarantee alignment requirements for control array
   union {
     struct cmsghdr cm;
-    char control[CMSG_SPACE(sizeof(int))];
+    // This will not work on QNX as QNX CMSG_SPACE calls __cmsg_alignbytes
+    // And __cmsg_alignbytes is a runtime function instead of compile-time macros
+    // char control[CMSG_SPACE(sizeof(int))]
+    char* control;
   } control_un;
 
+  size_t sizeof_control = CMSG_SPACE(sizeof(int)) * sizeof(char);
+  control_un.control = (char*) malloc(sizeof_control);
   struct cmsghdr *cmptr;
   ssize_t n;
   int receivedfd;
   char dummy_buffer[1];
   ssize_t sendResult;
-
   msg.msg_control = control_un.control;
-  msg.msg_controllen = sizeof(control_un.control);
+  msg.msg_controllen = sizeof_control;
 
   iov[0].iov_base = (void *)dummy_buffer;
   iov[0].iov_len = sizeof(dummy_buffer);
 
   msg.msg_iov = iov;
   msg.msg_iovlen = 1;
-
   if ((n = recvmsg(handle->socket, &msg, 0)) <= 0) {
     perror("IPC failure: Receiving data over socket failed");
+    free(control_un.control);
     return -1;
   }
 
   if (((cmptr = CMSG_FIRSTHDR(&msg)) != NULL) &&
       (cmptr->cmsg_len == CMSG_LEN(sizeof(int)))) {
     if ((cmptr->cmsg_level != SOL_SOCKET) || (cmptr->cmsg_type != SCM_RIGHTS)) {
+      free(control_un.control);
       return -1;
     }
 
     memmove(&receivedfd, CMSG_DATA(cmptr), sizeof(receivedfd));
     *(int *)shHandle = receivedfd;
   } else {
+    free(control_un.control);
     return -1;
   }
 
+  free(control_un.control);
   return 0;
 }
 
@@ -319,7 +331,7 @@ int ipcSendDataToServer(ipcHandle *handle, const char *serverName,
   ssize_t sendResult;
   struct sockaddr_un serveraddr;
 
-  bzero(&serveraddr, sizeof(serveraddr));
+  memset(&serveraddr, 0, sizeof(serveraddr));
   serveraddr.sun_family = AF_UNIX;
   strncpy(serveraddr.sun_path, serverName, sizeof(serveraddr.sun_path) - 1);
 
@@ -340,8 +352,11 @@ int ipcSendShareableHandle(ipcHandle *handle,
 
   union {
     struct cmsghdr cm;
-    char control[CMSG_SPACE(sizeof(int))];
+    char* control;
   } control_un;
+
+  size_t sizeof_control = CMSG_SPACE(sizeof(int)) * sizeof(char);
+  control_un.control = (char*) malloc(sizeof_control);
 
   struct cmsghdr *cmptr;
   ssize_t readResult;
@@ -349,10 +364,10 @@ int ipcSendShareableHandle(ipcHandle *handle,
   socklen_t len = sizeof(cliaddr);
 
   // Construct client address to send this SHareable handle to
-  bzero(&cliaddr, sizeof(cliaddr));
+  memset(&cliaddr, 0, sizeof(cliaddr));
   cliaddr.sun_family = AF_UNIX;
-  char temp[10];
-  sprintf(temp, "%u", process);
+  char temp[20];
+  sprintf(temp, "%s%u", SOCK_FOLDER, process);
   strcpy(cliaddr.sun_path, temp);
   len = sizeof(cliaddr);
 
@@ -360,7 +375,7 @@ int ipcSendShareableHandle(ipcHandle *handle,
   int sendfd = (int)shareableHandles[data];
 
   msg.msg_control = control_un.control;
-  msg.msg_controllen = sizeof(control_un.control);
+  msg.msg_controllen = sizeof_control;
 
   cmptr = CMSG_FIRSTHDR(&msg);
   cmptr->cmsg_len = CMSG_LEN(sizeof(int));
@@ -380,9 +395,11 @@ int ipcSendShareableHandle(ipcHandle *handle,
   ssize_t sendResult = sendmsg(handle->socket, &msg, 0);
   if (sendResult <= 0) {
     perror("IPC failure: Sending data over socket failed");
+    free(control_un.control);
     return -1;
   }
 
+  free(control_un.control);
   return 0;
 }
 

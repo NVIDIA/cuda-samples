@@ -54,6 +54,13 @@
 #endif
 #include <vector>
 
+// Define "/tmp" as socket creating folder for QNX
+#if defined(__QNX__)
+#define SOCK_FOLDER "/tmp/" 
+#else
+#define SOCK_FOLDER ""
+#endif
+
 typedef struct sharedMemoryInfo_st {
     void *addr;
     size_t size;
@@ -84,7 +91,7 @@ int waitProcess(Process *process);
 #define checkIpcErrors(ipcFuncResult) \
     if (ipcFuncResult == -1) { fprintf(stderr, "Failure at %u %s\n", __LINE__, __FILE__); exit(EXIT_FAILURE); }
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__QNX__)
 struct ipcHandle_st {
     int socket;
     char *socketName;

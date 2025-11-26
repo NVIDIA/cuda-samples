@@ -50,16 +50,13 @@ extern "C" const uint MAX_LARGE_ARRAY_SIZE;
 extern "C" void initScan(void);
 extern "C" void closeScan(void);
 
-extern "C" size_t scanExclusiveShort(uint *d_Dst, uint *d_Src, uint batchSize,
-                                     uint arrayLength);
+extern "C" size_t scanExclusiveShort(uint *d_Dst, uint *d_Src, uint batchSize, uint arrayLength);
 
-extern "C" size_t scanExclusiveLarge(uint *d_Dst, uint *d_Src, uint batchSize,
-                                     uint arrayLength);
+extern "C" size_t scanExclusiveLarge(uint *d_Dst, uint *d_Src, uint batchSize, uint arrayLength);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Reference CPU scan
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" void scanExclusiveHost(uint *dst, uint *src, uint batchSize,
-                                  uint arrayLength);
+extern "C" void scanExclusiveHost(uint *dst, uint *src, uint batchSize, uint arrayLength);
 
 #endif

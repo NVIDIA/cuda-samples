@@ -25,17 +25,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <helper_math.h>
+#include <helper_cuda.h> // CUDA device initialization helper functions
 #include <helper_functions.h>
-#include <helper_cuda.h>  // CUDA device initialization helper functions
+#include <helper_math.h>
 
-__constant__ float cGaussian[64];  // gaussian array in device side
+__constant__ float cGaussian[64]; // gaussian array in device side
 
 cudaTextureObject_t rgbaTexdImage;
 cudaTextureObject_t rgbaTexdTemp;
 
-uint *dImage = NULL;  // original image
-uint *dTemp = NULL;  // temp array for iterations
+uint  *dImage = NULL; // original image
+uint  *dTemp  = NULL; // temp array for iterations
 size_t pitch;
 
 /*
@@ -69,118 +69,117 @@ size_t pitch;
 */
 
 // Euclidean Distance (x, y, d) = exp((|x - y| / d)^2 / 2)
-__device__ float euclideanLen(float4 a, float4 b, float d) {
-  float mod = (b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y) +
-              (b.z - a.z) * (b.z - a.z);
+__device__ float euclideanLen(float4 a, float4 b, float d)
+{
+    float mod = (b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y) + (b.z - a.z) * (b.z - a.z);
 
-  return __expf(-mod / (2.f * d * d));
+    return __expf(-mod / (2.f * d * d));
 }
 
-__device__ uint rgbaFloatToInt(float4 rgba) {
-  rgba.x = __saturatef(fabs(rgba.x));  // clamp to [0.0, 1.0]
-  rgba.y = __saturatef(fabs(rgba.y));
-  rgba.z = __saturatef(fabs(rgba.z));
-  rgba.w = __saturatef(fabs(rgba.w));
-  return (uint(rgba.w * 255.0f) << 24) | (uint(rgba.z * 255.0f) << 16) |
-         (uint(rgba.y * 255.0f) << 8) | uint(rgba.x * 255.0f);
+__device__ uint rgbaFloatToInt(float4 rgba)
+{
+    rgba.x = __saturatef(fabs(rgba.x)); // clamp to [0.0, 1.0]
+    rgba.y = __saturatef(fabs(rgba.y));
+    rgba.z = __saturatef(fabs(rgba.z));
+    rgba.w = __saturatef(fabs(rgba.w));
+    return (uint(rgba.w * 255.0f) << 24) | (uint(rgba.z * 255.0f) << 16) | (uint(rgba.y * 255.0f) << 8)
+         | uint(rgba.x * 255.0f);
 }
 
-__device__ float4 rgbaIntToFloat(uint c) {
-  float4 rgba;
-  rgba.x = (c & 0xff) * 0.003921568627f;          //  /255.0f;
-  rgba.y = ((c >> 8) & 0xff) * 0.003921568627f;   //  /255.0f;
-  rgba.z = ((c >> 16) & 0xff) * 0.003921568627f;  //  /255.0f;
-  rgba.w = ((c >> 24) & 0xff) * 0.003921568627f;  //  /255.0f;
-  return rgba;
+__device__ float4 rgbaIntToFloat(uint c)
+{
+    float4 rgba;
+    rgba.x = (c & 0xff) * 0.003921568627f;         //  /255.0f;
+    rgba.y = ((c >> 8) & 0xff) * 0.003921568627f;  //  /255.0f;
+    rgba.z = ((c >> 16) & 0xff) * 0.003921568627f; //  /255.0f;
+    rgba.w = ((c >> 24) & 0xff) * 0.003921568627f; //  /255.0f;
+    return rgba;
 }
 
 // column pass using coalesced global memory reads
-__global__ void d_bilateral_filter(uint *od, int w, int h, float e_d, int r,
-                                   cudaTextureObject_t rgbaTex) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
+__global__ void d_bilateral_filter(uint *od, int w, int h, float e_d, int r, cudaTextureObject_t rgbaTex)
+{
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-  if (x >= w || y >= h) {
-    return;
-  }
-
-  float sum = 0.0f;
-  float factor;
-  float4 t = {0.f, 0.f, 0.f, 0.f};
-  float4 center = tex2D<float4>(rgbaTex, x, y);
-
-  for (int i = -r; i <= r; i++) {
-    for (int j = -r; j <= r; j++) {
-      float4 curPix = tex2D<float4>(rgbaTex, x + j, y + i);
-      factor = cGaussian[i + r] * cGaussian[j + r] *  // domain factor
-               euclideanLen(curPix, center, e_d);  // range factor
-
-      t += factor * curPix;
-      sum += factor;
+    if (x >= w || y >= h) {
+        return;
     }
-  }
 
-  od[y * w + x] = rgbaFloatToInt(t / sum);
+    float  sum = 0.0f;
+    float  factor;
+    float4 t      = {0.f, 0.f, 0.f, 0.f};
+    float4 center = tex2D<float4>(rgbaTex, x, y);
+
+    for (int i = -r; i <= r; i++) {
+        for (int j = -r; j <= r; j++) {
+            float4 curPix = tex2D<float4>(rgbaTex, x + j, y + i);
+            factor        = cGaussian[i + r] * cGaussian[j + r] * // domain factor
+                     euclideanLen(curPix, center, e_d);           // range factor
+
+            t += factor * curPix;
+            sum += factor;
+        }
+    }
+
+    od[y * w + x] = rgbaFloatToInt(t / sum);
 }
 
-extern "C" void initTexture(int width, int height, uint *hImage) {
-  // copy image data to array
-  checkCudaErrors(
-      cudaMallocPitch(&dImage, &pitch, sizeof(uint) * width, height));
-  checkCudaErrors(
-      cudaMallocPitch(&dTemp, &pitch, sizeof(uint) * width, height));
-  checkCudaErrors(cudaMemcpy2D(dImage, pitch, hImage, sizeof(uint) * width,
-                               sizeof(uint) * width, height,
-                               cudaMemcpyHostToDevice));
+extern "C" void initTexture(int width, int height, uint *hImage)
+{
+    // copy image data to array
+    checkCudaErrors(cudaMallocPitch(&dImage, &pitch, sizeof(uint) * width, height));
+    checkCudaErrors(cudaMallocPitch(&dTemp, &pitch, sizeof(uint) * width, height));
+    checkCudaErrors(cudaMemcpy2D(
+        dImage, pitch, hImage, sizeof(uint) * width, sizeof(uint) * width, height, cudaMemcpyHostToDevice));
 
-  // texture<uchar4, 2, cudaReadModeNormalizedFloat> rgbaTex;
-  cudaChannelFormatDesc desc = cudaCreateChannelDesc<uchar4>();
-  cudaResourceDesc texRes;
-  memset(&texRes, 0, sizeof(cudaResourceDesc));
+    // texture<uchar4, 2, cudaReadModeNormalizedFloat> rgbaTex;
+    cudaChannelFormatDesc desc = cudaCreateChannelDesc<uchar4>();
+    cudaResourceDesc      texRes;
+    memset(&texRes, 0, sizeof(cudaResourceDesc));
 
-  texRes.resType = cudaResourceTypePitch2D;
-  texRes.res.pitch2D.devPtr = dImage;
-  texRes.res.pitch2D.desc = desc;
-  texRes.res.pitch2D.width = width;
-  texRes.res.pitch2D.height = height;
-  texRes.res.pitch2D.pitchInBytes = pitch;
-  cudaTextureDesc texDescr;
-  memset(&texDescr, 0, sizeof(cudaTextureDesc));
+    texRes.resType                  = cudaResourceTypePitch2D;
+    texRes.res.pitch2D.devPtr       = dImage;
+    texRes.res.pitch2D.desc         = desc;
+    texRes.res.pitch2D.width        = width;
+    texRes.res.pitch2D.height       = height;
+    texRes.res.pitch2D.pitchInBytes = pitch;
+    cudaTextureDesc texDescr;
+    memset(&texDescr, 0, sizeof(cudaTextureDesc));
 
-  texDescr.normalizedCoords = false;
-  texDescr.filterMode = cudaFilterModePoint;
-  texDescr.addressMode[0] = cudaAddressModeWrap;
-  texDescr.addressMode[1] = cudaAddressModeWrap;
-  texDescr.readMode = cudaReadModeNormalizedFloat;
+    texDescr.normalizedCoords = false;
+    texDescr.filterMode       = cudaFilterModePoint;
+    texDescr.addressMode[0]   = cudaAddressModeWrap;
+    texDescr.addressMode[1]   = cudaAddressModeWrap;
+    texDescr.readMode         = cudaReadModeNormalizedFloat;
 
-  checkCudaErrors(
-      cudaCreateTextureObject(&rgbaTexdImage, &texRes, &texDescr, NULL));
+    checkCudaErrors(cudaCreateTextureObject(&rgbaTexdImage, &texRes, &texDescr, NULL));
 
-  memset(&texRes, 0, sizeof(cudaResourceDesc));
+    memset(&texRes, 0, sizeof(cudaResourceDesc));
 
-  texRes.resType = cudaResourceTypePitch2D;
-  texRes.res.pitch2D.devPtr = dTemp;
-  texRes.res.pitch2D.desc = desc;
-  texRes.res.pitch2D.width = width;
-  texRes.res.pitch2D.height = height;
-  texRes.res.pitch2D.pitchInBytes = pitch;
-  memset(&texDescr, 0, sizeof(cudaTextureDesc));
+    texRes.resType                  = cudaResourceTypePitch2D;
+    texRes.res.pitch2D.devPtr       = dTemp;
+    texRes.res.pitch2D.desc         = desc;
+    texRes.res.pitch2D.width        = width;
+    texRes.res.pitch2D.height       = height;
+    texRes.res.pitch2D.pitchInBytes = pitch;
+    memset(&texDescr, 0, sizeof(cudaTextureDesc));
 
-  texDescr.normalizedCoords = false;
-  texDescr.filterMode = cudaFilterModeLinear;
-  texDescr.addressMode[0] = cudaAddressModeWrap;
-  texDescr.addressMode[1] = cudaAddressModeWrap;
-  texDescr.readMode = cudaReadModeNormalizedFloat;
+    texDescr.normalizedCoords = false;
+    texDescr.filterMode       = cudaFilterModeLinear;
+    texDescr.addressMode[0]   = cudaAddressModeWrap;
+    texDescr.addressMode[1]   = cudaAddressModeWrap;
+    texDescr.readMode         = cudaReadModeNormalizedFloat;
 
-  checkCudaErrors(
-      cudaCreateTextureObject(&rgbaTexdTemp, &texRes, &texDescr, NULL));
+    checkCudaErrors(cudaCreateTextureObject(&rgbaTexdTemp, &texRes, &texDescr, NULL));
 }
 
-extern "C" void freeTextures() {
-  checkCudaErrors(cudaDestroyTextureObject(rgbaTexdImage));
-  checkCudaErrors(cudaDestroyTextureObject(rgbaTexdTemp));
-  checkCudaErrors(cudaFree(dImage));
-  checkCudaErrors(cudaFree(dTemp));
+extern "C" void freeTextures()
+{
+    checkCudaErrors(cudaDestroyTextureObject(rgbaTexdImage));
+    checkCudaErrors(cudaDestroyTextureObject(rgbaTexdTemp));
+    checkCudaErrors(cudaFree(dImage));
+    checkCudaErrors(cudaFree(dTemp));
 }
 
 /*
@@ -197,16 +196,16 @@ extern "C" void freeTextures() {
     radius - half of the filter size
              (total filter size = 2 * radius + 1)
 */
-extern "C" void updateGaussian(float delta, int radius) {
-  float fGaussian[64];
+extern "C" void updateGaussian(float delta, int radius)
+{
+    float fGaussian[64];
 
-  for (int i = 0; i < 2 * radius + 1; ++i) {
-    float x = (float)(i - radius);
-    fGaussian[i] = expf(-(x * x) / (2 * delta * delta));
-  }
+    for (int i = 0; i < 2 * radius + 1; ++i) {
+        float x      = (float)(i - radius);
+        fGaussian[i] = expf(-(x * x) / (2 * delta * delta));
+    }
 
-  checkCudaErrors(cudaMemcpyToSymbol(cGaussian, fGaussian,
-                                     sizeof(float) * (2 * radius + 1)));
+    checkCudaErrors(cudaMemcpyToSymbol(cGaussian, fGaussian, sizeof(float) * (2 * radius + 1)));
 }
 
 /*
@@ -222,40 +221,43 @@ extern "C" void updateGaussian(float delta, int radius) {
 */
 
 // RGBA version
-extern "C" double bilateralFilterRGBA(uint *dDest, int width, int height,
-                                      float e_d, int radius, int iterations,
-                                      StopWatchInterface *timer) {
-  // var for kernel computation timing
-  double dKernelTime;
+extern "C" double bilateralFilterRGBA(uint               *dDest,
+                                      int                 width,
+                                      int                 height,
+                                      float               e_d,
+                                      int                 radius,
+                                      int                 iterations,
+                                      StopWatchInterface *timer)
+{
+    // var for kernel computation timing
+    double dKernelTime;
 
-  for (int i = 0; i < iterations; i++) {
-    // sync host and start kernel computation timer
-    dKernelTime = 0.0;
-    checkCudaErrors(cudaDeviceSynchronize());
-    sdkResetTimer(&timer);
+    for (int i = 0; i < iterations; i++) {
+        // sync host and start kernel computation timer
+        dKernelTime = 0.0;
+        checkCudaErrors(cudaDeviceSynchronize());
+        sdkResetTimer(&timer);
 
-    dim3 gridSize((width + 16 - 1) / 16, (height + 16 - 1) / 16);
-    dim3 blockSize(16, 16);
+        dim3 gridSize((width + 16 - 1) / 16, (height + 16 - 1) / 16);
+        dim3 blockSize(16, 16);
 
-    if (iterations > 1) {
-      d_bilateral_filter<<<gridSize, blockSize>>>(dDest, width, height, e_d,
-                                                  radius, rgbaTexdTemp);
-    } else {
-      d_bilateral_filter<<<gridSize, blockSize>>>(dDest, width, height, e_d,
-                                                  radius, rgbaTexdImage);
+        if (iterations > 1) {
+            d_bilateral_filter<<<gridSize, blockSize>>>(dDest, width, height, e_d, radius, rgbaTexdTemp);
+        }
+        else {
+            d_bilateral_filter<<<gridSize, blockSize>>>(dDest, width, height, e_d, radius, rgbaTexdImage);
+        }
+
+        // sync host and stop computation timer
+        checkCudaErrors(cudaDeviceSynchronize());
+        dKernelTime += sdkGetTimerValue(&timer);
+
+        if (iterations > 1) {
+            // copy result back from global memory to array
+            checkCudaErrors(cudaMemcpy2D(
+                dTemp, pitch, dDest, sizeof(int) * width, sizeof(int) * width, height, cudaMemcpyDeviceToDevice));
+        }
     }
 
-    // sync host and stop computation timer
-    checkCudaErrors(cudaDeviceSynchronize());
-    dKernelTime += sdkGetTimerValue(&timer);
-
-    if (iterations > 1) {
-      // copy result back from global memory to array
-      checkCudaErrors(cudaMemcpy2D(dTemp, pitch, dDest, sizeof(int) * width,
-                                   sizeof(int) * width, height,
-                                   cudaMemcpyDeviceToDevice));
-    }
-  }
-
-  return ((dKernelTime / 1000.) / (double)iterations);
+    return ((dKernelTime / 1000.) / (double)iterations);
 }

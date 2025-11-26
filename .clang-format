@@ -1,0 +1,49 @@
+---
+AccessModifierOffset: -4
+AlignAfterOpenBracket: Align
+AlignConsecutiveAssignments: Consecutive
+AlignConsecutiveDeclarations: Consecutive
+AlignConsecutiveMacros: Consecutive
+AlignEscapedNewlines: Left
+AlignOperands: AlignAfterOperator
+AlignTrailingComments: true
+AllowAllParametersOfDeclarationOnNextLine: false
+BinPackArguments: false
+BinPackParameters: false
+BraceWrapping:
+    AfterClass: true
+    AfterControlStatement: false
+    AfterExternBlock: true
+    AfterFunction: true
+    AfterStruct: true
+    AfterUnion: true
+    BeforeCatch: true
+    BeforeElse: true
+    IndentBraces: false
+BreakBeforeBraces: Custom
+BreakBeforeConceptDeclarations: true
+BreakBeforeBinaryOperators: NonAssignment
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializers: BeforeComma
+BreakInheritanceList: BeforeComma
+ColumnLimit: 120
+DerivePointerAlignment: false
+FixNamespaceComments: true
+IncludeCategories:
+  - Regex:           '^<.*>'
+    Priority:        1
+  - Regex:           '^".*"'
+    Priority:        2
+SortIncludes: true
+IncludeBlocks: Regroup
+IndentWidth: 4
+MaxEmptyLinesToKeep: 2
+PointerAlignment: Right
+SortUsingDeclarations: true
+SpaceAfterCStyleCast: false
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeParens: ControlStatements
+Standard: c++17
+TabWidth: 4
+UseTab: Never
+...

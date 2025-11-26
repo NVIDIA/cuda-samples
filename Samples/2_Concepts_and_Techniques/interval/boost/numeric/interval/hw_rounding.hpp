@@ -11,33 +11,33 @@
 #ifndef BOOST_NUMERIC_INTERVAL_HW_ROUNDING_HPP
 #define BOOST_NUMERIC_INTERVAL_HW_ROUNDING_HPP
 
-#include <boost/numeric/interval/rounding.hpp>
 #include <boost/numeric/interval/rounded_arith.hpp>
+#include <boost/numeric/interval/rounding.hpp>
 
 #define BOOST_NUMERIC_INTERVAL_NO_HARDWARE
 
 // define appropriate specialization of rounding_control for built-in types
 #if defined(__x86_64__) && defined(__USE_ISOC99)
-#  include <boost/numeric/interval/detail/c99_rounding_control.hpp>
+#include <boost/numeric/interval/detail/c99_rounding_control.hpp>
 #elif defined(__i386__) || defined(_M_IX86) || defined(__BORLANDC__) || defined(_M_X64)
-#  include <boost/numeric/interval/detail/x86_rounding_control.hpp>
+#include <boost/numeric/interval/detail/x86_rounding_control.hpp>
 #elif defined(powerpc) || defined(__powerpc__) || defined(__ppc__)
-#  include <boost/numeric/interval/detail/ppc_rounding_control.hpp>
+#include <boost/numeric/interval/detail/ppc_rounding_control.hpp>
 #elif defined(sparc) || defined(__sparc__)
-#  include <boost/numeric/interval/detail/sparc_rounding_control.hpp>
+#include <boost/numeric/interval/detail/sparc_rounding_control.hpp>
 #elif defined(alpha) || defined(__alpha__)
-#  include <boost/numeric/interval/detail/alpha_rounding_control.hpp>
+#include <boost/numeric/interval/detail/alpha_rounding_control.hpp>
 #elif defined(ia64) || defined(__ia64) || defined(__ia64__)
-#  include <boost/numeric/interval/detail/ia64_rounding_control.hpp>
+#include <boost/numeric/interval/detail/ia64_rounding_control.hpp>
 #endif
 
 #if defined(BOOST_NUMERIC_INTERVAL_NO_HARDWARE) && (defined(__USE_ISOC99) || defined(__MSL__))
-#  include <boost/numeric/interval/detail/c99_rounding_control.hpp>
+#include <boost/numeric/interval/detail/c99_rounding_control.hpp>
 #endif
 
 #if defined(BOOST_NUMERIC_INTERVAL_NO_HARDWARE)
-#  undef BOOST_NUMERIC_INTERVAL_NO_HARDWARE
-#  error Boost.Numeric.Interval: Please specify rounding control mechanism.
+#undef BOOST_NUMERIC_INTERVAL_NO_HARDWARE
+#error Boost.Numeric.Interval: Please specify rounding control mechanism.
 #endif
 
 namespace boost {
@@ -48,20 +48,17 @@ namespace interval_lib {
  * Three specializations of rounded_math<T>
  */
 
-template<>
-struct rounded_math<float>
-  : save_state<rounded_arith_opp<float> >
-{};
+template <> struct rounded_math<float> : save_state<rounded_arith_opp<float>>
+{
+};
 
-template<>
-struct rounded_math<double>
-  : save_state<rounded_arith_opp<double> >
-{};
+template <> struct rounded_math<double> : save_state<rounded_arith_opp<double>>
+{
+};
 
-template<>
-struct rounded_math<long double>
-  : save_state<rounded_arith_opp<long double> >
-{};
+template <> struct rounded_math<long double> : save_state<rounded_arith_opp<long double>>
+{
+};
 
 } // namespace interval_lib
 } // namespace numeric

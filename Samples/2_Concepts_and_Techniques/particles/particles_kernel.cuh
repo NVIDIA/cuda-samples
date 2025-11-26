@@ -32,27 +32,28 @@
 typedef unsigned int uint;
 
 // simulation parameters
-struct SimParams {
-  float3 colliderPos;
-  float colliderRadius;
+struct SimParams
+{
+    float3 colliderPos;
+    float  colliderRadius;
 
-  float3 gravity;
-  float globalDamping;
-  float particleRadius;
+    float3 gravity;
+    float  globalDamping;
+    float  particleRadius;
 
-  uint3 gridSize;
-  uint numCells;
-  float3 worldOrigin;
-  float3 cellSize;
+    uint3  gridSize;
+    uint   numCells;
+    float3 worldOrigin;
+    float3 cellSize;
 
-  uint numBodies;
-  uint maxParticlesPerCell;
+    uint numBodies;
+    uint maxParticlesPerCell;
 
-  float spring;
-  float damping;
-  float shear;
-  float attraction;
-  float boundaryDamping;
+    float spring;
+    float damping;
+    float shear;
+    float attraction;
+    float boundaryDamping;
 };
 
 #endif

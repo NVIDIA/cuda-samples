@@ -1,3 +1,0 @@
-Step 0 done
-Process 0: verifying...
-Process 0 complete!

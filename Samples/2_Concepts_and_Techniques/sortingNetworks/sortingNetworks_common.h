@@ -34,20 +34,22 @@ typedef unsigned int uint;
 // Sort result validation routines
 ////////////////////////////////////////////////////////////////////////////////
 // Sorted keys array validation (check for integrity and proper order)
-extern "C" uint validateSortedKeys(uint *resKey, uint *srcKey, uint batchSize,
-                                   uint arrayLength, uint numValues, uint dir);
+extern "C" uint
+validateSortedKeys(uint *resKey, uint *srcKey, uint batchSize, uint arrayLength, uint numValues, uint dir);
 
-extern "C" int validateValues(uint *resKey, uint *resVal, uint *srcKey,
-                              uint batchSize, uint arrayLength);
+extern "C" int validateValues(uint *resKey, uint *resVal, uint *srcKey, uint batchSize, uint arrayLength);
 
 ////////////////////////////////////////////////////////////////////////////////
 // CUDA sorting networks
 ////////////////////////////////////////////////////////////////////////////////
 
-extern "C" uint bitonicSort(uint *d_DstKey, uint *d_DstVal, uint *d_SrcKey,
-                            uint *d_SrcVal, uint batchSize, uint arrayLength,
-                            uint dir);
+extern "C" uint
+bitonicSort(uint *d_DstKey, uint *d_DstVal, uint *d_SrcKey, uint *d_SrcVal, uint batchSize, uint arrayLength, uint dir);
 
-extern "C" void oddEvenMergeSort(uint *d_DstKey, uint *d_DstVal, uint *d_SrcKey,
-                                 uint *d_SrcVal, uint batchSize,
-                                 uint arrayLength, uint dir);
+extern "C" void oddEvenMergeSort(uint *d_DstKey,
+                                 uint *d_DstVal,
+                                 uint *d_SrcKey,
+                                 uint *d_SrcVal,
+                                 uint  batchSize,
+                                 uint  arrayLength,
+                                 uint  dir);

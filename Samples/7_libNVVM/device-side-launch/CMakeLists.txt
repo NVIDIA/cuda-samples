@@ -30,10 +30,9 @@ set_property(SOURCE dsl.c
              PROPERTY COMPILE_DEFINITIONS LIBCUDADEVRT="${CUDADEVRT_LIB}")
 
 add_executable(dsl dsl.c)
-add_custom_target(clobber)
-add_custom_target(testrun)
+
 add_test(NAME device-side-launch COMMAND dsl
-         WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+	WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 target_link_libraries(dsl ${NVVM_LIB} ${CUDA_LIB})
 
 if (WIN32)
@@ -47,4 +46,17 @@ install(FILES dsl-gpu64.ll DESTINATION bin)
 
 # 'dsl' will load dsl-gpu64.ll from the current working directory. That
 # .ll file should be present where tests are executed (the build directory).
-file(COPY dsl-gpu64.ll DESTINATION "${CMAKE_BINARY_DIR}")
+add_custom_command(
+    TARGET dsl
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_CURRENT_SOURCE_DIR}/dsl-gpu64.ll" "$<TARGET_FILE_DIR:dsl>"
+)
+if (WIN32)
+  add_custom_command(
+      TARGET dsl
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+              "${CMAKE_BINARY_DIR}/nvvm64_40_0.dll" "$<TARGET_FILE_DIR:dsl>"
+  )
+endif ()

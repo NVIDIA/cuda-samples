@@ -34,15 +34,16 @@
 #endif
 
 // Includes, system
-#include <stdio.h>
 #include <cassert>
+#include <stdio.h>
 
 // Includes CUDA
 #include <cuda_runtime.h>
+
 #include "nvrtc_helper.h"
 
 // Utilities and timing functions
-#include <helper_functions.h>  // includes cuda.h and cuda_runtime_api.h
+#include <helper_functions.h> // includes cuda.h and cuda_runtime_api.h
 
 const char *sampleName = "simpleAssert_nvrtc";
 
@@ -58,56 +59,63 @@ void runTest(int argc, char **argv);
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
 
-int main(int argc, char **argv) {
-  printf("%s starting...\n", sampleName);
+int main(int argc, char **argv)
+{
+    printf("%s starting...\n", sampleName);
 
-  runTest(argc, argv);
+    runTest(argc, argv);
 
-  exit(testResult ? EXIT_SUCCESS : EXIT_FAILURE);
+    exit(testResult ? EXIT_SUCCESS : EXIT_FAILURE);
 }
 
-void runTest(int argc, char **argv) {
-  int Nblocks = 2;
-  int Nthreads = 32;
+void runTest(int argc, char **argv)
+{
+    int Nblocks  = 2;
+    int Nthreads = 32;
 
-  // Kernel configuration, where a one-dimensional
-  // grid and one-dimensional blocks are configured.
+    // Kernel configuration, where a one-dimensional
+    // grid and one-dimensional blocks are configured.
 
-  dim3 dimGrid(Nblocks);
-  dim3 dimBlock(Nthreads);
+    dim3 dimGrid(Nblocks);
+    dim3 dimBlock(Nthreads);
 
-  printf("Launch kernel to generate assertion failures\n");
-  char *cubin, *kernel_file;
-  size_t cubinSize;
+    printf("Launch kernel to generate assertion failures\n");
+    char  *cubin, *kernel_file;
+    size_t cubinSize;
 
-  kernel_file = sdkFindFilePath("simpleAssert_kernel.cu", argv[0]);
-  compileFileToCUBIN(kernel_file, argc, argv, &cubin, &cubinSize, 0);
+    kernel_file = sdkFindFilePath("simpleAssert_kernel.cu", argv[0]);
+    compileFileToCUBIN(kernel_file, argc, argv, &cubin, &cubinSize, 0);
 
-  CUmodule module = loadCUBIN(cubin, argc, argv);
-  CUfunction kernel_addr;
+    CUmodule   module = loadCUBIN(cubin, argc, argv);
+    CUfunction kernel_addr;
 
-  checkCudaErrors(cuModuleGetFunction(&kernel_addr, module, "testKernel"));
+    checkCudaErrors(cuModuleGetFunction(&kernel_addr, module, "testKernel"));
 
-  int count = 60;
-  void *args[] = {(void *)&count};
+    int   count  = 60;
+    void *args[] = {(void *)&count};
 
-  checkCudaErrors(cuLaunchKernel(
-      kernel_addr, dimGrid.x, dimGrid.y, dimGrid.z, /* grid dim */
-      dimBlock.x, dimBlock.y, dimBlock.z,           /* block dim */
-      0, 0,                                         /* shared mem, stream */
-      &args[0],                                     /* arguments */
-      0));
+    checkCudaErrors(cuLaunchKernel(kernel_addr,
+                                   dimGrid.x,
+                                   dimGrid.y,
+                                   dimGrid.z, /* grid dim */
+                                   dimBlock.x,
+                                   dimBlock.y,
+                                   dimBlock.z, /* block dim */
+                                   0,
+                                   0,        /* shared mem, stream */
+                                   &args[0], /* arguments */
+                                   0));
 
-  // Synchronize (flushes assert output).
-  printf("\n-- Begin assert output\n\n");
-  CUresult res = cuCtxSynchronize();
+    // Synchronize (flushes assert output).
+    printf("\n-- Begin assert output\n\n");
+    CUresult res = cuCtxSynchronize();
 
-  printf("\n-- End assert output\n\n");
+    printf("\n-- End assert output\n\n");
 
-  // Check for errors and failed asserts in asynchronous kernel launch.
-  if (res == CUDA_ERROR_ASSERT) {
-    printf("Device assert failed as expected\n");
-  }
+    // Check for errors and failed asserts in asynchronous kernel launch.
+    if (res == CUDA_ERROR_ASSERT) {
+        printf("Device assert failed as expected\n");
+    }
 
-  testResult = res == CUDA_ERROR_ASSERT;
+    testResult = res == CUDA_ERROR_ASSERT;
 }

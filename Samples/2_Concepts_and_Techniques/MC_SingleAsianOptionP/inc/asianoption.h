@@ -28,24 +28,24 @@
 #ifndef ASIANOPTION_H
 #define ASIANOPTION_H
 
-template <typename Real>
-struct AsianOption {
-  enum CallPut { Call, Put };
+template <typename Real> struct AsianOption
+{
+    enum CallPut { Call, Put };
 
-  // Parameters
-  Real spot;
-  Real strike;
-  Real r;
-  Real sigma;
-  Real tenor;
-  Real dt;
+    // Parameters
+    Real spot;
+    Real strike;
+    Real r;
+    Real sigma;
+    Real tenor;
+    Real dt;
 
-  // Value
-  Real golden;
-  Real value;
+    // Value
+    Real golden;
+    Real value;
 
-  // Option type
-  CallPut type;
+    // Option type
+    CallPut type;
 };
 
 #endif

@@ -1,1 +1,6 @@
-.vscode/*
+build
+.vs
+.clangd
+test
+settings.json
+launch.json

@@ -30,18 +30,17 @@
 
 #include "asianoption.h"
 
-template <typename Real>
-class PricingEngine {
- public:
-  PricingEngine(unsigned int numSims, unsigned int device,
-                unsigned int threadBlockSize, unsigned int seed);
-  void operator()(AsianOption<Real> &option);
+template <typename Real> class PricingEngine
+{
+public:
+    PricingEngine(unsigned int numSims, unsigned int device, unsigned int threadBlockSize, unsigned int seed);
+    void operator()(AsianOption<Real> &option);
 
- private:
-  unsigned int m_seed;
-  unsigned int m_numSims;
-  unsigned int m_device;
-  unsigned int m_threadBlockSize;
+private:
+    unsigned int m_seed;
+    unsigned int m_numSims;
+    unsigned int m_device;
+    unsigned int m_threadBlockSize;
 };
 
 #endif

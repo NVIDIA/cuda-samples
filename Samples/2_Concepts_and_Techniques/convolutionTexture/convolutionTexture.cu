@@ -25,10 +25,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <helper_cuda.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <helper_cuda.h>
 
 #include "convolutionTexture_common.h"
 
@@ -52,111 +52,102 @@ inline int iAlignUp(int a, int b) { return (a % b != 0) ? (a - a % b + b) : a; }
 ////////////////////////////////////////////////////////////////////////////////
 __constant__ float c_Kernel[KERNEL_LENGTH];
 
-extern "C" void setConvolutionKernel(float *h_Kernel) {
-  cudaMemcpyToSymbol(c_Kernel, h_Kernel, KERNEL_LENGTH * sizeof(float));
+extern "C" void setConvolutionKernel(float *h_Kernel)
+{
+    cudaMemcpyToSymbol(c_Kernel, h_Kernel, KERNEL_LENGTH * sizeof(float));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Loop unrolling templates, needed for best performance
 ////////////////////////////////////////////////////////////////////////////////
-template <int i>
-__device__ float convolutionRow(float x, float y, cudaTextureObject_t texSrc) {
-  return tex2D<float>(texSrc, x + (float)(KERNEL_RADIUS - i), y) * c_Kernel[i] +
-         convolutionRow<i - 1>(x, y, texSrc);
+template <int i> __device__ float convolutionRow(float x, float y, cudaTextureObject_t texSrc)
+{
+    return tex2D<float>(texSrc, x + (float)(KERNEL_RADIUS - i), y) * c_Kernel[i] + convolutionRow<i - 1>(x, y, texSrc);
 }
 
-template <>
-__device__ float convolutionRow<-1>(float x, float y,
-                                    cudaTextureObject_t texSrc) {
-  return 0;
+template <> __device__ float convolutionRow<-1>(float x, float y, cudaTextureObject_t texSrc) { return 0; }
+
+template <int i> __device__ float convolutionColumn(float x, float y, cudaTextureObject_t texSrc)
+{
+    return tex2D<float>(texSrc, x, y + (float)(KERNEL_RADIUS - i)) * c_Kernel[i]
+         + convolutionColumn<i - 1>(x, y, texSrc);
 }
 
-template <int i>
-__device__ float convolutionColumn(float x, float y,
-                                   cudaTextureObject_t texSrc) {
-  return tex2D<float>(texSrc, x, y + (float)(KERNEL_RADIUS - i)) * c_Kernel[i] +
-         convolutionColumn<i - 1>(x, y, texSrc);
-}
-
-template <>
-__device__ float convolutionColumn<-1>(float x, float y,
-                                       cudaTextureObject_t texSrc) {
-  return 0;
-}
+template <> __device__ float convolutionColumn<-1>(float x, float y, cudaTextureObject_t texSrc) { return 0; }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Row convolution filter
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void convolutionRowsKernel(float *d_Dst, int imageW, int imageH,
-                                      cudaTextureObject_t texSrc) {
-  const int ix = IMAD(blockDim.x, blockIdx.x, threadIdx.x);
-  const int iy = IMAD(blockDim.y, blockIdx.y, threadIdx.y);
-  const float x = (float)ix + 0.5f;
-  const float y = (float)iy + 0.5f;
+__global__ void convolutionRowsKernel(float *d_Dst, int imageW, int imageH, cudaTextureObject_t texSrc)
+{
+    const int   ix = IMAD(blockDim.x, blockIdx.x, threadIdx.x);
+    const int   iy = IMAD(blockDim.y, blockIdx.y, threadIdx.y);
+    const float x  = (float)ix + 0.5f;
+    const float y  = (float)iy + 0.5f;
 
-  if (ix >= imageW || iy >= imageH) {
-    return;
-  }
+    if (ix >= imageW || iy >= imageH) {
+        return;
+    }
 
-  float sum = 0;
+    float sum = 0;
 
 #if (UNROLL_INNER)
-  sum = convolutionRow<2 * KERNEL_RADIUS>(x, y, texSrc);
+    sum = convolutionRow<2 * KERNEL_RADIUS>(x, y, texSrc);
 #else
 
-  for (int k = -KERNEL_RADIUS; k <= KERNEL_RADIUS; k++) {
-    sum += tex2D<float>(texSrc, x + (float)k, y) * c_Kernel[KERNEL_RADIUS - k];
-  }
+    for (int k = -KERNEL_RADIUS; k <= KERNEL_RADIUS; k++) {
+        sum += tex2D<float>(texSrc, x + (float)k, y) * c_Kernel[KERNEL_RADIUS - k];
+    }
 
 #endif
 
-  d_Dst[IMAD(iy, imageW, ix)] = sum;
+    d_Dst[IMAD(iy, imageW, ix)] = sum;
 }
 
-extern "C" void convolutionRowsGPU(float *d_Dst, cudaArray *a_Src, int imageW,
-                                   int imageH, cudaTextureObject_t texSrc) {
-  dim3 threads(16, 12);
-  dim3 blocks(iDivUp(imageW, threads.x), iDivUp(imageH, threads.y));
+extern "C" void convolutionRowsGPU(float *d_Dst, cudaArray *a_Src, int imageW, int imageH, cudaTextureObject_t texSrc)
+{
+    dim3 threads(16, 12);
+    dim3 blocks(iDivUp(imageW, threads.x), iDivUp(imageH, threads.y));
 
-  convolutionRowsKernel<<<blocks, threads>>>(d_Dst, imageW, imageH, texSrc);
-  getLastCudaError("convolutionRowsKernel() execution failed\n");
+    convolutionRowsKernel<<<blocks, threads>>>(d_Dst, imageW, imageH, texSrc);
+    getLastCudaError("convolutionRowsKernel() execution failed\n");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Column convolution filter
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void convolutionColumnsKernel(float *d_Dst, int imageW, int imageH,
-                                         cudaTextureObject_t texSrc) {
-  const int ix = IMAD(blockDim.x, blockIdx.x, threadIdx.x);
-  const int iy = IMAD(blockDim.y, blockIdx.y, threadIdx.y);
-  const float x = (float)ix + 0.5f;
-  const float y = (float)iy + 0.5f;
+__global__ void convolutionColumnsKernel(float *d_Dst, int imageW, int imageH, cudaTextureObject_t texSrc)
+{
+    const int   ix = IMAD(blockDim.x, blockIdx.x, threadIdx.x);
+    const int   iy = IMAD(blockDim.y, blockIdx.y, threadIdx.y);
+    const float x  = (float)ix + 0.5f;
+    const float y  = (float)iy + 0.5f;
 
-  if (ix >= imageW || iy >= imageH) {
-    return;
-  }
+    if (ix >= imageW || iy >= imageH) {
+        return;
+    }
 
-  float sum = 0;
+    float sum = 0;
 
 #if (UNROLL_INNER)
-  sum = convolutionColumn<2 * KERNEL_RADIUS>(x, y, texSrc);
+    sum = convolutionColumn<2 * KERNEL_RADIUS>(x, y, texSrc);
 #else
 
-  for (int k = -KERNEL_RADIUS; k <= KERNEL_RADIUS; k++) {
-    sum += tex2D<float>(texSrc, x, y + (float)k) * c_Kernel[KERNEL_RADIUS - k];
-  }
+    for (int k = -KERNEL_RADIUS; k <= KERNEL_RADIUS; k++) {
+        sum += tex2D<float>(texSrc, x, y + (float)k) * c_Kernel[KERNEL_RADIUS - k];
+    }
 
 #endif
 
-  d_Dst[IMAD(iy, imageW, ix)] = sum;
+    d_Dst[IMAD(iy, imageW, ix)] = sum;
 }
 
-extern "C" void convolutionColumnsGPU(float *d_Dst, cudaArray *a_Src,
-                                      int imageW, int imageH,
-                                      cudaTextureObject_t texSrc) {
-  dim3 threads(16, 12);
-  dim3 blocks(iDivUp(imageW, threads.x), iDivUp(imageH, threads.y));
+extern "C" void
+convolutionColumnsGPU(float *d_Dst, cudaArray *a_Src, int imageW, int imageH, cudaTextureObject_t texSrc)
+{
+    dim3 threads(16, 12);
+    dim3 blocks(iDivUp(imageW, threads.x), iDivUp(imageH, threads.y));
 
-  convolutionColumnsKernel<<<blocks, threads>>>(d_Dst, imageW, imageH, texSrc);
-  getLastCudaError("convolutionColumnsKernel() execution failed\n");
+    convolutionColumnsKernel<<<blocks, threads>>>(d_Dst, imageW, imageH, texSrc);
+    getLastCudaError("convolutionColumnsKernel() execution failed\n");
 }

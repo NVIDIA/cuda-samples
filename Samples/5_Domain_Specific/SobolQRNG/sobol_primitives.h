@@ -64,11 +64,12 @@
 //  degree is the degree of the polynomial
 //  a is a binary word representing the coefficients
 //  m is the array of m values
-struct primitive {
-  unsigned int dimension;
-  unsigned int degree;
-  unsigned int a;
-  unsigned int m[max_m];
+struct primitive
+{
+    unsigned int dimension;
+    unsigned int degree;
+    unsigned int a;
+    unsigned int m[max_m];
 };
 
 extern const struct primitive sobol_primitives[];

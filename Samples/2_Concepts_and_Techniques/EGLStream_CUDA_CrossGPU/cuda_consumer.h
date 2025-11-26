@@ -32,35 +32,41 @@
 #ifndef _CUDA_CONSUMER_H_
 #define _CUDA_CONSUMER_H_
 
+#include <cuda.h>
+#include <cuda_runtime.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "cudaEGL.h"
 #include "eglstrm_common.h"
-#include <cuda_runtime.h>
-#include <cuda.h>
 
-typedef struct _test_cuda_consumer_s {
-  CUcontext context;
-  CUeglStreamConnection cudaConn;
-  int cudaDevId;
-  EGLDisplay eglDisplay;
-  EGLStreamKHR eglStream;
-  unsigned int charCnt;
-  char *cudaBuf;
-  bool profileAPI;
-  unsigned char *pCudaCopyMem;
-  CUstream consCudaStream;
+typedef struct _test_cuda_consumer_s
+{
+    CUcontext             context;
+    CUeglStreamConnection cudaConn;
+    int                   cudaDevId;
+    EGLDisplay            eglDisplay;
+    EGLStreamKHR          eglStream;
+    unsigned int          charCnt;
+    char                 *cudaBuf;
+    bool                  profileAPI;
+    unsigned char        *pCudaCopyMem;
+    CUstream              consCudaStream;
 } test_cuda_consumer_s;
 
-CUresult cuda_consumer_init(test_cuda_consumer_s *cudaConsumer, TestArgs *args);
-CUresult cuda_consumer_Deinit(test_cuda_consumer_s *cudaConsumer);
-CUresult cudaConsumerAcquireFrame(test_cuda_consumer_s *data, int frameNumber);
-CUresult cudaConsumerReleaseFrame(test_cuda_consumer_s *data, int frameNumber);
-CUresult cudaDeviceCreateConsumer(test_cuda_consumer_s *cudaConsumer);
-cudaError_t cudaConsumer_filter(CUstream cStream, char *pSrc, int width,
-                                int height, char expectedVal, char newVal,
-                                int frameNumber);
+CUresult    cuda_consumer_init(test_cuda_consumer_s *cudaConsumer, TestArgs *args);
+CUresult    cuda_consumer_Deinit(test_cuda_consumer_s *cudaConsumer);
+CUresult    cudaConsumerAcquireFrame(test_cuda_consumer_s *data, int frameNumber);
+CUresult    cudaConsumerReleaseFrame(test_cuda_consumer_s *data, int frameNumber);
+CUresult    cudaDeviceCreateConsumer(test_cuda_consumer_s *cudaConsumer);
+cudaError_t cudaConsumer_filter(CUstream cStream,
+                                char    *pSrc,
+                                int      width,
+                                int      height,
+                                char     expectedVal,
+                                char     newVal,
+                                int      frameNumber);
 cudaError_t cudaGetValueMismatch(void);
 
 #endif

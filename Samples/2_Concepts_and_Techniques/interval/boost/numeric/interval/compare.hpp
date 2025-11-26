@@ -11,9 +11,9 @@
 #define BOOST_NUMERIC_INTERVAL_COMPARE_HPP
 
 #include <boost/numeric/interval/compare/certain.hpp>
-#include <boost/numeric/interval/compare/possible.hpp>
 #include <boost/numeric/interval/compare/explicit.hpp>
 #include <boost/numeric/interval/compare/lexicographic.hpp>
+#include <boost/numeric/interval/compare/possible.hpp>
 #include <boost/numeric/interval/compare/set.hpp>
 
 #endif // BOOST_NUMERIC_INTERVAL_COMPARE_HPP

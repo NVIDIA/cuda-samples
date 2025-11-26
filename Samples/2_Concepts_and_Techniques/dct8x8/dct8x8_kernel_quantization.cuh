@@ -41,18 +41,11 @@ namespace cg = cooperative_groups;
 #include "Common.h"
 
 /**
-*  JPEG quality=0_of_12 quantization matrix
-*/
-__constant__ short Q[] = {
-  32,  33,  51,  81,  66,  39,  34,  17,
-  33,  36,  48,  47,  28,  23,  12,  12,
-  51,  48,  47,  28,  23,  12,  12,  12,
-  81,  47,  28,  23,  12,  12,  12,  12,
-  66,  28,  23,  12,  12,  12,  12,  12,
-  39,  23,  12,  12,  12,  12,  12,  12,
-  34,  12,  12,  12,  12,  12,  12,  12,
-  17,  12,  12,  12,  12,  12,  12,  12
-};
+ *  JPEG quality=0_of_12 quantization matrix
+ */
+__constant__ short Q[] = {32, 33, 51, 81, 66, 39, 34, 17, 33, 36, 48, 47, 28, 23, 12, 12, 51, 48, 47, 28, 23, 12,
+                          12, 12, 81, 47, 28, 23, 12, 12, 12, 12, 66, 28, 23, 12, 12, 12, 12, 12, 39, 23, 12, 12,
+                          12, 12, 12, 12, 34, 12, 12, 12, 12, 12, 12, 12, 17, 12, 12, 12, 12, 12, 12, 12};
 
 /**
 **************************************************************************
@@ -64,26 +57,26 @@ __constant__ short Q[] = {
 *
 * \return None
 */
-__global__ void CUDAkernelQuantizationFloat(float *SrcDst, int Stride) {
-  // Block index
-  int bx = blockIdx.x;
-  int by = blockIdx.y;
+__global__ void CUDAkernelQuantizationFloat(float *SrcDst, int Stride)
+{
+    // Block index
+    int bx = blockIdx.x;
+    int by = blockIdx.y;
 
-  // Thread index (current coefficient)
-  int tx = threadIdx.x;
-  int ty = threadIdx.y;
+    // Thread index (current coefficient)
+    int tx = threadIdx.x;
+    int ty = threadIdx.y;
 
-  // copy current coefficient to the local variable
-  float curCoef =
-      SrcDst[(by * BLOCK_SIZE + ty) * Stride + (bx * BLOCK_SIZE + tx)];
-  float curQuant = (float)Q[ty * BLOCK_SIZE + tx];
+    // copy current coefficient to the local variable
+    float curCoef  = SrcDst[(by * BLOCK_SIZE + ty) * Stride + (bx * BLOCK_SIZE + tx)];
+    float curQuant = (float)Q[ty * BLOCK_SIZE + tx];
 
-  // quantize the current coefficient
-  float quantized = roundf(curCoef / curQuant);
-  curCoef = quantized * curQuant;
+    // quantize the current coefficient
+    float quantized = roundf(curCoef / curQuant);
+    curCoef         = quantized * curQuant;
 
-  // copy quantized coefficient back to the DCT-plane
-  SrcDst[(by * BLOCK_SIZE + ty) * Stride + (bx * BLOCK_SIZE + tx)] = curCoef;
+    // copy quantized coefficient back to the DCT-plane
+    SrcDst[(by * BLOCK_SIZE + ty) * Stride + (bx * BLOCK_SIZE + tx)] = curCoef;
 }
 
 /**
@@ -96,37 +89,38 @@ __global__ void CUDAkernelQuantizationFloat(float *SrcDst, int Stride) {
 *
 * \return None
 */
-__global__ void CUDAkernelQuantizationShort(short *SrcDst, int Stride) {
-  // Handle to thread block group
-  cg::thread_block cta = cg::this_thread_block();
-  // Block index
-  int bx = blockIdx.x;
-  int by = blockIdx.y;
+__global__ void CUDAkernelQuantizationShort(short *SrcDst, int Stride)
+{
+    // Handle to thread block group
+    cg::thread_block cta = cg::this_thread_block();
+    // Block index
+    int bx = blockIdx.x;
+    int by = blockIdx.y;
 
-  // Thread index (current coefficient)
-  int tx = threadIdx.x;
-  int ty = threadIdx.y;
+    // Thread index (current coefficient)
+    int tx = threadIdx.x;
+    int ty = threadIdx.y;
 
-  // copy current coefficient to the local variable
-  short curCoef =
-      SrcDst[(by * BLOCK_SIZE + ty) * Stride + (bx * BLOCK_SIZE + tx)];
-  short curQuant = Q[ty * BLOCK_SIZE + tx];
+    // copy current coefficient to the local variable
+    short curCoef  = SrcDst[(by * BLOCK_SIZE + ty) * Stride + (bx * BLOCK_SIZE + tx)];
+    short curQuant = Q[ty * BLOCK_SIZE + tx];
 
-  // quantize the current coefficient
-  if (curCoef < 0) {
-    curCoef = -curCoef;
-    curCoef += curQuant >> 1;
-    curCoef /= curQuant;
-    curCoef = -curCoef;
-  } else {
-    curCoef += curQuant >> 1;
-    curCoef /= curQuant;
-  }
+    // quantize the current coefficient
+    if (curCoef < 0) {
+        curCoef = -curCoef;
+        curCoef += curQuant >> 1;
+        curCoef /= curQuant;
+        curCoef = -curCoef;
+    }
+    else {
+        curCoef += curQuant >> 1;
+        curCoef /= curQuant;
+    }
 
-  cg::sync(cta);
+    cg::sync(cta);
 
-  curCoef = curCoef * curQuant;
+    curCoef = curCoef * curQuant;
 
-  // copy quantized coefficient back to the DCT-plane
-  SrcDst[(by * BLOCK_SIZE + ty) * Stride + (bx * BLOCK_SIZE + tx)] = curCoef;
+    // copy quantized coefficient back to the DCT-plane
+    SrcDst[(by * BLOCK_SIZE + ty) * Stride + (bx * BLOCK_SIZE + tx)] = curCoef;
 }

@@ -18,25 +18,28 @@ namespace numeric {
 namespace interval_lib {
 namespace detail {
 
-struct c99_rounding_control: c99_rounding
+struct c99_rounding_control : c99_rounding
 {
-  template<class T>
-  static T force_rounding(const T& r) { volatile T r_ = r; return r_; }
+    template <class T> static T force_rounding(const T &r)
+    {
+        volatile T r_ = r;
+        return r_;
+    }
 };
 
 } // namespace detail
 
-template<>
-struct rounding_control<float>:
-  detail::c99_rounding_control { };
+template <> struct rounding_control<float> : detail::c99_rounding_control
+{
+};
 
-template<>
-struct rounding_control<double>:
-  detail::c99_rounding_control { };
+template <> struct rounding_control<double> : detail::c99_rounding_control
+{
+};
 
-template<>
-struct rounding_control<long double>:
-  detail::c99_rounding_control { };
+template <> struct rounding_control<long double> : detail::c99_rounding_control
+{
+};
 
 } // namespace interval_lib
 } // namespace numeric

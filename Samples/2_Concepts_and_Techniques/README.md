@@ -83,7 +83,7 @@ This example demonstrates an efficient CUDA implementation of parallel prefix su
 This sample demonstrates an approach to the image segmentation trees construction.  This method is based on Boruvka's MST algorithm.
 
 ### [shfl_scan](./shfl_scan)
-This example demonstrates how to use the shuffle intrinsic __shfl_up_sync to perform a scan operation across a thread block. 
+This example demonstrates how to use the shuffle intrinsic __shfl_up_sync to perform a scan operation across a thread block.
 
 ### [sortingNetworks](./sortingNetworks)
 This sample implements bitonic sort and odd-even merge sort (also known as Batcher's sort), algorithms belonging to the class of sorting networks. While generally subefficient, for large sequences compared to algorithms with better asymptotic algorithmic complexity (i.e. merge sort or radix sort), this may be the preferred algorithms of choice for sorting batches of short-sized to mid-sized (key, value) array pairs. Refer to an excellent tutorial by H. W. Lang http://www.iti.fh-flensburg.de/lang/algorithmen/sortieren/networks/indexen.htm
@@ -102,4 +102,3 @@ This sample shows how to perform a reduction operation on an array of values usi
 
 ### [threadMigration](./threadMigration)
 Simple program illustrating how to the CUDA Context Management API and uses the new CUDA 4.0 parameter passing and CUDA launch API.  CUDA contexts can be created separately and attached independently to different threads.
-

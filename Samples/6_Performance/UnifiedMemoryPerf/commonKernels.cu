@@ -27,7 +27,8 @@
 
 #include "commonKernels.hpp"
 
-__global__ void spinWhileLessThanOne(volatile unsigned int *latch) {
-  while (latch[0] < 1)
-    ;
+__global__ void spinWhileLessThanOne(volatile unsigned int *latch)
+{
+    while (latch[0] < 1)
+        ;
 }

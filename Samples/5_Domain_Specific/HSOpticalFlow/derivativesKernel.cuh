@@ -38,56 +38,62 @@
 /// \param[out] Iy      y derivative
 /// \param[out] Iz      temporal derivative
 ///////////////////////////////////////////////////////////////////////////////
-__global__ void ComputeDerivativesKernel(int width, int height, int stride,
-                                         float *Ix, float *Iy, float *Iz,
+__global__ void ComputeDerivativesKernel(int                 width,
+                                         int                 height,
+                                         int                 stride,
+                                         float              *Ix,
+                                         float              *Iy,
+                                         float              *Iz,
                                          cudaTextureObject_t texSource,
-                                         cudaTextureObject_t texTarget) {
-  const int ix = threadIdx.x + blockIdx.x * blockDim.x;
-  const int iy = threadIdx.y + blockIdx.y * blockDim.y;
+                                         cudaTextureObject_t texTarget)
+{
+    const int ix = threadIdx.x + blockIdx.x * blockDim.x;
+    const int iy = threadIdx.y + blockIdx.y * blockDim.y;
 
-  const int pos = ix + iy * stride;
+    const int pos = ix + iy * stride;
 
-  if (ix >= width || iy >= height) return;
+    if (ix >= width || iy >= height)
+        return;
 
-  float dx = 1.0f / (float)width;
-  float dy = 1.0f / (float)height;
+    float dx = 1.0f / (float)width;
+    float dy = 1.0f / (float)height;
 
-  float x = ((float)ix + 0.5f) * dx;
-  float y = ((float)iy + 0.5f) * dy;
+    float x = ((float)ix + 0.5f) * dx;
+    float y = ((float)iy + 0.5f) * dy;
 
-  float t0, t1;
-  // x derivative
-  t0 = tex2D<float>(texSource, x - 2.0f * dx, y);
-  t0 -= tex2D<float>(texSource, x - 1.0f * dx, y) * 8.0f;
-  t0 += tex2D<float>(texSource, x + 1.0f * dx, y) * 8.0f;
-  t0 -= tex2D<float>(texSource, x + 2.0f * dx, y);
-  t0 /= 12.0f;
+    float t0, t1;
+    // x derivative
+    t0 = tex2D<float>(texSource, x - 2.0f * dx, y);
+    t0 -= tex2D<float>(texSource, x - 1.0f * dx, y) * 8.0f;
+    t0 += tex2D<float>(texSource, x + 1.0f * dx, y) * 8.0f;
+    t0 -= tex2D<float>(texSource, x + 2.0f * dx, y);
+    t0 /= 12.0f;
 
-  t1 = tex2D<float>(texTarget, x - 2.0f * dx, y);
-  t1 -= tex2D<float>(texTarget, x - 1.0f * dx, y) * 8.0f;
-  t1 += tex2D<float>(texTarget, x + 1.0f * dx, y) * 8.0f;
-  t1 -= tex2D<float>(texTarget, x + 2.0f * dx, y);
-  t1 /= 12.0f;
+    t1 = tex2D<float>(texTarget, x - 2.0f * dx, y);
+    t1 -= tex2D<float>(texTarget, x - 1.0f * dx, y) * 8.0f;
+    t1 += tex2D<float>(texTarget, x + 1.0f * dx, y) * 8.0f;
+    t1 -= tex2D<float>(texTarget, x + 2.0f * dx, y);
+    t1 /= 12.0f;
 
-  Ix[pos] = (t0 + t1) * 0.5f;
+    Ix[pos] = (t0 + t1) * 0.5f;
 
-  // t derivative
-  Iz[pos] = tex2D<float>(texTarget, x, y) - tex2D<float>(texSource, x, y);
+    // t derivative
+    Iz[pos] = tex2D<float>(texTarget, x, y) - tex2D<float>(texSource, x, y);
 
-  // y derivative
-  t0 = tex2D<float>(texSource, x, y - 2.0f * dy);
-  t0 -= tex2D<float>(texSource, x, y - 1.0f * dy) * 8.0f;
-  t0 += tex2D<float>(texSource, x, y + 1.0f * dy) * 8.0f;
-  t0 -= tex2D<float>(texSource, x, y + 2.0f * dy);
-  t0 /= 12.0f;
+    // y derivative
+    t0 = tex2D<float>(texSource, x, y - 2.0f * dy);
+    t0 -= tex2D<float>(texSource, x, y - 1.0f * dy) * 8.0f;
+    t0 += tex2D<float>(texSource, x, y + 1.0f * dy) * 8.0f;
+    t0 -= tex2D<float>(texSource, x, y + 2.0f * dy);
+    t0 /= 12.0f;
 
-  t1 = tex2D<float>(texTarget, x, y - 2.0f * dy);
-  t1 -= tex2D<float>(texTarget, x, y - 1.0f * dy) * 8.0f;
-  t1 += tex2D<float>(texTarget, x, y + 1.0f * dy) * 8.0f;
-  t1 -= tex2D<float>(texTarget, x, y + 2.0f * dy);
-  t1 /= 12.0f;
+    t1 = tex2D<float>(texTarget, x, y - 2.0f * dy);
+    t1 -= tex2D<float>(texTarget, x, y - 1.0f * dy) * 8.0f;
+    t1 += tex2D<float>(texTarget, x, y + 1.0f * dy) * 8.0f;
+    t1 -= tex2D<float>(texTarget, x, y + 2.0f * dy);
+    t1 /= 12.0f;
 
-  Iy[pos] = (t0 + t1) * 0.5f;
+    Iy[pos] = (t0 + t1) * 0.5f;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -102,43 +108,40 @@ __global__ void ComputeDerivativesKernel(int width, int height, int stride,
 /// \param[out] Iy  y derivative
 /// \param[out] Iz  temporal derivative
 ///////////////////////////////////////////////////////////////////////////////
-static void ComputeDerivatives(const float *I0, const float *I1, int w, int h,
-                               int s, float *Ix, float *Iy, float *Iz) {
-  dim3 threads(32, 6);
-  dim3 blocks(iDivUp(w, threads.x), iDivUp(h, threads.y));
+static void ComputeDerivatives(const float *I0, const float *I1, int w, int h, int s, float *Ix, float *Iy, float *Iz)
+{
+    dim3 threads(32, 6);
+    dim3 blocks(iDivUp(w, threads.x), iDivUp(h, threads.y));
 
-  cudaTextureObject_t texSource, texTarget;
-  cudaResourceDesc texRes;
-  memset(&texRes, 0, sizeof(cudaResourceDesc));
+    cudaTextureObject_t texSource, texTarget;
+    cudaResourceDesc    texRes;
+    memset(&texRes, 0, sizeof(cudaResourceDesc));
 
-  texRes.resType = cudaResourceTypePitch2D;
-  texRes.res.pitch2D.devPtr = (void *)I0;
-  texRes.res.pitch2D.desc = cudaCreateChannelDesc<float>();
-  texRes.res.pitch2D.width = w;
-  texRes.res.pitch2D.height = h;
-  texRes.res.pitch2D.pitchInBytes = s * sizeof(float);
+    texRes.resType                  = cudaResourceTypePitch2D;
+    texRes.res.pitch2D.devPtr       = (void *)I0;
+    texRes.res.pitch2D.desc         = cudaCreateChannelDesc<float>();
+    texRes.res.pitch2D.width        = w;
+    texRes.res.pitch2D.height       = h;
+    texRes.res.pitch2D.pitchInBytes = s * sizeof(float);
 
-  cudaTextureDesc texDescr;
-  memset(&texDescr, 0, sizeof(cudaTextureDesc));
+    cudaTextureDesc texDescr;
+    memset(&texDescr, 0, sizeof(cudaTextureDesc));
 
-  texDescr.normalizedCoords = true;
-  texDescr.filterMode = cudaFilterModeLinear;
-  texDescr.addressMode[0] = cudaAddressModeMirror;
-  texDescr.addressMode[1] = cudaAddressModeMirror;
-  texDescr.readMode = cudaReadModeElementType;
+    texDescr.normalizedCoords = true;
+    texDescr.filterMode       = cudaFilterModeLinear;
+    texDescr.addressMode[0]   = cudaAddressModeMirror;
+    texDescr.addressMode[1]   = cudaAddressModeMirror;
+    texDescr.readMode         = cudaReadModeElementType;
 
-  checkCudaErrors(
-      cudaCreateTextureObject(&texSource, &texRes, &texDescr, NULL));
-  memset(&texRes, 0, sizeof(cudaResourceDesc));
-  texRes.resType = cudaResourceTypePitch2D;
-  texRes.res.pitch2D.devPtr = (void *)I1;
-  texRes.res.pitch2D.desc = cudaCreateChannelDesc<float>();
-  texRes.res.pitch2D.width = w;
-  texRes.res.pitch2D.height = h;
-  texRes.res.pitch2D.pitchInBytes = s * sizeof(float);
-  checkCudaErrors(
-      cudaCreateTextureObject(&texTarget, &texRes, &texDescr, NULL));
+    checkCudaErrors(cudaCreateTextureObject(&texSource, &texRes, &texDescr, NULL));
+    memset(&texRes, 0, sizeof(cudaResourceDesc));
+    texRes.resType                  = cudaResourceTypePitch2D;
+    texRes.res.pitch2D.devPtr       = (void *)I1;
+    texRes.res.pitch2D.desc         = cudaCreateChannelDesc<float>();
+    texRes.res.pitch2D.width        = w;
+    texRes.res.pitch2D.height       = h;
+    texRes.res.pitch2D.pitchInBytes = s * sizeof(float);
+    checkCudaErrors(cudaCreateTextureObject(&texTarget, &texRes, &texDescr, NULL));
 
-  ComputeDerivativesKernel<<<blocks, threads>>>(w, h, s, Ix, Iy, Iz, texSource,
-                                                texTarget);
+    ComputeDerivativesKernel<<<blocks, threads>>>(w, h, s, Ix, Iy, Iz, texSource, texTarget);
 }

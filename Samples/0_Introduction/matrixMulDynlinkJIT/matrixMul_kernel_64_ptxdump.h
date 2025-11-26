@@ -32,7 +32,8 @@
 #define __matrixMul_kernel_64_ptxdump_h__
 
 #if defined __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
     extern unsigned char matrixMul_kernel_64_ptxdump[26489];

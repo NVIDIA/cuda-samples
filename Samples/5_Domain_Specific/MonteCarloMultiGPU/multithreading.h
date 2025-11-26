@@ -38,7 +38,7 @@ typedef HANDLE CUTThread;
 typedef unsigned(WINAPI *CUT_THREADROUTINE)(void *);
 
 #define CUT_THREADPROC unsigned WINAPI
-#define CUT_THREADEND return 0
+#define CUT_THREADEND  return 0
 
 #else
 // POSIX threads.
@@ -52,20 +52,21 @@ typedef void *(*CUT_THREADROUTINE)(void *);
 #endif
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-// Create thread.
-CUTThread cutStartThread(CUT_THREADROUTINE, void *data);
+    // Create thread.
+    CUTThread cutStartThread(CUT_THREADROUTINE, void *data);
 
-// Wait for thread to finish.
-void cutEndThread(CUTThread thread);
+    // Wait for thread to finish.
+    void cutEndThread(CUTThread thread);
 
-// Wait for multiple threads.
-void cutWaitForThreads(const CUTThread *threads, int num);
+    // Wait for multiple threads.
+    void cutWaitForThreads(const CUTThread *threads, int num);
 
 #ifdef __cplusplus
-}  // extern "C"
+} // extern "C"
 #endif
 
-#endif  // MULTITHREADING_H
+#endif // MULTITHREADING_H

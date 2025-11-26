@@ -22,6 +22,6 @@ interleaved.
 
 For example,
 
-    $ ptxgen a.ll -arch=compute_50 b.bc
+    $ ptxgen a.ll -arch=compute_75 b.bc
 
-links a.ll and b.bc, and generates PTX code for the compute_50 architecture.
+links a.ll and b.bc, and generates PTX code for the compute_75 architecture.

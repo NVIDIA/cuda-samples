@@ -1,35 +1,20 @@
 # CUDA Samples
 
-Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This version supports [CUDA Toolkit 12.4](https://developer.nvidia.com/cuda-downloads).
+Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This version supports [CUDA Toolkit 13.0](https://developer.nvidia.com/cuda-downloads).
 
 ## Release Notes
 
 This section describes the release notes for the CUDA Samples on GitHub only.
 
-### CUDA 12.4
+### Change Log
 
-- Hopper Confidential Computing Modes do not support Video samples, nor do they support host-pinned memory due to the restrictions created by CPU IOMMUs. The following Samples are affected:
-  - convolutionTexture
-  - cudaNvSci
-  - dct8x8
-  - lineOfSight
-  - simpleCubemapTexture
-  - simpleIPC
-  - simpleLayeredTexture
-  - simplePitchLinearTexture
-  - simpleStream
-  - simpleTexture
-  - simpleTextureDrv
-  - watershedSegmentationNPP
-
-
-### [older versions...](./CHANGELOG.md)
+### [Revision History](./CHANGELOG.md)
 
 ## Getting Started
 
 ### Prerequisites
 
-Download and install the [CUDA Toolkit 12.4](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
+Download and install the [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
 For system requirements and installation instructions of cuda toolkit, please refer to the [Linux Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/), and the [Windows Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html).
 
 ### Getting the CUDA Samples
@@ -43,43 +28,334 @@ Without using git the easiest way to use these samples is to download the zip fi
 
 ## Building CUDA Samples
 
-### Windows
+### Building CUDA Samples
 
-The Windows samples are built using the Visual Studio IDE. Solution files (.sln) are provided for each supported version of Visual Studio, using the format:
-```
-*_vs<version>.sln - for Visual Studio <version>
-```
-Complete samples solution files exist at parent directory of the repo:
-
-Each individual sample has its own set of solution files at:
-`<CUDA_SAMPLES_REPO>\Samples\<sample_dir>\`
-
-To build/examine all the samples at once, the complete solution files should be used. To build/examine a single sample, the individual sample solution files should be used.
+The CUDA Samples are built using CMake. Follow the instructions below for building on Linux, Windows, and for cross-compilation to Tegra devices.
 
 ### Linux
-The Linux samples are built using makefiles. To use the makefiles, change the current directory to the sample directory you wish to build, and run make:
-```
-$ cd <sample_dir>
-$ make
-```
-The samples makefiles can take advantage of certain options:
-*  **TARGET_ARCH=<arch>** - cross-compile targeting a specific architecture. Allowed architectures are x86_64, ppc64le, armv7l, aarch64.
-    By default, TARGET_ARCH is set to HOST_ARCH. On a x86_64 machine, not setting TARGET_ARCH is the equivalent of setting TARGET_ARCH=x86_64.<br/>
-`$ make TARGET_ARCH=x86_64` <br/> `$ make TARGET_ARCH=ppc64le` <br/> `$ make TARGET_ARCH=armv7l` <br/> `$ make TARGET_ARCH=aarch64` <br/>
-    See [here](http://docs.nvidia.com/cuda/cuda-samples/index.html#cross-samples) for more details on cross platform compilation of cuda samples.
-*   **dbg=1** - build with debug symbols
-    ```
-    $ make dbg=1
-    ```
-*   **SMS="A B ..."** - override the SM architectures for which the sample will be built, where `"A B ..."` is a space-delimited list of SM architectures. For example, to generate SASS for SM 50 and SM 60, use `SMS="50 60"`.
-    ```
-    $ make SMS="50 60"
-    ```
 
-*  **HOST_COMPILER=<host_compiler>** - override the default g++ host compiler. See the [Linux Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#system-requirements) for a list of supported host compilers.
-    ```
-    $ make HOST_COMPILER=g++
-    ```
+Ensure that CMake (version 3.20 or later) is installed. Install it using your package manager if necessary:
+
+e.g.
+```sudo apt install cmake```
+
+Navigate to the root of the cloned repository and create a build directory:
+```
+mkdir build && cd build
+```
+Configure the project with CMake:
+```
+cmake ..
+```
+Build the samples:
+```
+make -j$(nproc)
+```
+Run the samples from their respective directories in the build folder. You can also follow this process from and subdirectory of the samples repo, or from within any individual sample.
+
+### Windows
+
+Language services for CMake are available in Visual Studio 2019 version 16.5 or later, and you can directly import the CUDA samples repository from either the root level or from any
+subdirectory or individual sample.
+
+To build from the command line, open the `x64 Native Tools Command Prompt for VS` provided with your Visual Studio installation.
+
+Navigate to the root of the cloned repository and create a build directory:
+```
+mkdir build && cd build
+```
+Configure the project with CMake - for example:
+```
+cmake .. -G "Visual Studio 16 2019" -A x64
+```
+Open the generated solution file CUDA_Samples.sln in Visual Studio. Build the samples by selecting the desired configuration (e.g., Debug or Release) and pressing F7 (Build Solution).
+
+Run the samples from the output directories specified in Visual Studio.
+
+### Enabling On-GPU Debugging
+
+NVIDIA GPUs support on-GPU debugging through cuda-gdb. Enabling this may significantly affect application performance as certain compiler optimizations are disabled
+in this configuration, hence it's not on by default. Enablement of on-device debugging is controlled via the `-G` switch to nvcc.
+
+To enable cuda-gdb for samples builds, define the `ENABLE_CUDA_DEBUG` flag on the CMake command line. For example:
+
+```
+cmake -DENABLE_CUDA_DEBUG=True ...
+```
+
+### Platform-Specific Samples
+
+Some CUDA samples are specific to certain platforms, and require passing flags into CMake to enable. In particular, we define the following platform-specific flags:
+
+* `BUILD_TEGRA` - for Tegra-specific samples
+
+To build these samples, set the variables either on the command line or through your CMake GUI. For example:
+
+```
+cmake -DBUILD_TEGRA=True ..
+```
+
+### Cross-Compilation for Tegra Platforms
+
+Install the NVIDIA toolchain and cross-compilation environment for Tegra devices as described in the Tegra Development Guide.
+
+Ensure that CMake (version 3.20 or later) is installed.
+
+Navigate to the root of the cloned repository and create a build directory:
+```
+mkdir build && cd build
+```
+Configure the project with CMake, specifying the Tegra toolchain file. And you can use -DTARGET_FS to point to the target file system root path for necessary include and library files:
+```
+cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/toolchain-aarch64-linux.cmake -DTARGET_FS=/path/to/target/system/file/system
+```
+Build the samples:
+```
+make -j$(nproc)
+```
+Transfer the built binaries to the Tegra device and execute them there.
+
+
+### Cross Building for Automotive Linux Platforms from the DriveOS Docker containers
+
+To build CUDA samples to the target platform from the DriveOS Docker containers, use the following instructions.
+
+Mount the target Root Filesystem (RFS) in the container so that the CUDA cmake process has the correct paths to CUDA and other system libraries required to build the samples.
+
+Create a temporary directory, `<temp>` is any temporary directory of your choosing, for example, you can use `/drive/temp`:
+
+```
+$ mkdir /drive/<temp>
+```
+
+Mount the filesystem by running the following command:
+
+```
+$ mount /drive/drive-linux/filesystem/targetfs-images/dev_nsr_desktop_ubuntu-24.04_thor_rfs.img /drive/temp
+```
+
+Configure the project by running the following cmake command:
+
+```
+$ mkdir build && cd build
+$ cmake .. -DBUILD_TEGRA=True \
+  -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc \
+  -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/toolchain-aarch64-linux.cmake \
+  -DTARGET_FS=/drive/temp \
+  -DCMAKE_LIBRARY_PATH=/drive/temp/usr/local/cuda-13.0/thor/lib64/ \
+  -DCMAKE_INCLUDE_PATH=/drive/temp/usr/local/cuda-13.0/thor/include/
+```
+
+Please note that the following libraries are not pre-installed in the DriveOS dev-nsr target filesystem:
+* libdrm-dev
+* Vulkan
+
+This causes the cmake command to throw errors related to the missing files, and as a result, the related samples will not build in later steps. This issue will be addressed in a future DriveOS release.
+
+To build the samples with ignore the error mentioned above, you can use `--ignore-errors`/`--keep-going` or comment out the comment out the corresponding `add_subdirectory` command in the CMakeLists.txt in the parent folder for the samples requiring Vulkan and libdrm_dev:
+
+```
+$ make -j$(nproc) --ignore-errors # or --keep-going
+```
+
+```
+# In Samples/5_Domain_Specific/CMakeList.txt
+# add_subdirectory(simpleGL)
+# add_subdirectory(simpleVulkan)
+# add_subdirectory(simpleVulkanMMAP)
+
+# In Samples/8_Platform_Specific/Tegra/CMakeList.txt
+# add_subdirectory(simpleGLES_EGLOutput)
+```
+
+### QNX
+
+Cross-compilation for QNX with CMake is supported in the CUDA 13.0 samples release and newer. An example build for
+the Tegra Thor QNX platform might look like this:
+
+```
+$ mkdir build
+$ cd build
+
+QNX_HOST=/path/to/qnx/host \
+QNX_TARGET=/path/to/qnx/target \
+cmake .. \
+-DBUILD_TEGRA=True \
+-DCMAKE_CUDA_COMPILER=/usr/local/cuda-safe-13.0/bin/nvcc \
+-DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/toolchain-aarch64-qnx.cmake \
+-DCMAKE_LIBRARY_PATH=/usr/local/cuda-safe-13.0/thor/targets/aarch64-qnx/lib/stubs/ \
+-DCMAKE_INCLUDE_PATH=/usr/local/cuda-safe-13.0/thor/targets/aarch64-qnx/include/
+```
+
+### Forward Compatibility
+
+To build samples with new CUDA Toolkit(CUDA 13.0 or later) and UMD(Version 580 or later) and old KMD(Version 550 or earlier)，you need to set the `CMAKE_PREFIX_PATH` for using new driver library, the command might like this:
+
+```
+cmake -DCMAKE_PREFIX_PATH=/usr/local/cuda/lib64/stubs/ ..
+```
+
+## Running All Samples as Tests
+
+It's important to note that the CUDA samples are _not_ intended as a validation suite for CUDA. They do not cover corner cases, they do not completely cover the
+runtime and driver APIs, are not intended for performance benchmarking, etc. That said, it can sometimes be useful to run all of the samples as a quick sanity check and
+we provide a script to do so, `run_tests.py`.
+
+This Python3 script finds all executables in a subdirectory you choose, matching application names with command line arguments specified in `test_args.json`. It accepts
+the following command line arguments:
+
+| Switch     | Purpose                                                                                                        | Example                 |
+| ---------- | -------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| --dir      | Specify the root directory to search for executables (recursively)                                             | --dir ./build/Samples   |
+| --config   | JSON configuration file for executable arguments                                                               | --config test_args.json |
+| --output   | Output directory for test results (stdout saved to .txt files - directory will be created if it doesn't exist) | --output ./test         |
+| --args     | Global arguments to pass to all executables (not currently used)                                               | --args arg_1 arg_2 ...  |
+| --parallel | Number of applications to execute in parallel.                                                                 | --parallel 8            |
+
+
+Application configurations are loaded from `test_args.json` and matched against executable names (discarding the `.exe` extension on Windows).
+
+The script returns 0 on success, or the first non-zero error code encountered during testing on failure. It will also print a condensed list of samples that failed, if any.
+
+There are three primary modes of configuration:
+
+**Skip**
+
+An executable configured with "skip" will not be executed. These generally rely on having attached graphical displays and are not suited to this kind of automation.
+
+Configuration example:
+```json
+"fluidsGL": {
+    "skip": true
+}
+```
+
+You will see:
+```
+Skipping fluidsGL (marked as skip in config)
+```
+
+**Single Run**
+
+For executables to run one time only with arguments, specify each argument as a list entry. Each entry in the JSON file will be appended to the command line, separated
+by a space.
+
+All applications execute from their current directory, so all paths are relative to the application's location.
+
+Note that if an application needs no arguments, this entry is optional. An executable found without a matching entry in the JSON will just run as `./application` from its
+current directory.
+
+Configuration example:
+```json
+"ptxgen": {
+    "args": [
+        "test.ll",
+        "-arch=compute_75"
+    ]
+}
+```
+
+You will see:
+```
+Running ptxgen
+    Command: ./ptxgen test.ll -arch=compute_75
+    Test completed with return code 0
+```
+
+**Multiple Runs**
+
+For executables to run multiple times with different command line arguments, specify any number of sets of args within a "runs" list.
+
+As with single runs, all applications execute from their current directory, so all paths are relative to the application's location.
+
+Configuration example:
+```json
+"recursiveGaussian": {
+    "runs": [
+        {
+            "args": [
+                "-sigma=10",
+                "-file=data/ref_10.ppm"
+            ]
+        },
+        {
+            "args": [
+                "-sigma=14",
+                "-file=data/ref_14.ppm"
+            ]
+        },
+        {
+            "args": [
+                "-sigma=18",
+                "-file=data/ref_18.ppm"
+            ]
+        },
+        {
+            "args": [
+                "-sigma=22",
+                "-file=data/ref_22.ppm"
+            ]
+        }
+    ]
+}
+```
+
+You will see:
+```
+Running recursiveGaussian (run 1/4)
+    Command: ./recursiveGaussian -sigma=10 -file=data/ref_10.ppm
+    Test completed with return code 0
+Running recursiveGaussian (run 2/4)
+    Command: ./recursiveGaussian -sigma=14 -file=data/ref_14.ppm
+    Test completed with return code 0
+Running recursiveGaussian (run 3/4)
+    Command: ./recursiveGaussian -sigma=18 -file=data/ref_18.ppm
+    Test completed with return code 0
+Running recursiveGaussian (run 4/4)
+    Command: ./recursiveGaussian -sigma=22 -file=data/ref_22.ppm
+    Test completed with return code 0
+```
+
+### Example Usage
+
+Here is an example set of commands to build and test all of the samples.
+
+First, build:
+```bash
+mkdir build
+cd build
+cmake ..
+make -j$(nproc)
+```
+
+Now, return to the samples root directory and run the test script:
+```bash
+cd ..
+python3 run_tests.py --output ./test --dir ./build/Samples --config test_args.json
+```
+
+If all applications run successfully, you will see something similar to this (the specific number of samples will depend on your build type
+and system configuration):
+
+```
+Test Summary:
+Ran 199 test runs for 180 executables.
+All test runs passed!
+```
+
+If some samples fail, you will see something like this:
+
+```
+Test Summary:
+Ran 199 test runs for 180 executables.
+Failed runs (2):
+  bicubicTexture (run 1/5): Failed (code 1)
+  Mandelbrot (run 1/2): Failed (code 1)
+```
+
+You can inspect the stdout logs in the output directory (generally `APM_<application_name>.txt` or `APM_<application_name>.run<n>.txt`) to help
+determine what may have gone wrong from the output logs. Please file issues against the samples repository if you believe a sample is failing
+incorrectly on your system.
 
 ## Samples list
 
@@ -123,7 +399,7 @@ These third-party dependencies are required by some CUDA samples. If available, 
 
 FreeImage is an open source imaging library. FreeImage can usually be installed on Linux using your distribution's package manager system. FreeImage can also be downloaded from the FreeImage website.
 
-To set up FreeImage on a Windows system, extract the FreeImage DLL distribution into the folder `../../../Common/FreeImage/Dist/x64` such that it contains the .h and .lib files. Copy the .dll file to root level `bin/win64/Debug` and `bin/win64/Release` folder.
+To set up FreeImage on a Windows system, extract the FreeImage DLL distribution into the folder `./Common/FreeImage/Dist/x64` such that it contains the .h and .lib files. Copy the .dll file to the Release/ Debug/ execution folder or pass the FreeImage folder when cmake configuring with the `-DFreeImage_INCLUDE_DIR` and `-DFreeImage_LIBRARY` options.
 
 #### Message Passing Interface
 
@@ -153,9 +429,14 @@ OpenGL ES is an embedded systems graphics library used for 2D and 3D rendering. 
 
 Vulkan is a low-overhead, cross-platform 3D graphics and compute API. Vulkan targets high-performance realtime 3D graphics applications such as video games and interactive media across all platforms. On systems which support Vulkan, NVIDIA's Vulkan implementation is provided with the CUDA Driver. For building and running Vulkan applications one needs to install the [Vulkan SDK](https://www.lunarg.com/vulkan-sdk/).
 
+#### GLFW
+GLFW is a lightweight, open-source library designed for managing OpenGL, OpenGL ES, and Vulkan contexts. It simplifies the process of creating and managing windows, handling user input (keyboard, mouse, and joystick), and working with multiple monitors in a cross-platform manner.
+
+To set up GLFW on a Windows system, Download the pre-built binaries from [GLFW website](https://www.glfw.org/download.html) and extract the zip file into the folder, pass the GLFW include header folder as `-DGLFW_INCLUDE_DIR` and lib folder as `-DGLFW_LIB_DIR` for cmake configuring.
+
 #### OpenMP
 
-OpenMP is an API for multiprocessing programming. OpenMP can be installed using your Linux distribution's package manager system. It usually comes preinstalled with GCC. It can also be found at the [OpenMP website](http://openmp.org/).
+OpenMP is an API for multiprocessing programming. OpenMP can be installed using your Linux distribution's package manager system. It usually comes preinstalled with GCC. It can also be found at the [OpenMP website](http://openmp.org/). For compilers such as clang, `libomp.so` and other components for LLVM must be installed separated. You will also need to set additional flags in your CMake configuration files, such as: `-DOpenMP_CXX_FLAGS="-fopenmp=libomp" -DOpenMP_CXX_LIB_NAMES="omp" -DOpenMP_omp_LIBRARY="/path/to/libomp.so"`.
 
 #### Screen
 

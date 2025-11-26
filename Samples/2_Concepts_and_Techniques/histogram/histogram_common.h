@@ -31,17 +31,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Common definitions
 ////////////////////////////////////////////////////////////////////////////////
-#define HISTOGRAM64_BIN_COUNT 64
+#define HISTOGRAM64_BIN_COUNT  64
 #define HISTOGRAM256_BIN_COUNT 256
-#define UINT_BITS 32
-typedef unsigned int uint;
+#define UINT_BITS              32
+typedef unsigned int  uint;
 typedef unsigned char uchar;
 
 ////////////////////////////////////////////////////////////////////////////////
 // GPU-specific common definitions
 ////////////////////////////////////////////////////////////////////////////////
 #define LOG2_WARP_SIZE 5U
-#define WARP_SIZE (1U << LOG2_WARP_SIZE)
+#define WARP_SIZE      (1U << LOG2_WARP_SIZE)
 
 // May change on future hardware, so better parametrize the code
 #define SHARED_MEMORY_BANKS 16
@@ -59,7 +59,7 @@ typedef unsigned char uchar;
 // Shared memory per threadblock
 #define HISTOGRAM256_THREADBLOCK_MEMORY (WARP_COUNT * HISTOGRAM256_BIN_COUNT)
 
-#define UMUL(a, b) ((a) * (b))
+#define UMUL(a, b)    ((a) * (b))
 #define UMAD(a, b, c) (UMUL((a), (b)) + (c))
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -67,8 +67,7 @@ typedef unsigned char uchar;
 ////////////////////////////////////////////////////////////////////////////////
 extern "C" void histogram64CPU(uint *h_Histogram, void *h_Data, uint byteCount);
 
-extern "C" void histogram256CPU(uint *h_Histogram, void *h_Data,
-                                uint byteCount);
+extern "C" void histogram256CPU(uint *h_Histogram, void *h_Data, uint byteCount);
 
 ////////////////////////////////////////////////////////////////////////////////
 // GPU histogram

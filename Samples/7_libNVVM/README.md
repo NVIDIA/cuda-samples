@@ -4,7 +4,9 @@ libNVVM and NVVM IR Samples
 Introduction
 ------------
 
-The following samples illustrate the use of libNVVM and NVVM IR.
+The following samples illustrate the use of libNVVM and NVVM IR. Running and
+testing these samples requires an NVIDIA driver compatible with the CUDA
+Toolkit being used for compilation.
 
 - cuda-shared-memory - A directory containing NVVM IR programs that demonstrate
   CUDA 'shared' memory usage.
@@ -58,12 +60,20 @@ Alternatively, we provide a Makefile that will automatically build these
 samples on Linux as part of the toplevel cuda-samples build.  Windows users
 should build manually via utils/built.bat or Visual Studio's CMake integration.
 
+To build and run the libNVVM samples with CUDA Toolkits 13.0 or newer, user-mode
+driver 580 and newer, old kernel-mode drivers (version 550 or earlier)，you must
+update the CMake invocation in utils/build.sh or build.bat by adding
+`CMAKE_PREFIX_PATH` with a stubs path as follows:
+```
+-DCMAKE_PREFIX_PATH=/usr/local/cuda/lib64/stubs/
+```
+
 A Note About the cuda-c-linking Sample
 --------------------------------------
 
 This sample requires a development package (or locally-built) LLVM library
 between versions 7 to 14 inclusive.  LLVM 15 defaults to using opaque pointers,
-which are currently not supported in libNVVM.
+which are not supported in libNVVM for pre-Blackwell architectures.
 
 The LLVM_HOME environment variable is required for users who wish to build the
 cuda-c-linking sample and have a locally built copy of LLVM that they wish to

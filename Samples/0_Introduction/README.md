@@ -4,23 +4,11 @@
 ### [asyncAPI](./asyncAPI)
 This sample illustrates the usage of CUDA events for both GPU timing and overlapping CPU and GPU execution. Events are inserted into a stream of CUDA calls. Since CUDA stream calls are asynchronous, the CPU can perform computations while GPU is executing (including DMA memcopies between the host and device). CPU can query CUDA events to determine whether GPU has completed tasks.
 
-### [c++11_cuda](./c++11_cuda)
-This sample demonstrates C++11 feature support in CUDA. It scans a input text file and prints no. of occurrences of x, y, z, w characters. 
-
 ### [clock](./clock)
 This example shows how to use the clock function to measure the performance of block of threads of a kernel accurately.
 
 ### [clock_nvrtc](./clock_nvrtc)
 This example shows how to use the clock function using libNVRTC to measure the performance of block of threads of a kernel accurately.
-
-### [concurrentKernels](./concurrentKernels)
-This sample demonstrates the use of CUDA streams for concurrent execution of several kernels on GPU device. It also illustrates how to introduce dependencies between CUDA streams with the new cudaStreamWaitEvent function.
-
-### [cppIntegration](./cppIntegration)
-This example demonstrates how to integrate CUDA into an existing C++ application, i.e. the CUDA entry point on host side is only a function which is called from C++ code and only the file containing this function is compiled with nvcc. It also demonstrates that vector types can be used from cpp.
-
-### [cppOverload](./cppOverload)
-This sample demonstrates how to use C++ function overloading on the GPU.
 
 ### [cudaOpenMP](./cudaOpenMP)
 This sample demonstrates how to use OpenMP API to write an application for multiple GPUs.
@@ -106,9 +94,6 @@ Use of Pitch Linear Textures
 ### [simplePrintf](./simplePrintf)
 This basic CUDA Runtime API sample demonstrates how to use the printf function in the device code.
 
-### [simpleSeparateCompilation](./simpleSeparateCompilation)
-This sample demonstrates a CUDA 5.0 feature, the ability to create a GPU device static library and use it within another CUDA kernel.  This example demonstrates how to pass in a GPU device function (from the GPU device static library) as a function pointer to be called.  This sample requires devices with compute capability 2.0 or higher.
-
 ### [simpleStreams](./simpleStreams)
 This sample uses CUDA streams to overlap kernel executions with memory copies between the host and a GPU device.  This sample uses a new CUDA 4.0 feature that supports pinning of generic host memory.  Requires Compute Capability 2.0 or higher.
 
@@ -116,9 +101,6 @@ This sample uses CUDA streams to overlap kernel executions with memory copies be
 Simple example that demonstrates the use of 2D surface references (Write-to-Texture)
 
 ### [simpleTemplates](./simpleTemplates)
-This sample is a templatized version of the template project. It also shows how to correctly templatize dynamically allocated shared memory arrays.
-
-### [simpleTemplates_nvrtc](./simpleTemplates_nvrtc)
 This sample is a templatized version of the template project. It also shows how to correctly templatize dynamically allocated shared memory arrays.
 
 ### [simpleTexture](./simpleTexture)
@@ -132,9 +114,6 @@ Simple example that demonstrates use of Textures in CUDA.  This sample uses the 
 
 ### [simpleVoteIntrinsics](./simpleVoteIntrinsics)
 Simple program which demonstrates how to use the Vote (__any_sync, __all_sync) intrinsic instruction in a CUDA kernel.
-
-### [simpleVoteIntrinsics_nvrtc](./simpleVoteIntrinsics_nvrtc)
-Simple program which demonstrates how to use the Vote (any, all) intrinsic instruction in a CUDA kernel with runtime compilation using NVRTC APIs. Requires Compute Capability 2.0 or higher.
 
 ### [simpleZeroCopy](./simpleZeroCopy)
 This sample illustrates how to use Zero MemCopy, kernels can read and write directly to pinned system memory.
@@ -159,4 +138,3 @@ This Vector Addition sample is a basic sample that is implemented element by ele
 
 ### [vectorAddMMAP](./vectorAddMMAP)
 This sample replaces the device allocation in the vectorAddDrv sample with cuMemMap-ed allocations.  This sample demonstrates that the cuMemMap api allows the user to specify the physical properties of their memory while retaining the contiguous nature of their access, thus not requiring a change in their program structure.
-

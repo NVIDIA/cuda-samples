@@ -16,7 +16,7 @@ section from CUDA C Programming Guide
 Kernel Launch APIs
 ------------------
 
-Device-side kernel launches can be implemented using the following two APIs 
+Device-side kernel launches can be implemented using the following two APIs
 in an NVVM IR program: cudaLaunchDevice() and cudaGetParameterBuffer().
 cudaLaunchDevice() launches the specified kernel with the parameter buffer
 that is obtained by calling cudaGetParameterBuffer() and filled with the
@@ -34,8 +34,8 @@ form shown below before it is used.
     declare i32 @cudaLaunchDeviceV2(i8*, %struct.CUstream_st*)
 
 The CUDA-level declaration below is mapped to one of the aftorementioned NVVM
-IR level declarations and is found in the system header file 
-cuda_device_runtime_api.h. The function is defined in the cudadevrt system 
+IR level declarations and is found in the system header file
+cuda_device_runtime_api.h. The function is defined in the cudadevrt system
 library, which must be linked with a program in order to use device-side
 kernel launch functionality.
 
@@ -60,21 +60,21 @@ given below:
 The following CUDA-level declaration of cudaGetParameterBufferV2() is
 mapped to the aforementioned NVVM IR level declaration:
 
-    extern __device__ __cudart_builtin__ void * CUDARTAPI 
-    cudaGetParameterBufferV2(void *func, dim3 gridDimension, 
+    extern __device__ __cudart_builtin__ void * CUDARTAPI
+    cudaGetParameterBufferV2(void *func, dim3 gridDimension,
                              dim3 blockDimension,
                              unsigned int sharedMemSize);
 
 The first parameter is a pointer to the kernel to be launched, and the
 other parameters specify the launch configuration, i.e., as grid
-dimension, block dimension, and shared memory size. 
+dimension, block dimension, and shared memory size.
 
 Parameter Buffer Layout
 -----------------------
 
-Parameter reordering in the parameter buffer is prohibited, and each individual 
-parameter placed in the parameter buffer is required to be aligned. That is, 
+Parameter reordering in the parameter buffer is prohibited, and each individual
+parameter placed in the parameter buffer is required to be aligned. That is,
 each parameter must be placed at the n-th byte in the parameter buffer, where n
-is the smallest multiple of the parameter size that is greater than the offset 
-of the last byte taken by the preceding parameter. The maximum size of the 
+is the smallest multiple of the parameter size that is greater than the offset
+of the last byte taken by the preceding parameter. The maximum size of the
 parameter buffer is 4KB.

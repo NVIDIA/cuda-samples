@@ -34,8 +34,8 @@
 #define WA (4 * block_size) // Matrix A width
 #define HA (6 * block_size) // Matrix A height
 #define WB (4 * block_size) // Matrix B width
-#define HB WA  // Matrix B height
-#define WC WB  // Matrix C width 
-#define HC HA  // Matrix C height
+#define HB WA               // Matrix B height
+#define WC WB               // Matrix C width
+#define HC HA               // Matrix C height
 
 #endif // _MATRIXMUL_H_

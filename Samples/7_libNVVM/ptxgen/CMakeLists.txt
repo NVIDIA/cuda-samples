@@ -25,22 +25,42 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 add_executable(ptxgen ptxgen.c)
-add_custom_target(clobber)
-add_custom_target(testrun)
+
 add_test(NAME ptxgenTest
    COMMAND ptxgen "${CMAKE_CURRENT_SOURCE_DIR}/test.ll"
-   WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+   WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 set_tests_properties(ptxgenTest PROPERTIES FIXTURES_SETUP PTXGENTEST)
 
 target_link_libraries(ptxgen ${NVVM_LIB})
+
+if (DEFINED RUNTIME_LIBNVVM_PATH)
+  get_filename_component(_LIBNVVM_HOME "${RUNTIME_LIBNVVM_PATH}" DIRECTORY)
+else ()
+  set(_LIBNVVM_HOME "${LIBNVVM_HOME}")
+endif ()
 
 if (WIN32)
   set_target_properties(ptxgen PROPERTIES
                         COMPILE_FLAGS "/wd4996 -DLIBNVVM_HOME=\"${LIBNVVM_HOME}\"")
 else (WIN32)
   set_target_properties(ptxgen PROPERTIES
-                        COMPILE_FLAGS "-DLIBNVVM_HOME=\"${LIBNVVM_HOME}\""
+                        COMPILE_FLAGS "-DLIBNVVM_HOME=\"${_LIBNVVM_HOME}\""
                         LINK_FLAGS    "-Wl,-rpath,${LIBNVVM_RPATH}")
 endif (WIN32)
 
 install(TARGETS ptxgen DESTINATION bin)
+
+add_custom_command(
+    TARGET ptxgen
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_CURRENT_SOURCE_DIR}/test.ll" "$<TARGET_FILE_DIR:ptxgen>"
+)
+if (WIN32)
+  add_custom_command(
+      TARGET ptxgen
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+              "${CMAKE_BINARY_DIR}/nvvm64_40_0.dll" "$<TARGET_FILE_DIR:ptxgen>"
+  )
+endif ()

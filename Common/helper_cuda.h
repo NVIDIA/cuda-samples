@@ -138,14 +138,8 @@ static const char *_cudaGetErrorEnum(cufftResult error) {
     case CUFFT_UNALIGNED_DATA:
       return "CUFFT_UNALIGNED_DATA";
 
-    case CUFFT_INCOMPLETE_PARAMETER_LIST:
-      return "CUFFT_INCOMPLETE_PARAMETER_LIST";
-
     case CUFFT_INVALID_DEVICE:
       return "CUFFT_INVALID_DEVICE";
-
-    case CUFFT_PARSE_ERROR:
-      return "CUFFT_PARSE_ERROR";
 
     case CUFFT_NO_WORKSPACE:
       return "CUFFT_NO_WORKSPACE";
@@ -153,11 +147,20 @@ static const char *_cudaGetErrorEnum(cufftResult error) {
     case CUFFT_NOT_IMPLEMENTED:
       return "CUFFT_NOT_IMPLEMENTED";
 
-    case CUFFT_LICENSE_ERROR:
-      return "CUFFT_LICENSE_ERROR";
-
     case CUFFT_NOT_SUPPORTED:
       return "CUFFT_NOT_SUPPORTED";
+
+    case CUFFT_MISSING_DEPENDENCY:
+      return "CUFFT_MISSING_DEPENDENCY";
+
+    case CUFFT_NVRTC_FAILURE:
+      return "CUFFT_NVRTC_FAILURE";
+
+    case CUFFT_NVJITLINK_FAILURE:
+      return "CUFFT_NVJITLINK_FAILURE";
+
+    case CUFFT_NVSHMEM_FAILURE:
+      return "CUFFT_NVSHMEM_FAILURE";
   }
 
   return "<unknown>";
@@ -668,6 +671,12 @@ inline int _ConvertSMVer2Cores(int major, int minor) {
       {0x87, 128},
       {0x89, 128},
       {0x90, 128},
+      {0xa0, 128},
+      {0xa1, 128},
+      {0xa3, 128},
+      {0xb0, 128},
+      {0xc0, 128},
+      {0xc1, 128},
       {-1, -1}};
 
   int index = 0;
@@ -717,6 +726,12 @@ inline const char* _ConvertSMVer2ArchName(int major, int minor) {
       {0x87, "Ampere"},
       {0x89, "Ada"},
       {0x90, "Hopper"},
+      {0xa0, "Blackwell"},
+      {0xa1, "Blackwell"},
+      {0xa3, "Blackwell"},
+      {0xb0, "Blackwell"},
+      {0xc0, "Blackwell"},
+      {0xc1, "Blackwell"},
       {-1, "Graphics Device"}};
 
   int index = 0;

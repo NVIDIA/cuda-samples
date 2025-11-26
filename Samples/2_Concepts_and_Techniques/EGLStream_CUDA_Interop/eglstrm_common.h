@@ -45,59 +45,56 @@
 #include "cudaEGL.h"
 #include "helper_cuda_drvapi.h"
 
-#define EXTENSION_LIST(T)                                                \
-  T(PFNEGLCREATESTREAMKHRPROC, eglCreateStreamKHR)                       \
-  T(PFNEGLDESTROYSTREAMKHRPROC, eglDestroyStreamKHR)                     \
-  T(PFNEGLQUERYSTREAMKHRPROC, eglQueryStreamKHR)                         \
-  T(PFNEGLQUERYSTREAMU64KHRPROC, eglQueryStreamu64KHR)                   \
-  T(PFNEGLQUERYSTREAMTIMEKHRPROC, eglQueryStreamTimeKHR)                 \
-  T(PFNEGLSTREAMATTRIBKHRPROC, eglStreamAttribKHR)                       \
-  T(PFNEGLSTREAMCONSUMERACQUIREKHRPROC, eglStreamConsumerAcquireKHR)     \
-  T(PFNEGLSTREAMCONSUMERRELEASEKHRPROC, eglStreamConsumerReleaseKHR)     \
-  T(PFNEGLSTREAMCONSUMERGLTEXTUREEXTERNALKHRPROC,                        \
-    eglStreamConsumerGLTextureExternalKHR)                               \
-  T(PFNEGLGETSTREAMFILEDESCRIPTORKHRPROC, eglGetStreamFileDescriptorKHR) \
-  T(PFNEGLQUERYDEVICESEXTPROC, eglQueryDevicesEXT)                       \
-  T(PFNEGLGETPLATFORMDISPLAYEXTPROC, eglGetPlatformDisplayEXT)           \
-  T(PFNEGLQUERYDEVICEATTRIBEXTPROC, eglQueryDeviceAttribEXT)             \
-  T(PFNEGLCREATESTREAMFROMFILEDESCRIPTORKHRPROC,                         \
-    eglCreateStreamFromFileDescriptorKHR)
+#define EXTENSION_LIST(T)                                                                  \
+    T(PFNEGLCREATESTREAMKHRPROC, eglCreateStreamKHR)                                       \
+    T(PFNEGLDESTROYSTREAMKHRPROC, eglDestroyStreamKHR)                                     \
+    T(PFNEGLQUERYSTREAMKHRPROC, eglQueryStreamKHR)                                         \
+    T(PFNEGLQUERYSTREAMU64KHRPROC, eglQueryStreamu64KHR)                                   \
+    T(PFNEGLQUERYSTREAMTIMEKHRPROC, eglQueryStreamTimeKHR)                                 \
+    T(PFNEGLSTREAMATTRIBKHRPROC, eglStreamAttribKHR)                                       \
+    T(PFNEGLSTREAMCONSUMERACQUIREKHRPROC, eglStreamConsumerAcquireKHR)                     \
+    T(PFNEGLSTREAMCONSUMERRELEASEKHRPROC, eglStreamConsumerReleaseKHR)                     \
+    T(PFNEGLSTREAMCONSUMERGLTEXTUREEXTERNALKHRPROC, eglStreamConsumerGLTextureExternalKHR) \
+    T(PFNEGLGETSTREAMFILEDESCRIPTORKHRPROC, eglGetStreamFileDescriptorKHR)                 \
+    T(PFNEGLQUERYDEVICESEXTPROC, eglQueryDevicesEXT)                                       \
+    T(PFNEGLGETPLATFORMDISPLAYEXTPROC, eglGetPlatformDisplayEXT)                           \
+    T(PFNEGLQUERYDEVICEATTRIBEXTPROC, eglQueryDeviceAttribEXT)                             \
+    T(PFNEGLCREATESTREAMFROMFILEDESCRIPTORKHRPROC, eglCreateStreamFromFileDescriptorKHR)
 
-#define eglCreateStreamKHR my_eglCreateStreamKHR
-#define eglDestroyStreamKHR my_eglDestroyStreamKHR
-#define eglQueryStreamKHR my_eglQueryStreamKHR
-#define eglQueryStreamu64KHR my_eglQueryStreamu64KHR
-#define eglQueryStreamTimeKHR my_eglQueryStreamTimeKHR
-#define eglStreamAttribKHR my_eglStreamAttribKHR
-#define eglStreamConsumerAcquireKHR my_eglStreamConsumerAcquireKHR
-#define eglStreamConsumerReleaseKHR my_eglStreamConsumerReleaseKHR
-#define eglStreamConsumerGLTextureExternalKHR \
-  my_eglStreamConsumerGLTextureExternalKHR
-#define eglGetStreamFileDescriptorKHR my_eglGetStreamFileDescriptorKHR
-#define eglCreateStreamFromFileDescriptorKHR \
-  my_eglCreateStreamFromFileDescriptorKHR
-#define eglQueryDevicesEXT my_eglQueryDevicesEXT
-#define eglGetPlatformDisplayEXT my_eglGetPlatformDisplayEXT
-#define eglQueryDeviceAttribEXT my_eglQueryDeviceAttribEXT
+#define eglCreateStreamKHR                    my_eglCreateStreamKHR
+#define eglDestroyStreamKHR                   my_eglDestroyStreamKHR
+#define eglQueryStreamKHR                     my_eglQueryStreamKHR
+#define eglQueryStreamu64KHR                  my_eglQueryStreamu64KHR
+#define eglQueryStreamTimeKHR                 my_eglQueryStreamTimeKHR
+#define eglStreamAttribKHR                    my_eglStreamAttribKHR
+#define eglStreamConsumerAcquireKHR           my_eglStreamConsumerAcquireKHR
+#define eglStreamConsumerReleaseKHR           my_eglStreamConsumerReleaseKHR
+#define eglStreamConsumerGLTextureExternalKHR my_eglStreamConsumerGLTextureExternalKHR
+#define eglGetStreamFileDescriptorKHR         my_eglGetStreamFileDescriptorKHR
+#define eglCreateStreamFromFileDescriptorKHR  my_eglCreateStreamFromFileDescriptorKHR
+#define eglQueryDevicesEXT                    my_eglQueryDevicesEXT
+#define eglGetPlatformDisplayEXT              my_eglGetPlatformDisplayEXT
+#define eglQueryDeviceAttribEXT               my_eglQueryDeviceAttribEXT
 
-#define EXTLST_DECL(tx, x) tx my_##x = NULL;
+#define EXTLST_DECL(tx, x)   tx my_##x = NULL;
 #define EXTLST_EXTERN(tx, x) extern tx my_##x;
-#define EXTLST_ENTRY(tx, x) {(extlst_fnptr_t *)&my_##x, #x},
+#define EXTLST_ENTRY(tx, x)  {(extlst_fnptr_t *)&my_##x, #x},
 
 #define MAX_STRING_SIZE 256
-#define WIDTH 720
-#define HEIGHT 480
+#define WIDTH           720
+#define HEIGHT          480
 
-typedef struct _TestArgs {
-  char *infile1;
-  char *infile2;
-  bool isARGB;
-  unsigned int inputWidth;
-  unsigned int inputHeight;
-  bool pitchLinearOutput;
+typedef struct _TestArgs
+{
+    char        *infile1;
+    char        *infile2;
+    bool         isARGB;
+    unsigned int inputWidth;
+    unsigned int inputHeight;
+    bool         pitchLinearOutput;
 } TestArgs;
 
-int eglSetupExtensions(void);
-int EGLStreamInit(int *dev);
+int  eglSetupExtensions(void);
+int  EGLStreamInit(int *dev);
 void EGLStreamFini(void);
 #endif

@@ -1,5 +1,141 @@
 ## Changelog
 
+### CUDA 13.0
+* Updated the samples using the cudaDeviceProp fields which are deprecated and removed in CUDA 13.0, replacing the fields with the equivalents in "cudaDeviceGetAttribute":
+    * Deprecated "cudaDeviceProp" fields
+        `int clockRate; // - Replaced with "cudaDevAttrClockRate"`
+        `int deviceOverlap; // - Replaced with "cudaDevAttrGpuOverlap */`
+        `int kernelExecTimeoutEnabled; // - Replaced with "cudaDevAttrKernelExecTimeout`
+        `int computeMode; // - Replaced with "cudaDevAttrComputeMode" */`
+        `int memoryClockRate; // - Replaced with "cudaDevAttrMemoryClockRate"`
+        `int cooperativeMultiDeviceLaunch; // - Deprecated, cudaLaunchCooperativeKernelMultiDevice is deprecated.`
+    * `0_Introduction`
+        * `UnifiedMemoryStreams`
+        * `simpleHyperQ`
+        * `simpleIPC`
+        * `simpleMultiCopy`
+        * `systemWideAtomics`
+    * `1_Utilitie`
+        * `deviceQuery`
+    * `2_Concepts_and_Techniques`
+        * `streamOrderedAllocationIPC`
+    * `4_CUDA_Libraries`
+        * `simpleCUBLASXT`
+    * `5_Domain_Specific`
+        * `simpleVulkan`
+        * `vulkanImageCUDA`
+* Updated the samples using the CUDA driver API "cuCtxCreate" with adding the parameter "CUctxCreateParams" as "cuCtxCreate" is updated to "cuCtxCreate_v4" by default in CUDA 13.0:
+    * `Common`
+        * `nvrtc_helper.h`
+    * `0_Introduction`
+        * `UnifiedMemoryStreams`
+        * `matrixMulDrv`
+        * `simpleTextureDrv`
+        * `vectorAddDrv`
+        * `vectorAddMMAP`
+    * `2_Concepts_and_Techniques`
+        * `EGLStream_CUDA_CrossGPU`
+        * `EGLStream_CUDA_Interop`
+        * `threadMigration`
+    * `3_CUDA_Features`
+        * `graphMemoryFootprint`
+        * `memMapIPCDrv`
+    * `4_CUDA_Libraries`
+        * `jitLto`
+    * `7_libNVVM`
+        * `cuda-c-linking`
+        * `device-side-launch`
+        * `simple`
+        * `uvmlite`
+    * `8_Platform_Specific/Tegra`
+        * `EGLSync_CUDAEvent_Interop`
+* Updated the sample using CUDA API "cudaGraphAddNode"/"cudaStreamGetCaptureInfo" with adding "cudaGraphEdgeData" pointer parameter as they are updated to "cudaGraphAddNode_v2"/"cudaStreamGetCaptureInfo_v3" by default in CUDA 13.0:
+    * `3_CUDA_Features`
+        * `graphConditionalNodes`
+* Updated the samples using CUDA API "cudaMemAdvise"/"cudaMemPrefetchAsync" with changing the parameter "int device" to "cudaMemLocation location" as they are updated to "cudaMemAdvise_v2"/"cudaMemPrefetchAsyn_v2" by default in CUDA 13.0.
+    * `4_CUDA_Libraries`
+        * `conjugateGradientMultiDeviceCG`
+    * `6_Performance`
+        * `UnifiedMemoryPerf`
+* Replaced "thrust::identity<uint>()" with "cuda::std::identity()" as it is deprecated in CUDA 13.0.
+    * `2_Concepts_and_Techniques`
+        * `segmentationTreeThrust`
+* Updated the the headers file and samples for CUFFT error codes update.
+    * Deprecated CUFFT errors:
+        * `CUFFT_INCOMPLETE_PARAMETER_LIST`
+        * `CUFFT_PARSE_ERROR`
+        * `CUFFT_LICENSE_ERROR`
+    * New added CUFFT errors:
+        * `CUFFT_MISSING_DEPENDENCY`
+        * `CUFFT_NVRTC_FAILURE`
+        * `CUFFT_NVJITLINK_FAILURE`
+        * `CUFFT_NVSHMEM_FAILURE`
+    * Header files and samples that are related with this change:
+        * `Common/helper_cuda.h`
+        * `4_CUDA_Libraries`
+            * `simpleCUFFT`
+            * `simpleCUFFT_2d_MGPU`
+            * `simpleCUFFT_MGPU`
+            * `simpleCUFFT_callback`
+* Updated toolchain for cross-compilation for Tegra QNX platforms.
+
+### CUDA 12.9
+* Updated toolchain for cross-compilation for Tegra Linux platforms.
+* Added `run_tests.py` utility to exercise all samples. See README.md for details
+* Repository has been updated with consistent code formatting across all samples
+* Many small code tweaks and bug fixes (see commit history for details)
+* Removed the following outdated samples:
+  * `1_Utilities`
+    * `bandwidthTest` - this sample was out of date and did not produce accurate results. For bandwidth
+    testing of NVIDIA GPU platforms, please refer to [NVBandwidth](https://github.com/NVIDIA/nvbandwidth)
+
+### CUDA 12.8
+* Updated build system across the repository to CMake. Removed Visual Studio project files and Makefiles.
+* Removed the following outdated samples:
+    * `0_Introduction`
+        * `c++11_cuda` demonstrating CUDA and C++ 11 interoperability (reason: obsolete)
+        * `concurrentKernels` demonstrating the ability to run multiple kernels simultaneously (reason: obsolete)
+        * `cppIntegration` demonstrating calling between .cu and .cpp files (reason: obsolete)
+        * `cppOverload` demonstrating C++ function overloading (reason: obsolete)
+        * `simpleSeparateCompilation` demonstrating NVCC compilation to a static library (reason: trivial)
+        * `simpleTemplates_nvrtc` demonstrating NVRTC usage for `simpleTemplates` sample (reason: redundant)
+        * `simpleVoteIntrinsics_nvrtc` demonstrating NVRTC usage for `simpleVoteIntrinsics` sample (reason: redundant)
+    * `2_Concepts_and_Techniques`
+        * `cuHook` demonstrating dlsym hooks. (reason: incompatible with modern `glibc`)
+    * `4_CUDA_Libraries`
+        * `batchedLabelMarkersAndLabelCompressionNPP` demonstrating NPP features (reason: some functionality removed from library)
+    * `5_Domain_Specific`
+        * Legacy Direct3D 9 and 10 interoperability samples:
+            * `fluidsD3D9`
+            * `simpleD3D10`
+            * `simpleD3D10RenderTarget`
+            * `simpleD3D10Texture`
+            * `simpleD3D9`
+            * `simpleD3D9Texture`
+            * `SLID3D10Texture`
+            * `VFlockingD3D10`
+    * `8_Platform_Specific/Tegra`
+        * Temporarily removed the following two samples pending updates:
+            * `nbody_screen` demonstrating the nbody sample in QNX
+            * `simpleGLES_screen` demonstrating GLES interop in QNX
+* Moved the following Tegra-specific samples to a dedicated subdirectory: `8_Platform_Specific/Tegra`
+    * `EGLSync_CUDAEvent_Interop`
+    * `cuDLAErrorReporting`
+    * `cuDLAHybridMode`
+    * `cuDLALayerwiseStatsHybrid`
+    * `cuDLALayerwiseStatsStandalone`
+    * `cuDLAStandaloneMode`
+    * `cudaNvSciBufMultiplanar`
+    * `cudaNvSciNvMedia`
+    * `fluidsGLES`
+    * `nbody_opengles`
+    * `simpleGLES`
+    * `simpleGLES_EGLOutput`
+
+
+
+### CUDA 12.5
+
 ### CUDA 12.4
 * Added graphConditionalNodes Sample
 
@@ -16,7 +152,7 @@
 * Added new sample for Large Kernels
 
 ### CUDA 12.0
-* Added new flags for JIT compiling 
+* Added new flags for JIT compiling
 * Removed deprecated APIs in Hopper Architecture
 
 ### CUDA 11.6

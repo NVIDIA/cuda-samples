@@ -33,36 +33,39 @@
 #define _CUDA_PRODUCER_H_
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
+
 #include "cudaEGL.h"
 #include "eglstrm_common.h"
 
 extern EGLStreamKHR eglStream;
-extern EGLDisplay g_display;
+extern EGLDisplay   g_display;
 
-typedef struct _test_cuda_producer_s {
-  //  Stream params
-  char *fileName1;
-  char *fileName2;
-  unsigned char *pBuff;
-  int frameCount;
-  bool isARGB;
-  bool pitchLinearOutput;
-  unsigned int width;
-  unsigned int height;
-  CUcontext context;
-  CUeglStreamConnection cudaConn;
-  CUdeviceptr cudaPtrARGB[1];
-  CUdeviceptr cudaPtrYUV[3];
-  CUarray cudaArrARGB[1];
-  CUarray cudaArrYUV[3];
-  EGLStreamKHR eglStream;
-  EGLDisplay eglDisplay;
+typedef struct _test_cuda_producer_s
+{
+    //  Stream params
+    char                 *fileName1;
+    char                 *fileName2;
+    unsigned char        *pBuff;
+    int                   frameCount;
+    bool                  isARGB;
+    bool                  pitchLinearOutput;
+    unsigned int          width;
+    unsigned int          height;
+    CUcontext             context;
+    CUeglStreamConnection cudaConn;
+    CUdeviceptr           cudaPtrARGB[1];
+    CUdeviceptr           cudaPtrYUV[3];
+    CUarray               cudaArrARGB[1];
+    CUarray               cudaArrYUV[3];
+    EGLStreamKHR          eglStream;
+    EGLDisplay            eglDisplay;
 } test_cuda_producer_s;
 
-void cudaProducerInit(test_cuda_producer_s *cudaProducer, EGLDisplay eglDisplay,
-                      EGLStreamKHR eglStream, TestArgs *args);
+void     cudaProducerInit(test_cuda_producer_s *cudaProducer,
+                          EGLDisplay            eglDisplay,
+                          EGLStreamKHR          eglStream,
+                          TestArgs             *args);
 CUresult cudaProducerTest(test_cuda_producer_s *parserArg, char *file);
 CUresult cudaProducerDeinit(test_cuda_producer_s *cudaProducer);
-CUresult cudaDeviceCreateProducer(test_cuda_producer_s *cudaProducer,
-                                  CUdevice device);
+CUresult cudaDeviceCreateProducer(test_cuda_producer_s *cudaProducer, CUdevice device);
 #endif

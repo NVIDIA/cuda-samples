@@ -32,7 +32,8 @@
 //! Thread whose id > N will print assertion failed error message.
 ////////////////////////////////////////////////////////////////////////////////
 
-extern "C" __global__ void testKernel(int N) {
-  int gtid = blockIdx.x * blockDim.x + threadIdx.x;
-  assert(gtid < N);
+extern "C" __global__ void testKernel(int N)
+{
+    int gtid = blockIdx.x * blockDim.x + threadIdx.x;
+    assert(gtid < N);
 }

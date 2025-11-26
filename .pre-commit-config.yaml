@@ -1,0 +1,106 @@
+# Copyright (c) 2024, NVIDIA CORPORATION.
+ci:
+    autofix_commit_msg: |
+      [pre-commit.ci] auto code formatting
+    autofix_prs: false
+    autoupdate_branch: ''
+    autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+    autoupdate_schedule: quarterly
+    skip: []
+    submodules: false
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: end-of-file-fixer
+        exclude: |
+          (?x)^(
+            .*\.raw$|
+            .*\.bin$|
+            .*\.dat$|
+            .*\.nv12$|
+            data/.*|
+            Common/.*
+          )
+        files: |
+          (?x)^(
+            .*\.txt$|
+            .*\.md$|
+            .*\.cpp$|
+            .*\.cxx$|
+            .*\.hpp$|
+            .*\.h$|
+            .*\.cu$|
+            .*\.cuh$|
+            .*\.py$|
+            .*\.json$
+          )
+      - id: mixed-line-ending
+        exclude: |
+          (?x)^(
+            .*\.raw$|
+            .*\.bin$|
+            .*\.dat$|
+            .*\.nv12$|
+            data/.*|
+            Common/.*
+          )
+        files: |
+          (?x)^(
+            .*\.txt$|
+            .*\.md$|
+            .*\.cpp$|
+            .*\.cxx$|
+            .*\.hpp$|
+            .*\.h$|
+            .*\.cu$|
+            .*\.cuh$|
+            .*\.py$|
+            .*\.json$
+          )
+      - id: trailing-whitespace
+        exclude: |
+          (?x)^(
+            .*\.raw$|
+            .*\.bin$|
+            .*\.dat$|
+            .*\.nv12$|
+            data/.*|
+            Common/.*
+          )
+        files: |
+          (?x)^(
+            .*\.txt$|
+            .*\.md$|
+            .*\.cpp$|
+            .*\.cxx$|
+            .*\.hpp$|
+            .*\.h$|
+            .*\.cu$|
+            .*\.cuh$|
+            .*\.py$|
+            .*\.json$
+          )
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v19.1.6
+    hooks:
+      - id: clang-format
+        types_or: [file]
+        files: |
+          (?x)^(
+            ^.*\.c$|
+            ^.*\.cpp$|
+            ^.*\.cu$|
+            ^.*\.cuh$|
+            ^.*\.cxx$|
+            ^.*\.h$|
+            ^.*\.hpp$|
+            ^.*\.inl$|
+            ^.*\.mm$
+          )
+        exclude: |
+          (?x)^(
+            Common/.*
+          )
+        args: ["-fallback-style=none", "-style=file", "-i"]

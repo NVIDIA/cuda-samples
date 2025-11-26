@@ -65,25 +65,27 @@
 
 // This is the un-specialized struct.  Note that we prevent instantiation of
 // this struct by making it abstract (i.e. with pure virtual methods).
-template <typename T>
-struct SharedMemory {
-  // Ensure that we won't compile any un-specialized types
-  virtual __device__ T &operator*() = 0;
-  virtual __device__ T &operator[](int i) = 0;
+template <typename T> struct SharedMemory
+{
+    // Ensure that we won't compile any un-specialized types
+    virtual __device__ T &operator*()       = 0;
+    virtual __device__ T &operator[](int i) = 0;
 };
 
-#define BUILD_SHAREDMEMORY_TYPE(t, n) \
-  template <>                         \
-  struct SharedMemory<t> {            \
-    __device__ t &operator*() {       \
-      extern __shared__ t n[];        \
-      return *n;                      \
-    }                                 \
-    __device__ t &operator[](int i) { \
-      extern __shared__ t n[];        \
-      return n[i];                    \
-    }                                 \
-  }
+#define BUILD_SHAREDMEMORY_TYPE(t, n)   \
+    template <> struct SharedMemory<t>  \
+    {                                   \
+        __device__ t &operator*()       \
+        {                               \
+            extern __shared__ t n[];    \
+            return *n;                  \
+        }                               \
+        __device__ t &operator[](int i) \
+        {                               \
+            extern __shared__ t n[];    \
+            return n[i];                \
+        }                               \
+    }
 
 BUILD_SHAREDMEMORY_TYPE(int, s_int);
 BUILD_SHAREDMEMORY_TYPE(unsigned int, s_uint);

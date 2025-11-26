@@ -114,4 +114,3 @@ Example of using CUFFT. In this example, CUFFT is used to compute the 1D-convolu
 
 ### [watershedSegmentationNPP](./watershedSegmentationNPP)
 An NPP CUDA Sample that demonstrates how to use the NPP watershed segmentation function.
-
