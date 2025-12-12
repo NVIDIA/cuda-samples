@@ -31,6 +31,3 @@ target_compile_options(trimNotification PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--ext
 target_compile_features(trimNotification PRIVATE cxx_std_20 cuda_std_20)
 
 set_target_properties(trimNotification PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-
-
-
