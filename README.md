@@ -80,7 +80,7 @@ in this configuration, hence it's not on by default. Enablement of on-device deb
 To enable cuda-gdb for samples builds, define the `ENABLE_CUDA_DEBUG` flag on the CMake command line. For example:
 
 ```
-cmake -DENABLE_CUDA_DEBUG=True ...
+cmake -DENABLE_CUDA_DEBUG=True ..
 ```
 
 ### Platform-Specific Samples
