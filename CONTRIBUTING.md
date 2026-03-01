@@ -84,7 +84,7 @@ pre-commit install
 
 Now code linters and formatters will be run each time you commit changes.
 
-You can skip these checks with `git commit --no-verify` or with the short version `git commit -n`, althoguh please note
+You can skip these checks with `git commit --no-verify` or with the short version `git commit -n`, although please note
 that this may result in pull requests being rejected if subsequent checks fail.
 
 ## Review Process

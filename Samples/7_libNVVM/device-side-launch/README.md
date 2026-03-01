@@ -2,7 +2,7 @@ Device-Side Launch From NVVM IR
 ===============================
 
 This document is for the programming language and compiler implementers who
-target NVVM IR and plan to support Dynamic Parallelism in their langauge.
+target NVVM IR and plan to support Dynamic Parallelism in their language.
 It provides the low-level details related to supporting kernel launches at
 the NVVM IR level.
 
