@@ -146,7 +146,7 @@ static void childProcess(int id)
     // and import the pointer to the allocated buffer using
     // exportData filled in shared memory by the master process.
     for (i = 0; i < procCount; i++) {
-        checkCudaErrors(cudaMemPoolImportFromShareableHandle(&pools[i], (void *)shHandle[i], handleType, 0));
+        checkCudaErrors(cudaMemPoolImportFromShareableHandle(&pools[i], (void *)(uintptr_t)shHandle[i], handleType, 0));
 
         cudaMemAccessFlags accessFlags;
         cudaMemLocation    location;
@@ -416,7 +416,7 @@ static void parentProcess(char *app)
 
     // Launch the child processes!
     for (i = 0; i < shm->nprocesses; i++) {
-        char        devIdx[10];
+        char        devIdx[16];
         char *const args[] = {app, devIdx, NULL};
         Process     process;
 

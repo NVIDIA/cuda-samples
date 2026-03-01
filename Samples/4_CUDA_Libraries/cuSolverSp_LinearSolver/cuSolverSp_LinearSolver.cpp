@@ -78,6 +78,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #include "cusolverSp.h"
 #include "cusparse.h"
 #include "helper_cuda.h"

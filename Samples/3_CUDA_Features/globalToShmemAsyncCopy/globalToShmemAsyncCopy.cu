@@ -261,7 +261,7 @@ __global__ void MatrixMulAsyncCopyLargeChunkAWBarrier(float *__restrict__ C,
                                                       int wB)
 {
 #if __CUDA_ARCH__ >= 700
-#pragma diag_suppress static_var_with_dynamic_init
+#pragma nv_diag_suppress 20054
     // Requires BLOCK_SIZE % 4 == 0
 
     __shared__ cuda::barrier<cuda::thread_scope_block> bar;
@@ -540,6 +540,7 @@ __global__ void MatrixMulAsyncCopyMultiStageSharedState(float *__restrict__ C,
     auto cta = cg::this_thread_block();
 
     const auto shape1 = cuda::aligned_size_t<alignof(float)>(sizeof(float));
+#pragma nv_diag_suppress 20054
     __shared__ cuda::pipeline_shared_state<cuda::thread_scope_block, maxPipelineStages> shared_state;
     constexpr int consumer_row_count = BLOCK_SIZE_X;
 

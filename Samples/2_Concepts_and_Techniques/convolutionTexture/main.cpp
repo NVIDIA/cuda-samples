@@ -109,7 +109,7 @@ int main(int argc, char **argv)
     }
 
     setConvolutionKernel(h_Kernel);
-    checkCudaErrors(cudaMemcpyToArray(a_Src, 0, 0, h_Input, imageW * imageH * sizeof(float), cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy2DToArray(a_Src, 0, 0, h_Input, imageW * sizeof(float), imageW * sizeof(float), imageH, cudaMemcpyHostToDevice));
 
     printf("Running GPU rows convolution (%u identical iterations)...\n", iterations);
     checkCudaErrors(cudaDeviceSynchronize());
@@ -134,7 +134,7 @@ int main(int argc, char **argv)
     sdkResetTimer(&hTimer);
     sdkStartTimer(&hTimer);
     checkCudaErrors(
-        cudaMemcpyToArray(a_Src, 0, 0, d_Output, imageW * imageH * sizeof(float), cudaMemcpyDeviceToDevice));
+        cudaMemcpy2DToArray(a_Src, 0, 0, d_Output, imageW * sizeof(float), imageW * sizeof(float), imageH, cudaMemcpyDeviceToDevice));
     checkCudaErrors(cudaDeviceSynchronize());
     sdkStopTimer(&hTimer);
     gpuTime = sdkGetTimerValue(&hTimer);

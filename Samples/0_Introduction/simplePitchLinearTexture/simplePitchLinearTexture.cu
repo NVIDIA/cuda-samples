@@ -172,7 +172,7 @@ void runTest(int argc, char **argv)
         cudaMemcpy2D(d_idataPL, d_pitchBytes, h_idata, h_pitchBytes, nx * sizeof(float), ny, cudaMemcpyHostToDevice));
 
     // Array
-    checkCudaErrors(cudaMemcpyToArray(d_idataArray, 0, 0, h_idata, nx * ny * sizeof(float), cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy2DToArray(d_idataArray, 0, 0, h_idata, nx * sizeof(float), nx * sizeof(float), ny, cudaMemcpyHostToDevice));
 
     cudaTextureObject_t texRefPL;
     cudaTextureObject_t texRefArray;

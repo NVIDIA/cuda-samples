@@ -10,6 +10,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(CMAKE_CUDA_ARCHITECTURES 75 80 86 87 89 90 100 110 120)
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Wno-deprecated-gpu-targets")
+# Suppress nvlink warning about stack size not being statically determined (due to device-side recursion)
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xnvlink --suppress-stack-size-warning")
 if(ENABLE_CUDA_DEBUG)
     set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")        # enable cuda-gdb (may significantly affect performance on some targets)
 else()

@@ -82,7 +82,10 @@ bool inline findModulePath(const char *module_file, std::string &module_path, ch
             int   file_size = ftell(fp);
             char *buf       = new char[file_size + 1];
             fseek(fp, 0, SEEK_SET);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
             fread(buf, sizeof(char), file_size, fp);
+#pragma GCC diagnostic pop
             fclose(fp);
             buf[file_size] = '\0';
             ptx_source     = buf;
