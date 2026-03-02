@@ -1,0 +1,15 @@
+# Exclude large directories that are never needed inside the container build.
+# The Containerfiles use explicit COPY commands for the three things they need:
+# Common/, cmake/, and the specific sample directory.
+
+# Git internals
+.git/
+
+# CMake build trees
+build*/
+
+# Container build trees
+build-container*/
+
+# Windows-only pre-built binaries
+bin/win64/

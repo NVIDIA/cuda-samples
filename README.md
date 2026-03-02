@@ -195,6 +195,11 @@ To build samples with new CUDA Toolkit(CUDA 13.0 or later) and UMD(Version 580 o
 cmake -DCMAKE_PREFIX_PATH=/usr/local/cuda/lib64/stubs/ ..
 ```
 
+### Building Container Images
+
+Individual samples can be built and run as OCI container images without a local
+CUDA installation.  See [container/README.md](./container/README.md) for details.
+
 ## Install Samples
 
 ### Installation Path Structure

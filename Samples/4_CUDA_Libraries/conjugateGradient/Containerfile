@@ -1,0 +1,34 @@
+ARG CUDA_IMAGE_VERSION=12.6.0
+
+# ---- Build stage ----
+FROM nvidia/cuda:${CUDA_IMAGE_VERSION}-devel-ubuntu22.04 AS builder
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        cmake \
+        make \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /cuda-samples
+
+# Copy only what is needed to build this sample.
+# The directory structure must be preserved so that the relative paths in
+# the sample's CMakeLists.txt (e.g. ../../../Common) resolve correctly.
+COPY Common/ Common/
+COPY cmake/ cmake/
+COPY Samples/4_CUDA_Libraries/conjugateGradient/ Samples/4_CUDA_Libraries/conjugateGradient/
+
+RUN cmake -S Samples/4_CUDA_Libraries/conjugateGradient \
+          -B Samples/4_CUDA_Libraries/conjugateGradient/build \
+          -DCMAKE_BUILD_TYPE=Release \
+    && cmake --build Samples/4_CUDA_Libraries/conjugateGradient/build --parallel $(nproc)
+
+# ---- Runtime stage ----
+# The 'runtime' image (vs 'base') includes the CUDA math library runtimes
+# (cublas, cusparse, cufft, etc.), so no extra packages are needed here.
+FROM nvidia/cuda:${CUDA_IMAGE_VERSION}-runtime-ubuntu22.04
+
+COPY --from=builder \
+    /cuda-samples/Samples/4_CUDA_Libraries/conjugateGradient/build/conjugateGradient \
+    /usr/local/bin/conjugateGradient
+
+ENTRYPOINT ["conjugateGradient"]
