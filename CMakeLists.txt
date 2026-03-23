@@ -22,6 +22,11 @@ endif()
 
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --extended-lambda")
 
+if(WIN32)
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} \
+        -Xcompiler=/Zc:preprocessor")
+endif()
+
 # Include installation configuration before processing samples
 include(cmake/InstallSamples.cmake)
 
