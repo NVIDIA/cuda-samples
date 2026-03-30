@@ -58,7 +58,7 @@ endif()
 
 add_custom_command(
     OUTPUT ${CUDA_PTX_FILE}
-    COMMAND ${CMAKE_CUDA_COMPILER} ${INCLUDES} ${ALL_CCFLAGS} -Wno-deprecated-gpu-targets -o ${CUDA_PTX_FILE} -ptx ${CUDA_KERNEL_SOURCE}
+    COMMAND ${CMAKE_CUDA_COMPILER} ${INCLUDES} ${ALL_CCFLAGS} -Wno-deprecated-gpu-targets -U_GNU_SOURCE -D_DEFAULT_SOURCE -o ${CUDA_PTX_FILE} -ptx ${CUDA_KERNEL_SOURCE}
     DEPENDS ${CUDA_KERNEL_SOURCE}
     COMMENT "Building CUDA PTX: ${CUDA_PTX_FILE}"
 )

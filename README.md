@@ -39,19 +39,40 @@ Ensure that CMake (version 3.20 or later) is installed. Install it using your pa
 e.g.
 ```sudo apt install cmake```
 
-Navigate to the root of the cloned repository and create a build directory:
-```
-mkdir build && cd build
-```
-Configure the project with CMake:
-```
-cmake ..
-```
-Build the samples:
-```
-make -j$(nproc)
+From the repository root, configure and build from a fresh build directory:
+```bash
+rm -rf build
+cmake -S . -B build -G Ninja \
+    -DCMAKE_C_COMPILER=/usr/bin/gcc-13 \
+    -DCMAKE_CXX_COMPILER=/usr/bin/g++-13 \
+    -DCMAKE_CUDA_HOST_COMPILER=/usr/bin/g++-13
+cmake --build build -j"$(nproc)"
 ```
 Run the samples from their respective directories in the build folder. You can also follow this process from and subdirectory of the samples repo, or from within any individual sample.
+
+#### Linux nvcc/glibc compatibility note
+
+On some Linux toolchain combinations, CUDA host compilation can fail with errors similar to:
+
+```text
+identifier "pthread_cond_clockwait" is undefined
+identifier "pthread_mutex_clocklock" is undefined
+identifier "pthread_rwlock_clockwrlock" is undefined
+identifier "pthread_rwlock_clockrdlock" is undefined
+```
+
+The root cause is a feature-macro interaction between nvcc, glibc headers, and libstdc++:
+
+- `-U_GNU_SOURCE` is needed in this project to avoid a separate CUDA/glibc conflict involving `rsqrt`/`rsqrtf` declarations.
+- But clearing `_GNU_SOURCE` can hide pthread clock-lock APIs that newer libstdc++ headers expect.
+
+Workaround and solution used in this repository:
+
+- Keep the `-U_GNU_SOURCE -D_DEFAULT_SOURCE` nvcc flags required for the math declaration conflict.
+- Add a compatibility header (`cmake/pthread_clock_compat.h`) that provides explicit declarations for the pthread clock-lock APIs used by libstdc++.
+- Force-include that header for CUDA compilations from CMake, and apply the same flags in custom `nvcc` commands used by fatbin/PTX generation targets.
+
+If your system uses different compiler paths, replace `/usr/bin/gcc-13` and `/usr/bin/g++-13` with compatible host compiler paths available on your machine.
 
 ### Windows
 
