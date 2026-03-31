@@ -298,12 +298,11 @@ int PreLoadBmp(char *FileName, int *Width, int *Height)
 void LoadBmpAsGray(char *FileName, int Stride, ROI ImSize, byte *Img)
 {
     BMPFileHeader FileHeader;
-    BMPInfoHeader InfoHeader;
     FILE         *fh;
     fh = fopen(FileName, "rb");
 
     fread(&FileHeader, sizeof(BMPFileHeader), 1, fh);
-    fread(&InfoHeader, sizeof(BMPInfoHeader), 1, fh);
+    fseek(fh, FileHeader._bm_bitmap_data, SEEK_SET);
 
     for (int i = ImSize.height - 1; i >= 0; i--) {
         for (int j = 0; j < ImSize.width; j++) {
