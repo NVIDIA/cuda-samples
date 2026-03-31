@@ -83,19 +83,23 @@ def find_executables(root_dir):
             # Skip if it's a library file
             if path.suffix.lower() in ('.dll', '.so', '.dylib'):
                 continue
+            # On Windows, only include .exe files
+            if sys.platform == 'win32' and path.suffix.lower() != '.exe':
+                continue
             executables.append(path)
 
     return executables
 
 def run_single_test_instance(executable, args, output_file, global_args, run_description):
     """Run a single instance of a test executable with specific arguments."""
-    exe_path = str(executable)
+    exe_path = str(executable.resolve())
     exe_name = executable.name
 
     safe_print(f"Starting {exe_name} {run_description}")
 
     try:
-        cmd = [f"./{exe_name}"]
+        # Use the full path to the executable for crossplat compat
+        cmd = [exe_path]
         cmd.extend(args)
         if global_args:
             cmd.extend(global_args)

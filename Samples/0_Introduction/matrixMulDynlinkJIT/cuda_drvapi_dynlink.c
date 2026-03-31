@@ -387,7 +387,6 @@ CUresult CUDAAPI cuInit(unsigned int Flags, int cudaVersion)
 {
     CUDADRIVER CudaDrvLib;
     int        driverVer = 1000;
-
     CHECKED_CALL(LOAD_LIBRARY(&CudaDrvLib));
 
     // cuInit is required; alias it to _cuInit
