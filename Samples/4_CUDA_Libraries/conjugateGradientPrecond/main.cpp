@@ -54,6 +54,8 @@
 
 // Using updated (v2) interfaces for CUBLAS and CUSPARSE
 #include <cublas_v2.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #include <cusparse.h>
 
 // Utilities and system includes

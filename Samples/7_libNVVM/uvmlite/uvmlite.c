@@ -135,7 +135,10 @@ static char *loadProgramSource(const char *filename, size_t *size)
         stat(filename, &statbuf);
         source = (char *)malloc(statbuf.st_size + 1);
         if (source) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
             fread(source, statbuf.st_size, 1, fh);
+#pragma GCC diagnostic pop
             source[statbuf.st_size] = 0;
             *size                   = statbuf.st_size + 1;
         }

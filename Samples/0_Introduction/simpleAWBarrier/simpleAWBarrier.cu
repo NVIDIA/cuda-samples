@@ -84,7 +84,7 @@ __device__ void reduceBlockData(cuda::barrier<cuda::thread_scope_block> &barrier
 __global__ void normVecByDotProductAWBarrier(float *vecA, float *vecB, double *partialResults, int size)
 {
 #if __CUDA_ARCH__ >= 700
-#pragma diag_suppress static_var_with_dynamic_init
+#pragma nv_diag_suppress 20054
     cg::thread_block cta  = cg::this_thread_block();
     cg::grid_group   grid = cg::this_grid();
     ;

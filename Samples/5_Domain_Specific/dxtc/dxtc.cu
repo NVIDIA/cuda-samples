@@ -750,7 +750,16 @@ int main(int argc, char **argv)
     fseek(fp, sizeof(DDSHeader), SEEK_SET);
     uint  referenceSize = (W / 4) * (H / 4) * 8;
     uint *reference     = (uint *)malloc(referenceSize);
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
+#endif
+#pragma nv_diag_suppress 1650
     fread(reference, referenceSize, 1, fp);
+#pragma nv_diag_default 1650
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
     fclose(fp);
 
     printf("\nChecking accuracy...\n");

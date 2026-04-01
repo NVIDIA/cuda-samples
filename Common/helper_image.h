@@ -373,13 +373,10 @@ inline bool sdkReadFile(const char *filename, T **data, unsigned int *len,
   // read all data elements
   T token;
 
-  while (!feof(fh)) {
-    fscanf(fh, "%f", &token);
+  while (fscanf(fh, "%f", &token) == 1) {
     data_read.push_back(token);
   }
 
-  // the last element is read twice
-  data_read.pop_back();
   fclose(fh);
 
   // check if the given handle is already initialized

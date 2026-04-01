@@ -42,6 +42,8 @@
  *
  */
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #include "cusolverRf.h"
 
 #include <assert.h>

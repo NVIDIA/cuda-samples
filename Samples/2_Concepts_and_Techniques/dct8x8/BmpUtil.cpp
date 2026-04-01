@@ -261,13 +261,20 @@ int PreLoadBmp(char *FileName, int *Width, int *Height)
         return 1; // invalid filename
     }
 
-    fread(&FileHeader, sizeof(BMPFileHeader), 1, fh);
-
-    if (FileHeader._bm_signature != 0x4D42) {
+    if (fread(&FileHeader, sizeof(BMPFileHeader), 1, fh) != 1) {
+        fclose(fh);
         return 2; // invalid file format
     }
 
-    fread(&InfoHeader, sizeof(BMPInfoHeader), 1, fh);
+    if (FileHeader._bm_signature != 0x4D42) {
+        fclose(fh);
+        return 2; // invalid file format
+    }
+
+    if (fread(&InfoHeader, sizeof(BMPInfoHeader), 1, fh) != 1) {
+        fclose(fh);
+        return 2; // invalid file format
+    }
 
     if (InfoHeader._bm_color_depth != 24) {
         return 3; // invalid color depth
@@ -302,6 +309,8 @@ void LoadBmpAsGray(char *FileName, int Stride, ROI ImSize, byte *Img)
     FILE         *fh;
     fh = fopen(FileName, "rb");
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
     fread(&FileHeader, sizeof(BMPFileHeader), 1, fh);
     fread(&InfoHeader, sizeof(BMPInfoHeader), 1, fh);
 
@@ -315,6 +324,7 @@ void LoadBmpAsGray(char *FileName, int Stride, ROI ImSize, byte *Img)
             Img[i * Stride + j] = (byte)clamp_0_255(val);
         }
     }
+#pragma GCC diagnostic pop
 
     fclose(fh);
     return;
