@@ -8,7 +8,7 @@ A simple test, showing huge access speed gap between aligned and misaligned stru
 This sample demonstrates Matrix Transpose.  Different performance are shown to achieve high performance.
 
 ### [UnifiedMemoryPerf](./UnifiedMemoryPerf)
-This sample demonstrates the performance comparision using matrix multiplication kernel of Unified Memory with/without hints and other types of memory like zero copy buffers, pageable, pagelocked memory performing synchronous and Asynchronous transfers on a single GPU.
+This sample demonstrates the performance comparison using matrix multiplication kernel of Unified Memory with/without hints and other types of memory like zero copy buffers, pageable, pagelocked memory performing synchronous and Asynchronous transfers on a single GPU.
 
 ### [cudaGraphsPerfScaling](./cudaGraphsPerfScaling)
 This sample demonstrates the performance characteristics of cuda graphs. It is focused on how the apis scale with graph size.

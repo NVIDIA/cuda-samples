@@ -2,7 +2,7 @@
 
 ## Description
 
-A simple exemple on how to query the topology of a system with multiple GPU
+A simple example on how to query the topology of a system with multiple GPU
 
 ## Key Concepts
 

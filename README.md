@@ -552,9 +552,9 @@ These CUDA features are needed by some CUDA samples. They are provided by either
 
 CUFFT Callback Routines are user-supplied kernel routines that CUFFT will call when loading or storing data. These callback routines are only available on Linux x86_64 and ppc64le systems.
 
-#### CUDA Dynamic Parallellism
+#### CUDA Dynamic Parallelism
 
-CDP (CUDA Dynamic Parallellism) allows kernels to be launched from threads running on the GPU. CDP is only available on GPUs with SM architecture of 3.5 or above.
+CDP (CUDA Dynamic Parallelism) allows kernels to be launched from threads running on the GPU. CDP is only available on GPUs with SM architecture of 3.5 or above.
 
 #### Multi-block Cooperative Groups
 
