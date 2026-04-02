@@ -1,0 +1,32 @@
+ARG CUDA_IMAGE_VERSION=12.6.0
+
+# ---- Build stage ----
+FROM nvidia/cuda:${CUDA_IMAGE_VERSION}-devel-ubuntu22.04 AS builder
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        cmake \
+        make \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /cuda-samples
+
+# Copy only what is needed to build this sample.
+# The directory structure must be preserved so that the relative paths in
+# the sample's CMakeLists.txt (e.g. ../../../Common) resolve correctly.
+COPY Common/ Common/
+COPY cmake/ cmake/
+COPY Samples/1_Utilities/deviceQuery/ Samples/1_Utilities/deviceQuery/
+
+RUN cmake -S Samples/1_Utilities/deviceQuery \
+          -B Samples/1_Utilities/deviceQuery/build \
+          -DCMAKE_BUILD_TYPE=Release \
+    && cmake --build Samples/1_Utilities/deviceQuery/build --parallel $(nproc)
+
+# ---- Runtime stage ----
+FROM nvidia/cuda:${CUDA_IMAGE_VERSION}-base-ubuntu22.04
+
+COPY --from=builder \
+    /cuda-samples/Samples/1_Utilities/deviceQuery/build/deviceQuery \
+    /usr/local/bin/deviceQuery
+
+ENTRYPOINT ["deviceQuery"]
