@@ -26,11 +26,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "QNX")
 endif()
 
 # Source file
-if(CMAKE_GENERATOR MATCHES "Visual Studio")
-    find_package(OpenMP REQUIRED C CXX)
-else()
-    find_package(OpenMP REQUIRED)
-endif()
+find_package(OpenMP REQUIRED C CXX)
 
 if(${OpenMP_FOUND})
     # Add target for UnifiedMemoryStreams

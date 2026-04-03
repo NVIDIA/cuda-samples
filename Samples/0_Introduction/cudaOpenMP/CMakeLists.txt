@@ -19,7 +19,7 @@ endif()
 # Include directories and libraries
 include_directories(../../../Common)
 
-find_package(OpenMP)
+find_package(OpenMP C CXX)
 
 # Source file
 if(OpenMP_CXX_FOUND)
