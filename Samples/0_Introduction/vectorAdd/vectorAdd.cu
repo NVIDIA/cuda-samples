@@ -49,7 +49,7 @@ __global__ void vectorAdd(const float *A, const float *B, float *C, int numEleme
     int i = blockDim.x * blockIdx.x + threadIdx.x;
 
     if (i < numElements) {
-        C[i] = A[i] + B[i] + 0.0f;
+        C[i] = A[i] + B[i];
     }
 }
 
