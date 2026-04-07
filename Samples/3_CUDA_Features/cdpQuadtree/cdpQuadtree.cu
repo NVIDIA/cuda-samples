@@ -505,11 +505,12 @@ __global__ void build_quadtree_kernel(Quadtree_node *nodes, Points *points, Para
     if (!(params.depth >= params.max_depth || num_points <= params.min_points_per_node)) {
         // The last thread launches new blocks.
         if (threadIdx.x == NUM_THREADS_PER_BLOCK - 1) {
-            // The children.
-            Quadtree_node *children = &nodes[params.num_nodes_at_this_level - (node.id() & ~3)];
+            // The children. Move to the next-level slice relative to this 4-node group,
+            // and select the 4-children group of this node (local index within its parent).
+            Quadtree_node *children = &nodes[params.num_nodes_at_this_level];
 
-            // The offsets of the children at their level.
-            int child_offset = 4 * node.id();
+            // The offset of this node's 4 children within the next-level slice (local to group).
+            int child_offset = 4 * (node.id() & 3);
 
             // Set IDs.
             children[child_offset + 0].set_id(4 * node.id() + 0);
