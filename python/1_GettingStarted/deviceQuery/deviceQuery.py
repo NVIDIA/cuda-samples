@@ -138,7 +138,16 @@ def print_device_info(dev_id, device):
     print(f"Device {dev_id}: {device.name}")
 
     # cuda.bindings workaround: runtime version not in cuda.core
-    driver_major, driver_minor = system.get_driver_version()
+    # system.get_driver_version() was removed in newer cuda-core versions;
+    # fall back to cuda.bindings.driver.cuDriverGetVersion()
+    if hasattr(system, "get_driver_version"):
+        driver_major, driver_minor = system.get_driver_version()
+    else:
+        err, driver_version_int = cuda.cuDriverGetVersion()
+        if err != cuda.CUresult.CUDA_SUCCESS:
+            raise RuntimeError(f"Failed to get CUDA driver version: {err}")
+        driver_major = driver_version_int // 1000
+        driver_minor = (driver_version_int % 1000) // 10
     err, runtime_version = cudart.cudaRuntimeGetVersion()
     if err != cudart.cudaError_t.cudaSuccess:
         raise RuntimeError(f"Failed to get CUDA runtime version: {err}")
