@@ -50,8 +50,11 @@ if(DEFINED TARGET_FS)
     NO_CMAKE_PATH
     )
     if(TARGET_CUDA_NVCC_PATH)
-        # Get the real path of CUDA installation on TARGET_FS
+        # Get the real path of CUDA installation on TARGET_FS.
+        # Relative symlinks resolve with the host mount prefix (TARGET_FS) included;
+        # strip it so the resulting path is valid on the target device at runtime.
         get_filename_component(TARGET_CUDA_PATH "${TARGET_CUDA_NVCC_PATH}" REALPATH)
+        string(REPLACE "${TARGET_FS}" "" TARGET_CUDA_PATH "${TARGET_CUDA_PATH}")
         get_filename_component(TARGET_CUDA_ROOT "${TARGET_CUDA_PATH}" DIRECTORY)
         get_filename_component(TARGET_CUDA_ROOT "${TARGET_CUDA_ROOT}" DIRECTORY)
     endif()

@@ -1,0 +1,5 @@
+# Custom PyTorch Kernel Sample Requirements
+
+cuda-python>=13.0.0
+cuda-core>=0.6.0
+torch>=2.0.0

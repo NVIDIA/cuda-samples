@@ -1,0 +1,6 @@
+# Image Blur with Unified Memory Sample Requirements
+
+cuda-python>=13.0.0
+cuda-core>=0.6.0
+numpy>=2.3.2
+pillow>=10.0.0

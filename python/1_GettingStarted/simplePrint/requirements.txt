@@ -1,0 +1,7 @@
+# Simple Printf Sample - Requirements
+
+cuda-python>=13.0.0
+cuda-core>=0.6.0
+# Numba JIT uses nvJitLink from pip; keep in step with cuda-bindings (e.g. 13.2.x).
+nvidia-nvjitlink>=13.2.0
+numba-cuda>=0.24.0

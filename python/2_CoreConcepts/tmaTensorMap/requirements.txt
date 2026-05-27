@@ -1,0 +1,4 @@
+cuda-python>=13.0.0
+cuda-core>=0.6.0
+cupy-cuda13x>=13.0.0
+numpy>=1.24.0

@@ -1,5 +1,9 @@
 ## Changelog
 
+### CUDA 13.2 (update)
+* Added **CUDA Python samples** under `python/`. These scripts use [CUDA Python](https://nvidia.github.io/cuda-python/) (including `cuda.core`) and are organized like the C++ tree: `1_GettingStarted`, `2_CoreConcepts`, `3_FrameworkInterop`, and `4_DistributedComputing`, plus shared helpers in `python/Utilities`. Each sample includes a `README.md` and `requirements.txt`. They are **not** built by the root CMake project; install dependencies with `pip install -r requirements.txt` in the sample directory, then run the corresponding `.py` file as documented in that sample’s README.
+* Renamed top-level `Samples` directory to `cpp` to accommodate Python samples alongside existing C++ samples; updated path references in `CMakeLists.txt`, `README.md`, and `Common` headers accordingly.
+
 ### CUDA 13.2
 * Added the MSVC compile flag `-Xcompiler=/Zc:preprocessor` in CMakeLists.txt to comply with CUDA13.2 CCCL. Previously, using the traditional preprocessor triggered the warning “MSVC/cl.exe with traditional preprocessor is used…”, which now leads to a build error.
 

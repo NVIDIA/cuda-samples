@@ -1,0 +1,7 @@
+# CUDA Python Samples — common base for CUDA 13.x
+# Install sample-specific extras from each sample's requirements.txt (RAPIDS, TensorFlow, etc.).
+
+cuda-python>=13.0.0
+cuda-core>=0.6.0
+cupy-cuda13x>=13.0.0
+numpy>=2.3.2

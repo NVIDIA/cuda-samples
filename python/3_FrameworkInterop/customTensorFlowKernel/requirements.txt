@@ -1,0 +1,14 @@
+# TensorFlow Custom GPU Operator using cuda.core
+#
+# This sample demonstrates a cuda.core-first approach:
+# - cuda-python and cuda-core: Primary GPU management (device, stream, kernel)
+# - TensorFlow 2.10+: Deep learning framework (tf.py_function, tf.custom_gradient)
+# - CuPy: Internal helper for device pointer access only
+#
+# Note: cuda-core>=0.6.0 is required for LEGACY_DEFAULT_STREAM constant
+
+numpy>=2.3.2
+tensorflow>=2.10.0
+cupy-cuda13x>=13.0.0
+cuda-python>=13.0.0
+cuda-core>=0.6.0

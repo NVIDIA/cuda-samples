@@ -1,0 +1,21 @@
+# Multi-GPU Gradient Average Sample Requirements
+
+# MPI Python bindings for distributed communication
+mpi4py>=3.1.4
+
+# GPU array library (NumPy-compatible arrays on CUDA)
+# Use cupy-cuda11x, cupy-cuda12x, or cupy-cuda13x depending on your CUDA version
+cupy-cuda13x>=13.0.0
+
+# CUDA Python bindings (low-level CUDA driver API)
+cuda-python>=13.0.0
+
+# cuda.core - Modern Python interface for CUDA
+# Provides Program, LaunchConfig, Device, and launch APIs
+cuda-core>=0.6.0
+
+# Note: This sample uses host-staging for MPI communication
+# Standard MPI installation is sufficient (no CUDA-aware MPI required)
+# Install MPI using system package manager:
+#   Ubuntu/Debian: sudo apt-get install openmpi-bin libopenmpi-dev
+#   Or build from source: https://www.open-mpi.org/software/ompi/

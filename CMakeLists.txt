@@ -30,4 +30,4 @@ endif()
 # Include installation configuration before processing samples
 include(cmake/InstallSamples.cmake)
 
-add_subdirectory(Samples)
+add_subdirectory(cpp)

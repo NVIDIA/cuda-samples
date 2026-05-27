@@ -104,3 +104,13 @@ repos:
             Common/.*
           )
         args: ["-fallback-style=none", "-style=file", "-i"]
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.4
+    hooks:
+      - id: ruff
+        name: ruff lint
+        args: [--fix]
+        files: ^python/.*\.py$
+      - id: ruff-format
+        name: ruff format
+        files: ^python/.*\.py$

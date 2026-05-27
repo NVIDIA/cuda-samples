@@ -1,0 +1,59 @@
+[tool.ruff]
+# Target Python 3.8+ for CUDA samples compatibility
+target-version = "py38"
+
+# Include common Python directories
+include = ["python/**/*.py"]
+
+# Exclude generated and vendor directories
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    "*.egg-info",
+]
+
+# Set line length to 88 (Black's default)
+line-length = 88
+indent-width = 4
+
+[tool.ruff.lint]
+# Enable important linting rules
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings  
+    "F",    # pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "UP",   # pyupgrade
+    "YTT",  # flake8-2020
+    "S",    # flake8-bandit
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "T20",  # flake8-print
+]
+
+# Ignore specific rules that may not fit CUDA examples
+ignore = [
+    "S101",  # Allow assert statements (common in examples)
+    "T20",   # Allow print statements (needed for demo output)  
+    "S311",  # Allow random for demo data generation
+    "N806",  # Allow non-lowercase variable names (CUDA conventions)
+    "N999",  # Allow numbered module names for sample organization
+]
+
+[tool.ruff.format]
+# Use double quotes for strings
+quote-style = "double"
+
+# Keep magic trailing commas
+skip-magic-trailing-comma = false
+
+# Use 4-space indentation
+indent-style = "space"
+
+[tool.ruff.lint.isort]
+# Sort imports
+force-single-line = false
+combine-as-imports = true

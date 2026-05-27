@@ -1,0 +1,6 @@
+# simpleP2P - Requirements
+# Install with: pip install -r requirements.txt
+
+numpy>=2.3.2
+cuda-python>=13.0.0
+cuda-core>=0.6.0

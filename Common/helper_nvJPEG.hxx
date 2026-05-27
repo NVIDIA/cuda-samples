@@ -400,9 +400,9 @@ int getInputDir(std::string &input_dir, const char *executable_path) {
     std::string pathname = "";
     const char *searchPath[] = {
         "./images",
-        "../../../../Samples/4_CUDA_Libraries/<executable_name>/images",
-        "../../../Samples/4_CUDA_Libraries/<executable_name>/images",
-        "../../Samples/4_CUDA_Libraries/<executable_name>/images"};
+        "../../../../cpp/4_CUDA_Libraries/<executable_name>/images",
+        "../../../cpp/4_CUDA_Libraries/<executable_name>/images",
+        "../../cpp/4_CUDA_Libraries/<executable_name>/images"};
 
     for (unsigned int i = 0; i < sizeof(searchPath) / sizeof(char *); ++i) {
       std::string pathname(searchPath[i]);

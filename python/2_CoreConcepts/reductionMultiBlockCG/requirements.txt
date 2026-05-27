@@ -1,0 +1,10 @@
+# Python Multi-Block Cooperative Reduction Sample Requirements
+# Install with: pip install -r requirements.txt
+
+numpy>=2.3.2
+cuda-core>=0.6.0
+cuda-python>=13.0.0
+# Headers for NVRTC: cooperative_groups.h includes cuda/std/* (CCCL)
+cuda-cccl>=1.0.0
+# Use cupy-cuda13x>=14.0.0 for cp.cuda.Stream.from_external(stream)
+cupy-cuda13x>=14.0.0
