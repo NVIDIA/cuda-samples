@@ -1,0 +1,42 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "cuda-13.2-msvc",
+      "displayName": "Visual Studio 2026 with CUDA 13.2 (x64)",
+      "description": "Configure for Visual Studio 2026 with CUDA 13.2 toolkit targeting x64 architecture",
+      "generator": "Visual Studio 18 2026",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_CUDA": "13.2"
+      },
+      "toolchainFile": null
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "cuda-13.2-msvc-release",
+      "configurePreset": "cuda-13.2-msvc",
+      "configuration": "Release",
+      "jobs": 8
+    },
+    {
+      "name": "cuda-13.2-msvc-debug",
+      "configurePreset": "cuda-13.2-msvc",
+      "configuration": "Debug",
+      "jobs": 8
+    }
+  ]
+}
+#How to Use It
+## Configure the project:
+###powershell
+#### cd C:\Users\mahin\git\cuda-samples
+#### cmake --preset cuda-13.2-msvc
+# Build in Release mode:
+# powershell
+### cmake --build --preset cuda-13.2-msvc-release
+# Build in Debug mode:
+## powershell
+### cmake --build --preset cuda-13.2-msvc-debug
