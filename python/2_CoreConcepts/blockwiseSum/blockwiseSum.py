@@ -139,7 +139,7 @@ def run_sample(num_elements: int = 1024 * 1024, device_id: int = 0) -> bool:
 
     try:
         # Make CuPy use our stream
-        cp.cuda.ExternalStream(int(stream.handle)).use()
+        cp.cuda.Stream.from_external(stream).use()
 
         # Compile kernels
         program = Program(
@@ -216,7 +216,7 @@ def run_sample(num_elements: int = 1024 * 1024, device_id: int = 0) -> bool:
         test3 = verify_array_result(d_partial, expected_partial)
 
         # Performance timing
-        event_opts = EventOptions(enable_timing=True)
+        event_opts = EventOptions(timing_enabled=True)
         iterations = 100
 
         stream.sync()

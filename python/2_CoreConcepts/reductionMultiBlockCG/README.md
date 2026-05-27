@@ -33,11 +33,22 @@ Pick a CuPy wheel that matches your CUDA major version (e.g. `cupy-cuda13x` in `
 
 ## How to run
 
-**`--cuda-include-dir` is required** (colon-separated list). Typical desktop layout:
+**`--cuda-include-dir` is required.** Multiple paths can be combined using the
+OS path separator (`:` on Linux/macOS, `;` on Windows).
+
+Linux / macOS:
 
 ```bash
 python reductionMultiBlockCG.py \
   --cuda-include-dir /usr/local/cuda/include/cccl:/usr/local/cuda/include
+```
+
+Windows (PowerShell or cmd, note the `;` separator and quotes around the
+combined value):
+
+```powershell
+python reductionMultiBlockCG.py `
+  --cuda-include-dir "$env:CUDA_PATH\include;$env:CUDA_PATH\include\cccl"
 ```
 
 **Jetson / split include trees:** pass every directory NVRTC needs in one `--cuda-include-dir` argument, e.g.
@@ -94,15 +105,15 @@ Summary
 ======================================================================
 
 Single-kernel two-stage reduction:
-  Stage 1: 20 blocks → 20 partial sums
-  grid.sync() ← All blocks synchronize (KEY innovation)
-  Stage 2: Block 0 → 1 final result
+  Stage 1: 20 blocks -> 20 partial sums
+  grid.sync() <- All blocks synchronize (KEY innovation)
+  Stage 2: Block 0 -> 1 final result
   Total: 1 kernel launch, 137.35 GB/s
 
 Comparison:
   • Traditional: 2 kernel launches or kernel + CPU
   • This sample: 1 kernel with grid.sync() between stages
-  • Benefit: Eliminates ~5-20μs launch overhead per stage
+  • Benefit: Eliminates ~5-20us launch overhead per stage
 
 ======================================================================
 Single-Pass Multi-Block Reduction completed successfully!

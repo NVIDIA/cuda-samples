@@ -165,9 +165,9 @@ def demo_managed(device, stream, kernel, size):
         stream.sync()
 
         # No explicit copy: the same numpy view observes the GPU's writes.
-        assert np.allclose(managed_view, original * 0.5 + 10.0), (
-            "Managed memory result mismatch"
-        )
+        assert np.allclose(
+            managed_view, original * 0.5 + 10.0
+        ), "Managed memory result mismatch"
         print("  GPU writes observed directly through the host-visible mapping")
     finally:
         managed_buffer.close(stream)
@@ -221,6 +221,14 @@ def main():
     )
     parser.add_argument("--device", type=int, default=0, help="CUDA device id")
     args = parser.parse_args()
+
+    if sys.platform == "win32":
+        print(
+            "This sample relies on ManagedMemoryResource with concurrent host "
+            "access, which is not supported on Windows "
+            "(concurrent_managed_access=False). Waiving this sample."
+        )
+        sys.exit(2)
 
     device = Device(args.device)
     device.set_current()

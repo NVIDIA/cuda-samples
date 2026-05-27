@@ -67,7 +67,7 @@ Using pure cuda.core APIs
 ============================================================
 
 Device: NVIDIA GeForce RTX XXXX
-Kernel compiled ✓
+Kernel compiled [OK]
 
 Problem size: 16,000,000 elements (61 MB)
 

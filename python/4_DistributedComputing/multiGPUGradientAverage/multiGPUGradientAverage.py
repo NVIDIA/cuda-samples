@@ -117,7 +117,7 @@ def init_device(rank: int):
 
     # Create cuda.core stream and make CuPy use it
     stream = device.create_stream()
-    cp.cuda.ExternalStream(int(stream.handle)).use()
+    cp.cuda.Stream.from_external(stream).use()
 
     return device, stream
 
@@ -317,7 +317,7 @@ def main():
 
         # Step 1: Compute local gradients on each GPU
         # Use cuda.core Event for GPU timing measurements
-        timing_options = EventOptions(enable_timing=True)
+        timing_options = EventOptions(timing_enabled=True)
         start_event = stream.record(options=timing_options)
 
         local_grad = compute_local_gradients(num_elements, device, stream, rank)

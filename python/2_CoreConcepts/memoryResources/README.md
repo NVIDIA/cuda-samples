@@ -60,15 +60,27 @@ verified on the host.
 ### Hardware
 
 - NVIDIA GPU with Compute Capability 7.0 or higher
-- Managed memory support (most discrete GPUs on Linux and Windows)
+- Managed memory support (most discrete GPUs)
 
 ### Software
 
 - CUDA Toolkit 13.0 or newer (matches `cuda-python` 13.x)
 - Python 3.10 or newer
 - `cuda-python` (>=13.0.0)
-- `cuda-core` (>=0.6.0)
-- `cupy-cuda13x` (>=13.0.0)
+- `cuda-core` (>=1.0.0)
+- `cupy-cuda13x` (>=14.0.0)
+
+### Platform Support
+
+The `ManagedMemoryResource` demo in this sample exercises **concurrent host
+access** to managed allocations while the GPU is active, which requires the
+device property `concurrent_managed_access=True`. This is only supported on
+Linux with HMM (Pascal and newer). On Windows (WDDM/MCDM/TCC) the property
+is `False`, so the sample exits early with a waive message and exit code
+`2`. The `DeviceMemoryResource` + `PinnedMemoryResource` demos in this
+sample would still work on Windows on their own, but to keep the sample
+self-contained the entire script waives when concurrent managed access is
+unavailable.
 
 ## Installation
 
@@ -82,8 +94,8 @@ pip install -r requirements.txt
 The `requirements.txt` installs:
 
 - `cuda-python` (>=13.0.0)
-- `cuda-core` (>=0.6.0)
-- `cupy-cuda13x` (>=13.0.0)
+- `cuda-core` (>=1.0.0)
+- `cupy-cuda13x` (>=14.0.0)
 
 ## How to Run
 

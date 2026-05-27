@@ -238,8 +238,10 @@ def run(
 
     # Compile kernel
     print("\nCompiling CUDA kernel...")
-    # Support colon-separated multiple include paths
-    include_paths = cuda_include_dir.split(":")
+    # Support multiple include paths separated by the OS path separator
+    # (':' on POSIX, ';' on Windows). os.pathsep avoids splitting Windows
+    # drive prefixes like "C:\..." by accident.
+    include_paths = cuda_include_dir.split(os.pathsep)
     program_options = ProgramOptions(
         std="c++17", arch=f"sm_{device.arch}", include_path=include_paths
     )
@@ -295,7 +297,7 @@ def run(
             grid=(num_blocks, 1, 1),
             block=(threads_per_block, 1, 1),
             shmem_size=shared_mem_bytes,
-            cooperative_launch=True,
+            is_cooperative=True,
         )
 
         n_u32 = np.uint32(num_elements)
@@ -313,7 +315,7 @@ def run(
 
         # Benchmark (CUDA events — not host wall clock around the whole loop)
         print(f"\n> Running benchmark ({test_iterations} iterations)...")
-        event_options = EventOptions(enable_timing=True)
+        event_options = EventOptions(timing_enabled=True)
         start_event = stream.device.create_event(options=event_options)
         end_event = stream.device.create_event(options=event_options)
         # cuda.core event elapsed time (end - start) is in milliseconds (CUDA API).
@@ -362,15 +364,15 @@ def run(
         print("=" * 70)
         print(f"""
 Single-kernel two-stage reduction:
-  Stage 1: {num_blocks} blocks → {num_blocks} partial sums
-  grid.sync() ← All blocks synchronize (KEY innovation)
-  Stage 2: Block 0 → 1 final result
+  Stage 1: {num_blocks} blocks -> {num_blocks} partial sums
+  grid.sync() <- All blocks synchronize (KEY innovation)
+  Stage 2: Block 0 -> 1 final result
   Total: 1 kernel launch, {throughput_gb_s:.2f} GB/s
 
 Comparison:
   • Traditional: 2 kernel launches or kernel + CPU
   • This sample: 1 kernel with grid.sync() between stages
-  • Benefit: Eliminates ~5-20μs launch overhead per stage
+  • Benefit: Eliminates ~5-20us launch overhead per stage
     """)
 
         print("=" * 70)
@@ -430,8 +432,9 @@ def main():
         type=str,
         required=True,
         help=(
-            "CUDA include directory for NVRTC "
-            "(can use colon-separated paths, e.g., /path1:/path2)"
+            "CUDA include directory for NVRTC. "
+            "Use os.pathsep to separate multiple paths "
+            "(':' on POSIX, ';' on Windows)."
         ),
     )
 

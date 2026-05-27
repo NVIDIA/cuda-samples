@@ -11,7 +11,7 @@ This sample demonstrates how to add a custom GPU operation to PyTorch using the 
 - Python 3.10+
 - PyTorch 2.0+
 - cuda-python >= 13.0.0
-- cuda-core >= 0.6.0
+- cuda-core >=1.0.0
 
 ## Installation
 
@@ -19,6 +19,14 @@ This sample demonstrates how to add a custom GPU operation to PyTorch using the 
 cd python/3_FrameworkInterop/customPyTorchKernel
 pip install -r requirements.txt
 ```
+
+**Windows users:** The default `torch` wheel on PyPI for Windows is CPU-only and will cause `torch.cuda.is_available()` to return `False`. Install a CUDA-enabled build from PyTorch's wheel index *before* (or after) the command above:
+
+```bash
+pip install torch --index-url https://download.pytorch.org/whl/cu128
+```
+
+Replace `cu128` with the wheel suffix matching your installed CUDA driver (e.g. `cu121`, `cu124`, `cu126`, `cu128`). The driver's CUDA version must be >= the wheel's bundled runtime.
 
 ## How to Run
 

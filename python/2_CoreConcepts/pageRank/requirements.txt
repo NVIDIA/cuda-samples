@@ -1,8 +1,11 @@
 # PageRank Requirements (RAPIDS cuGraph)
 
 cuda-python>=13.0.0
-cuda-core>=0.6.0
-cugraph-cu13>=25.0.0
-cudf-cu13>=25.0.0
-cupy-cuda13x>=13.0.0
+# cudf-cu13 transitively pins numba-cuda<0.29.0 which requires cuda-core<1.0.0
+cuda-core<1.0.0
+cugraph-cu13>=26.0.0
+cudf-cu13>=26.0.0
+# dask-cuda <26.4 incorrectly pins cuda-core==0.3.*; require the fixed release
+dask-cuda>=26.4.0
+cupy-cuda13x>=14.0.0
 numpy>=2.3.2

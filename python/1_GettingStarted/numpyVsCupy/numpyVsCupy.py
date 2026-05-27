@@ -57,7 +57,7 @@ def timer(message):
 @contextlib.contextmanager
 def gpu_timer(message, stream):
     """GPU timing context manager using cuda.core CUDA events."""
-    event_options = EventOptions(enable_timing=True)
+    event_options = EventOptions(timing_enabled=True)
     start_event = stream.record(options=event_options)
     yield
     end_event = stream.record(options=event_options)

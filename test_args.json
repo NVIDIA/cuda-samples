@@ -371,5 +371,16 @@
     },
     "EGLStream_CUDA_CrossGPU": {
         "min_gpus": 2
+    },
+    "reductionMultiBlockCG": {
+        "python": {
+            "args": ["--cuda-include-dir=$CUDA_HOME/include:$CUDA_HOME/include/cccl"]
+        }
+    },
+    "multiGPUGradientAverage": {
+        "python": {
+            "launcher": ["mpirun", "--allow-run-as-root", "-np", "2"],
+            "args": ["--size", "1024"]
+        }
     }
 }

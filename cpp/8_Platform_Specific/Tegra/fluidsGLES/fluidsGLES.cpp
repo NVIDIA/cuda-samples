@@ -461,8 +461,6 @@ void autoTest(char **argv)
 // Run fluids Simulation
 bool runFluidsSimulation(int argc, char **argv, char *ref_file)
 {
-    // Create the CUTIL timer
-    sdkCreateTimer(&timer);
 
 
     if (ref_file != NULL) {

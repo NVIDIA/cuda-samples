@@ -35,7 +35,7 @@ Key Concepts:
 - Reduction tree pattern: Divide-and-conquer parallel algorithm
 - Thread synchronization: Using __syncthreads() for coordination
 - Sequential thread IDs: How to avoid warp divergence
-- cuda.core Stream integration with CuPy via ExternalStream
+- cuda.core Stream integration with CuPy via Stream.from_external
 """
 
 import math
@@ -217,7 +217,7 @@ def benchmark_custom(
         stream, kernel, d_input, block_size=block_size, work_buffers=work_buffers
     )
 
-    event_opts = {"enable_timing": True}
+    event_opts = {"timing_enabled": True}
     start_event = stream.device.create_event(options=event_opts)
     end_event = stream.device.create_event(options=event_opts)
 
@@ -264,7 +264,7 @@ def benchmark_cuda_compute(
     stream.sync()
 
     d_output = cp.empty(1, dtype=cp.float32)
-    event_opts = {"enable_timing": True}
+    event_opts = {"timing_enabled": True}
     start_event = stream.device.create_event(options=event_opts)
     end_event = stream.device.create_event(options=event_opts)
 
@@ -299,7 +299,7 @@ def main() -> bool:
     device = Device(0)
     device.set_current()
     stream = device.create_stream()
-    cp_stream = cp.cuda.ExternalStream(int(stream.handle))
+    cp_stream = cp.cuda.Stream.from_external(stream)
 
     print()
     print_gpu_info(device)

@@ -190,7 +190,7 @@ def _run_histogram(device, stream):
     # Benchmark using cuda.core Events (explicit Event objects recorded on stream)
     print("\nBenchmarking (100 iterations)...")
     num_iterations = 100
-    event_opts = EventOptions(enable_timing=True)
+    event_opts = EventOptions(timing_enabled=True)
     start_event = device.create_event(options=event_opts)
     end_event = device.create_event(options=event_opts)
 

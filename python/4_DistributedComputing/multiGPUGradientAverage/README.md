@@ -8,7 +8,7 @@ This sample demonstrates gradient averaging across multiple GPUs using MPI and c
 
 - How to initialize MPI for multi-process GPU communication
 - How to map MPI ranks to CUDA devices consistently
-- How to integrate cuda.core streams with CuPy using `ExternalStream`
+- How to integrate cuda.core streams with CuPy using `Stream.from_external`
 - How to compile and launch custom CUDA kernels using cuda.core
 - How to use cuda.core Event for GPU timing measurements
 - How to use MPI Allreduce with host-staging for universal compatibility
@@ -23,12 +23,17 @@ This sample demonstrates gradient averaging across multiple GPUs using MPI and c
 ## Installation
 
 ```bash
-pip install mpi4py cupy-cuda13x cuda-python cuda-core
+pip install -r requirements.txt
 ```
 
 ## Running
 
-**IMPORTANT:** This sample **MUST** be run with `mpirun` with at least 2 processes.
+**IMPORTANT:** This sample **MUST** be launched by an MPI runtime with at
+least 2 processes. On Linux/macOS this is typically `mpirun`; on Windows with
+Microsoft MPI the launcher is `mpiexec` (and the flag for process count is
+`-n`). Either form is accepted by most MPI stacks.
+
+Linux / macOS (OpenMPI, MPICH, Intel MPI):
 
 ```bash
 # Single node (2 GPUs)
@@ -39,6 +44,14 @@ mpirun -np 4 python multiGPUGradientAverage.py --size 10000
 
 # With specific GPUs
 CUDA_VISIBLE_DEVICES=0,2 mpirun -np 2 python multiGPUGradientAverage.py
+```
+
+Windows (Microsoft MPI — `mpiexec` is installed under
+`C:\Program Files\Microsoft MPI\Bin\` and is not on PATH by default):
+
+```powershell
+& "C:\Program Files\Microsoft MPI\Bin\mpiexec.exe" -n 2 `
+    python multiGPUGradientAverage.py --size 10000
 ```
 
 ## Sample Output
@@ -82,11 +95,11 @@ Demo complete.
 
 ## Key Technical Details
 
-The sample uses cuda.core streams and makes CuPy use them via `ExternalStream`:
+The sample uses cuda.core streams and makes CuPy use them via `Stream.from_external`:
 
 ```python
 stream = device.create_stream()
-cp.cuda.ExternalStream(int(stream.handle)).use()
+cp.cuda.Stream.from_external(stream).use()
 ```
 
 GPU timing is measured using cuda.core Event:
@@ -107,4 +120,9 @@ The host-staging pattern transfers data GPU → CPU → MPI → CPU → GPU for 
 
 **Error: "This sample requires at least 2 MPI processes!"**
 
-Solution: Run with `mpirun -np 2 python multiGPUGradientAverage.py`
+Solution:
+- Linux / macOS: `mpirun -np 2 python multiGPUGradientAverage.py`
+- Windows (Microsoft MPI): `& "C:\Program Files\Microsoft MPI\Bin\mpiexec.exe" -n 2 python multiGPUGradientAverage.py`
+  (or `mpiexec -n 2 ...` after adding `C:\Program Files\Microsoft MPI\Bin\` to `PATH`).
+
+See the **Running** section above for fully-formed examples.

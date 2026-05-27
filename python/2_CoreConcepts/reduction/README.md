@@ -82,7 +82,7 @@ Two-Stage Reduction Strategy:
     - Elements per block: 512
     - Output: 32768 partial sums
   Stage 2: CPU final reduction
-    - Combine 32768 partial sums → 1 final result
+    - Combine 32768 partial sums -> 1 final result
 
 Compiling CUDA kernel...
   Kernel 'blockReduceKernel_float' compiled successfully

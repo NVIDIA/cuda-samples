@@ -1,5 +1,18 @@
 ## Changelog
 
+### CUDA 13.3
+* Added **CUDA Tile C++** samples under `cpp/9_CUDA_Tile`.
+* Added a set of **CCCL 3.3 feature samples** under `cpp/4_CUDA_Libraries/`, each built against CCCL fetched via CPM (pinned to v3.3.3, with an optional `CCCL_SOURCE_DIR` override):
+    * `cubDeviceFind` - `cub::DeviceFind::FindIf`, `LowerBound`, and `UpperBound` device-wide search algorithms.
+    * `cubDeviceSegmentedScan` - `cub::DeviceSegmentedScan::ExclusiveSegmentedSum` and `InclusiveSegmentedScan` with a custom binary operator.
+    * `cubDeviceTransform` - N-to-M `cub::DeviceTransform::Transform` where the op returns a `cuda::std::tuple`.
+    * `libcuxxRandom` - `cuda::pcg64` and `cuda::std::philox4x32` engines driving the uniform, normal, Poisson, and Bernoulli distributions from `<cuda/std/random>`.
+    * `libcuxxMdspan` - DLPack <-> `cuda::std::mdspan` bridging via `cuda::to_device_mdspan` / `cuda::to_dlpack_tensor`, plus `cuda::shared_memory_mdspan` for multi-dimensional views of shared memory.
+* Added **cuda.compute 1.0 Python samples** under `python/2_CoreConcepts/`:
+    * `cudaComputeLambdas` - Python lambdas / regular callables driving `reduce_into`, `unary_transform`, and `inclusive_scan` in `cuda.compute` (from the `cuda-cccl` package).
+    * `binarySearch` - parallel `cuda.compute.upper_bound` / `lower_bound`, verified against `numpy.searchsorted`.
+
+
 ### CUDA 13.2 (update)
 * Added **CUDA Python samples** under `python/`. These scripts use [CUDA Python](https://nvidia.github.io/cuda-python/) (including `cuda.core`) and are organized like the C++ tree: `1_GettingStarted`, `2_CoreConcepts`, `3_FrameworkInterop`, and `4_DistributedComputing`, plus shared helpers in `python/Utilities`. Each sample includes a `README.md` and `requirements.txt`. They are **not** built by the root CMake project; install dependencies with `pip install -r requirements.txt` in the sample directory, then run the corresponding `.py` file as documented in that sample’s README.
 * Renamed top-level `Samples` directory to `cpp` to accommodate Python samples alongside existing C++ samples; updated path references in `CMakeLists.txt`, `README.md`, and `Common` headers accordingly.

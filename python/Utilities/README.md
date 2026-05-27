@@ -18,8 +18,8 @@ pip install -r requirements.txt
 This installs a common CUDA 13 stack (see `python/requirements.txt`):
 
 - `cuda-python` (>=13.0.0)
-- `cuda-core` (>=0.6.0)
-- `cupy-cuda13x` (>=13.0.0)
+- `cuda-core` (>=1.0.0)
+- `cupy-cuda13x` (>=14.0.0)
 - `numpy` (>=2.3.2)
 
 ## How to Use in Samples

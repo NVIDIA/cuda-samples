@@ -1,6 +1,11 @@
 build
+build-*/
+test-results*/
 .vs
 .clangd
 test
 settings.json
 launch.json
+__pycache__/
+*.py[co]
+.pytest_cache/

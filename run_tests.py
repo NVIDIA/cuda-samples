@@ -38,6 +38,9 @@ import threading
 
 print_lock = threading.Lock()
 
+# Exit code for waived tests is 2
+EXIT_WAIVED = 2
+
 def safe_print(*args, **kwargs):
     """Thread-safe print function"""
     with print_lock:
@@ -112,7 +115,12 @@ def run_single_test_instance(executable, args, output_file, global_args, run_des
                 cwd=os.path.dirname(exe_path) # Execute in the executable's directory
             )
 
-        status = "Passed" if result.returncode == 0 else "Failed"
+        if result.returncode == 0:
+            status = "Passed"
+        elif result.returncode == EXIT_WAIVED:
+            status = "Waived"
+        else:
+            status = "Failed"
         safe_print(f"    Finished {exe_name} {run_description}: {status} (code {result.returncode})")
         return {"name": exe_name, "description": run_description, "return_code": result.returncode, "status": status}
 
@@ -258,6 +266,7 @@ def main():
             })
 
     failed = []
+    waived = []
     total_runs = len(tasks)
     completed_runs = 0
 
@@ -278,7 +287,10 @@ def main():
             safe_print(f"Progress: {completed_runs}/{total_runs} runs completed.")
             try:
                 result = future.result()
-                if result["return_code"] != 0:
+                rc = result["return_code"]
+                if rc == EXIT_WAIVED:
+                    waived.append(result)
+                elif rc != 0:
                     failed.append(result)
             except Exception as exc:
                 safe_print(f'Task {task_info["executable"].name} {task_info["description"]} generated an exception: {exc}')
@@ -292,6 +304,10 @@ def main():
     # Print summary
     print("\nTest Summary:")
     print(f"Ran {total_runs} test runs for {len(executables)} executables.")
+    if waived:
+        print(f"Waived runs ({len(waived)}) — hardware/requirements not met (exit {EXIT_WAIVED}), not counted as failure:")
+        for w in waived:
+            print(f"  {w['name']} {w['description']}: {w['status']} (code {w['return_code']})")
     if failed:
         print(f"Failed runs ({len(failed)}):")
         for fail in failed:
@@ -300,7 +316,10 @@ def main():
         first_failure_code = next((f["return_code"] for f in failed if f["return_code"] != -1), 1)
         return first_failure_code
     else:
-        print("All test runs passed!")
+        if waived:
+            print("No failures (waived runs are acceptable).")
+        else:
+            print("All test runs passed!")
         return 0
 
 if __name__ == '__main__':

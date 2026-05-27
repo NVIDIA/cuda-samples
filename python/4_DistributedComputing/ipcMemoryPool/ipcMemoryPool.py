@@ -175,7 +175,7 @@ def main() -> int:
         f"(is_ipc_enabled={mr.is_ipc_enabled})"
     )
 
-    buffer = mr.allocate(nbytes)
+    buffer = mr.allocate(nbytes, stream=device.default_stream)
     try:
         # Fill the buffer with a known pattern from the parent side.
         arr = cp.from_dlpack(buffer).view(dtype=cp.float32)

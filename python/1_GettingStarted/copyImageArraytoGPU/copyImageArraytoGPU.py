@@ -195,7 +195,7 @@ def main():
     print(f"[Image array copy of {H}x{W}x{C} image]")
 
     # Step 2: Configure CuPy to use our CUDA stream (for interoperability)
-    cp.cuda.ExternalStream(int(stream.handle)).use()
+    cp.cuda.Stream.from_external(stream).use()
 
     # Step 3: Create a test image on CPU
     print("Creating sample image...")

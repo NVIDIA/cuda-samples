@@ -180,7 +180,7 @@ def run_fft_analysis(
         print(f"Compute Capability: sm_{device.arch}")
 
         # Make CuPy use our cuda.core stream
-        cp.cuda.ExternalStream(int(stream.handle)).use()
+        cp.cuda.Stream.from_external(stream).use()
 
         # Define test signal: composite of multiple frequencies
         test_frequencies = [440.0, 880.0, 1320.0, 2000.0, 5000.0]  # Hz
@@ -208,7 +208,7 @@ def run_fft_analysis(
         print("GPU FFT (cuFFT)")
         print("-" * 60)
 
-        event_opts = EventOptions(enable_timing=True)
+        event_opts = EventOptions(timing_enabled=True)
 
         # Warmup
         d_fft_result = cp.fft.rfft(d_signal)
@@ -291,7 +291,7 @@ def run_fft_analysis(
         all_found = True
         for expected_freq in test_frequencies:
             found = any(abs(f - expected_freq) < 10 for f in detected_freqs)
-            status = "✓" if found else "✗"
+            status = "[OK]" if found else "[FAIL]"
             print(f"  {expected_freq:6.0f} Hz: {status}")
             all_found = all_found and found
 
