@@ -148,7 +148,7 @@ def benchmark_kernel_1d(
     stream.sync()
 
     # Timed runs with CUDA events
-    event_opts = EventOptions(enable_timing=True)
+    event_opts = EventOptions(timing_enabled=True)
     start_event = device.create_event(options=event_opts)
     end_event = device.create_event(options=event_opts)
 
@@ -178,7 +178,7 @@ def print_gpu_info(device):
 def allocate_managed_array(mr, stream, n_elements, dtype=np.float32):
     """Allocate device-preferred unified memory and return buffer with numpy view."""
     n_bytes = n_elements * np.dtype(dtype).itemsize
-    buffer = mr.allocate(n_bytes, stream)
+    buffer = mr.allocate(n_bytes, stream=stream)
     stream.sync()
 
     # Zero-copy numpy view via DLPack (holds reference to buffer)
@@ -240,11 +240,11 @@ def demo_vector_add_tuning(device, stream, mr, kernel):
 
         print("-" * 60)
         print(
-            f"\n✓ OPTIMAL: block_size={best['block_size']} "
+            f"\n[OK] OPTIMAL: block_size={best['block_size']} "
             f"({best['mean_time_ms']:.4f} ms)"
         )
         print(
-            f"✗ WORST:   block_size={worst['block_size']} "
+            f"[FAIL] WORST: block_size={worst['block_size']} "
             f"({worst['mean_time_ms']:.4f} ms)"
         )
         print(f"  Speedup: {worst['mean_time_ms']/best['mean_time_ms']:.2f}x")
@@ -253,7 +253,7 @@ def demo_vector_add_tuning(device, stream, mr, kernel):
         stream.sync()
         expected = np_a + np_b
         if np.allclose(np_c, expected):
-            print("\n✓ Results verified correct!")
+            print("\n[OK] Results verified correct!")
 
         return results
     finally:
@@ -316,7 +316,7 @@ def demo_reduction_tuning(device, stream, mr, kernel):
         worst = max(results, key=lambda x: x["mean_time_ms"])
 
         print("-" * 60)
-        print(f"\n✓ OPTIMAL: block_size={best['block_size']}")
+        print(f"\n[OK] OPTIMAL: block_size={best['block_size']}")
         print(
             f"  Speedup over worst: {worst['mean_time_ms']/best['mean_time_ms']:.2f}x"
         )
@@ -341,6 +341,14 @@ def main():
     3. Benchmarking different thread block configurations
     4. Finding optimal threads-per-block for various kernel types
     """
+    if sys.platform == "win32":
+        print(
+            "This sample relies on ManagedMemoryResource with concurrent host "
+            "access, which is not supported on Windows "
+            "(concurrent_managed_access=False). Waiving this sample."
+        )
+        sys.exit(2)
+
     print("=" * 60)
     print("Launch Configuration Tuning (cuda.core)")
     print("Finding the Best Block Size for Your Kernel")
@@ -365,10 +373,10 @@ def main():
         print(f"  Target architecture: {arch}")
 
         vec_add_kernel = compile_kernel(device, VECTOR_ADD_KERNEL, "vector_add")
-        print("  ✓ vector_add kernel compiled")
+        print("  [OK] vector_add kernel compiled")
 
         reduction_kernel = compile_kernel(device, REDUCTION_KERNEL, "reduce_sum")
-        print("  ✓ reduce_sum kernel compiled")
+        print("  [OK] reduce_sum kernel compiled")
 
         # Run demonstrations
         demo_vector_add_tuning(device, stream, mr, vec_add_kernel)

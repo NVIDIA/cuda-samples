@@ -161,13 +161,13 @@ def run(num_elements=1024 * 1024 * 16):
     dev0.set_current()
     mr0 = DeviceMemoryResource(dev0)
     mr0.peer_accessible_by = [gpuid[1]]  # Grant GPU 1 access to GPU 0's memory
-    g0 = mr0.allocate(buf_size)
+    g0 = mr0.allocate(buf_size, stream=dev0.default_stream)
 
     # Allocate on GPU 1 and grant access to GPU 0
     dev1.set_current()
     mr1 = DeviceMemoryResource(dev1)
     mr1.peer_accessible_by = [gpuid[0]]  # Grant GPU 0 access to GPU 1's memory
-    g1 = mr1.allocate(buf_size)
+    g1 = mr1.allocate(buf_size, stream=dev1.default_stream)
 
     print(f"  Peer access enabled: GPU{gpuid[0]} <-> GPU{gpuid[1]}")
     print(
@@ -177,7 +177,7 @@ def run(num_elements=1024 * 1024 * 16):
 
     # Allocate pinned host memory
     pinned_mr = PinnedMemoryResource()
-    h0 = pinned_mr.allocate(buf_size)
+    h0 = pinned_mr.allocate(buf_size, stream=dev0.default_stream)
 
     print("  Memory allocated successfully")
 
@@ -190,7 +190,7 @@ def run(num_elements=1024 * 1024 * 16):
         print("\nMeasuring P2P bandwidth...")
         print("  Performing 100 ping-pong copies between GPUs...")
 
-        event_options = EventOptions(enable_timing=True)
+        event_options = EventOptions(timing_enabled=True)
         sync_event0 = None
         sync_event1 = None
 
@@ -206,7 +206,7 @@ def run(num_elements=1024 * 1024 * 16):
                 # Copy g0 -> g1 on stream0
                 g1.copy_from(g0, stream=stream0)
                 # Record event on stream0 to signal completion of this copy
-                sync_event0 = stream0.record(options=EventOptions(enable_timing=False))
+                sync_event0 = stream0.record(options=EventOptions(timing_enabled=False))
             else:
                 # Wait for previous stream0 copy to complete
                 if sync_event0 is not None:
@@ -214,7 +214,7 @@ def run(num_elements=1024 * 1024 * 16):
                 # Copy g1 -> g0 on stream1
                 g0.copy_from(g1, stream=stream1)
                 # Record event on stream1 to signal completion of this copy
-                sync_event1 = stream1.record(options=EventOptions(enable_timing=False))
+                sync_event1 = stream1.record(options=EventOptions(timing_enabled=False))
 
         # Wait for last stream1 copy to complete
         if sync_event1 is not None:

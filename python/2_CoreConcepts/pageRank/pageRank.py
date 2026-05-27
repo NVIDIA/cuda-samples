@@ -46,6 +46,14 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "Utilities"))
 from cuda_samples_utils import print_gpu_info, verify_array_result  # noqa: E402
 
+if sys.platform == "win32":
+    print(
+        "This sample depends on RAPIDS (cugraph-cu13 / cudf-cu13), which is "
+        "currently published only as Linux (manylinux) wheels on "
+        "pypi.nvidia.com. Waiving this sample on Windows."
+    )
+    sys.exit(2)
+
 try:
     import cudf
     import cugraph
@@ -210,8 +218,22 @@ def run_pagerank_benchmark(
     print()
     print_gpu_info(device)
 
+    # RAPIDS cuGraph wheels currently don't ship kernel binaries for
+    # every CUDA architecture. Skip cleanly on architectures known to
+    # be unsupported instead of failing deep inside cuGraph with a
+    # cryptic cudaErrorNoKernelImageForDevice. Remove an arch from this
+    # set once the matching cuGraph release ships kernels for it.
+    _CUGRAPH_UNSUPPORTED_ARCHES = {"110"}  # sm_110 = Thor / Tegra
+    if device.arch in _CUGRAPH_UNSUPPORTED_ARCHES:
+        print(
+            f"RAPIDS cuGraph does not yet ship kernels for sm_{device.arch}, "
+            "waiving this sample."
+        )
+        stream.close()
+        sys.exit(2)
+
     # Make CuPy/cuDF use our cuda.core stream
-    cp.cuda.ExternalStream(int(stream.handle)).use()
+    cp.cuda.Stream.from_external(stream).use()
 
     # Generate random graph
     print("\nGraph Parameters:")

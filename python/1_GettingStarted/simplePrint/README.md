@@ -68,7 +68,7 @@ CUDA Python (cuda.core), Numba CUDA, Kernel Compilation, Printf in Kernels, Mult
 - CUDA Toolkit 13.0 or newer
 - Python 3.10 or newer
 - `cuda-python` package (13.0+)
-- `cuda-core` package (>=0.6.0)
+- `cuda-core` package (>=1.0.0)
 - `numba-cuda` package (0.24.0+, for Pythonic kernel authoring)
 
 Download and install:

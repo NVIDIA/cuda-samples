@@ -22,7 +22,7 @@ Learn how to add a custom GPU operation to TensorFlow using `cuda.core` with `tf
 - Python 3.10+
 - TensorFlow 2.10+
 - cuda-python >= 13.0.0
-- cuda-core >= 0.6.0 (required for LEGACY_DEFAULT_STREAM)
+- cuda-core >=1.0.0 (required for LEGACY_DEFAULT_STREAM)
 - numpy >= 2.3.2
 - CuPy (for device pointer access)
 

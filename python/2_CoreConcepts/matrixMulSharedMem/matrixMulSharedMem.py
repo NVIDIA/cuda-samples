@@ -31,7 +31,7 @@ Demonstrates efficient matrix multiplication using:
 - nvmath.linalg.advanced.Matmul for high-performance GEMM via cuBLASLt
 - Custom CUDA kernel with tiling, shared memory, and loop unrolling
 
-Uses cuda.core APIs with CuPy arrays via ExternalStream.
+Uses cuda.core APIs with CuPy arrays via Stream.from_external.
 """
 
 import sys
@@ -121,17 +121,22 @@ def run_matmul_benchmark(
     print(f"Compute Capability: sm_{device.arch}")
 
     # Make CuPy use our cuda.core stream
-    cp.cuda.ExternalStream(int(stream.handle)).use()
+    cp.cuda.Stream.from_external(stream).use()
 
     # Compile custom kernel
     arch = f"sm_{device.arch}"
     program = Program(MATMUL_KERNEL, code_type="c++", options=ProgramOptions(arch=arch))
     kernel = program.compile(target_type="cubin").get_kernel("matmul_shared")
-    print("Custom kernel compiled ✓")
+    print("Custom kernel compiled [OK]")
 
     # Setup
     print(f"\nMatrix: A({m}x{k}) × B({k}x{n}) = C({m}x{n})")
     total_ops = 2 * m * n * k
+    # NOTE: this sample is pinned to cuda-core==0.7.0 (see requirements.txt)
+    # because nvmath-python 0.9.0 still uses cuda-core's pre-1.0 API name
+    # `enable_timing`. Once nvmath ships a release compatible with cuda-core
+    # 1.0, bump the pins in requirements.txt and rename this kwarg to
+    # `timing_enabled` to match the rest of the samples.
     event_opts = EventOptions(enable_timing=True)
 
     # Allocate matrices

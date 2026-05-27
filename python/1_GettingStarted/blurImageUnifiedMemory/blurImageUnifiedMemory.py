@@ -142,8 +142,8 @@ def blur_image_unified_memory(
     mr = ManagedMemoryResource(options)
 
     # Allocate unified memory buffers for source and destination images
-    src_buf = mr.allocate(n_bytes, stream)
-    dst_buf = mr.allocate(n_bytes, stream)
+    src_buf = mr.allocate(n_bytes, stream=stream)
+    dst_buf = mr.allocate(n_bytes, stream=stream)
     try:
         # Synchronize to ensure allocations are complete before CPU access
         stream.sync()
@@ -197,6 +197,14 @@ def main():
     3. Unified memory with cuda.core.ManagedMemoryResource
     4. Kernel launch with cuda.core.launch and LaunchConfig
     """
+    if sys.platform == "win32":
+        print(
+            "This sample relies on ManagedMemoryResource with concurrent host "
+            "access, which is not supported on Windows "
+            "(concurrent_managed_access=False). Waiving this sample."
+        )
+        sys.exit(2)
+
     print("=" * 60)
     print("Image Blur with Unified Memory (cuda.core)")
     print("=" * 60)

@@ -417,7 +417,7 @@ def run_critical_alone(
     Establishes the pure compute time with every SM on the device available.
     """
     stream = device.create_stream()
-    out = device.allocate(critical_n * 4)
+    out = device.allocate(critical_n * 4, stream=stream)
     total_sm = device.resources.sm.sm_count
     try:
         opts = EventOptions(timing_enabled=True)
@@ -461,7 +461,7 @@ def run_baseline(
     """Both kernels on the primary context, two non-blocking streams."""
     long_stream = device.create_stream()
     critical_stream = device.create_stream()
-    out = device.allocate(critical_n * 4)
+    out = device.allocate(critical_n * 4, stream=critical_stream)
     total_sm = device.resources.sm.sm_count
     try:
         return _run_one(
@@ -513,7 +513,7 @@ def run_green_context(
 
         long_stream = ctx_long.create_stream()
         critical_stream = ctx_crit.create_stream()
-        out = device.allocate(critical_n * 4)
+        out = device.allocate(critical_n * 4, stream=critical_stream)
 
         return _run_one(
             device,

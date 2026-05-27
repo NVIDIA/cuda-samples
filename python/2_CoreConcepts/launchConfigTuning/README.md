@@ -90,6 +90,15 @@ elapsed_ms = (end_event - start_event) / n_iterations
 - Python 3.10 or newer
 - See `requirements.txt` for Python packages
 
+### Platform Support:
+
+The benchmark loops in this sample read kernel results back from
+`ManagedMemoryResource` allocations between launches, which requires the
+device property `concurrent_managed_access=True`. This is only supported on
+Linux with HMM (Pascal and newer). On Windows (WDDM/MCDM/TCC) the property
+is `False`, so the sample exits early with a waive message and exit code
+`2`.
+
 ## Installation
 
 ```bash
@@ -115,8 +124,8 @@ Compute Capability: X.X
 
 Compiling CUDA kernels with cuda.core.Program...
   Target architecture: sm_XX
-  ✓ vector_add kernel compiled
-  ✓ reduce_sum kernel compiled
+  [OK] vector_add kernel compiled
+  [OK] reduce_sum kernel compiled
 
 ============================================================
 VECTOR ADDITION - Launch Configuration Tuning
@@ -132,11 +141,11 @@ Block Size:   64 | Blocks: 156250 | Time: X.XXXX ± X.XXXX ms
 ...
 ------------------------------------------------------------
 
-✓ OPTIMAL: block_size=XXX (X.XXXX ms)
-✗ WORST:   block_size=XXX (X.XXXX ms)
+[OK] OPTIMAL: block_size=XXX (X.XXXX ms)
+[FAIL] WORST: block_size=XXX (X.XXXX ms)
   Speedup: X.XXx
 
-✓ Results verified correct!
+[OK] Results verified correct!
 
 ...
 

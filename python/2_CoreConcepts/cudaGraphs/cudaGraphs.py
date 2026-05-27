@@ -182,7 +182,7 @@ def main() -> int:
     stream = device.create_stream()
     # Tell CuPy to order its allocations on our stream so buffer initialization
     # below is serialized with the kernels we launch.
-    cp.cuda.ExternalStream(int(stream.handle)).use()
+    cp.cuda.Stream.from_external(stream).use()
 
     graph_builder = graph = None
     try:
@@ -214,9 +214,9 @@ def main() -> int:
         t_individual = run_pipeline_individual(
             stream, kernels, config, buffers, N, n_iters=args.iters
         )
-        assert cp.allclose(r3, expected, rtol=1e-5, atol=1e-5), (
-            "Individual pipeline produced incorrect results"
-        )
+        assert cp.allclose(
+            r3, expected, rtol=1e-5, atol=1e-5
+        ), "Individual pipeline produced incorrect results"
         print(
             f"\nIndividual launches: {args.iters} iters in {t_individual:.4f}s"
             f"  ({t_individual * 1e6 / args.iters:.2f} us/iter)"
@@ -228,9 +228,9 @@ def main() -> int:
 
         run_pipeline_graph(stream, graph, n_iters=5)  # warm up
         t_graph = run_pipeline_graph(stream, graph, n_iters=args.iters)
-        assert cp.allclose(r3, expected, rtol=1e-5, atol=1e-5), (
-            "Graph pipeline produced incorrect results"
-        )
+        assert cp.allclose(
+            r3, expected, rtol=1e-5, atol=1e-5
+        ), "Graph pipeline produced incorrect results"
         print(
             f"Graph replay:       {args.iters} iters in {t_graph:.4f}s"
             f"  ({t_graph * 1e6 / args.iters:.2f} us/iter)"

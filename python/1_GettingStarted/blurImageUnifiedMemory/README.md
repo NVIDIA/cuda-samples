@@ -106,9 +106,18 @@ When returning a zero-copy view, the caller must close the buffers after use (e.
 - CUDA Toolkit 13.0 or newer
 - Python 3.10 or newer
 - `cuda-python` package (13.0.0+)
-- `cuda-core` package (>=0.6.0)
+- `cuda-core` package (>=1.0.0)
 - `numpy` package (>=2.3.2)
 - `pillow` package (10.0.0+)
+
+### Platform Support:
+
+This sample relies on `ManagedMemoryResource` with **concurrent host access**
+to managed allocations while GPU kernels are in flight. That behavior
+requires the device property `concurrent_managed_access=True`, which is only
+supported on Linux with HMM (Pascal and newer). On Windows (WDDM/MCDM/TCC)
+the property is `False`, so the sample exits early with a waive message and
+exit code `2` instead of attempting a run that would crash the process.
 
 ## Installation
 

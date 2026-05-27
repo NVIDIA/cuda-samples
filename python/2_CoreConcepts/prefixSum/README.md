@@ -8,7 +8,7 @@ Demonstrates parallel prefix sum (scan) algorithms using cuda.compute with cuda.
 - Exclusive scan: `output[i] = init_value + input[0] + input[1] + ... + input[i-1]`
 - Uses cuda.compute APIs for optimized CUB-based implementations
 - Uses cuda.core APIs for device and stream management
-- Demonstrates CuPy integration via `ExternalStream`
+- Demonstrates CuPy integration via `Stream.from_external`
 
 ## Requirements
 
@@ -21,9 +21,9 @@ Demonstrates parallel prefix sum (scan) algorithms using cuda.compute with cuda.
 - CUDA Toolkit 13.0+
 - Python 3.10+
 - `cuda-python` (13.0.0+)
-- `cuda-core` (>=0.6.0)
+- `cuda-core` (>=1.0.0)
 - `cuda-cccl` (1.0.0+)
-- `cupy-cuda13x` (13.0.0+)
+- `cupy-cuda13x` (14.0.0+)
 - `numpy` (>=2.3.2)
 
 ## Usage
@@ -56,8 +56,8 @@ This sample demonstrates proper stream usage across libraries:
 # Create stream with cuda.core
 stream = device.create_stream()
 
-# Wrap for CuPy compatibility (requires int handle)
-cp_stream = cp.cuda.ExternalStream(int(stream.handle))
+# Wrap for CuPy compatibility (cuda.core Stream implements the __cuda_stream__ protocol)
+cp_stream = cp.cuda.Stream.from_external(stream)
 
 # Use with CuPy operations
 with cp_stream:

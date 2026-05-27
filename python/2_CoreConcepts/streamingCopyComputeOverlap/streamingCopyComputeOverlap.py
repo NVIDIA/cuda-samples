@@ -102,7 +102,7 @@ def main():
         VECTOR_SCALE_KERNEL, code_type="c++", options=ProgramOptions(arch=arch)
     )
     kernel = program.compile(target_type="cubin").get_kernel("vector_scale")
-    print("Kernel compiled ✓")
+    print("Kernel compiled [OK]")
 
     # Parameters
     N = 16_000_000  # 16M elements
@@ -126,10 +126,10 @@ def main():
     h_in = h_out = d_in = d_out = None
     try:
         # Pre-allocate buffers
-        h_in = pinned_mr.allocate(n_bytes, default_stream)
-        h_out = pinned_mr.allocate(n_bytes, default_stream)
-        d_in = device_mr.allocate(n_bytes, default_stream)
-        d_out = device_mr.allocate(n_bytes, default_stream)
+        h_in = pinned_mr.allocate(n_bytes, stream=default_stream)
+        h_out = pinned_mr.allocate(n_bytes, stream=default_stream)
+        d_in = device_mr.allocate(n_bytes, stream=default_stream)
+        d_out = device_mr.allocate(n_bytes, stream=default_stream)
         # Sync before numpy access (numpy operations aren't stream ordered)
         default_stream.sync()
 
@@ -138,7 +138,7 @@ def main():
         np_in[:] = np.random.rand(N).astype(np.float32) * 100
 
         config = LaunchConfig(grid=((N + 255) // 256,), block=(256,))
-        event_opts = EventOptions(enable_timing=True)
+        event_opts = EventOptions(timing_enabled=True)
 
         # Warm up
         h_in.copy_to(d_in, stream=default_stream)
@@ -214,10 +214,10 @@ def main():
         h_ins, h_outs, d_ins, d_outs = [], [], [], []
         try:
             for i in range(n_streams):
-                h_ins.append(pinned_mr.allocate(chunk_bytes, streams[i]))
-                h_outs.append(pinned_mr.allocate(chunk_bytes, streams[i]))
-                d_ins.append(device_mr.allocate(chunk_bytes, streams[i]))
-                d_outs.append(device_mr.allocate(chunk_bytes, streams[i]))
+                h_ins.append(pinned_mr.allocate(chunk_bytes, stream=streams[i]))
+                h_outs.append(pinned_mr.allocate(chunk_bytes, stream=streams[i]))
+                d_ins.append(device_mr.allocate(chunk_bytes, stream=streams[i]))
+                d_outs.append(device_mr.allocate(chunk_bytes, stream=streams[i]))
 
             # Initialize input data
             for i in range(n_streams):
@@ -245,7 +245,7 @@ def main():
 
             # Benchmark with CUDA events (use stream 0 for timing)
             times = []
-            event_opts = EventOptions(enable_timing=True)
+            event_opts = EventOptions(timing_enabled=True)
             for _ in range(n_runs):
                 start_ev = device.create_event(options=event_opts)
                 end_ev = device.create_event(options=event_opts)

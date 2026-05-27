@@ -259,7 +259,7 @@ def run(
     print(f"    - Elements per block: {threads_per_block * 2}")
     print(f"    - Output: {num_blocks} partial sums")
     print("  Stage 2: CPU final reduction")
-    print(f"    - Combine {num_blocks} partial sums → 1 final result")
+    print(f"    - Combine {num_blocks} partial sums -> 1 final result")
 
     # Compile kernel
     print("\nCompiling CUDA kernel...")
@@ -320,7 +320,7 @@ def run(
 
         # cuda.core event elapsed time (end - start) is in milliseconds (CUDA API).
         stage1_times_ms = []
-        event_options = EventOptions(enable_timing=True)
+        event_options = EventOptions(timing_enabled=True)
         start_event = stream.device.create_event(options=event_options)
         end_event = stream.device.create_event(options=event_options)
         for _ in range(test_iterations):
@@ -342,7 +342,7 @@ def run(
 
         # Stage 2 (CPU)
         print("\n> Running Stage 2 (CPU final reduction)...")
-        # Device → Host: after stream sync, partial sums are visible on host.
+        # Device -> Host: after stream sync, partial sums are visible on host.
         stream.sync()
         with cp_stream:
             h_blockSums = cp.asnumpy(d_blockSums)

@@ -62,7 +62,7 @@ def main() -> bool:
     device = Device(0)
     device.set_current()
     stream = device.create_stream()
-    cp_stream = cp.cuda.ExternalStream(int(stream.handle))
+    cp_stream = cp.cuda.Stream.from_external(stream)
 
     ok = True
     try:
@@ -153,7 +153,7 @@ def main() -> bool:
         )
         stream.sync()
 
-        event_opts = EventOptions(enable_timing=True)
+        event_opts = EventOptions(timing_enabled=True)
         start_event = device.create_event(options=event_opts)
         end_event = device.create_event(options=event_opts)
 
@@ -184,7 +184,7 @@ def main() -> bool:
         print("• Inclusive: output[i] includes input[i]")
         print("• Exclusive: output[i] excludes input[i], starts with init_value")
         print("• cuda.compute provides CUB-based optimized implementations")
-        print("• cuda.core Stream integrates with CuPy via ExternalStream")
+        print("• cuda.core Stream integrates with CuPy via Stream.from_external")
         print("• Applications: stream compaction, radix sort, histograms")
         print("=" * 60)
         return ok

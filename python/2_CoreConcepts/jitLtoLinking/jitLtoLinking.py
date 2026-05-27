@@ -140,9 +140,7 @@ def link_lto(device):
     main_obj = Program(MAIN_SRC, "c++", options=prog_opts).compile("ltoir")
     user_obj = Program(USER_SRC, "c++", options=prog_opts).compile("ltoir")
 
-    linker_opts = LinkerOptions(
-        arch=f"sm_{device.arch}", link_time_optimization=True
-    )
+    linker_opts = LinkerOptions(arch=f"sm_{device.arch}", link_time_optimization=True)
     linker = Linker(main_obj, user_obj, options=linker_opts)
     return linker.link("cubin")
 
@@ -175,7 +173,9 @@ def main() -> int:
         description="JIT + LTO linking of two device modules with cuda.core"
     )
     parser.add_argument(
-        "--elements", type=int, default=1 << 16,
+        "--elements",
+        type=int,
+        default=1 << 16,
         help="Number of float32 elements (default: 65536)",
     )
     parser.add_argument("--device", type=int, default=0, help="CUDA device id")
@@ -186,7 +186,7 @@ def main() -> int:
     print_gpu_info(device)
 
     stream = device.create_stream()
-    cp.cuda.ExternalStream(int(stream.handle)).use()
+    cp.cuda.Stream.from_external(stream).use()
 
     try:
         N = args.elements

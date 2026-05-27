@@ -28,7 +28,7 @@ This sample demonstrates CuPy integration with cuda.core streams:
 stream = device.create_stream()
 
 # Use with CuPy operations
-cp.cuda.ExternalStream(int(stream.handle)).use()
+cp.cuda.Stream.from_external(stream).use()
 ```
 
 ## Key APIs
@@ -43,7 +43,7 @@ cp.cuda.ExternalStream(int(stream.handle)).use()
 
 - `cp.fft.rfft()` - Real-to-complex FFT (GPU-accelerated via cuFFT)
 - `cp.fft.rfftfreq()` - Generate frequency bins for rfft
-- `cp.cuda.ExternalStream()` - Interop with cuda.core streams
+- `cp.cuda.Stream.from_external()` - Interop with cuda.core streams
 
 ### From NumPy:
 
@@ -115,7 +115,7 @@ VERIFICATION
 GPU vs CPU FFT magnitude: Test PASSED
 
 Frequency Detection Accuracy:
-     440 Hz: ✓
+     440 Hz: [OK]
      ...
 
 Done

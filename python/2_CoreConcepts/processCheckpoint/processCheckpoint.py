@@ -195,6 +195,19 @@ def main():
     print(f"Buffer size:        {args.buffer_mib} MiB")
     print(f"Lock timeout:       {args.lock_timeout_ms} ms")
 
+    # CUDA process checkpointing relies on kernel-mode driver features
+    # that aren't shipped on integrated-GPU platforms (e.g. Tegra /
+    # Jetson / Thor). On those, Process.lock() can hang indefinitely
+    # instead of returning a clean "not supported" error. Skip cleanly
+    # rather than hanging. Remove this guard once integrated platforms
+    # gain checkpoint support.
+    if device.properties.integrated:
+        print(
+            f"CUDA process checkpointing is not supported on integrated "
+            f"GPUs (sm_{device.arch}), waiving this sample."
+        )
+        return 2
+
     print()
     print("Compiling kernel ...")
     fill_kernel = compile_fill_kernel(device)

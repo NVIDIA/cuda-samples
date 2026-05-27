@@ -39,7 +39,7 @@ Copy image arrays between CPU and GPU memory using the modern `cuda.core` API wi
 ### From `cupy`:
 
 - `cp.from_dlpack()` - Create GPU array view from DLPack capsule
-- `cp.cuda.ExternalStream()` - Use external CUDA stream
+- `cp.cuda.Stream.from_external()` - Use external CUDA stream
 
 ### From `cuda_samples_utils`:
 
@@ -58,8 +58,8 @@ Copy image arrays between CPU and GPU memory using the modern `cuda.core` API wi
 - Python 3.10 or newer
 - NumPy 2.3.2 or newer (required for DLPack support)
 - `cuda-python` package (>=13.0.0+)
-- `cuda-core` package (>=0.6.0)
-- `cupy-cuda13x` package (13.0.0+)
+- `cuda-core` package (>=1.0.0)
+- `cupy-cuda13x` package (14.0.0+)
 
 ## Installation
 
@@ -73,8 +73,8 @@ pip install -r requirements.txt
 The requirements.txt installs:
 - `numpy` (2.3.2+, required for DLPack)
 - `cuda-python` (>=13.0.0+)
-- `cuda-core` (>=0.6.0)
-- `cupy-cuda13x` (13.0.0+)
+- `cuda-core` (>=1.0.0)
+- `cupy-cuda13x` (14.0.0+)
 
 ## How to Run
 

@@ -31,3 +31,6 @@ if(BUILD_TEGRA)
     set(CMAKE_FOLDER "8_Platform_Specific/Tegra")
     add_subdirectory(8_Platform_Specific/Tegra)
 endif()
+
+set(CMAKE_FOLDER "9_CUDA_Tile")
+add_subdirectory(9_CUDA_Tile)

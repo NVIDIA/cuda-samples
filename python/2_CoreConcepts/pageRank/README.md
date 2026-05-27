@@ -1,5 +1,23 @@
 # Sample: PageRank Algorithm (Python)
 
+> **Known issue — version-pinned sample.** Unlike the other samples in this
+> repository, this sample is pinned to `cuda-core<1.0.0`. The reason is that
+> `cudf-cu13` transitively requires `numba-cuda<0.29.0`, and every
+> `numba-cuda` release in that range pins `cuda-core<1.0.0`. Installing this
+> sample's `requirements.txt` into a shared environment will downgrade
+> `cuda-core` and break the other samples (which use the 1.0 API).
+>
+> The recommended workflow is one of:
+>
+> - Install this sample's requirements in a **dedicated virtual
+>   environment**, or
+> - Re-run the other samples' `pip install -r requirements.txt` afterwards
+>   to upgrade `cuda-core` back to 1.0.
+>
+> This sample will be re-aligned with the rest of the repository
+> (`cuda-core>=1.0.0`) once `cudf-cu13` ships a release that lifts its
+> `numba-cuda` upper bound.
+
 ## Description
 
 Demonstrates GPU-accelerated PageRank computation for graph analysis using RAPIDS cuGraph, with cuda.core for device, stream, and GPU timing. This sample focuses on cuda.core integration with high-level libraries (cuGraph/cuDF); for custom kernel programming (Program, LaunchConfig, launch), see the blockwiseSum sample.
@@ -16,7 +34,7 @@ Demonstrates GPU-accelerated PageRank computation for graph analysis using RAPID
 - `cugraph` - RAPIDS GPU-accelerated graph analytics
 - `cudf` - RAPIDS GPU DataFrame library
 - `cuda.core` - Device, stream, and event APIs for GPU timing
-- `cupy` - GPU array library (ExternalStream for cuDF/cuGraph)
+- `cupy` - GPU array library (Stream.from_external for cuDF/cuGraph)
 - `numpy` - CPU reference implementation
 
 ## Key APIs
@@ -25,7 +43,7 @@ Demonstrates GPU-accelerated PageRank computation for graph analysis using RAPID
 
 - `Device(0)` - Create device, `device.set_current()`, `device.create_stream()`
 - `EventOptions(enable_timing=True)` - GPU timing via `stream.record()`
-- `cp.cuda.ExternalStream(stream.handle).use()` - Make cuDF/cuGraph use cuda.core stream
+- `cp.cuda.Stream.from_external(stream).use()` - Make cuDF/cuGraph use cuda.core stream
 
 ### From cuGraph:
 
@@ -49,6 +67,14 @@ Demonstrates GPU-accelerated PageRank computation for graph analysis using RAPID
 - CUDA Toolkit 13.0 or newer
 - Python 3.10 or newer
 - See requirements.txt for package dependencies
+
+### Platform Support:
+
+This sample depends on RAPIDS (`cugraph-cu13`, `cudf-cu13`, `dask-cuda`),
+which is currently published only as **Linux (manylinux) wheels** on
+`pypi.nvidia.com` — no Windows wheels exist. On Windows the sample exits
+early with a waive message and exit code `2` instead of attempting an
+install that cannot succeed.
 
 ## Installation
 

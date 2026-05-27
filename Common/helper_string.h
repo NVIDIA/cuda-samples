@@ -354,7 +354,13 @@ inline char *sdkFindFilePath(const char *filename,
 
       "../../../../Common/data/",                     // up 4 in tree
       "../../../Common/data/",                        // up 3 in tree
-      "../../Common/data/"                            // up 2 in tree
+      "../../Common/data/",                           // up 2 in tree
+
+      "../../../../cpp/9_CUDA_Tile/<executable_name>/",        // up 4 in tree
+      "../../../cpp/9_CUDA_Tile/<executable_name>/",           // up 3 in tree
+      "../../cpp/9_CUDA_Tile/<executable_name>/",              // up 2 in tree
+      "../cpp/9_CUDA_Tile/<executable_name>/",                 // up 1 in tree
+      "./cpp/9_CUDA_Tile/<executable_name>/"                   // up 0 in tree
   };
 
   // Extract the executable name

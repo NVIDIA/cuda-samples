@@ -1,5 +1,25 @@
 # Matrix Multiplication with Shared Memory (GEMM)
 
+> **Known issue — version-pinned sample.** Unlike the other samples in this
+> repository, this sample is pinned to `cuda-core==0.7.0` and
+> `nvmath-python[cu13]==0.9.0`. The reason is that nvmath-python 0.9.0
+> still uses `cuda-core`'s pre-1.0 API name `EventOptions(enable_timing=...)`
+> in its own internals, which `cuda-core>=1.0` no longer accepts.
+>
+> If you install this sample's `requirements.txt` into the same environment
+> as the other samples, pip will downgrade `cuda-core` and the other
+> samples (which use the 1.0 API) will stop working. The recommended
+> workflow is one of:
+>
+> - Install this sample's requirements in a **dedicated virtual
+>   environment**, or
+> - Re-run the other samples' `pip install -r requirements.txt` afterwards
+>   to upgrade `cuda-core` back to 1.0.
+>
+> This sample will be re-aligned with the rest of the repository
+> (`cuda-core>=1.0.0`) once nvmath-python ships a release that targets
+> cuda-core's 1.0 naming audit.
+
 Demonstrates efficient matrix multiplication using nvmath-python APIs and custom CUDA kernels with tiling, shared memory, and loop unrolling.
 
 ## Overview
@@ -78,7 +98,7 @@ Using nvmath and cuda.core APIs
 Device: NVIDIA GeForce RTX 4090
 Compute Capability: sm_89
 
-Custom kernel compiled ✓
+Custom kernel compiled [OK]
 
 Matrix dimensions: A(1024x1024) × B(1024x1024) = C(1024x1024)
 Custom kernel tile size: 16x16

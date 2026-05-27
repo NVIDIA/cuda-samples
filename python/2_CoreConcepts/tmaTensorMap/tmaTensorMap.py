@@ -64,9 +64,9 @@ try:
         LaunchConfig,
         Program,
         ProgramOptions,
-        StridedMemoryView,
         launch,
     )
+    from cuda.core.utils import StridedMemoryView
     from cuda.pathfinder import find_nvidia_header_directory, get_cuda_path_or_home
     from cuda_samples_utils import print_gpu_info
 except ImportError as e:
@@ -147,11 +147,7 @@ def _get_cccl_include_paths() -> list:
     # CUDA runtime headers - needed for the CUtensorMap driver type.
     try:
         cudart_dir = find_nvidia_header_directory("cudart")
-        if (
-            cudart_dir
-            and os.path.isdir(cudart_dir)
-            and cudart_dir not in include_path
-        ):
+        if cudart_dir and os.path.isdir(cudart_dir) and cudart_dir not in include_path:
             include_path.append(cudart_dir)
     except Exception:  # noqa: S110 - fallback probes continue below
         pass
@@ -232,9 +228,9 @@ def main() -> int:
     output = cp.zeros(n, dtype=cp.float32)
     dev.sync()  # CuPy uses its own stream
 
-    tensor_map = StridedMemoryView.from_any_interface(
-        src, stream_ptr=-1
-    ).as_tensor_map(box_dim=(TILE_SIZE,))
+    tensor_map = StridedMemoryView.from_any_interface(src, stream_ptr=-1).as_tensor_map(
+        box_dim=(TILE_SIZE,)
+    )
 
     n_tiles = n // TILE_SIZE
     config = LaunchConfig(grid=n_tiles, block=TILE_SIZE)

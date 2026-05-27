@@ -43,11 +43,8 @@ import sys
 
 try:
     from cuda.core import system
-    from cuda.core.system import (
-        CUDA_BINDINGS_NVML_IS_COMPATIBLE,
-        GpuP2PCapsIndex,
-        TemperatureSensors,
-    )
+    from cuda.core.system import CUDA_BINDINGS_NVML_IS_COMPATIBLE
+    from cuda.core.system.typing import GpuP2PCapsIndex
 except ImportError as e:
     print(f"Error: Required package not found: {e}")
     print("Please install from requirements.txt:")
@@ -75,10 +72,11 @@ def format_bytes(nbytes: int) -> str:
 
 def print_driver_info() -> None:
     print_header("Driver / NVML")
-    major, minor = system.get_driver_version()
-    print(f"CUDA driver version: {major}.{minor}")
-    print(f"CUDA driver version (full): {system.get_driver_version_full()}")
+    major, minor = system.get_user_mode_driver_version()
+    print(f"CUDA driver version (user-mode): {major}.{minor}")
     if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
+        kmd = system.get_kernel_mode_driver_version()
+        print(f"CUDA driver version (kernel-mode): {'.'.join(str(x) for x in kmd)}")
         print(f"NVML version: {system.get_nvml_version()}")
         try:
             print(f"Driver branch: {system.get_driver_branch()}")
@@ -106,7 +104,7 @@ def print_device_info(device: "system.Device") -> None:
     except Exception as e:  # noqa: BLE001
         print(f"Architecture: unavailable ({e})")
     try:
-        print(f"Brand: {device.brand.name}")
+        print(f"Brand: {device.brand}")
     except Exception as e:  # noqa: BLE001
         print(f"Brand: unavailable ({e})")
 
@@ -133,7 +131,7 @@ def print_device_info(device: "system.Device") -> None:
 
     # Temperature (GPU sensor)
     try:
-        temp_c = device.temperature.sensor(TemperatureSensors.TEMPERATURE_GPU)
+        temp_c = device.temperature.get_sensor()
         print(f"Temperature (GPU sensor): {temp_c} C")
     except Exception as e:  # noqa: BLE001
         print(f"Temperature: unavailable ({e})")
@@ -158,12 +156,8 @@ def print_topology(devices: list) -> None:
             except Exception as e:  # noqa: BLE001
                 level_name = f"unavailable ({e})"
             try:
-                read = system.get_p2p_status(
-                    d0, d1, GpuP2PCapsIndex.P2P_CAPS_INDEX_READ
-                )
-                write = system.get_p2p_status(
-                    d0, d1, GpuP2PCapsIndex.P2P_CAPS_INDEX_WRITE
-                )
+                read = system.get_p2p_status(d0, d1, GpuP2PCapsIndex.READ)
+                write = system.get_p2p_status(d0, d1, GpuP2PCapsIndex.WRITE)
                 read_name = read.name
                 write_name = write.name
             except Exception as e:  # noqa: BLE001

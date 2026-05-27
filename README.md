@@ -1,6 +1,6 @@
 # CUDA Samples
 
-Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This version supports [CUDA Toolkit 13.2](https://developer.nvidia.com/cuda-downloads).
+Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This version supports [CUDA Toolkit 13.3](https://developer.nvidia.com/cuda-downloads).
 
 ## Release Notes
 
@@ -181,10 +181,10 @@ QNX_HOST=/path/to/qnx/host \
 QNX_TARGET=/path/to/qnx/target \
 cmake .. \
 -DBUILD_TEGRA=True \
--DCMAKE_CUDA_COMPILER=/usr/local/cuda-safe-13.0/bin/nvcc \
+-DCMAKE_CUDA_COMPILER=/usr/local/cuda-13.3/bin/nvcc \
 -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/toolchain-aarch64-qnx.cmake \
--DCMAKE_LIBRARY_PATH=/usr/local/cuda-safe-13.0/thor/targets/aarch64-qnx/lib/stubs/ \
--DCMAKE_INCLUDE_PATH=/usr/local/cuda-safe-13.0/thor/targets/aarch64-qnx/include/
+-DCMAKE_LIBRARY_PATH=/usr/local/cuda-13.3/thor/targets/aarch64-qnx/lib/stubs/ \
+-DCMAKE_INCLUDE_PATH=/usr/local/cuda-13.3/thor/targets/aarch64-qnx/include/
 ```
 
 ### Forward Compatibility
@@ -475,6 +475,9 @@ Samples that demonstrate the use of libNVVVM and NVVM IR.
 
 ### [8. Platform Specific](./cpp/8_Platform_Specific/Tegra/README.md)
 Samples that are specific to certain platforms (Tegra, cuDLA, NvMedia, NvSci, OpenGL ES).
+
+### [9. CUDA Tile](./cpp/9_CUDA_Tile/README.md)
+Samples that demonstrate how to use CUDA Tile C++.
 
 ## Dependencies
 
