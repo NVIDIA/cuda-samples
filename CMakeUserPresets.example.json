@@ -1,0 +1,50 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "msi-z790-windows11",
+      "displayName": "MSI Z790 - Windows 11 (MSVC)",
+      "description": "Example user preset for MSI Z790. Replace CUDA_TOOLKIT_ROOT_DIR with local path if needed.",
+      "generator": "Visual Studio 18 2026",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/build/msi-z790-windows11",
+      "cacheVariables": {
+        "CUDA_TOOLKIT_ROOT_DIR": "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v13.2"
+      }
+    },
+    {
+      "name": "msi-z790-wsl-ubuntu",
+      "displayName": "MSI Z790 - WSL Ubuntu",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/msi-z790-wsl-ubuntu",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+    },
+    {
+      "name": "dell-windows10",
+      "displayName": "Dell Laptop - Windows 10 (MSVC)",
+      "generator": "Visual Studio 18 2026",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/build/dell-windows10",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+    },
+    {
+      "name": "dell-wsl-ubuntu",
+      "displayName": "Dell Laptop - WSL Ubuntu",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/dell-wsl-ubuntu",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+    },
+    {
+      "name": "desktop-ubuntu",
+      "displayName": "Desktop - Ubuntu",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/desktop-ubuntu",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+    }
+  ],
+  "buildPresets": [
+    { "name": "build-msi-release", "configurePreset": "msi-z790-windows11", "configuration": "Release" },
+    { "name": "build-msi-debug", "configurePreset": "msi-z790-windows11", "configuration": "Debug" },
+    { "name": "build-wsl-msi-release", "configurePreset": "msi-z790-wsl-ubuntu", "configuration": "Release" }
+  ]
+}
