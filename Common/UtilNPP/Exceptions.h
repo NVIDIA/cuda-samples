@@ -189,7 +189,7 @@ namespace npp
     /// Macro for checking error return codes from cuFFT calls.
 #define NPP_CHECK_CUFFT(S) do {cufftResult eCUFFTResult; \
         eCUFFTResult = S; \
-        if (eCUFFTResult != NPP_SUCCESS) std::cout << "NPP_CHECK_CUFFT - eCUFFTResult = " << eCUFFTResult << std::endl; \
+        if (eCUFFTResult != CUFFT_SUCCESS) std::cout << "NPP_CHECK_CUFFT - eCUFFTResult = " << eCUFFTResult << std::endl; \
         NPP_ASSERT(eCUFFTResult == CUFFT_SUCCESS);} while (false)
 
 } // npp namespace
