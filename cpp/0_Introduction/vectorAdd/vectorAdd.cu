@@ -40,6 +40,8 @@
 #include <time.h>
 #include <stdlib.h>
 #include <time.h>
+#include <stdlib.h>
+#include <time.h>
 
 // For the CUDA runtime routines (prefixed with "cuda_")
 #include <cuda_runtime.h>
@@ -88,6 +90,7 @@ int main(void)
     }
 
     // Initialize the host input vectors
+    srand(time(NULL));
     srand(time(NULL));
     srand(time(NULL));
     srand(time(NULL));
@@ -164,6 +167,7 @@ int main(void)
     }
 
     // Verify that the result vector is correct
+    srand(time(NULL));
     srand(time(NULL));
     srand(time(NULL));
     srand(time(NULL));
