@@ -299,8 +299,7 @@ int main(int argc, char **argv)
         else {
             if (i == nthreads - 1) {
                 InputToThreads[i].taskSize = (TaskList.size() / nthreads) + (TaskList.size() % nthreads);
-                InputToThreads[i].TaskListPtr =
-                    &TaskList[i * (TaskList.size() / nthreads) + (TaskList.size() % nthreads)];
+                InputToThreads[i].TaskListPtr = &TaskList[i * (TaskList.size() / nthreads)];
             }
             else {
                 InputToThreads[i].taskSize    = (TaskList.size() / nthreads);
