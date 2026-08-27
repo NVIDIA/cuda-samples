@@ -662,6 +662,8 @@ We welcome your input on issues and suggestions for samples. At this time we are
 
 We use Google C++ Style Guide for all the sources https://google.github.io/styleguide/cppguide.html
 
+Contributions must adhere to the [Code of Conduct](CODE_OF_CONDUCT.md).
+
 ## Frequently Asked Questions
 
 Answers to frequently asked questions about CUDA can be found at http://developer.nvidia.com/cuda-faq and in the [CUDA Toolkit Release Notes](http://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html).

@@ -1,6 +1,8 @@
 
 # Contributing to the CUDA Samples
 
+All contributions must adhere to the [Code of Conduct](CODE_OF_CONDUCT.md).
+
 Thank you for your interest in contributing to the CUDA Samples!
 
 
