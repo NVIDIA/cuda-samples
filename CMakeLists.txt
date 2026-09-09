@@ -1,33 +1,31 @@
 cmake_minimum_required(VERSION 3.20)
 
+include(cmake/CudaSampleArchs.cmake)
+
+# Default to all supported architectures if the user does not specify.
+# Gated on CUDA_SAMPLES_ARCHS_DEFAULTED rather than CMAKE_CUDA_ARCHITECTURES so this
+# decision is made once (on the first configure) and does not flip on reconfigure,
+# when CMAKE_CUDA_ARCHITECTURES is already defined from our own cached default.
+# The decision is revisited when the list itself moves, which the user can do with -D
+# on any later configure of the same build directory. Keep the list each configure
+# ends up with, so that such a change is told apart from our own cached default.
+if(NOT DEFINED CUDA_SAMPLES_ARCHS_DEFAULTED)
+    if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+        list(JOIN CUDA_SAMPLES_MASTER_ARCHS ";" _default_archs)
+        set(CMAKE_CUDA_ARCHITECTURES "${_default_archs}" CACHE STRING "CUDA architectures")
+        unset(_default_archs)
+        set(CUDA_SAMPLES_ARCHS_DEFAULTED TRUE CACHE INTERNAL "")
+    else()
+        set(CUDA_SAMPLES_ARCHS_DEFAULTED FALSE CACHE INTERNAL "")
+    endif()
+elseif(NOT "${CMAKE_CUDA_ARCHITECTURES}" STREQUAL "${CUDA_SAMPLES_LAST_CONFIGURED_ARCHS}")
+    set(CUDA_SAMPLES_ARCHS_DEFAULTED FALSE CACHE INTERNAL "")
+endif()
+
+set(CUDA_SAMPLES_LAST_CONFIGURED_ARCHS "${CMAKE_CUDA_ARCHITECTURES}" CACHE INTERNAL "")
+
 project(cuda-samples LANGUAGES C CXX CUDA)
 
-find_package(CUDAToolkit REQUIRED)
-
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-set(CMAKE_CUDA_STANDARD 17)
-set(CMAKE_CUDA_STANDARD_REQUIRED ON)
-
-set(CMAKE_CUDA_ARCHITECTURES 75 80 86 87 89 90 100 110 120)
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Wno-deprecated-gpu-targets")
-if(ENABLE_CUDA_DEBUG)
-    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")        # enable cuda-gdb (may significantly affect performance on some targets)
-else()
-    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -lineinfo") # add line information to all builds for debug tools (exclusive to -G option)
-endif()
-
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --extended-lambda")
-
-# Add MSVC-specific flags for standard-conforming preprocessor (required for CCCL)
-if(MSVC)
-    add_compile_options($<$<COMPILE_LANGUAGE:CUDA>:-Xcompiler=/Zc:preprocessor>)
-endif()
-
-# Include installation configuration before processing samples
-include(cmake/InstallSamples.cmake)
+include(cmake/CudaSampleCommon.cmake)
 
 add_subdirectory(cpp)

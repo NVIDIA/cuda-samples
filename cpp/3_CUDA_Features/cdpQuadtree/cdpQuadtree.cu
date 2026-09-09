@@ -25,6 +25,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <iostream>
+
 #include <cooperative_groups.h>
 #include <thrust/device_vector.h>
 #include <thrust/host_vector.h>

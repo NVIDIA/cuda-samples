@@ -71,27 +71,50 @@ update the CMake invocation in utils/build.sh or build.bat by adding
 A Note About the cuda-c-linking Sample
 --------------------------------------
 
-This sample requires a development package (or locally-built) LLVM library
-between versions 7 to 14 inclusive.  LLVM 15 defaults to using opaque pointers,
-which are not supported in libNVVM for pre-Blackwell architectures.
+This sample requires a development package (or locally-built) LLVM library,
+version 7 or newer.
 
-The LLVM_HOME environment variable is required for users who wish to build the
-cuda-c-linking sample and have a locally built copy of LLVM that they wish to
-use.  That sample requires the development package of LLVM with the LLVM header
-files and libraries.
+Which LLVM versions are usable depends on the GPU the sample runs on.  LLVM 15
+and newer emit opaque pointers, and libNVVM accepts those only for Blackwell
+and later architectures; older architectures require the typed pointers that
+LLVM 14 and older emit.  The sample queries libNVVM for the LLVM IR version its
+target accepts, so building against a newer LLVM and running on a pre-Blackwell
+device reports the requirement and exits with code 2 rather than failing.  Use
+LLVM 7 to 14 if you need a single build that runs on any supported device.
+
+The LLVM_HOME environment variable selects which LLVM to build against.  It is
+required for users who have a locally built copy of LLVM they wish to use, and
+it also picks between installed versions: several LLVM versions install side by
+side, so a newer default LLVM does not prevent building this sample against an
+older one.  With more than one installed and LLVM_HOME unset, which of them is
+found is unspecified, so set it explicitly.  Whichever copy is used has to be a
+development install, with the LLVM header files and libraries.
 
 If the LLVM dependencies are met, the user can enable the building of this
 sample by setting the CMake variable "ENABLE_CUDA_C_LINKING_SAMPLE" from either
 the command line invocation of CMake or by modifying the CMakeLists.txt in this
 directory.
 
-Windows users should download LLVM 14 sources from llvm.org and build+install
+Windows users should download LLVM sources from llvm.org and build+install
 LLVM locally.  Using the llvm.org provided Windows installer lacks some of
 the required components the cuda-c-linking sample depends on.
 
-For Ubuntu users, the "llvm-dev" package contains the LLVM headers and libraries
-this sample requires, the user should not have to explicitly define an LLVM_HOME
-in this case.
+For Ubuntu users, the "llvm-dev" package contains the LLVM headers and
+libraries this sample requires, and is found without any further configuration.
+Note that "llvm-dev" is an unversioned metapackage that tracks the
+distribution's current LLVM: on Ubuntu 24.04 it installs "llvm-18-dev", which
+runs only on Blackwell and later.  To build for an older device, add the
+versioned package and select it explicitly:
+
+```bash
+sudo apt install llvm-14-dev
+LLVM_HOME=/usr/lib/llvm-14 cmake -S . -B build -DENABLE_CUDA_C_LINKING_SAMPLE=1
+```
+
+LLVM 15 and newer reference zstd from their CMake package, which the Ubuntu
+"llvm-*-dev" packages do not pull in.  Install "libzstd-dev" alongside them,
+or CMake fails while loading the LLVM package with a missing
+"zstd::libzstd_shared" target.
 
 Windows users will want to build this sample using the same CMake build mode
 as they built LLVM with.  For instance if they built LLVM in Release mode,

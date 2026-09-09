@@ -2,7 +2,7 @@
 
 ## Description
 
-This sample implements matrix multiplication and is exactly the same as the second example of the [Shared Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#shared-memory) section of the programming guide. It has been written for clarity of exposition to illustrate various CUDA programming principles, not with the goal of providing the most performant generic kernel for matrix multiplication.  To illustrate GPU performance for matrix multiply, this sample also shows how to use the CUDA 4.0+ interface for cuBLAS to demonstrate high-performance performance for matrix multiplication.
+This sample implements matrix multiplication. It has been written for clarity of exposition to illustrate various CUDA programming principles, not with the goal of providing the most performant generic kernel for matrix multiplication.  To illustrate GPU performance for matrix multiply, this sample also shows how to use the CUDA 4.0+ interface for cuBLAS to demonstrate high-performance matrix multiplication.
 
 ## Key Concepts
 
@@ -14,7 +14,7 @@ CUDA Runtime API, Linear Algebra
 
 ## Supported OSes
 
-Linux, Windows
+Linux, Windows, QNX (QNX Safety cross-build with CUDA Safe toolkit)
 
 ## Supported CPU Architecture
 

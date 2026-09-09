@@ -98,5 +98,5 @@ Done
 ## See Also
 
 - [cuda.core Documentation](https://nvidia.github.io/cuda-python/cuda-core/latest/)
-- [CUDA Shared Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#shared-memory)
+- [CUDA Shared Memory](https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/writing-cuda-kernels.html#shared-memory)
 - [CuPy Documentation](https://docs.cupy.dev/)

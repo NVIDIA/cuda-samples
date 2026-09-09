@@ -112,12 +112,12 @@ When returning a zero-copy view, the caller must close the buffers after use (e.
 
 ### Platform Support:
 
-This sample relies on `ManagedMemoryResource` with **concurrent host access**
-to managed allocations while GPU kernels are in flight. That behavior
-requires the device property `concurrent_managed_access=True`, which is only
-supported on Linux with HMM (Pascal and newer). On Windows (WDDM/MCDM/TCC)
-the property is `False`, so the sample exits early with a waive message and
-exit code `2` instead of attempting a run that would crash the process.
+This sample builds host NumPy views over managed allocations, which requires
+the device property `concurrent_managed_access=True`. Devices that report
+`False` — Windows (WDDM/MCDM/TCC), and older integrated GPUs such as Jetson
+Orin — keep managed allocations GPU-exclusive, so the sample reports the
+missing capability and exits with code `2` instead of attempting a run that
+would crash the process.
 
 ## Installation
 
@@ -174,4 +174,4 @@ Verifying result...
 - [cuda.core Documentation](https://nvidia.github.io/cuda-python/cuda-core/latest/)
 - [cuda.core.Program](https://nvidia.github.io/cuda-python/cuda-core/latest/generated/cuda.core.Program.html)
 - [cuda.core.ManagedMemoryResource](https://nvidia.github.io/cuda-python/cuda-core/latest/generated/cuda.core.ManagedMemoryResource.html)
-- [CUDA Managed Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#um-unified-memory-programming-hd)
+- [CUDA Managed Memory](https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-topics/unified-memory.html#unified-memory)

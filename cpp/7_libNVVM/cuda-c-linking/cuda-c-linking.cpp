@@ -27,6 +27,7 @@
 #include <cassert>
 #include <cuda.h>
 #include <llvm/ADT/StringExtras.h>
+#include <llvm/Config/llvm-config.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
@@ -35,6 +36,9 @@
 #include <llvm/Support/Path.h>
 #include <llvm/Support/Program.h>
 #include <llvm/Support/raw_ostream.h>
+#if LLVM_VERSION_MAJOR >= 21
+#include <llvm/TargetParser/Triple.h>
+#endif
 #include <memory>
 #include <nvvm.h>
 #include <string>
@@ -67,7 +71,9 @@ static void __checkCudaErrors(CUresult err, const char *filename, int line)
                 ((CUDA_SUCCESS == res) ? ename : "Unknown"),
                 filename,
                 line);
-        exit(err);
+        // Exit with EXIT_FAILURE rather than the error code, which 'main'
+        // reserves to report an unmet requirement.
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -76,9 +82,13 @@ void checkNVVMCall(nvvmResult res)
 {
     if (res != NVVM_SUCCESS) {
         errs() << "libnvvm call failed\n";
-        exit(res);
+        exit(EXIT_FAILURE);
     }
 }
+
+// The libNVVM architecture string for a compute capability, e.g. 10.0 becomes
+// "compute_100".
+std::string computeArch(int devMajor, int devMinor) { return "compute_" + utostr(devMajor) + utostr(devMinor); }
 
 /// generateModule - Generate and LLVM IR module that calls an
 /// externally-defined function
@@ -89,13 +99,22 @@ std::unique_ptr<Module> generateModule(LLVMContext &context)
     mod->setDataLayout("e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-"
                        "f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:"
                        "64");
+#if LLVM_VERSION_MAJOR >= 21
+    // LLVM 21 dropped the overload that takes the triple as a string.
+    mod->setTargetTriple(Triple("nvptx64-nvidia-cuda"));
+#else
     mod->setTargetTriple("nvptx64-nvidia-cuda");
+#endif
 
     // Get pointers to some commonly-used types.
-    Type *voidTy            = Type::getVoidTy(context);
-    Type *floatTy           = Type::getFloatTy(context);
-    Type *i32Ty             = Type::getInt32Ty(context);
-    Type *floatGenericPtrTy = PointerType::get(floatTy, /* address space */ 0);
+    Type *voidTy = Type::getVoidTy(context);
+#if LLVM_VERSION_MAJOR >= 17
+    // Pointers are opaque from LLVM 15 on, and LLVM 17 dropped the overload
+    // that takes a pointee type. The resulting IR spells this type 'ptr'.
+    Type *floatGenericPtrTy = PointerType::get(context, /* address space */ 0);
+#else
+    Type *floatGenericPtrTy = PointerType::get(Type::getFloatTy(context), /* address space */ 0);
+#endif
 
     // void @mandelbrot(float*)
     Type          *mandelbrotParamTys[] = {floatGenericPtrTy};
@@ -139,7 +158,7 @@ std::unique_ptr<Module> generateModule(LLVMContext &context)
 }
 
 // Use libNVVM to compile an NVVM IR module to PTX.
-std::string generatePtx(const std::string &module, int devMajor, int devMinor, const char *moduleName)
+std::string generatePtx(const std::string &module, const std::string &arch, const char *moduleName)
 {
     assert(moduleName);
 
@@ -149,9 +168,7 @@ std::string generatePtx(const std::string &module, int devMajor, int devMinor, c
 
     // Create a libNVVM compilation unit from the NVVM IR.
     checkNVVMCall(nvvmAddModuleToProgram(compileUnit, module.c_str(), module.size(), moduleName));
-    std::string computeArg = "-arch=compute_";
-    computeArg += utostr(devMajor);
-    computeArg += utostr(devMinor);
+    std::string computeArg = "-arch=" + arch;
 
     // Compile the NVVM IR into PTX.
     const char *options[] = {computeArg.c_str()};
@@ -216,9 +233,36 @@ int main(int argc, char **argv)
     checkCudaErrors(cuDeviceGetAttribute(&devMajor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, device));
     checkCudaErrors(cuDeviceGetAttribute(&devMinor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, device));
     outs() << "Device Compute Capability: " << devMajor << "." << devMinor << "\n";
-    if (devMajor < 7 && devMinor < 5) {
-        errs() << "ERROR: Device 0 is not sm_75 or later.\n";
-        return 1;
+    if (devMajor < 7 || (devMajor == 7 && devMinor < 5)) {
+        outs() << "Device 0 is not sm_75 or later.\n";
+        // 2 reports an unmet hardware/toolchain requirement rather than a failure.
+        return 2;
+    }
+
+    const std::string arch = computeArch(devMajor, devMinor);
+
+    // The LLVM IR that libNVVM accepts depends on the target architecture:
+    // pre-Blackwell targets take LLVM 7 IR, which spells pointers with their
+    // pointee type ('float*'), while Blackwell and later take a much newer IR
+    // that also accepts the opaque pointers ('ptr') LLVM 15 and later emit.
+    // Ask libNVVM which one applies to this device rather than assuming.
+    int              nvvmLLVMMajor = 0;
+    const nvvmResult archSupported = nvvmLLVMVersion(arch.c_str(), &nvvmLLVMMajor);
+    if (archSupported == NVVM_ERROR_INVALID_INPUT) {
+        // The device is newer than the toolkit this sample builds against.
+        outs() << "The libNVVM of this CUDA toolkit does not support " << arch
+               << ". Use a toolkit that supports this device.\n";
+        // 2 reports an unmet hardware/toolchain requirement rather than a failure.
+        return 2;
+    }
+    checkNVVMCall(archSupported);
+    if (LLVM_VERSION_MAJOR >= 15 && nvvmLLVMMajor < 15) {
+        outs() << "This sample was built against LLVM " << LLVM_VERSION_MAJOR
+               << ", which emits opaque pointers, but libNVVM accepts only LLVM " << nvvmLLVMMajor << " IR for " << arch
+               << ". Build against LLVM 14 or older to run on this device, or run on a "
+                  "Blackwell or later device.\n";
+        // 2 reports an unmet hardware/toolchain requirement rather than a failure.
+        return 2;
     }
 
     // Generate the IR module
@@ -239,7 +283,7 @@ int main(int argc, char **argv)
     }
 
     // Generate PTX.
-    std::string ptx = generatePtx(moduleStr, devMajor, devMinor, module->getModuleIdentifier().c_str());
+    std::string ptx = generatePtx(moduleStr, arch, module->getModuleIdentifier().c_str());
     if (SavePTX) {
         std::error_code err;
         raw_fd_ostream  out("cuda-c-linking.kernel.ptx", err);

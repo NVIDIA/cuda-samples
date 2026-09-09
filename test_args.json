@@ -241,38 +241,6 @@
             "-file=data/ref_bindlessTexture.bin"
         ]
     },
-    "cuSolverSp_LinearSolver": {
-        "runs": [
-            {
-                "args": [
-                    "-R=qr"
-                ]
-            },
-            {
-                "args": [
-                    "-R=chol"
-                ]
-            },
-            {
-                "args": [
-                    "-R=qr",
-                    "-P=symamd"
-                ]
-            },
-            {
-                "args": [
-                    "-R=chol",
-                    "-P=symamd"
-                ]
-            },
-            {
-                "args": [
-                    "-R=lu",
-                    "-P=symamd"
-                ]
-            }
-        ]
-    },
     "randomFog": {
         "args": [
             "-qatest"
@@ -360,12 +328,6 @@
     "conjugateGradientMultiDeviceCG": {
         "min_gpus": 2
     },
-    "simpleCUFFT_2d_MGPU": {
-        "min_gpus": 2
-    },
-    "simpleCUFFT_MGPU": {
-        "min_gpus": 2
-    },
     "streamOrderedAllocationP2P": {
         "min_gpus": 2
     },
@@ -375,6 +337,23 @@
     "reductionMultiBlockCG": {
         "python": {
             "args": ["--cuda-include-dir=$CUDA_HOME/include:$CUDA_HOME/include/cccl"]
+        }
+    },
+    "persistentProgramCache": {
+        "python": {
+            "args": [
+                "--clear-cache",
+                "--m",
+                "128",
+                "--n",
+                "128",
+                "--k",
+                "128",
+                "--iterations",
+                "3",
+                "--warmup",
+                "1"
+            ]
         }
     },
     "multiGPUGradientAverage": {

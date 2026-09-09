@@ -1,4 +1,4 @@
-/* Copyright (c) 2022, NVIDIA CORPORATION. All rights reserved.
+/* Copyright (c) 2026, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -41,45 +41,36 @@
 // CUDA runtime
 #include <cuda_runtime.h>
 
-// helper functions and utilities to work with CUDA
-#include <helper_cuda.h>
-#include <helper_functions.h>
+// CUB for block-scope reduction
+#include <cub/cub.cuh>
+
+#define NUM_BLOCKS  64
+#define NUM_THREADS 256
 
 // This kernel computes a standard parallel reduction and evaluates the
 // time it takes to do that for each block. The timing results are stored
 // in device memory.
 __global__ static void timedReduction(const float *input, float *output, clock_t *timer)
 {
-    // __shared__ float shared[2 * blockDim.x];
-    extern __shared__ float shared[];
-
     const int tid = threadIdx.x;
     const int bid = blockIdx.x;
 
     if (tid == 0)
         timer[bid] = clock();
 
-    // Copy input.
-    shared[tid]              = input[tid];
-    shared[tid + blockDim.x] = input[tid + blockDim.x];
+    // Each thread loads 2 elements and reduces them to a local min.
+    float thread_data[2];
+    thread_data[0] = input[tid];
+    thread_data[1] = input[tid + blockDim.x];
 
-    // Perform reduction to find minimum.
-    for (int d = blockDim.x; d > 0; d /= 2) {
-        __syncthreads();
+    // Block-wide min-reduction using CUB. Default constructor allocates
+    // shared memory internally via PrivateStorage().
+    using BlockReduce = cub::BlockReduce<float, NUM_THREADS>;
+    float block_min = BlockReduce().Reduce(thread_data, [] __device__(float a, float b) { return fminf(a, b); });
 
-        if (tid < d) {
-            float f0 = shared[tid];
-            float f1 = shared[tid + d];
-
-            if (f1 < f0) {
-                shared[tid] = f1;
-            }
-        }
-    }
-
-    // Write result.
+    // Only thread 0 holds the valid aggregate.
     if (tid == 0)
-        output[bid] = shared[0];
+        output[bid] = block_min;
 
     __syncthreads();
 
@@ -87,33 +78,25 @@ __global__ static void timedReduction(const float *input, float *output, clock_t
         timer[bid + gridDim.x] = clock();
 }
 
-#define NUM_BLOCKS  64
-#define NUM_THREADS 256
-
-// It's interesting to change the number of blocks and the number of threads to
-// understand how to keep the hardware busy.
-//
-// Here are some numbers I get on my G80:
-//    blocks - clocks
-//    1 - 3096
-//    8 - 3232
-//    16 - 3364
-//    32 - 4615
-//    64 - 9981
-//
-// With less than 16 blocks some of the multiprocessors of the device are idle.
-// With more than 16 you are using all the multiprocessors, but there's only one
-// block per multiprocessor and that doesn't allow you to hide the latency of
-// the memory. With more than 32 the speed scales linearly.
-
 // Start the main CUDA Sample here
 int main(int argc, char **argv)
 {
     printf("CUDA Clock sample\n");
 
-    // This will pick the best possible CUDA capable device
-    int dev = findCudaDevice(argc, (const char **)argv);
+    // Select device 0 as the active GPU
+    int devID = 0;
+    cudaSetDevice(devID);
 
+    // Query compute capability (major.minor) and number of SMs on the device
+    int major = 0, minor = 0, smCount = 0;
+    cudaDeviceGetAttribute(&major, cudaDevAttrComputeCapabilityMajor, devID);
+    cudaDeviceGetAttribute(&minor, cudaDevAttrComputeCapabilityMinor, devID);
+    cudaDeviceGetAttribute(&smCount, cudaDevAttrMultiProcessorCount, devID);
+
+    // Print device info
+    printf("GPU Device %d: with compute capability %d.%d and Number of SMs %d\n\n", devID, major, minor, smCount);
+
+    // Device pointers for input data, per-block minimum output, and clock timestamps
     float   *dinput  = NULL;
     float   *doutput = NULL;
     clock_t *dtimer  = NULL;
@@ -125,19 +108,19 @@ int main(int argc, char **argv)
         input[i] = (float)i;
     }
 
-    checkCudaErrors(cudaMalloc((void **)&dinput, sizeof(float) * NUM_THREADS * 2));
-    checkCudaErrors(cudaMalloc((void **)&doutput, sizeof(float) * NUM_BLOCKS));
-    checkCudaErrors(cudaMalloc((void **)&dtimer, sizeof(clock_t) * NUM_BLOCKS * 2));
+    cudaMalloc((void **)&dinput, sizeof(float) * NUM_THREADS * 2);
+    cudaMalloc((void **)&doutput, sizeof(float) * NUM_BLOCKS);
+    cudaMalloc((void **)&dtimer, sizeof(clock_t) * NUM_BLOCKS * 2);
 
-    checkCudaErrors(cudaMemcpy(dinput, input, sizeof(float) * NUM_THREADS * 2, cudaMemcpyHostToDevice));
+    cudaMemcpy(dinput, input, sizeof(float) * NUM_THREADS * 2, cudaMemcpyHostToDevice);
 
-    timedReduction<<<NUM_BLOCKS, NUM_THREADS, sizeof(float) * 2 * NUM_THREADS>>>(dinput, doutput, dtimer);
+    timedReduction<<<NUM_BLOCKS, NUM_THREADS>>>(dinput, doutput, dtimer);
 
-    checkCudaErrors(cudaMemcpy(timer, dtimer, sizeof(clock_t) * NUM_BLOCKS * 2, cudaMemcpyDeviceToHost));
+    cudaMemcpy(timer, dtimer, sizeof(clock_t) * NUM_BLOCKS * 2, cudaMemcpyDeviceToHost);
 
-    checkCudaErrors(cudaFree(dinput));
-    checkCudaErrors(cudaFree(doutput));
-    checkCudaErrors(cudaFree(dtimer));
+    cudaFree(dinput);
+    cudaFree(doutput);
+    cudaFree(dtimer);
 
     long double avgElapsedClocks = 0;
 

@@ -72,15 +72,19 @@ verified on the host.
 
 ### Platform Support
 
-The `ManagedMemoryResource` demo in this sample exercises **concurrent host
-access** to managed allocations while the GPU is active, which requires the
-device property `concurrent_managed_access=True`. This is only supported on
-Linux with HMM (Pascal and newer). On Windows (WDDM/MCDM/TCC) the property
-is `False`, so the sample exits early with a waive message and exit code
-`2`. The `DeviceMemoryResource` + `PinnedMemoryResource` demos in this
-sample would still work on Windows on their own, but to keep the sample
-self-contained the entire script waives when concurrent managed access is
-unavailable.
+This sample needs two device capabilities, and exits with code `2` when
+either is missing:
+
+- `PinnedMemoryResource` is backed by a host memory pool, which requires
+  `host_memory_pools_supported=True`. Windows in TCC mode and older
+  integrated GPUs such as Jetson Orin report `False`.
+- The `ManagedMemoryResource` demo builds host NumPy views over managed
+  allocations, which requires `concurrent_managed_access=True`. Windows
+  (WDDM/MCDM/TCC) and older integrated GPUs such as Jetson Orin report
+  `False`.
+
+The demos are checked up front rather than individually to keep the sample
+self-contained.
 
 ## Installation
 

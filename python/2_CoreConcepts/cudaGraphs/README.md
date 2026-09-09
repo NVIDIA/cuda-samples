@@ -137,4 +137,4 @@ your GPU and host CPU.
 - [CUDA Python Documentation](https://nvidia.github.io/cuda-python/)
 - [`cuda.core` graphs API](https://nvidia.github.io/cuda-python/cuda-core/latest/api.html#cuda-graphs)
 - Upstream `cuda.core` example: [`cuda_graphs.py`](https://github.com/NVIDIA/cuda-python/blob/main/cuda_core/examples/cuda_graphs.py)
-- [CUDA Graphs programming guide](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#cuda-graphs)
+- [CUDA Graphs programming guide](https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-topics/cuda-graphs.html#cuda-graphs)

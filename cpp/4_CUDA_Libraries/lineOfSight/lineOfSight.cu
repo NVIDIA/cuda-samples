@@ -215,6 +215,9 @@ int runTest(int argc, char **argv)
     //////////////////////////////////////////////////////////////////////////////
     // Device solution
 
+    // Enlarge the per-thread device stack: under -G the CUB warpspeed inclusive_scan is not inlined and its deep call chain overflows the default 1KB stack.
+    checkCudaErrors(cudaDeviceSetLimit(cudaLimitStackSize, 8192));
+
     // Execution configuration
     dim3 block(256);
     dim3 grid((uint)ceil(ray.length / (double)block.x));

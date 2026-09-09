@@ -1,25 +1,20 @@
 cmake_minimum_required(VERSION 3.20)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake/Modules")
+
+include("${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake/DetectCudaArch.cmake")
+
+if(SAMPLE_SKIP_BUILD)
+    return()
+endif()
 
 project(vectorAdd_nvrtc LANGUAGES C CXX CUDA)
 
+include("${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake/CudaSampleCommon.cmake")
+
 find_package(CUDAToolkit REQUIRED)
 
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-set(CMAKE_CUDA_ARCHITECTURES 75 80 86 87 89 90 100 110 120)
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Wno-deprecated-gpu-targets")
-if(ENABLE_CUDA_DEBUG)
-    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")        # enable cuda-gdb (may significantly affect performance on some targets)
-else()
-    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -lineinfo") # add line information to all builds for debug tools (exclusive to -G option)
-endif()
-
-# Include directories and libraries
 include_directories(../../../Common)
 
-# Source file
 # Add sample target executable
 add_executable(vectorAdd_nvrtc vectorAdd.cpp)
 
@@ -38,6 +33,5 @@ add_custom_command(TARGET vectorAdd_nvrtc POST_BUILD
     ${CMAKE_CURRENT_SOURCE_DIR}/vectorAdd_kernel.cu ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-# Include installation configuration
-include(${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake/InstallSamples.cmake)
+include(InstallSamples)
 setup_samples_install()

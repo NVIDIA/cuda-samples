@@ -71,6 +71,7 @@ extern bool         verbose;
     T(PFNEGLGETPLATFORMDISPLAYEXTPROC, eglGetPlatformDisplayEXT)                           \
     T(PFNEGLGETSTREAMFILEDESCRIPTORKHRPROC, eglGetStreamFileDescriptorKHR)                 \
     T(PFNEGLQUERYDEVICEATTRIBEXTPROC, eglQueryDeviceAttribEXT)                             \
+    T(PFNEGLQUERYDEVICESTRINGEXTPROC, eglQueryDeviceStringEXT)                             \
     T(PFNEGLCREATESTREAMFROMFILEDESCRIPTORKHRPROC, eglCreateStreamFromFileDescriptorKHR)
 
 #define EXTLST_DECL(tx, x)   tx x = NULL;

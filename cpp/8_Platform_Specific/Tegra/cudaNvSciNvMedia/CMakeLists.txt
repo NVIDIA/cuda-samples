@@ -1,23 +1,19 @@
 cmake_minimum_required(VERSION 3.20)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../../cmake/Modules")
+set(SAMPLE_DISALLOW_ARCHS 75 80 86 89 90 100 103 107 120)
+
+include("${CMAKE_CURRENT_SOURCE_DIR}/../../../../cmake/DetectCudaArch.cmake")
+
+if(SAMPLE_SKIP_BUILD)
+    return()
+endif()
 
 project(cudaNvSciNvMedia LANGUAGES C CXX CUDA)
 
+include("${CMAKE_CURRENT_SOURCE_DIR}/../../../../cmake/CudaSampleCommon.cmake")
+
 find_package(CUDAToolkit REQUIRED)
 
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-set(CMAKE_CUDA_ARCHITECTURES 87 110)
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Wno-deprecated-gpu-targets")
-
-if(ENABLE_CUDA_DEBUG)
-    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G")        # enable cuda-gdb (may significantly affect performance on some targets)
-else()
-    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -lineinfo") # add line information to all builds for debug tools (exclusive to -G option)
-endif()
-
-# Include directories and libraries
 include_directories(../../../../Common)
 
 find_package(NVSCI)
@@ -49,22 +45,14 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         if(NVMEDIA_LIB AND NVMEDIA_INCLUDE_DIR)
             message(STATUS "FOUND NVMEDIA libs: ${NVMEDIA_LIB}")
             message(STATUS "Using NVMEDIA headers path: ${NVMEDIA_INCLUDE_DIR}")
-            # Source file
-            # Add target for cudaNvSciNvMedia
             add_executable(cudaNvSciNvMedia imageKernels.cu cudaNvSciNvMedia.cpp main.cpp)
-
             target_compile_options(cudaNvSciNvMedia PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
-
             target_compile_features(cudaNvSciNvMedia PRIVATE cxx_std_17 cuda_std_17)
-
-            set_target_properties(cudaNvSciNvMedia PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-
             target_include_directories(cudaNvSciNvMedia PUBLIC
                 ${CUDAToolkit_INCLUDE_DIRS}
                 ${NVSCI_INCLUDE_DIRS}
                 ${NVMEDIA_INCLUDE_DIR}
             )
-
             target_link_libraries(cudaNvSciNvMedia
                 CUDA::cuda_driver
                 ${NVSCI_LIBRARIES}
@@ -75,11 +63,12 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${CMAKE_CURRENT_SOURCE_DIR}/teapot.rgba ${CMAKE_CURRENT_BINARY_DIR}/teapot.rgba
             )
-
             # Specify additional clean files
             set_target_properties(cudaNvSciNvMedia PROPERTIES
                 ADDITIONAL_CLEAN_FILES "teapot_out.rgba"
             )
+            include(InstallSamples)
+            setup_samples_install()
         else()
             message(STATUS "NvMedia not found - will not build sample 'cudaNvSciNvMedia'")
         endif()
@@ -89,7 +78,3 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 else()
     message(STATUS "Will not build sample cudaNvSciNvMedia - requires Linux OS")
 endif()
-
-# Include installation configuration
-include(${CMAKE_CURRENT_SOURCE_DIR}/../../../../cmake/InstallSamples.cmake)
-setup_samples_install()

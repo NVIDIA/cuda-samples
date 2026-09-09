@@ -44,8 +44,12 @@
 #include <stdio.h>
 
 // CUDA runtime
-#include <cuda_profiler_api.h>
 #include <cuda_runtime.h>
+// The CUDA Safe runtime does not ship the profiler API; gate it on header availability.
+#if defined(__has_include) && __has_include(<cuda_profiler_api.h>)
+#include <cuda_profiler_api.h>
+#define HAVE_CUDA_PROFILER_API 1
+#endif
 
 // Helper functions and utilities to work with CUDA
 #include <helper_cuda.h>
@@ -141,11 +145,11 @@ int MatrixMultiply(int argc, char **argv, int block_size, const dim3 &dimsA, con
     unsigned int size_A     = dimsA.x * dimsA.y;
     unsigned int mem_size_A = sizeof(float) * size_A;
     float       *h_A;
-    checkCudaErrors(cudaMallocHost(&h_A, mem_size_A));
+    checkCudaErrors(cudaMallocHost(&h_A, mem_size_A, 0));
     unsigned int size_B     = dimsB.x * dimsB.y;
     unsigned int mem_size_B = sizeof(float) * size_B;
     float       *h_B;
-    checkCudaErrors(cudaMallocHost(&h_B, mem_size_B));
+    checkCudaErrors(cudaMallocHost(&h_B, mem_size_B, 0));
     cudaStream_t stream;
 
     // Initialize host memory
@@ -160,7 +164,7 @@ int MatrixMultiply(int argc, char **argv, int block_size, const dim3 &dimsA, con
     dim3         dimsC(dimsB.x, dimsA.y, 1);
     unsigned int mem_size_C = dimsC.x * dimsC.y * sizeof(float);
     float       *h_C;
-    checkCudaErrors(cudaMallocHost(&h_C, mem_size_C));
+    checkCudaErrors(cudaMallocHost(&h_C, mem_size_C, 0));
 
     if (h_C == NULL) {
         fprintf(stderr, "Failed to allocate host matrix C!\n");
@@ -334,9 +338,13 @@ int main(int argc, char **argv)
 
     printf("MatrixA(%d,%d), MatrixB(%d,%d)\n", dimsA.x, dimsA.y, dimsB.x, dimsB.y);
 
+#ifdef HAVE_CUDA_PROFILER_API
     checkCudaErrors(cudaProfilerStart());
+#endif
     int matrix_result = MatrixMultiply(argc, argv, block_size, dimsA, dimsB);
+#ifdef HAVE_CUDA_PROFILER_API
     checkCudaErrors(cudaProfilerStop());
+#endif
 
     exit(matrix_result);
 }

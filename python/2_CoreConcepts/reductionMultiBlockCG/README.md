@@ -132,7 +132,7 @@ Single-Pass Multi-Block Reduction completed successfully!
 
 ## Further reading
 
-- [CUDA Cooperative Groups](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#cooperative-groups)
+- [CUDA Cooperative Groups](https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-topics/cooperative-groups.html#cooperative-groups)
 - [Reduction whitepaper (PDF)](https://developer.download.nvidia.com/assets/cuda/files/reduction.pdf)
 
 ## Files

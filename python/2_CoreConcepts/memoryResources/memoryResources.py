@@ -222,17 +222,22 @@ def main():
     parser.add_argument("--device", type=int, default=0, help="CUDA device id")
     args = parser.parse_args()
 
-    if sys.platform == "win32":
-        print(
-            "This sample relies on ManagedMemoryResource with concurrent host "
-            "access, which is not supported on Windows "
-            "(concurrent_managed_access=False). Waiving this sample."
-        )
-        sys.exit(2)
-
     device = Device(args.device)
     device.set_current()
     print_gpu_info(device)
+
+    # PinnedMemoryResource is backed by a host memory pool, which is not
+    # available on every device.
+    if not device.properties.host_memory_pools_supported:
+        print("Host pinned memory pools are not supported on this platform.")
+        return 2
+
+    # This sample builds host NumPy views over managed memory. Devices without
+    # concurrent managed access keep managed allocations GPU-exclusive while
+    # the GPU is active, so those host views fault.
+    if not device.properties.concurrent_managed_access:
+        print("Concurrent managed memory access is not supported on this platform.")
+        return 2
 
     stream = device.create_stream()
 

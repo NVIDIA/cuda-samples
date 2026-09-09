@@ -59,6 +59,7 @@
     T(PFNEGLQUERYDEVICESEXTPROC, eglQueryDevicesEXT)                                       \
     T(PFNEGLGETPLATFORMDISPLAYEXTPROC, eglGetPlatformDisplayEXT)                           \
     T(PFNEGLQUERYDEVICEATTRIBEXTPROC, eglQueryDeviceAttribEXT)                             \
+    T(PFNEGLQUERYDEVICESTRINGEXTPROC, eglQueryDeviceStringEXT)                             \
     T(PFNEGLCREATESTREAMFROMFILEDESCRIPTORKHRPROC, eglCreateStreamFromFileDescriptorKHR)
 
 #define eglCreateStreamKHR                    my_eglCreateStreamKHR
@@ -75,6 +76,7 @@
 #define eglQueryDevicesEXT                    my_eglQueryDevicesEXT
 #define eglGetPlatformDisplayEXT              my_eglGetPlatformDisplayEXT
 #define eglQueryDeviceAttribEXT               my_eglQueryDeviceAttribEXT
+#define eglQueryDeviceStringEXT               my_eglQueryDeviceStringEXT
 
 #define EXTLST_DECL(tx, x)   tx my_##x = NULL;
 #define EXTLST_EXTERN(tx, x) extern tx my_##x;

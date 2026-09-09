@@ -1,4 +1,4 @@
-/* Copyright (c) 2022, NVIDIA CORPORATION. All rights reserved.
+/* Copyright (c) 2026, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -33,164 +33,112 @@
  * of the programming guide with some additions like error checking.
  */
 
+#include <cuda_runtime_api.h>
+#include <memory.h>
+#include <cstdlib>
+#include <ctime>
 #include <stdio.h>
-
-// For the CUDA runtime routines (prefixed with "cuda_")
-#include <cuda_runtime.h>
-#include <helper_cuda.h>
+#include <cuda/cmath>
 /**
  * CUDA Kernel Device code
  *
  * Computes the vector addition of A and B into C. The 3 vectors have the same
- * number of elements numElements.
+ * number of elements. This exmple shows Vector addition using Unified memory.
  */
-__global__ void vectorAdd(const float *A, const float *B, float *C, int numElements)
-{
-    int i = blockDim.x * blockIdx.x + threadIdx.x;
 
-    if (i < numElements) {
-        C[i] = A[i] + B[i] + 0.0f;
+
+__global__ void vecAdd(float* A, float* B, float* C, int vectorLength)
+{
+    int workIndex = threadIdx.x + blockIdx.x*blockDim.x;
+    if(workIndex < vectorLength)
+    {
+        C[workIndex] = A[workIndex] + B[workIndex];
     }
 }
 
-/**
- * Host main routine
- */
-int main(void)
+void initArray(float* A, int length)
 {
-    // Error code to check return values for CUDA calls
-    cudaError_t err = cudaSuccess;
-
-    // Print the vector length to be used, and compute its size
-    int    numElements = 50000;
-    size_t size        = numElements * sizeof(float);
-    printf("[Vector addition of %d elements]\n", numElements);
-
-    // Allocate the host input vector A
-    float *h_A = (float *)malloc(size);
-
-    // Allocate the host input vector B
-    float *h_B = (float *)malloc(size);
-
-    // Allocate the host output vector C
-    float *h_C = (float *)malloc(size);
-
-    // Verify that allocations succeeded
-    if (h_A == NULL || h_B == NULL || h_C == NULL) {
-        fprintf(stderr, "Failed to allocate host vectors!\n");
-        exit(EXIT_FAILURE);
+     std::srand(std::time({}));
+    for(int i=0; i<length; i++)
+    {
+        A[i] = rand() / (float)RAND_MAX;
     }
+}
 
-    // Initialize the host input vectors
-    for (int i = 0; i < numElements; ++i) {
-        h_A[i] = rand() / (float)RAND_MAX;
-        h_B[i] = rand() / (float)RAND_MAX;
+void serialVecAdd(float* A, float* B, float* C,  int length)
+{
+    for(int i=0; i<length; i++)
+    {
+        C[i] = A[i] + B[i];
     }
+}
 
-    // Allocate the device input vector A
-    float *d_A = NULL;
-    err        = cudaMalloc((void **)&d_A, size);
-
-    if (err != cudaSuccess) {
-        fprintf(stderr, "Failed to allocate device vector A (error code %s)!\n", cudaGetErrorString(err));
-        exit(EXIT_FAILURE);
-    }
-
-    // Allocate the device input vector B
-    float *d_B = NULL;
-    err        = cudaMalloc((void **)&d_B, size);
-
-    if (err != cudaSuccess) {
-        fprintf(stderr, "Failed to allocate device vector B (error code %s)!\n", cudaGetErrorString(err));
-        exit(EXIT_FAILURE);
-    }
-
-    // Allocate the device output vector C
-    float *d_C = NULL;
-    err        = cudaMalloc((void **)&d_C, size);
-
-    if (err != cudaSuccess) {
-        fprintf(stderr, "Failed to allocate device vector C (error code %s)!\n", cudaGetErrorString(err));
-        exit(EXIT_FAILURE);
-    }
-
-    // Copy the host input vectors A and B in host memory to the device input
-    // vectors in
-    // device memory
-    printf("Copy input data from the host memory to the CUDA device\n");
-    err = cudaMemcpy(d_A, h_A, size, cudaMemcpyHostToDevice);
-
-    if (err != cudaSuccess) {
-        fprintf(stderr, "Failed to copy vector A from host to device (error code %s)!\n", cudaGetErrorString(err));
-        exit(EXIT_FAILURE);
-    }
-
-    err = cudaMemcpy(d_B, h_B, size, cudaMemcpyHostToDevice);
-
-    if (err != cudaSuccess) {
-        fprintf(stderr, "Failed to copy vector B from host to device (error code %s)!\n", cudaGetErrorString(err));
-        exit(EXIT_FAILURE);
-    }
-
-    // Launch the Vector Add CUDA Kernel
-    int threadsPerBlock = 256;
-    int blocksPerGrid   = (numElements + threadsPerBlock - 1) / threadsPerBlock;
-    printf("CUDA kernel launch with %d blocks of %d threads\n", blocksPerGrid, threadsPerBlock);
-    vectorAdd<<<blocksPerGrid, threadsPerBlock>>>(d_A, d_B, d_C, numElements);
-    err = cudaGetLastError();
-
-    if (err != cudaSuccess) {
-        fprintf(stderr, "Failed to launch vectorAdd kernel (error code %s)!\n", cudaGetErrorString(err));
-        exit(EXIT_FAILURE);
-    }
-
-    // Copy the device result vector in device memory to the host result vector
-    // in host memory.
-    printf("Copy output data from the CUDA device to the host memory\n");
-    err = cudaMemcpy(h_C, d_C, size, cudaMemcpyDeviceToHost);
-
-    if (err != cudaSuccess) {
-        fprintf(stderr, "Failed to copy vector C from device to host (error code %s)!\n", cudaGetErrorString(err));
-        exit(EXIT_FAILURE);
-    }
-
-    // Verify that the result vector is correct
-    for (int i = 0; i < numElements; ++i) {
-        if (fabs(h_A[i] + h_B[i] - h_C[i]) > 1e-5) {
-            fprintf(stderr, "Result verification failed at element %d!\n", i);
-            exit(EXIT_FAILURE);
+bool vectorApproximatelyEqual(float* A, float* B, int length, float epsilon=0.00001)
+{
+    for(int i=0; i<length; i++)
+    {
+        if(fabs(A[i] -B[i]) > epsilon)
+        {
+            printf("Index %d mismatch: %f != %f", i, A[i], B[i]);
+            return false;
         }
     }
+    return true;
+}
 
-    printf("Test PASSED\n");
-
-    // Free device global memory
-    err = cudaFree(d_A);
-
-    if (err != cudaSuccess) {
-        fprintf(stderr, "Failed to free device vector A (error code %s)!\n", cudaGetErrorString(err));
-        exit(EXIT_FAILURE);
+int main(int argc, char** argv)
+{
+    int vectorLength = 1024;
+    if(argc >=2)
+    {
+        vectorLength = std::atoi(argv[1]);
     }
 
-    err = cudaFree(d_B);
+    //unified-memory-example-begin
 
-    if (err != cudaSuccess) {
-        fprintf(stderr, "Failed to free device vector B (error code %s)!\n", cudaGetErrorString(err));
-        exit(EXIT_FAILURE);
+    // Pointers to memory vectors
+    float* A = nullptr;
+    float* B = nullptr;
+    float* C = nullptr;
+    float* comparisonResult = (float*)malloc(vectorLength*sizeof(float));
+
+    // Use unified memory to allocate buffers
+    cudaMallocManaged(&A, vectorLength*sizeof(float));
+    cudaMallocManaged(&B, vectorLength*sizeof(float));
+    cudaMallocManaged(&C, vectorLength*sizeof(float));
+
+    // Initialize vectors on the host
+    initArray(A, vectorLength);
+    initArray(B, vectorLength);
+
+    // Launch the kernel. Unified memory will make sure A, B, and C are
+    // accessible to the GPU
+    int threads = 256;
+    int blocks = cuda::ceil_div(vectorLength, threads);
+    vecAdd<<<blocks, threads>>>(A, B, C, vectorLength);
+    // Wait for the kernel to complete execution
+    cudaDeviceSynchronize();
+
+    // Perform computation serially on CPU for comparison
+    serialVecAdd(A, B, comparisonResult, vectorLength);
+
+    // Confirm that CPU and GPU got the same answer
+    if(vectorApproximatelyEqual(C, comparisonResult, vectorLength))
+    {
+        printf("Unified Memory: CPU and GPU answers match\n");
+    }
+    else
+    {
+        printf("Unified Memory: Error - CPU and GPU answers do not match\n");
     }
 
-    err = cudaFree(d_C);
+    // Clean Up
+    cudaFree(A);
+    cudaFree(B);
+    cudaFree(C);
+    free(comparisonResult);
 
-    if (err != cudaSuccess) {
-        fprintf(stderr, "Failed to free device vector C (error code %s)!\n", cudaGetErrorString(err));
-        exit(EXIT_FAILURE);
-    }
+    //unified-memory-example-end	
 
-    // Free host memory
-    free(h_A);
-    free(h_B);
-    free(h_C);
-
-    printf("Done\n");
     return 0;
 }

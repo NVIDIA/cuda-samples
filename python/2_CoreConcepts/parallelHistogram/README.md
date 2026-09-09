@@ -113,5 +113,5 @@ Test PASSED
 ## See Also
 
 - [cuda.core Documentation](https://nvidia.github.io/cuda-python/cuda-core/latest/)
-- [CUDA Atomic Functions](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#atomic-functions)
-- [CUDA Shared Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#shared-memory)
+- [CUDA Atomic Functions](https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/writing-cuda-kernels.html#atomics)
+- [CUDA Shared Memory](https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/writing-cuda-kernels.html#shared-memory)

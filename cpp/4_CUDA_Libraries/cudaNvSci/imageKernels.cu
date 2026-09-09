@@ -91,7 +91,7 @@ void launchGrayScaleKernel(unsigned int *d_rgbaImage,
     rgbToGrayscaleKernel<<<numOfBlocks, numThreadsPerBlock, 0, stream>>>(d_rgbaImage, imageWidth, imageHeight);
 
     unsigned int *outputData;
-    checkCudaErrors(cudaMallocHost((void **)&outputData, sizeof(unsigned int) * imageWidth * imageHeight));
+    checkCudaErrors(cudaMallocHost((void **)&outputData, sizeof(unsigned int) * imageWidth * imageHeight, 0));
     checkCudaErrors(cudaMemcpyAsync(
         outputData, d_rgbaImage, sizeof(unsigned int) * imageWidth * imageHeight, cudaMemcpyDeviceToHost, stream));
     checkCudaErrors(cudaStreamSynchronize(stream));

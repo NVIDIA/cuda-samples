@@ -34,9 +34,6 @@ This sample demonstrates two adaptive image denoising techniques: KNN and NLM, b
 ### [inlinePTX](./inlinePTX)
 A simple test application that demonstrates a new CUDA 4.0 ability to embed PTX in a CUDA kernel.
 
-### [inlinePTX_nvrtc](./inlinePTX_nvrtc)
-A simple test application that demonstrates a new CUDA 4.0 ability to embed PTX in a CUDA kernel.
-
 ### [interval](./interval)
 Interval arithmetic operators example.  Uses various C++ features (templates and recursion).  The recursive mode requires Compute SM 2.0 capabilities.
 

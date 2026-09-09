@@ -189,6 +189,14 @@ def main():
     # Step 1: Set up CUDA device and stream
     dev = Device()  # Get default CUDA device (GPU 0)
     dev.set_current()  # Make this device the active one
+
+    # Pinned memory resources are backed by a host memory pool, which requires
+    # CUDA memory-pool support. This is not available on every platform (for
+    # example, Windows in TCC mode), so check before using it.
+    if not dev.properties.host_memory_pools_supported:
+        print("Host pinned memory pools are not supported on this platform.")
+        return 2
+
     stream = dev.create_stream()  # Create stream for async operations
 
     print(f"Device: {dev.name}")
@@ -233,7 +241,8 @@ def main():
     cp.cuda.Stream.null.use()  # Reset CuPy's stream to default
 
     print("\nDone")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

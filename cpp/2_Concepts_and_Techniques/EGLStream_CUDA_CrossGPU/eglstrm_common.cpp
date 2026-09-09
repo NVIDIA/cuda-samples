@@ -114,7 +114,7 @@ int EGLStreamInit(bool isCrossDevice, int isConsumer, EGLNativeFileDescriptorKHR
 
         if (egl_device_id >= numDevices) {
             printf("No CUDA Capable EGL Device found.. Waiving execution\n");
-            goto Done;
+            exit(2);
         }
 
         g_consumerEglDisplay = eglGetPlatformDisplayEXT(EGL_PLATFORM_DEVICE_EXT, (void *)devices[egl_device_id], NULL);
@@ -126,6 +126,16 @@ int EGLStreamInit(bool isCrossDevice, int isConsumer, EGLNativeFileDescriptorKHR
 
         eglStatus = eglInitialize(g_consumerEglDisplay, 0, 0);
         if (!eglStatus) {
+            // A GPU built without graphics support is CUDA capable and is offered
+            // as an EGL device, but has no DRM device for EGL to reach it through.
+            // Any other reason is a real failure.
+            if (eglQueryDeviceStringEXT(devices[egl_device_id], EGL_DRM_DEVICE_FILE_EXT) == NULL
+                && eglQueryDeviceStringEXT(devices[egl_device_id], EGL_DRM_RENDER_NODE_FILE_EXT) == NULL) {
+                printf("This GPU has no graphics support, EGL is unavailable.. Waiving execution\n");
+                // 2 reports an unmet hardware requirement, which run_tests.py does
+                // not count as a failure.
+                exit(2);
+            }
             printf("EGL failed to initialize. \n");
             eglStatus = EGL_FALSE;
             goto Done;
@@ -191,7 +201,7 @@ int EGLStreamInit(bool isCrossDevice, int isConsumer, EGLNativeFileDescriptorKHR
 
         if (egl_device_id >= numDevices) {
             printf("No CUDA Capable EGL Device found.. Waiving execution\n");
-            goto Done;
+            exit(2);
         }
 
         g_producerEglDisplay = eglGetPlatformDisplayEXT(EGL_PLATFORM_DEVICE_EXT, (void *)devices[egl_device_id], NULL);
@@ -203,6 +213,16 @@ int EGLStreamInit(bool isCrossDevice, int isConsumer, EGLNativeFileDescriptorKHR
 
         eglStatus = eglInitialize(g_producerEglDisplay, 0, 0);
         if (!eglStatus) {
+            // A GPU built without graphics support is CUDA capable and is offered
+            // as an EGL device, but has no DRM device for EGL to reach it through.
+            // Any other reason is a real failure.
+            if (eglQueryDeviceStringEXT(devices[egl_device_id], EGL_DRM_DEVICE_FILE_EXT) == NULL
+                && eglQueryDeviceStringEXT(devices[egl_device_id], EGL_DRM_RENDER_NODE_FILE_EXT) == NULL) {
+                printf("This GPU has no graphics support, EGL is unavailable.. Waiving execution\n");
+                // 2 reports an unmet hardware requirement, which run_tests.py does
+                // not count as a failure.
+                exit(2);
+            }
             printf("EGL failed to initialize. \n");
             eglStatus = EGL_FALSE;
             goto Done;

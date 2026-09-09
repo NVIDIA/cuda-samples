@@ -290,7 +290,7 @@ def benchmark_cuda_compute(
     return result, float(np.mean(times))
 
 
-def main() -> bool:
+def main() -> int:
     """Main function demonstrating parallel reduction."""
     print("=" * 70)
     print("Parallel Reduction - Efficient GPU Array Summation")
@@ -298,6 +298,14 @@ def main() -> bool:
 
     device = Device(0)
     device.set_current()
+
+    # cuda.compute allocates temporary storage from the device's default memory
+    # pool, which requires CUDA memory-pool support. This is not available on
+    # every platform (for example, Windows in TCC mode).
+    if not device.properties.memory_pools_supported:
+        print("CUDA memory pools are not supported on this platform.")
+        return 2
+
     stream = device.create_stream()
     cp_stream = cp.cuda.Stream.from_external(stream)
 
@@ -363,13 +371,13 @@ def main() -> bool:
             )
         if custom_ok and compute_ok:
             print("\nTest PASSED!")
-            return True
+            return 0
         else:
             print("\nTest FAILED - Error too large!")
-            return False
+            return 1
     finally:
         stream.close()
 
 
 if __name__ == "__main__":
-    sys.exit(0 if main() else 1)
+    sys.exit(main())

@@ -160,6 +160,13 @@ def main():
     print_gpu_info(device)
     print()
 
+    # cuda.compute allocates temporary storage from the device's default memory
+    # pool, which requires CUDA memory-pool support. This is not available on
+    # every platform (for example, Windows in TCC mode).
+    if not device.properties.memory_pools_supported:
+        print("CUDA memory pools are not supported on this platform.")
+        return 2
+
     ok = True
     ok &= demo_reduce_lambda()
     print()

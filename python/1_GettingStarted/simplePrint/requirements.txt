@@ -3,5 +3,9 @@
 cuda-python>=13.0.0
 cuda-core>=1.0.0
 # Numba JIT uses nvJitLink from pip; keep in step with cuda-bindings (e.g. 13.2.x).
+# Also pin libnvvm from pip so Numba doesn't fall back to a mismatched
+# system-toolkit libnvvm (nvJitLink ERROR_OUTDATED_LIBRARY).
+nvidia-nvvm>=13.2.0
 nvidia-nvjitlink>=13.2.0
 numba-cuda>=0.29.0
+numpy<2.5

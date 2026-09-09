@@ -30,8 +30,8 @@ round-trip test:
 - How cuda.core's pickle reducers rebuild the MR and map the buffer
   in the receiving process
 - Why `multiprocessing` must use the `"spawn"` start method with CUDA
-- Detecting IPC support at runtime (POSIX file-descriptor handle
-  type, memory-pool support, Linux-only)
+- Detecting IPC support at runtime (memory-pool support and the
+  POSIX file-descriptor handle type in the pool's handle mask)
 
 ## Key Libraries
 
@@ -48,7 +48,7 @@ round-trip test:
 - `mr.allocate(nbytes)` - allocate a `Buffer` from the IPC pool
 - `Buffer.is_mapped` - True when the buffer is usable in the current process
 - `Device.properties.memory_pools_supported` - runtime feature check
-- `Device.properties.handle_type_posix_file_descriptor_supported` - runtime feature check
+- `Device.properties.mempool_supported_handle_types` - runtime feature check
 
 ### From `cuda_samples_utils`
 
@@ -105,8 +105,8 @@ python ipcMemoryPool.py --elements 65536
 python ipcMemoryPool.py --device 1
 ```
 
-On platforms or devices that do not support CUDA IPC, the sample
-prints a diagnostic and exits cleanly with status 0.
+On platforms or devices that do not support CUDA IPC memory pools, the
+sample prints a diagnostic and exits with status 2.
 
 ## Expected Output
 
@@ -137,4 +137,4 @@ based on your system.
 - [CUDA Python Documentation](https://nvidia.github.io/cuda-python/)
 - [`cuda.core` memory API](https://nvidia.github.io/cuda-python/cuda-core/latest/api.html#memory)
 - Upstream `cuda.core` IPC tests: [`test_memory_ipc.py`](https://github.com/NVIDIA/cuda-python/blob/main/cuda_core/tests/memory_ipc/test_memory_ipc.py)
-- [CUDA IPC programming guide](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#interprocess-communication)
+- [CUDA IPC programming guide](https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-topics/inter-process-communication.html#interprocess-communication)

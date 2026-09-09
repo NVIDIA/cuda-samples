@@ -100,6 +100,20 @@ running ---------> locked ------------> checkpointed -----------> locked -------
 - Python 3.10 or newer.
 - `cuda-core >= 1.0.0`.
 
+### Unsupported configurations
+
+The sample returns 2 without running the lifecycle where the checkpoint
+API is unavailable:
+
+- Non-Linux platforms, since the checkpoint API is Linux-only.
+- Integrated GPUs (Tegra / Jetson / Thor), where `Process.lock()` succeeds
+  and only `Process.checkpoint()` reports the missing support, leaving the
+  process locked and hanging on exit. The sample checks the device property
+  up front so that never happens.
+- Any system where the driver answers the first `Process.lock()` with
+  `CUDA_ERROR_NOT_SUPPORTED`, which covers Confidential Computing mode and
+  vGPU guests. A failure later in the lifecycle is reported as an error.
+
 ## Installation
 
 Install the required packages from `requirements.txt`:

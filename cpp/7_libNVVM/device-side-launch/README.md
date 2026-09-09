@@ -10,8 +10,8 @@ This document assumes the CUDA runtime is used. The method for device-side
 launch using the OpenCL runtime is similar but different.
 
 This document is written after the "Device-Side Launch from PTX"
-section from CUDA C Programming Guide
-(http://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#device-side-launch-from-ptx).
+section from CUDA Programming Guide
+(https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-topics/dynamic-parallelism.html#device-side-launch-from-ptx).
 
 Kernel Launch APIs
 ------------------

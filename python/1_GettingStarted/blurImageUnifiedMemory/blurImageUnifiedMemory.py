@@ -197,14 +197,6 @@ def main():
     3. Unified memory with cuda.core.ManagedMemoryResource
     4. Kernel launch with cuda.core.launch and LaunchConfig
     """
-    if sys.platform == "win32":
-        print(
-            "This sample relies on ManagedMemoryResource with concurrent host "
-            "access, which is not supported on Windows "
-            "(concurrent_managed_access=False). Waiving this sample."
-        )
-        sys.exit(2)
-
     print("=" * 60)
     print("Image Blur with Unified Memory (cuda.core)")
     print("=" * 60)
@@ -212,6 +204,13 @@ def main():
     # Initialize CUDA device
     device = Device(0)
     device.set_current()
+
+    # This sample builds host NumPy views over managed memory. Devices without
+    # concurrent managed access keep managed allocations GPU-exclusive while
+    # the GPU is active, so those host views fault.
+    if not device.properties.concurrent_managed_access:
+        print("Concurrent managed memory access is not supported on this platform.")
+        sys.exit(2)
 
     print(f"\nDevice: {device.name}")
     print(f"Compute Capability: sm_{device.arch}")

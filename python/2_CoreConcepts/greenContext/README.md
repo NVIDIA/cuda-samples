@@ -246,5 +246,5 @@ other concurrent GPU work.
 ## See Also
 
 - [CUDA Python Documentation](https://nvidia.github.io/cuda-python/)
-- [Green Contexts in the CUDA C++ Programming Guide](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#green-contexts)
+- [Green Contexts in the CUDA Programming Guide](https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-topics/green-contexts.html#green-contexts)
 - [`cuda.core` green-context test suite](https://github.com/NVIDIA/cuda-python/blob/main/cuda_core/tests/test_green_context.py) - the authoritative API reference

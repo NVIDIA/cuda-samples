@@ -53,14 +53,22 @@ except ImportError as e:
     sys.exit(1)
 
 
-def main() -> bool:
-    """Run prefix sum sample. Returns True if all tests passed."""
+def main() -> int:
+    """Run prefix sum sample. Returns 0 if all tests passed."""
     print("=" * 60)
     print("Prefix Sum (Scan) - Using cuda.compute")
     print("=" * 60)
 
     device = Device(0)
     device.set_current()
+
+    # cuda.compute allocates temporary storage from the device's default memory
+    # pool, which requires CUDA memory-pool support. This is not available on
+    # every platform (for example, Windows in TCC mode).
+    if not device.properties.memory_pools_supported:
+        print("CUDA memory pools are not supported on this platform.")
+        return 2
+
     stream = device.create_stream()
     cp_stream = cp.cuda.Stream.from_external(stream)
 
@@ -187,13 +195,11 @@ def main() -> bool:
         print("• cuda.core Stream integrates with CuPy via Stream.from_external")
         print("• Applications: stream compaction, radix sort, histograms")
         print("=" * 60)
-        return ok
+        return 0 if ok else 1
     finally:
         cp.cuda.Stream.null.use()
         stream.close()
 
 
 if __name__ == "__main__":
-    success = main()
-    if not success:
-        sys.exit(1)
+    sys.exit(main())

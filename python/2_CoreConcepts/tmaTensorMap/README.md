@@ -134,5 +134,5 @@ replace_address verified: descriptor reused with new source tensor
 ## See Also
 
 - [CUDA Python Documentation](https://nvidia.github.io/cuda-python/)
-- [TMA in the CUDA C++ Programming Guide](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#tensor-memory-accelerator)
+- [TMA in the CUDA C++ Programming Guide](https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-topics/async-copies.html#using-the-tensor-memory-accelerator-tma)
 - [`cuda::barrier` reference](https://nvidia.github.io/cccl/libcudacxx/extended_api/synchronization_primitives/barrier.html)

@@ -10,14 +10,8 @@ Bilateral filter is an edge-preserving non-linear smoothing filter that is imple
 ### [binomialOptions](./binomialOptions)
 This sample evaluates fair call price for a given set of European options under binomial model.
 
-### [binomialOptions_nvrtc](./binomialOptions_nvrtc)
-This sample evaluates fair call price for a given set of European options under binomial model. This sample makes use of NVRTC for Runtime Compilation.
-
 ### [BlackScholes](./BlackScholes)
 This sample evaluates fair call and put prices for a given set of European options by Black-Scholes formula.
-
-### [BlackScholes_nvrtc](./BlackScholes_nvrtc)
-This sample evaluates fair call and put prices for a given set of European options by Black-Scholes formula, compiling the CUDA kernels involved at runtime using NVRTC.
 
 
 ### [convolutionFFT2D](./convolutionFFT2D)
@@ -59,17 +53,11 @@ This sample demonstrates efficient all-pairs simulation of a gravitational n-bod
 ### [NV12toBGRandResize](./NV12toBGRandResize)
 This code shows two ways to convert and resize NV12 frames to BGR 3 planars frames using CUDA in batch. Way-1, Convert NV12 Input to BGR @ Input Resolution-1, then Resize to Resolution#2. Way-2, resize NV12 Input to Resolution#2 then convert it to BGR Output. NVIDIA HW Decoder, both dGPU and Tegra, normally outputs NV12 pitch format frames. For the inference using TensorRT, the input frame needs to be BGR planar format with possibly different size. So, conversion and resizing from NV12 to BGR planar is usually required for the inference following decoding. This CUDA code provides a reference implementation for conversion and resizing.
 
-### [p2pBandwidthLatencyTest](./p2pBandwidthLatencyTest)
-This application demonstrates the CUDA Peer-To-Peer (P2P) data transfers between pairs of GPUs and computes latency and bandwidth.  Tests on GPU pairs using P2P and without P2P are tested.
-
 ### [postProcessGL](./postProcessGL)
 This sample shows how to post-process an image rendered in OpenGL using CUDA.
 
 ### [quasirandomGenerator](./quasirandomGenerator)
 This sample implements Niederreiter Quasirandom Sequence Generator and Inverse Cumulative Normal Distribution functions for the generation of Standard Normal Distributions.
-
-### [quasirandomGenerator_nvrtc](./quasirandomGenerator_nvrtc)
-This sample implements Niederreiter Quasirandom Sequence Generator and Inverse Cumulative Normal Distribution functions for the generation of Standard Normal Distributions, compiling the CUDA kernels involved at runtime using NVRTC.
 
 ### [recursiveGaussian](./recursiveGaussian)
 This sample implements a Gaussian blur using Deriche's recursive method. The advantage of this method is that the execution time is independent of the filter width.

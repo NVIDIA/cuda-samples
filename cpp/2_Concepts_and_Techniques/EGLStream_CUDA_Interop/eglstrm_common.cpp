@@ -102,6 +102,14 @@ int EGLStreamInit(int *cuda_device)
 
     eglStatus = eglInitialize(g_display, 0, 0);
     if (!eglStatus) {
+        // A GPU built without graphics support is CUDA capable and is offered as an
+        // EGL device, but has no DRM device for EGL to reach it through. Any other
+        // reason for EGL not to initialize is a real failure.
+        if (eglQueryDeviceStringEXT(devices[egl_device_id], EGL_DRM_DEVICE_FILE_EXT) == NULL
+            && eglQueryDeviceStringEXT(devices[egl_device_id], EGL_DRM_RENDER_NODE_FILE_EXT) == NULL) {
+            printf("This GPU has no graphics support, EGL is unavailable.. Waiving execution\n");
+            exit(EXIT_WAIVED);
+        }
         printf("EGL failed to initialize. \n");
         eglStatus = EGL_FALSE;
         exit(EXIT_FAILURE);

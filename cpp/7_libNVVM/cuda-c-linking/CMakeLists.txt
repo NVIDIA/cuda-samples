@@ -25,26 +25,46 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 message(STATUS "Found LLVM Version ${LLVM_PACKAGE_VERSION}")
-if (LLVM_PACKAGE_VERSION VERSION_GREATER_EQUAL "15" OR
-    LLVM_PACKAGE_VERSION VERSION_LESS "7")
-  message(STATUS "The cuda-c-linking sample is expected to build with "
-                 "LLVM development libraries v7 to v14, opaque pointers are "
-                 "not supported in libNVVM for pre-Blackwell architectures.")
+if (LLVM_PACKAGE_VERSION VERSION_LESS "7")
+  message(STATUS "The cuda-c-linking sample requires LLVM development "
+                 "libraries v7 or newer.")
   return()
+endif ()
+if (LLVM_PACKAGE_VERSION VERSION_GREATER_EQUAL "15")
+  message(STATUS "LLVM 15 and newer emit opaque pointers, which libNVVM "
+                 "accepts only for Blackwell and later architectures. The "
+                 "cuda-c-linking sample will build, and reports the "
+                 "requirement at run time if the device is older. Build "
+                 "against LLVM 14 or older to run on pre-Blackwell devices.")
 endif ()
 
 add_executable(cuda-c-linking cuda-c-linking.cpp)
 
+# LLVM 16 and newer headers use C++17 constructs, so build the sample as C++17
+# when they are in use. Older LLVM versions keep the compiler default.
+if (LLVM_PACKAGE_VERSION VERSION_GREATER_EQUAL "16")
+  target_compile_features(cuda-c-linking PRIVATE cxx_std_17)
+endif ()
+
 add_test(NAME cuda-c-linking
    COMMAND cuda-c-linking
    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
+# The sample exits with 2 when the device cannot accept the IR this build
+# emits, which is a requirement it does not meet rather than a failure.
+set_tests_properties(cuda-c-linking PROPERTIES SKIP_RETURN_CODE 2)
 target_link_libraries(cuda-c-linking ${NVVM_LIB} ${CUDA_LIB})
 
 # See https://llvm.org/docs/CMake.html#developing-llvm-passes-out-of-source
 separate_arguments(LLVM_DEFINITIONS_LIST NATIVE_COMMAND ${LLVM_DEFINITIONS})
 add_definitions(${LLVM_DEFINITIONS_LIST})
 include_directories(${LLVM_INCLUDE_DIRS})
-llvm_map_components_to_libnames(llvm_libs core support)
+# Distributions often ship LLVM only as one shared library instead of the
+# per-component static libraries, so link that library when it is in use.
+if (LLVM_LINK_LLVM_DYLIB)
+  set(llvm_libs LLVM)
+else ()
+  llvm_map_components_to_libnames(llvm_libs core support)
+endif ()
 target_link_libraries(cuda-c-linking ${llvm_libs})
 
 if (UNIX)

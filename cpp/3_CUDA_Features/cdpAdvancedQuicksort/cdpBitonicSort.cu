@@ -272,14 +272,16 @@ static __device__ __forceinline__ void big_bitonicsort_kernel(unsigned        *i
 // KERNELS
 ////////////////////////////////////////////////////////////////////////////////
 
-__global__ void bitonicsort(unsigned *indata, unsigned *outdata, unsigned int offset, unsigned int len)
+// __launch_bounds__ caps registers to the launch block size so -G builds stay within the per-block register limit (Blackwell sm_110+).
+__launch_bounds__(BITONICSORT_LEN) __global__ void bitonicsort(unsigned *indata, unsigned *outdata, unsigned int offset, unsigned int len)
 {
     // Handle to thread block group
     cg::thread_block cta = cg::this_thread_block();
     bitonicsort_kernel(indata, outdata, offset, len, cta);
 }
 
-__global__ void
+// __launch_bounds__ caps registers to the launch block size so -G builds stay within the per-block register limit (Blackwell sm_110+).
+__launch_bounds__(BITONICSORT_LEN) __global__ void
 big_bitonicsort(unsigned *indata, unsigned *outdata, unsigned *backbuf, unsigned int offset, unsigned int len)
 {
     // Handle to thread block group

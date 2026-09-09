@@ -71,8 +71,8 @@ find_file(LIBNVVM_HOME nvvm PATHS "$ENV{LIBNVVM_HOME}" "${CUDA_HOME}")
 message(STATUS "Using LIBNVVM_HOME: ${LIBNVVM_HOME}")
 
 # Find libNVVM and nvvm.h.
-# (Linux: nvvm/lib64, windows: nvvm/lib/x64)
-find_library(NVVM_LIB nvvm PATHS "${LIBNVVM_HOME}/lib64" "${LIBNVVM_HOME}/lib/x64")
+# (Linux: nvvm/lib64, windows: nvvm/lib/x64, windows on arm:nvvm/lib/arm64)
+find_library(NVVM_LIB nvvm PATHS "${LIBNVVM_HOME}/lib64" "${LIBNVVM_HOME}/lib/x64" "${LIBNVVM_HOME}/lib/arm64")
 find_file(NVVM_H nvvm.h PATH "${LIBNVVM_HOME}/include")
 get_filename_component(NVVM_INCLUDE_DIR ${NVVM_H} DIRECTORY)
 include_directories(${NVVM_INCLUDE_DIR})
@@ -110,7 +110,9 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/common/include")
 # invocation. See the note about "cuda-c-linking" in README.md.
 if (ENABLE_CUDA_C_LINKING_SAMPLE)
   # Include the LLVM dev package which is required to build cuda-c-linking.
-  find_package(LLVM CONFIG PATHS "$ENV{LLVM_HOME}")
+  # LLVM_HOME is a HINTS entry rather than a PATHS one so that it is searched
+  # before the system directories, letting it select among installed LLVMs.
+  find_package(LLVM CONFIG HINTS "$ENV{LLVM_HOME}")
   if (LLVM_FOUND)
     add_subdirectory(cuda-c-linking)
   else ()

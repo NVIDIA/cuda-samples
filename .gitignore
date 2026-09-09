@@ -2,6 +2,7 @@ build
 build-*/
 test-results*/
 .vs
+.vscode
 .clangd
 test
 settings.json

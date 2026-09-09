@@ -113,6 +113,26 @@ struct DLTensorStorage
     ::DLTensor                              tensor{};
     cuda::std::array<cuda::std::int64_t, 2> shape{};
     cuda::std::array<cuda::std::int64_t, 2> strides{};
+
+    DLTensorStorage() = default;
+
+    /* tensor.shape / tensor.strides point back into this object's own shape /
+     * strides members, so the object is self-referential. Any copy or move
+     * (including the by-value return from make_row_major_dltensor) must re-seat
+     * those pointers at the new location. Relying on NRVO to elide the copy is
+     * not portable -- NRVO is not guaranteed for named returns -- and a stale
+     * pointer into a moved-from temporary makes cuda::to_device_mdspan read
+     * garbage extents and abort. */
+    DLTensorStorage(const DLTensorStorage &other) { *this = other; }
+    DLTensorStorage &operator=(const DLTensorStorage &other)
+    {
+        tensor         = other.tensor;
+        shape          = other.shape;
+        strides        = other.strides;
+        tensor.shape   = shape.data();
+        tensor.strides = strides.data();
+        return *this;
+    }
 };
 
 static DLTensorStorage make_row_major_dltensor(float *device_ptr, int rows, int cols, int device_ordinal)

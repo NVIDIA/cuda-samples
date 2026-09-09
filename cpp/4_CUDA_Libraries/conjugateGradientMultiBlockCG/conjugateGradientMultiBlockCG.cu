@@ -257,7 +257,9 @@ gpuScaleVectorAndSaxpy(const float *x, float *y, float a, float scale, int size,
     }
 }
 
-extern "C" __global__ void gpuConjugateGradient(int    *I,
+// __launch_bounds__ keeps one full block resident: under -G, register inflation can drop
+// occupancy to 0 blocks/SM, zeroing the cooperative grid and failing the launch (Blackwell sm_110+).
+extern "C" __global__ void __launch_bounds__(THREADS_PER_BLOCK) gpuConjugateGradient(int    *I,
                                                 int    *J,
                                                 float  *val,
                                                 float  *x,

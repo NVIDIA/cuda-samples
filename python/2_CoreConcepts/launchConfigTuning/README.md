@@ -94,10 +94,10 @@ elapsed_ms = (end_event - start_event) / n_iterations
 
 The benchmark loops in this sample read kernel results back from
 `ManagedMemoryResource` allocations between launches, which requires the
-device property `concurrent_managed_access=True`. This is only supported on
-Linux with HMM (Pascal and newer). On Windows (WDDM/MCDM/TCC) the property
-is `False`, so the sample exits early with a waive message and exit code
-`2`.
+device property `concurrent_managed_access=True`. Devices that report `False`
+— Windows (WDDM/MCDM/TCC), and older integrated GPUs such as Jetson Orin —
+keep managed allocations GPU-exclusive, so the sample reports the missing
+capability and exits with code `2`.
 
 ## Installation
 

@@ -119,6 +119,7 @@ inline int _ConvertSMVer2CoresDRV(int major, int minor) {
       {0xa0, 128},
       {0xa1, 128},
       {0xa3, 128},
+      {0xa7, 128},
       {0xb0, 128},
       {0xc0, 128},
       {0xc1, 128},

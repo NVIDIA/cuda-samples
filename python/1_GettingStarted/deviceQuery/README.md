@@ -186,4 +186,4 @@ For multi-GPU systems, the output will include information for all detected devi
 
 - [CUDA Python Documentation](https://nvidia.github.io/cuda-python/)
 - [cuda.core API Guide](https://nvidia.github.io/cuda-python/cuda-core/latest/)
-- [CUDA Programming Guide - Device Information](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#device-enumeration)
+- [CUDA Programming Guide - Device Information](https://docs.nvidia.com/cuda/cuda-programming-guide/03-advanced/multi-gpu-systems.html#device-enumeration)

@@ -259,5 +259,5 @@ Try modifying:
 - [nvmath-python Device APIs](https://docs.nvidia.com/cuda/nvmath-python/latest/device-apis/index.html) - Optimized math operations for Numba CUDA kernels
 
 ### CUDA References:
-- [CUDA C Programming Guide - Printf](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#formatted-output)
+- [CUDA C Programming Guide - Printf](https://docs.nvidia.com/cuda/cuda-programming-guide/05-appendices/cpp-language-support.html#printf)
 - [C++ simplePrintf Sample](https://github.com/NVIDIA/cuda-samples/tree/master/Samples/0_Introduction/simplePrintf)

@@ -1,4 +1,4 @@
-/* Copyright (c) 2022, NVIDIA CORPORATION. All rights reserved.
+/* Copyright (c) 2026, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,190 +26,171 @@
  */
 
 /*
- * This sample implements multi-threaded heterogeneous computing workloads with
- * the new CPU callbacks for CUDA streams and events introduced with CUDA 5.0.
- * Together with the thread safety of the CUDA API implementing heterogeneous
- * workloads that float between CPU threads and GPUs has become simple and
- * efficient.
+ * simpleCallback
+ * --------------
+ * An example of a heterogeneous pipeline in the form:
  *
- * The workloads in the sample follow the form CPU preprocess -> GPU process ->
- * CPU postprocess.
- * Each CPU processing step is handled by its own dedicated thread. GPU
- * workloads are sent to all available GPUs in the system.
+ *      CPU pre-process  ->  GPU kernel  ->  CPU post-process
  *
+ * The whole pipeline is coordinated by a *single* CUDA stream. A stream
+ * executes the operations enqueued on it in order, so we can simply push work
+ * onto it and let CUDA take care of ordering and dependencies for us.
+ *
+ * Two different "CPU" mechanisms appear in this sample so you can see how they
+ * differ:
+ *
+ *    1. The CPU pre-processing runs on a dedicated worker thread created with
+ *      C++ std::thread. This shows how ordinary host-side threading can be
+ *      combined with CUDA. The worker fills the input buffer and then enqueues
+ *      the GPU pipeline itself; main joins it and waits on the stream.
+ *
+ *   2. The CPU post-processing is scheduled *on the stream itself* with
+ *      cudaLaunchHostFunc(). CUDA calls our host function automatically once all
+ *      the preceding stream work (copies + kernel) has completed. This is the
+ *      modern, non-deprecated replacement for cudaStreamAddCallback().
+ *
+ * IMPORTANT rule for cudaLaunchHostFunc callbacks:
+ *   The host function must NOT call any CUDA runtime/driver API (no cudaMalloc,
+ *   cudaFree, kernel launches, etc.). It should only do plain CPU work.
+ *
+ * NOTE: For clarity this sample intentionally omits CUDA error checking. Real
+ * applications should check the return code of every CUDA call.
  */
 
 // System includes
-#include <stdio.h>
+#include <cstdio>
+#include <cstdlib>
 
-// helper functions and utilities to work with CUDA
-#include <helper_cuda.h>
-#include <helper_functions.h>
+#include <thread>    // std::thread — C++11 standard threading
 
-#include "multithreading.h"
+// CUDA runtime
+#include <cuda_runtime.h>
 
-const int N_workloads             = 8;
-const int N_elements_per_workload = 100000;
+const int NumElements = 100000;
 
-CUTBarrier thread_barrier;
-
-void CUDART_CB myStreamCallback(cudaStream_t event, cudaError_t status, void *data);
-
-struct heterogeneous_workload
+// Everything a single pipeline needs. Passed by pointer to both the 
+// std::thread worker and to the stream host-function callback.
+struct Workload
 {
-    int id;
-    int cudaDeviceID;
-
-    int         *h_data;
-    int         *d_data;
-    cudaStream_t stream;
-
-    bool success;
+    int          id      = 0;       // arbitrary tag added to each element
+    int         *h_data  = nullptr; // pinned host buffer (fast async copies)
+    int         *d_data  = nullptr; // device buffer
+    cudaStream_t stream  = nullptr; // the single stream that orders all the work
+    bool         success = false;   // set by the post-processing callback
 };
 
-__global__ void incKernel(int *data, int N)
+// GPU kernel: increment every element by one.
+__global__ void incrementKernel(int *data, int n)
 {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if (i < N)
-        data[i]++;
+    if (i < n) {
+        data[i] += 1;
+    }
 }
 
-CUT_THREADPROC launch(void *void_arg)
+// Forward declaration: postprocess is defined below but called from preprocess.
+void CUDART_CB postprocess(void *arg);
+
+// Worker thread: CPU pre-processing + full GPU pipeline enqueue.
+//
+// std::thread passes arguments with their actual types, so no void* casting
+// is needed. This thread fills the input buffer, then enqueues the full GPU
+// pipeline (H2D, kernel, D2H, host func) onto the workload's stream.
+void preprocess(Workload *workload)
 {
-    heterogeneous_workload *workload = (heterogeneous_workload *)void_arg;
-
-    // Select GPU for this CPU thread
-    checkCudaErrors(cudaSetDevice(workload->cudaDeviceID));
-
-    // Allocate Resources
-    checkCudaErrors(cudaStreamCreate(&workload->stream));
-    checkCudaErrors(cudaMalloc(&workload->d_data, N_elements_per_workload * sizeof(int)));
-    checkCudaErrors(cudaHostAlloc(&workload->h_data, N_elements_per_workload * sizeof(int), cudaHostAllocPortable));
-
-    // CPU thread generates data
-    for (int i = 0; i < N_elements_per_workload; ++i) {
+    // Stage 1: CPU pre-processing ----------------------------------
+    printf("[thread]    Stage 1: CPU pre-processing on a worker thread...\n");
+    for (int i = 0; i < NumElements; ++i) {
         workload->h_data[i] = workload->id + i;
     }
+    printf("[thread]    Filled %d elements. First 3 inputs: %d, %d, %d\n\n",
+           NumElements, workload->h_data[0], workload->h_data[1], workload->h_data[2]);
 
-    // Schedule work for GPU in CUDA stream without blocking the CPU thread
-    // Note: Dedicated streams enable concurrent execution of workloads on the GPU
-    dim3 block(512);
-    dim3 grid((N_elements_per_workload + block.x - 1) / block.x);
+    // Stage 2: enqueue GPU work from this thread -------------------
+    const size_t  bytes          = NumElements * sizeof(int);
+    const int     threadsPerBlock = 256;
+    const int     blocks          = (NumElements + threadsPerBlock - 1) / threadsPerBlock;
 
-    checkCudaErrors(cudaMemcpyAsync(workload->d_data,
-                                    workload->h_data,
-                                    N_elements_per_workload * sizeof(int),
-                                    cudaMemcpyHostToDevice,
-                                    workload->stream));
-    incKernel<<<grid, block, 0, workload->stream>>>(workload->d_data, N_elements_per_workload);
-    checkCudaErrors(cudaMemcpyAsync(workload->h_data,
-                                    workload->d_data,
-                                    N_elements_per_workload * sizeof(int),
-                                    cudaMemcpyDeviceToHost,
-                                    workload->stream));
+    printf("[thread]    Stage 2: enqueuing H2D copy, kernel, D2H copy on the stream\n");
+    cudaMemcpyAsync(workload->d_data, workload->h_data, bytes, cudaMemcpyHostToDevice, workload->stream);
+    incrementKernel<<<blocks, threadsPerBlock, 0, workload->stream>>>(workload->d_data, NumElements);
+    cudaMemcpyAsync(workload->h_data, workload->d_data, bytes, cudaMemcpyDeviceToHost, workload->stream);
 
-    // New in CUDA 5.0: Add a CPU callback which is called once all currently
-    // pending operations in the CUDA stream have finished
-    checkCudaErrors(cudaStreamAddCallback(workload->stream, myStreamCallback, workload, 0));
-
-    CUT_THREADEND;
-    // CPU thread end of life, GPU continues to process data...
+    // Stage 3: schedule CPU post-processing on the stream -----------
+    printf("[thread]    Registering post-processing callback with cudaLaunchHostFunc\n\n");
+    cudaLaunchHostFunc(workload->stream, postprocess, workload);
 }
 
-CUT_THREADPROC postprocess(void *void_arg)
+// Stage 3: CPU post-processing, scheduled on the stream via cudaLaunchHostFunc.
+//
+// CUDA invokes this automatically once the H2D copy, the kernel, and the D2H
+// copy that precede it on the stream have all finished. Every element should
+// now equal its original value plus one (from the kernel).
+//
+// Reminder: DO NOT call any CUDA API from inside this function.
+void CUDART_CB postprocess(void *arg)
 {
-    heterogeneous_workload *workload = (heterogeneous_workload *)void_arg;
-    // ... GPU is done with processing, continue on new CPU thread...
+    // recover the typed pointer from the callback's void* arg
+    auto *workload = static_cast<Workload *>(arg);
 
-    // Select GPU for this CPU thread
-    checkCudaErrors(cudaSetDevice(workload->cudaDeviceID));
+    // Stage 3: CPU post-processing — runs automatically when all stream work above is done
+    printf("[host func] Stage 3: callback fired automatically - the GPU work is done!\n");
+    printf("[host func] First 3 results: %d, %d, %d (each input +1)\n",
+           workload->h_data[0], workload->h_data[1], workload->h_data[2]);
 
-    // CPU thread consumes results from GPU
-    workload->success = true;
-
-    for (int i = 0; i < N_workloads; ++i) {
-        workload->success &= workload->h_data[i] == i + workload->id + 1;
-    }
-
-    // Free Resources
-    checkCudaErrors(cudaFree(workload->d_data));
-    checkCudaErrors(cudaFreeHost(workload->h_data));
-    checkCudaErrors(cudaStreamDestroy(workload->stream));
-
-    // Signal the end of the heterogeneous workload to main thread
-    cutIncrementBarrier(&thread_barrier);
-
-    CUT_THREADEND;
-}
-
-void CUDART_CB myStreamCallback(cudaStream_t stream, cudaError_t status, void *data)
-{
-    // Check status of GPU after stream operations are done
-    checkCudaErrors(status);
-
-    // Spawn new CPU worker thread and continue processing on the CPU
-    cutStartThread(postprocess, data);
-}
-
-int main(int argc, char **argv)
-{
-    int N_gpus, max_gpus = 0;
-    int gpuInfo[32]; // assume a maximum of 32 GPUs in a system configuration
-
-    printf("Starting simpleCallback\n");
-
-    checkCudaErrors(cudaGetDeviceCount(&N_gpus));
-    printf("Found %d CUDA capable GPUs\n", N_gpus);
-
-    if (N_gpus > 32) {
-        printf("simpleCallback only supports 32 GPU(s)\n");
-    }
-
-    for (int devid = 0; devid < N_gpus; devid++) {
-        int            SMversion;
-        cudaDeviceProp deviceProp;
-        cudaSetDevice(devid);
-        cudaGetDeviceProperties(&deviceProp, devid);
-        SMversion = deviceProp.major << 4 + deviceProp.minor;
-        printf("GPU[%d] %s supports SM %d.%d", devid, deviceProp.name, deviceProp.major, deviceProp.minor);
-        printf(", %s GPU Callback Functions\n", (SMversion >= 0x11) ? "capable" : "NOT capable");
-
-        if (SMversion >= 0x11) {
-            gpuInfo[max_gpus++] = devid;
+    bool verify = true;
+    for (int i = 0; i < NumElements; ++i) {
+        if (workload->h_data[i] != workload->id + i + 1) {
+            verify = false;
+            break;
         }
     }
+    workload->success = verify;
+    printf("[host func] Verified all %d results: %s\n", NumElements, verify ? "PASS" : "MISMATCH");
+}
 
-    printf("%d GPUs available to run Callback Functions\n", max_gpus);
+int main()
+{
+    printf("=====================================================\n");
+    printf("  simpleCallback: CPU -> GPU -> CPU pipeline demo\n");
+    printf("=====================================================\n");
 
-    heterogeneous_workload *workloads;
-    workloads = (heterogeneous_workload *)malloc(N_workloads * sizeof(heterogeneous_workload));
-    ;
-    thread_barrier = cutCreateBarrier(N_workloads);
+    // Use the first available CUDA device.
+    int devID = 0;
+    cudaSetDevice(devID);
 
-    // Main thread spawns a CPU worker thread for each heterogeneous workload
-    printf("Starting %d heterogeneous computing workloads\n", N_workloads);
+    int major = 0, minor = 0, smCount = 0;
+    cudaDeviceGetAttribute(&major, cudaDevAttrComputeCapabilityMajor, devID);
+    cudaDeviceGetAttribute(&minor, cudaDevAttrComputeCapabilityMinor, devID);
+    cudaDeviceGetAttribute(&smCount, cudaDevAttrMultiProcessorCount, devID);
+    printf("Using GPU %d: compute capability %d.%d, %d SMs\n", devID, major, minor, smCount);
 
-    for (int i = 0; i < N_workloads; ++i) {
-        workloads[i].id           = i;
-        workloads[i].cudaDeviceID = gpuInfo[i % max_gpus]; // i % N_gpus;
+    // Allocate resources 
+    Workload workload;
+    workload.id = 42; // Any number can be used
 
-        cutStartThread(launch, &workloads[i]);
-    }
+    // Pinned (page-locked) host memory enables true asynchronous copies.
+    const size_t bytes = NumElements * sizeof(int);
+    cudaMallocHost(&workload.h_data, bytes);
+    cudaMalloc(&workload.d_data, bytes);
+    cudaStreamCreate(&workload.stream);
 
-    // Sleep until all workloads have finished
-    cutWaitForBarrier(&thread_barrier);
-    printf("Total of %d workloads finished:\n", N_workloads);
+    // Launch worker thread; it fills the buffer AND enqueues the full GPU pipeline.
+    std::thread worker(preprocess, &workload);
+    worker.join();
+    printf("[main]      Worker thread joined; GPU work has been enqueued.\n");
 
-    bool success = true;
+    // Block until the whole pipeline (including the host function) is complete.
+    printf("[main]      Waiting for the stream (and callback) to finish...\n\n");
+    cudaStreamSynchronize(workload.stream);
 
-    for (int i = 0; i < N_workloads; ++i) {
-        success &= workloads[i].success;
-    }
+    // Clean up
+    // Safe to call CUDA APIs here: we are back on the main thread, not inside
+    // the host-function callback.
+    cudaStreamDestroy(workload.stream);
+    cudaFree(workload.d_data);
+    cudaFreeHost(workload.h_data);
 
-    printf("%s\n", success ? "Success" : "Failure");
-
-    free(workloads);
-
-    exit(success ? EXIT_SUCCESS : EXIT_FAILURE);
+    printf("\n[main]      Pipeline complete. Result: %s\n", workload.success ? "SUCCESS" : "FAILURE");
+    return workload.success ? EXIT_SUCCESS : EXIT_FAILURE;
 }

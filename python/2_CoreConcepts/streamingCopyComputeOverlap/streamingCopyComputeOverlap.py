@@ -96,6 +96,13 @@ def main():
     print()
     print_gpu_info(device)
 
+    # This sample stages transfers through pinned memory, which is backed by a
+    # host memory pool and requires CUDA memory-pool support. This is not
+    # available on every platform (for example, Windows in TCC mode).
+    if not device.properties.host_memory_pools_supported:
+        print("Host pinned memory pools are not supported on this platform.")
+        return 2
+
     # Compile kernel
     arch = f"sm_{device.arch}"
     program = Program(
@@ -306,7 +313,8 @@ def main():
     print("\nNote: Speedup depends on hardware characteristics. This technique")
     print("benefits most when transfer time is significant relative to compute.")
     print("=" * 60)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

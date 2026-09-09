@@ -27,6 +27,21 @@ This sample is optionally built as part of the libnvvm samples from the CUDA
 samples tree.  Please see the README file at the root of the libnvvm samples
 for build instructions.
 
+It requires the LLVM development headers and libraries, version 7 or newer.
+LLVM 15 and newer emit opaque pointers, which libNVVM accepts only for
+Blackwell and later architectures, so such a build cannot run on an older GPU:
+
+    $ ./cuda-c-linking
+    Using CUDA Device [0]: NVIDIA L4
+    Device Compute Capability: 8.9
+    This sample was built against LLVM 18, which emits opaque pointers, but
+    libNVVM accepts only LLVM 7 IR for compute_89. Build against LLVM 14 or
+    older to run on this device, or run on a Blackwell or later device.
+
+The sample exits with code 2 in that case, reporting an unmet requirement
+rather than a failure.  Building against LLVM 7 to 14 produces a binary that
+runs on any device this sample supports.
+
 Usage
 -----
 

@@ -1143,10 +1143,16 @@ inline __host__ __device__ uint4 max(uint4 a, uint4 b)
 // - linear interpolation between a and b, based on value t in [0, 1] range
 ////////////////////////////////////////////////////////////////////////////////
 
+// std::lerp (C++20) is pulled into the global namespace by GCC's <cmath>;
+// only define our own scalar overload when std::lerp is unavailable, to avoid
+// a redeclaration / ambiguous-overload clash. (The float2/3/4 overloads below
+// take distinct argument types and never conflict.)
+#if !defined(__cplusplus) || (__cplusplus < 202002L)
 inline __device__ __host__ float lerp(float a, float b, float t)
 {
     return a + t*(b-a);
 }
+#endif
 inline __device__ __host__ float2 lerp(float2 a, float2 b, float t)
 {
     return a + t*(b-a);

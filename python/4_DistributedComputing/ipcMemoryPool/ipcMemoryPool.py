@@ -47,13 +47,12 @@ The sample does a round-trip test:
      signals completion.
   5. Parent verifies the child's writes.
 
-IPC requires Linux (POSIX file-descriptor handles) and device support for
-memory pools. On unsupported platforms the sample prints a diagnostic and
-exits cleanly.
+IPC here requires a device whose memory pools can be exported as POSIX
+file-descriptor handles, which in practice means Linux. Where that is
+unavailable the sample prints a diagnostic and exits with code 2.
 """
 
 import multiprocessing as mp
-import platform
 import sys
 from pathlib import Path
 
@@ -62,6 +61,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "Utilities"))
 try:
     import cupy as cp
     import numpy as np
+    from cuda.bindings.driver import CUmemAllocationHandleType
     from cuda.core import (
         Device,
         DeviceMemoryResource,
@@ -80,17 +80,17 @@ CHILD_TIMEOUT_SEC = 30
 
 def check_ipc_support(device) -> bool:
     """Return True if this device/platform supports CUDA IPC memory pools."""
-    if platform.system() != "Linux":
-        print(
-            f"IPC via POSIX file descriptors is only supported on Linux "
-            f"(detected {platform.system()})."
-        )
-        return False
     if not device.properties.memory_pools_supported:
         print("Device does not support CUDA memory pools.")
         return False
-    if not device.properties.handle_type_posix_file_descriptor_supported:
-        print("Device/platform does not support POSIX-fd IPC handles.")
+    # handle_type_posix_file_descriptor_supported describes the virtual memory
+    # management APIs, not memory pools. A device can report it while still
+    # exporting no pool handle type at all, so query the pool-specific mask.
+    if not (
+        device.properties.mempool_supported_handle_types
+        & int(CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR)
+    ):
+        print("Device does not support POSIX-fd IPC handles for memory pools.")
         return False
     return True
 
@@ -153,8 +153,8 @@ def main() -> int:
     print_gpu_info(device)
 
     if not check_ipc_support(device):
-        print("\nCUDA IPC is not available on this system; exiting cleanly.")
-        return 0
+        print("\nCUDA IPC memory pools are not supported on this platform.")
+        return 2
 
     N = args.elements
     nbytes = N * np.dtype(np.float32).itemsize

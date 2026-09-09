@@ -91,7 +91,11 @@ uint ParticleSystem::createVBO(uint size)
     return vbo;
 }
 
+// std::lerp (C++20) is pulled into the global namespace by GCC's <cmath>;
+// only define our own lerp when std::lerp is unavailable to avoid a clash.
+#if !defined(__cplusplus) || (__cplusplus < 202002L)
 inline float lerp(float a, float b, float t) { return a + t * (b - a); }
+#endif
 
 // create a color ramp
 void colorRamp(float t, float *r)

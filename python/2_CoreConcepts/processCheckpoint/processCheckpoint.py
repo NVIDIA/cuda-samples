@@ -74,6 +74,18 @@ extern "C" __global__ void fill_pattern(float *out, unsigned long long n)
 """
 
 
+# cuda.core raises a RuntimeError opening with this sentence whenever the
+# driver has no usable checkpoint API. Match the whole sentence rather than
+# a fragment, so an unrelated RuntimeError is never mistaken for it.
+UNSUPPORTED_MESSAGE = (
+    "CUDA checkpointing is not supported by the installed NVIDIA driver."
+)
+
+
+class CheckpointUnsupportedError(Exception):
+    """The driver rejects the checkpoint API on this system."""
+
+
 @dataclass
 class StepTiming:
     label: str
@@ -123,7 +135,16 @@ def run_lifecycle(proc: checkpoint.Process, lock_timeout_ms: int) -> List[StepTi
     """
     timings: List[StepTiming] = [StepTiming("initial", 0.0, proc.state)]
 
-    ms = _time_call(proc.lock, timeout_ms=lock_timeout_ms)
+    try:
+        ms = _time_call(proc.lock, timeout_ms=lock_timeout_ms)
+    except RuntimeError as exc:
+        # The driver returns CUDA_ERROR_NOT_SUPPORTED where checkpointing
+        # is unavailable, for example under Confidential Computing or in a
+        # vGPU guest. Only the first call is treated this way: a later
+        # failure means checkpointing started and then broke.
+        if not str(exc).startswith(UNSUPPORTED_MESSAGE):
+            raise
+        raise CheckpointUnsupportedError from exc
     timings.append(StepTiming("lock", ms, proc.state))
 
     ms = _time_call(proc.checkpoint)
@@ -178,8 +199,8 @@ def main():
     args = parser.parse_args()
 
     if sys.platform != "linux":
-        print("Error: CUDA process checkpointing is Linux-only.")
-        return 1
+        print("CUDA process checkpointing is Linux-only.")
+        return 2
 
     if args.buffer_mib <= 0:
         print("Error: --buffer-mib must be positive")
@@ -197,10 +218,11 @@ def main():
 
     # CUDA process checkpointing relies on kernel-mode driver features
     # that aren't shipped on integrated-GPU platforms (e.g. Tegra /
-    # Jetson / Thor). On those, Process.lock() can hang indefinitely
-    # instead of returning a clean "not supported" error. Skip cleanly
-    # rather than hanging. Remove this guard once integrated platforms
-    # gain checkpoint support.
+    # Jetson / Thor). There Process.lock() still succeeds and only
+    # Process.checkpoint() reports the missing support, which leaves the
+    # process locked and hanging on exit, so the check below cannot cover
+    # it. Remove this guard once integrated platforms gain checkpoint
+    # support.
     if device.properties.integrated:
         print(
             f"CUDA process checkpointing is not supported on integrated "
@@ -233,7 +255,11 @@ def main():
         print()
         print("Running checkpoint lifecycle on self ...")
         proc = checkpoint.Process(os.getpid())
-        timings = run_lifecycle(proc, args.lock_timeout_ms)
+        try:
+            timings = run_lifecycle(proc, args.lock_timeout_ms)
+        except CheckpointUnsupportedError:
+            print("CUDA process checkpointing is not supported on this system.")
+            return 2
         print_timings(timings)
 
         hash_after = hash_device_buffer(device_buffer, host)

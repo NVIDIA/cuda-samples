@@ -157,6 +157,15 @@ def run(num_elements=1024 * 1024 * 16):
         f"GPU{gpuid[0]}, GPU{gpuid[1]} and CPU Host)..."
     )
 
+    # DeviceMemoryResource is backed by a device memory pool, which is not
+    # available on every device.
+    if not (
+        dev0.properties.memory_pools_supported
+        and dev1.properties.memory_pools_supported
+    ):
+        print("\nDevice memory pools are not supported on this platform.")
+        return 2
+
     # Allocate on GPU 0 and grant access to GPU 1
     dev0.set_current()
     mr0 = DeviceMemoryResource(dev0)
@@ -176,6 +185,14 @@ def run(num_elements=1024 * 1024 * 16):
     )
 
     # Allocate pinned host memory
+    # PinnedMemoryResource is backed by a host memory pool, which is not
+    # available on every device.
+    if not (
+        dev0.properties.host_memory_pools_supported
+        and dev1.properties.host_memory_pools_supported
+    ):
+        print("\nHost pinned memory pools are not supported on this platform.")
+        return 2
     pinned_mr = PinnedMemoryResource()
     h0 = pinned_mr.allocate(buf_size, stream=dev0.default_stream)
 

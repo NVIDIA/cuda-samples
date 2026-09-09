@@ -1,5 +1,29 @@
 ## Changelog
 
+### CUDA 13.4
+* Removed obsolete samples `simpleHyperQ`, `simpleOccupancy`, `mergeSort`, `simpleTemplates`, `template`, `p2pBandwidthLatencyTest`.
+* Removed redundant `_nvrtc` sample variants (`clock_nvrtc`, `matrixMul_nvrtc`, `simpleAssert_nvrtc`, `simpleAtomicIntrinsics_nvrtc`, `inlinePTX_nvrtc`, `binomialOptions_nvrtc`, `BlackScholes_nvrtc`, `quasirandomGenerator_nvrtc`); `vectorAdd_nvrtc` remains as the canonical NVRTC example.
+* Rewrote `cpp/0_Introduction/simpleMultiGPU` to replace the hand-written reduction with `cub::BlockReduce` and the SDK stopwatch timer with CUDA events, removed helper header dependencies and merged `simpleMultiGPU.h` into the `.cu` for a single-file sample, modernized the code to C++17 (`std::vector`, `constexpr`), and added a minimum two-GPU check; updated README accordingly.
+* Modernized `cpp/3_CUDA_Features/simpleCudaGraphs`: dropped `helper_cuda.h`/`cooperative_groups.h`; used `cub::BlockReduce`; migrated to the unified `cudaGraphAddNode` API; split into `simpleCudaGraphs_explicit` and `simpleCudaGraphs_capture` sharing `simpleCudaGraphs.cuh`; added a graph-reuse demo (fresh input each launch); rewrote README.
+* Rewrote `cpp/0_Introduction/simpleAtomicIntrinsics` to show race conditions by comparing non-atomic vs atomic kernels (`atomicAdd`, `atomicMax`, `atomicCAS`), removed helper header dependencies; updated README accordingly.
+* Reorganized CMake build system for all C++ samples: centralized GPU architecture detection (`DetectCudaArch.cmake`) and common build setup (`CudaSampleCommon.cmake`) into shared modules. Samples with restricted arch support now declare a `SAMPLE_DISALLOW_ARCHS` list instead of hardcoding their own arch list, and are gracefully skipped at configure time when the requested arch is unsupported.
+* Added `sm_103` to the default set of GPU architectures the C++ samples build for.
+* Added `sm_107` to the default set of GPU architectures the C++ samples build for.
+* Rewrote `cpp/0_Introduction/simpleCallback` to replace the deprecated `cudaStreamAddCallback` with `cudaLaunchHostFunc`, replaced the `multithreading.h/.cpp` helpers with standard C++ `std::thread`, and simplified to a single-GPU, single-workload C++17 example; updated README accordingly.
+* Rewrote `cpp/0_Introduction/simpleStreams` to simplify code and remove helper header dependencies; updated README accordingly.
+* Added `python/2_CoreConcepts/persistentProgramCache` to demonstrate persisting and reusing compiled CUDA artifacts with `cuda.core` and `FileStreamProgramCache`.
+* Updated `cpp/0_Introduction/clock` to replace the manual shared-memory tree reduction with `cub::BlockReduce` min-reduction, removed dependency on `helper_cuda.h` and `helper_functions.h`, and updated README.
+* Rewrote `cpp/0_Introduction/vectorAdd` to match the corresponding example in the CUDA Programming Guide. The sample now uses Unified Memory (`cudaMallocManaged`) instead of explicit `cudaMalloc`/`cudaMemcpy`.
+* Restructured the `cpp/0_Introduction/simplePrintf` README with newer style and updated sample code by removing helper dependency.
+* Updated the `cpp/0_Introduction/simpleAssert` README to newer style, simplified code for better understanding.
+* Added `cpp/3_CUDA_Features/dmabufInterop` - a Linux-only CUDA dma-buf interoperability sample demonstrating three scenarios in a single binary: (1) same-process round-trip export/import, (2) cross-process IPC via `fork()` + `SCM_RIGHTS`, and (3) cross-GPU sharing across processes (self-skips on systems without a qualifying GPU pair).
+* Removed the unnecessary `set(CMAKE_POSITION_INDEPENDENT_CODE ON)` from the C++ sample `CMakeLists.txt` files.
+* Removed `CUDA_SEPARABLE_COMPILATION ON` from C++ samples that don't require relocatable device code (kept for the CDP samples).
+* Removed 26 math library samples from `cpp/4_CUDA_Libraries/` that are maintained in the [CUDA Library Samples](https://github.com/NVIDIA/CUDALibrarySamples) repository: cuBLAS (`simpleCUBLAS`, `simpleCUBLAS_LU`, `simpleCUBLASXT`, `matrixMulCUBLAS`, `batchCUBLAS`), cuFFT (`simpleCUFFT`, `simpleCUFFT_MGPU`, `simpleCUFFT_2d_MGPU`, `simpleCUFFT_callback`), cuRAND (`MersenneTwisterGP11213`), cuSOLVER (`cuSolverDn_LinearSolver`, `cuSolverRf`, `cuSolverSp_LinearSolver`, `cuSolverSp_LowlevelCholesky`, `cuSolverSp_LowlevelQR`), cuSPARSE (`conjugateGradient`, `conjugateGradientPrecond`, `conjugateGradientUM`), NPP (`boxFilterNPP`, `cannyEdgeDetectorNPP`, `FilterBorderControlNPP`, `freeImageInteropNPP`, `histEqualizationNPP`, `watershedSegmentationNPP`), and nvJPEG (`nvJPEG`, `nvJPEG_encoder`).
+* Lifted the LLVM 14 upper bound on `cpp/7_libNVVM/cuda-c-linking`, which now builds against LLVM 15 and newer.
+* Added samples for locality domains in `cpp/3_CUDA_FEATURES/localityDomains` and `cpp/3_CUDA_FEATURES/localityDomainsDrv`.
+* Added Windows on Arm support: `cpp/5_Domain_Specific/marchingCubes` now detects the `glew32` GLEW library name used on Windows on Arm, and `cpp/7_libNVVM` searches the `nvvm/lib/arm64` directory for libNVVM.
+
 ### CUDA 13.3
 * Added **CUDA Tile C++** samples under `cpp/9_CUDA_Tile`.
 * Added a set of **CCCL 3.3 feature samples** under `cpp/4_CUDA_Libraries/`, each built against CCCL fetched via CPM (pinned to v3.3.3, with an optional `CCCL_SOURCE_DIR` override):

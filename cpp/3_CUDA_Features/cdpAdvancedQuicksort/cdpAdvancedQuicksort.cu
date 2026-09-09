@@ -137,7 +137,9 @@ template <typename T> static __device__ void ringbufFree(qsortRingbuf *ringbuf, 
 //  and cover the instruction overhead.
 //
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void qsort_warp(unsigned        *indata,
+// __launch_bounds__ caps registers to the launch block size so -G (device-debug) builds stay
+// within the per-block register limit (big register usage under -G overflows it on Blackwell sm_110+).
+__launch_bounds__(QSORT_BLOCKSIZE) __global__ void qsort_warp(unsigned        *indata,
                            unsigned        *outdata,
                            unsigned int     offset,
                            unsigned int     len,

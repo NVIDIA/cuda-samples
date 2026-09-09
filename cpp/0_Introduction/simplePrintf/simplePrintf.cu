@@ -1,4 +1,4 @@
-/* Copyright (c) 2022, NVIDIA CORPORATION. All rights reserved.
+/* Copyright (c) 2026, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,34 +32,35 @@
 // CUDA runtime
 #include <cuda_runtime.h>
 
-// helper functions and utilities to work with CUDA
-#include <helper_cuda.h>
-#include <helper_functions.h>
-
 #ifndef MAX
 #define MAX(a, b) (a > b ? a : b)
 #endif
 
-__global__ void testKernel(int val)
+// Each thread calls device-side printf, printing its linear block index, its
+// linear thread index, and val. Output is flushed on host sync; line order is
+// not deterministic since blocks/threads run concurrently.
+__global__ void simplePrintfKernel(int val)
 {
     printf("[%d, %d]:\t\tValue is:%d\n",
-           blockIdx.y * gridDim.x + blockIdx.x,
-           threadIdx.z * blockDim.x * blockDim.y + threadIdx.y * blockDim.x + threadIdx.x,
+           blockIdx.y * gridDim.x + blockIdx.x,                                            // linear block index
+           threadIdx.z * blockDim.x * blockDim.y + threadIdx.y * blockDim.x + threadIdx.x, // linear thread index
            val);
 }
 
 int main(int argc, char **argv)
 {
-    int            devID;
-    cudaDeviceProp props;
+    // Select device 0 as the active GPU
+    int devID = 0;
+    cudaSetDevice(devID);
 
-    // This will pick the best possible CUDA capable device
-    devID = findCudaDevice(argc, (const char **)argv);
+    // Query compute capability (major.minor) and number of SMs on the device
+    int major = 0, minor = 0, smCount = 0;
+    cudaDeviceGetAttribute(&major, cudaDevAttrComputeCapabilityMajor, devID);
+    cudaDeviceGetAttribute(&minor, cudaDevAttrComputeCapabilityMinor, devID);
+    cudaDeviceGetAttribute(&smCount, cudaDevAttrMultiProcessorCount, devID);
 
-    // Get GPU information
-    checkCudaErrors(cudaGetDevice(&devID));
-    checkCudaErrors(cudaGetDeviceProperties(&props, devID));
-    printf("Device %d: \"%s\" with Compute capability %d.%d\n", devID, props.name, props.major, props.minor);
+    // Print device info
+    printf("GPU Device %d: with compute capability %d.%d and Number of SMs %d\n\n", devID, major, minor, smCount);
 
     printf("printf() is called. Output:\n\n");
 
@@ -67,7 +68,7 @@ int main(int argc, char **argv)
     // three-dimensional blocks are configured.
     dim3 dimGrid(2, 2);
     dim3 dimBlock(2, 2, 2);
-    testKernel<<<dimGrid, dimBlock>>>(10);
+    simplePrintfKernel<<<dimGrid, dimBlock>>>(10);
     cudaDeviceSynchronize();
 
     return EXIT_SUCCESS;

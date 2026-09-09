@@ -1,6 +1,6 @@
 # CUDA Samples
 
-Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This version supports [CUDA Toolkit 13.3](https://developer.nvidia.com/cuda-downloads).
+Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This version supports [CUDA Toolkit 13.4](https://developer.nvidia.com/cuda-downloads).
 
 ## Release Notes
 
@@ -28,8 +28,6 @@ Without using git the easiest way to use these samples is to download the zip fi
 
 ## Building CUDA Samples
 
-### Building CUDA Samples
-
 The CUDA Samples are built using CMake. Follow the instructions below for building on Linux, Windows, and for cross-compilation to Tegra devices.
 
 ### Linux
@@ -51,7 +49,27 @@ Build the samples:
 ```
 make -j$(nproc)
 ```
-Run the samples from their respective directories in the build folder. You can also follow this process from and subdirectory of the samples repo, or from within any individual sample.
+
+By default, samples are compiled for all GPU architectures supported by this release. If you only need to target a specific GPU, you can override this to build for a single architecture and reduce build time considerably:
+```
+cmake -DCMAKE_CUDA_ARCHITECTURES=<arch> ..
+```
+Replace `<arch>` with your GPU's SM version (e.g. `90` for sm_90).
+
+Run the samples from their respective directories in the build folder.
+
+### Building a Single Sample
+
+To build just one sample, configure CMake from within the sample's directory. You must explicitly specify a GPU architecture — standalone builds have no top-level default:
+
+```bash
+cd cpp/<category>/<sampleName>
+mkdir -p build && cd build
+cmake -DCMAKE_CUDA_ARCHITECTURES=<arch> ..
+make
+```
+
+Replace `<arch>` with your GPU's SM version (e.g. `90` for sm_90).
 
 ### Windows
 
@@ -170,22 +188,65 @@ $ make -j$(nproc) --ignore-errors # or --keep-going
 
 ### QNX
 
-Cross-compilation for QNX with CMake is supported in the CUDA 13.0 samples release and newer. An example build for
-the Tegra Thor QNX platform might look like this:
+Cross-compilation for QNX with CMake is supported in the CUDA 13.0 samples release and newer.
 
+Set up the QNX SDP paths:
+
+```bash
+export QNX_HOST=/path/to/qnx/host
+export QNX_TARGET=/path/to/qnx/target
 ```
-$ mkdir build
-$ cd build
 
-QNX_HOST=/path/to/qnx/host \
-QNX_TARGET=/path/to/qnx/target \
+Build the samples for the Tegra Thor QNX platform:
+
+```bash
+mkdir -p build && cd build
 cmake .. \
--DBUILD_TEGRA=True \
--DCMAKE_CUDA_COMPILER=/usr/local/cuda-13.3/bin/nvcc \
--DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/toolchain-aarch64-qnx.cmake \
--DCMAKE_LIBRARY_PATH=/usr/local/cuda-13.3/thor/targets/aarch64-qnx/lib/stubs/ \
--DCMAKE_INCLUDE_PATH=/usr/local/cuda-13.3/thor/targets/aarch64-qnx/include/
+  -DBUILD_TEGRA=True \
+  -DCMAKE_CUDA_COMPILER=/usr/local/cuda-13.3/bin/nvcc \
+  -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/toolchain-aarch64-qnx.cmake \
+  -DTARGET_FS=/path/to/qnx/targetfs \
+  -DCMAKE_LIBRARY_PATH=/usr/local/cuda-13.3/thor/targets/aarch64-qnx/lib/stubs/ \
+  -DCMAKE_INCLUDE_PATH=/usr/local/cuda-13.3/thor/targets/aarch64-qnx/include/
+cmake --build .
 ```
+
+`TARGET_FS` is the QNX target filesystem of your board. The `cudaNvSci` sample needs it, because the NvSci headers and libraries ship with the target filesystem and not with the CUDA toolkit. Without `TARGET_FS` the build reports `NvSCI not found` and skips the sample.
+
+The target filesystem is part of the NVIDIA DRIVE OS QNX SDK, which registered users download from [NVONLINE](https://partners.nvidia.com). After the SDK is installed, the filesystem is in the DRIVE OS workspace: `<NV_WORKSPACE>/drive-qnx` for the standard SDK and `<NV_WORKSPACE>/drive-qnx-safety` for the safety SDK. See the [DRIVE OS documentation](https://docs.nvidia.com/drive/) for the installation guides.
+
+For both QNX toolchains the build looks for `nvscibuf.h` in `<TARGET_FS>/include`, `<TARGET_FS>/../include` and `<TARGET_FS>/usr/include`, and for `libnvscibuf.so` in `<TARGET_FS>/lib-target`, `<TARGET_FS>/usr/libnvidia` and `<TARGET_FS>/usr/lib`. If your filesystem uses a different layout, set `NVSCIBUF_INCLUDE_DIR`, `NVSCISYNC_INCLUDE_DIR`, `NVSCIBUF_LIBRARY` and `NVSCISYNC_LIBRARY` on the cmake command line instead.
+
+### QNX Safety (CUDA Safe toolkit)
+
+Cross-compilation for **QNX Safety** uses the CUDA Safe toolkit (for example `/usr/local/cuda-13.3-safe`).
+
+Set up the QNX SDP and Safe toolkit paths:
+
+```bash
+export QNX_HOST=/path/to/qnx/host
+export QNX_TARGET=/path/to/qnx/target
+export CUDA_PATH=/usr/local/cuda-13.3-safe
+export PATH=$CUDA_PATH/nvvm/bin:$PATH
+```
+
+Build a single sample (standalone configure from the sample directory).
+
+```bash
+mkdir -p build && cd build
+cmake .. \
+  -DCMAKE_TOOLCHAIN_FILE=../../../cmake/toolchains/toolchain-aarch64-qnx-safe.cmake \
+  -DCMAKE_CUDA_COMPILER=$CUDA_PATH/bin/nvcc \
+  -DCMAKE_CUDA_ARCHITECTURES=110 \
+  -DTARGET_FS=/path/to/qnx/safety/targetfs
+cmake --build .
+```
+
+The safe toolchain sets `-safety-compat`, links shared `libcudart` and `libcuda`, and uses QNX `q++` as the CUDA host compiler (`CMAKE_CUDA_HOST_COMPILER`). Set `CMAKE_CUDA_ARCHITECTURES` to match your GPU (`87` for Orin, `110` for Thor).
+
+Supported QNX Safety samples: `matrixMul`, `cudaNvSci`.
+
+`TARGET_FS` is only needed for `cudaNvSci`, which links the NvSci libraries from the safety target filesystem (`<NV_WORKSPACE>/drive-qnx-safety`, part of the DRIVE OS QNX Safety SDK). `matrixMul` builds without it. The NvSci search paths are the same as for the standard QNX build above.
 
 ### Forward Compatibility
 

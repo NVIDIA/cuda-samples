@@ -1,4 +1,4 @@
-/* Copyright (c) 2022, NVIDIA CORPORATION. All rights reserved.
+/* Copyright (c) 2026, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,110 +25,428 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* A simple program demonstrating trivial use of global memory atomic
- * device functions (atomic*() functions).
+/* A simple program demonstrating why atomic operations are needed, using the
+ * atomic intrinsics atomicAdd, atomicMax, and atomicCAS.
+ *
+ * 1,000,000 threads write into an array of only 10 integers (each thread maps
+ * to a slot with index % ARRAY_SIZE), so ~100,000 threads update every element
+ * at the same time. A plain update like g[i] = g[i] + 1 is three separate
+ * steps: read the value, modify it, write it back. When two threads interleave
+ * (both read the same old value, both write back the same result), one update
+ * silently overwrites the other and is lost. This is a race condition: the
+ * result depends on thread timing, not program logic, and changes every run.
+ *
+ * Each operation is therefore run four ways: a non-atomic kernel that loses
+ * most of its updates to these race conditions, and three atomic kernels that
+ * do the read-modify-write as one indivisible operation and give the exact
+ * result — first with the CUDA atomic intrinsics, then with
+ * cuda::std::atomic_ref from CCCL (the std::atomic API in device code), and
+ * finally with cuda::atomic_ref from CCCL (the CUDA-specific variant that
+ * natively supports CUDA thread scopes).
  */
 
 // includes, system
-#include <math.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#ifdef _WIN32
-#define WINDOWS_LEAN_AND_MEAN
-#define NOMINMAX
-#include <windows.h>
-#endif
 
 // Includes CUDA
 #include <cuda_runtime.h>
 
-// Utilities and timing functions
-#include <helper_functions.h> // includes cuda.h and cuda_runtime_api.h
+// Includes CCCL: std::atomic as usable in device code (cuda::std::atomic_ref)
+#include <cuda/std/atomic>
 
-// CUDA helper functions
-#include <helper_cuda.h> // helper functions for CUDA error check
+// cuda::atomic_ref<T>: like cuda::std::atomic_ref but CUDA-specific, supports thread scopes
+#include <cuda/atomic>
 
-// Includes, kernels
-#include "simpleAtomicIntrinsics_kernel.cuh"
+// and cuda::ceil_div for computing the launch grid size
+#include <cuda/cmath>
 
-const char *sampleName = "simpleAtomicIntrinsics";
 
-////////////////////////////////////////////////////////////////////////////////
-// Auto-Verification Code
-bool testResult = true;
+// Launch configuration: many threads hammering a small array
+#define NUM_THREADS 1000000
+#define BLOCK_WIDTH 1000
+#define ARRAY_SIZE  10
 
-////////////////////////////////////////////////////////////////////////////////
-// Declaration, forward
-void runTest(int argc, char **argv);
-
-extern "C" bool computeGold(int *gpuData, const int len);
-
-////////////////////////////////////////////////////////////////////////////////
-// Program main
-////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv)
+// Increment without atomics: threads race on shared elements and lose updates
+__global__ void increment(int *g)
 {
-    printf("%s starting...\n", sampleName);
-
-    runTest(argc, argv);
-
-    printf("%s completed, returned %s\n", sampleName, testResult ? "OK" : "ERROR!");
-    exit(testResult ? EXIT_SUCCESS : EXIT_FAILURE);
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    // ceil_div rounds up the grid, this may launch extra threads
+    // Adding this guard to ignore extra threads
+    if (tid < NUM_THREADS) {
+        // each thread increments one element, wrapping at ARRAY_SIZE
+        int i = tid % ARRAY_SIZE;
+        g[i]  = g[i] + 1;
+    }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//! Run a simple test for CUDA
-////////////////////////////////////////////////////////////////////////////////
-void runTest(int argc, char **argv)
+// Increment with atomicAdd: read-modify-write is one indivisible operation
+__global__ void increment_atomic(int *g)
 {
-    cudaStream_t stream;
-    // This will pick the best possible CUDA capable device
-    findCudaDevice(argc, (const char **)argv);
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid < NUM_THREADS) {
+        int i = tid % ARRAY_SIZE;
+        atomicAdd(&g[i], 1);
+    }
+}
 
-    StopWatchInterface *timer;
-    sdkCreateTimer(&timer);
-    sdkStartTimer(&timer);
+// Increment with cuda::std::atomic_ref: wraps the plain int in g[] and exposes
+// the exact std::atomic API (fetch_add, load, store, ...) inside device code
+__global__ void increment_atomic_std(int *g)
+{
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid < NUM_THREADS) {
+        int i = tid % ARRAY_SIZE;
+        cuda::std::atomic_ref<int> ref(g[i]);
+        ref.fetch_add(1);
+    }
+}
 
-    unsigned int numThreads = 256;
-    unsigned int numBlocks  = 64;
-    unsigned int numData    = 11;
-    unsigned int memSize    = sizeof(int) * numData;
+// Increment with cuda::atomic_ref: like cuda::std::atomic_ref but CUDA-specific
+// and natively supports CUDA thread scopes
+__global__ void increment_atomic_cuda(int *g)
+{
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid < NUM_THREADS) {
+        int i = tid % ARRAY_SIZE;
+        cuda::atomic_ref<int> ref(g[i]);
+        ref.fetch_add(1);
+    }
+}
 
-    // allocate mem for the result on host side
-    int *hOData;
-    checkCudaErrors(cudaMallocHost(&hOData, memSize));
+// Max without atomics: another thread can write between the compare and the
+// store, so a smaller value can overwrite a larger one
+__global__ void max(int *g)
+{
+    // each thread contributes its global index as the value
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid < NUM_THREADS) {
+        int i = tid % ARRAY_SIZE;
+        if (g[i] < tid)
+            g[i] = tid;
+    }
+}
 
-    // initialize the memory
-    for (unsigned int i = 0; i < numData; i++)
-        hOData[i] = 0;
+// Max with atomicMax: the compare and the store happen as one operation
+__global__ void max_atomic(int *g)
+{
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid < NUM_THREADS) {
+        int i = tid % ARRAY_SIZE;
+        atomicMax(&g[i], tid);
+    }
+}
 
-    // To make the AND and XOR tests generate something other than 0...
-    hOData[8] = hOData[10] = 0xff;
+// Max with cuda::std::atomic_ref: std::atomic has no fetch_max, so max is
+// built the standard C++ way — a compare_exchange loop that stops as soon as
+// the stored value is already >= ours
+__global__ void max_atomic_std(int *g)
+{
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid < NUM_THREADS) {
+        int i = tid % ARRAY_SIZE;
 
-    checkCudaErrors(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));
-    // allocate device memory for result
-    int *dOData;
-    checkCudaErrors(cudaMalloc((void **)&dOData, memSize));
-    // copy host memory to device to initialize to zero
-    checkCudaErrors(cudaMemcpyAsync(dOData, hOData, memSize, cudaMemcpyHostToDevice, stream));
+        cuda::std::atomic_ref<int> ref(g[i]);
+        int expected = ref.load();
+        while (expected < tid && !ref.compare_exchange_weak(expected, tid)) {
+        }
+    }
+}
 
-    // execute the kernel
-    testKernel<<<numBlocks, numThreads, 0, stream>>>(dOData);
+// Max with cuda::atomic_ref: same compare_exchange loop as the _std variant
+__global__ void max_atomic_cuda(int *g)
+{
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid < NUM_THREADS) {
+        int i = tid % ARRAY_SIZE;
 
-    // Copy result from device to host
-    checkCudaErrors(cudaMemcpyAsync(hOData, dOData, memSize, cudaMemcpyDeviceToHost, stream));
-    checkCudaErrors(cudaStreamSynchronize(stream));
+        cuda::atomic_ref<int> ref(g[i]);
+        int expected = ref.load();
+        while (expected < tid && !ref.compare_exchange_weak(expected, tid)) {
+        }
+    }
+}
 
-    sdkStopTimer(&timer);
-    printf("Processing time: %f (ms)\n", sdkGetTimerValue(&timer));
-    sdkDeleteTimer(&timer);
+// Increment written as compare-and-swap, without atomics: the value can change
+// between the compare and the swap, so increments are lost
+__global__ void cas(int *g)
+{
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid < NUM_THREADS) {
+        int i = tid % ARRAY_SIZE;
 
-    // Compute reference solution
-    testResult = computeGold(hOData, numThreads * numBlocks);
+        int expected = g[i];        // read
+        if (g[i] == expected)       // compare
+            g[i] = expected + 1;    // swap (not atomic with the compare!)
+    }
+}
 
-    // Cleanup memory
-    checkCudaErrors(cudaFreeHost(hOData));
-    checkCudaErrors(cudaFree(dOData));
+// Increment with an atomicCAS retry loop: the classic pattern for building
+// any atomic operation out of compare-and-swap. atomicCAS returns the value
+// it found: if another thread interfered, the swap did not happen and we retry
+__global__ void cas_atomic(int *g)
+{
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid < NUM_THREADS) {
+        int i = tid % ARRAY_SIZE;
+
+        int old = g[i];
+        int assumed;
+        do {
+            assumed = old;
+            old     = atomicCAS(&g[i], assumed, assumed + 1);
+        } while (old != assumed);
+    }
+}
+
+// Increment with cuda::std::atomic_ref compare_exchange: the std::atomic way
+// to write a CAS retry loop. On failure, expected is updated with the value
+// actually found, so the loop just retries with fresh data
+__global__ void cas_atomic_std(int *g)
+{
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid < NUM_THREADS) {
+        int i = tid % ARRAY_SIZE;
+
+        cuda::std::atomic_ref<int> ref(g[i]);
+        int expected = ref.load();
+        while (!ref.compare_exchange_weak(expected, expected + 1)) {
+        }
+    }
+}
+
+// CAS increment with cuda::atomic_ref: same retry loop as the _std variant
+__global__ void cas_atomic_cuda(int *g)
+{
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid < NUM_THREADS) {
+        int i = tid % ARRAY_SIZE;
+
+        cuda::atomic_ref<int> ref(g[i]);
+        int expected = ref.load();
+        while (!ref.compare_exchange_weak(expected, expected + 1)) {
+        }
+    }
+}
+
+// Print every element of the array
+void print_array(int *array, int size)
+{
+    printf("{ ");
+    for (int i = 0; i < size; i++)
+        printf("%d ", array[i]);
+    printf("}\n");
+}
+
+// Program main
+int main(int argc, char **argv)
+{
+    printf("=== Atomic vs. non-atomic operations (intrinsics, cuda::std::atomic_ref, cuda::atomic_ref) ===\n\n");
+
+    // Select device 0 as the active GPU
+    int devID = 0;
+    cudaSetDevice(devID);
+
+    // Query compute capability (major.minor) and number of SMs on the device
+    int major = 0, minor = 0, smCount = 0;
+    cudaDeviceGetAttribute(&major, cudaDevAttrComputeCapabilityMajor, devID);
+    cudaDeviceGetAttribute(&minor, cudaDevAttrComputeCapabilityMinor, devID);
+    cudaDeviceGetAttribute(&smCount, cudaDevAttrMultiProcessorCount, devID);
+
+    // Print device info
+    printf("GPU Device %d: with compute capability %d.%d and Number of SMs %d\n\n", devID, major, minor, smCount);
+
+    // enough blocks to cover all threads, rounding up if not evenly divisible
+    int numBlocks = cuda::ceil_div(NUM_THREADS, BLOCK_WIDTH);
+    printf("%d total threads in %d blocks writing into %d array elements\n\n",
+           NUM_THREADS, numBlocks, ARRAY_SIZE);
+
+    // declare and allocate host memory
+    int       h_array[ARRAY_SIZE];
+    const int ARRAY_BYTES = ARRAY_SIZE * sizeof(int);
+
+    // declare and allocate GPU memory (zeroed with cudaMemset before each run)
+    int *d_array;
+    cudaMalloc((void **)&d_array, ARRAY_BYTES);
+
+    // CUDA events record timestamps on the GPU stream to measure device time
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    float elapsed_ms;
+
+    // ----- add: every thread adds 1, each element should reach 100000 -----
+    printf("[add] expected: every element = %d\n", NUM_THREADS / ARRAY_SIZE);
+
+    cudaMemset((void *)d_array, 0, ARRAY_BYTES);
+
+    cudaEventRecord(start);
+    increment<<<numBlocks, BLOCK_WIDTH>>>(d_array);
+    cudaEventRecord(stop);
+
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed_ms, start, stop);
+    cudaMemcpy(h_array, d_array, ARRAY_BYTES, cudaMemcpyDeviceToHost);
+
+    printf("%-36s (%g ms): ", "non-atomic", elapsed_ms);
+    print_array(h_array, ARRAY_SIZE);
+
+    cudaMemset((void *)d_array, 0, ARRAY_BYTES);
+
+    cudaEventRecord(start);
+    increment_atomic<<<numBlocks, BLOCK_WIDTH>>>(d_array);
+    cudaEventRecord(stop);
+
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed_ms, start, stop);
+    cudaMemcpy(h_array, d_array, ARRAY_BYTES, cudaMemcpyDeviceToHost);
+
+    printf("%-36s (%g ms): ", "atomicAdd()", elapsed_ms);
+    print_array(h_array, ARRAY_SIZE);
+
+    cudaMemset((void *)d_array, 0, ARRAY_BYTES);
+
+    cudaEventRecord(start);
+    increment_atomic_std<<<numBlocks, BLOCK_WIDTH>>>(d_array);
+    cudaEventRecord(stop);
+
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed_ms, start, stop);
+    cudaMemcpy(h_array, d_array, ARRAY_BYTES, cudaMemcpyDeviceToHost);
+
+    printf("%-36s (%g ms): ", "cuda::std::atomic_ref::fetch_add()", elapsed_ms);
+    print_array(h_array, ARRAY_SIZE);
+
+    cudaMemset((void *)d_array, 0, ARRAY_BYTES);
+
+    cudaEventRecord(start);
+    increment_atomic_cuda<<<numBlocks, BLOCK_WIDTH>>>(d_array);
+    cudaEventRecord(stop);
+
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed_ms, start, stop);
+    cudaMemcpy(h_array, d_array, ARRAY_BYTES, cudaMemcpyDeviceToHost);
+
+    printf("%-36s (%g ms): ", "cuda::atomic_ref::fetch_add()", elapsed_ms);
+    print_array(h_array, ARRAY_SIZE);
+
+    // ----- max: every thread offers its index, element i should reach
+    // the largest index that maps to it: NUM_THREADS - ARRAY_SIZE + i -----
+    printf("\n[max] expected: element i = %d + i\n", NUM_THREADS - ARRAY_SIZE);
+
+    cudaMemset((void *)d_array, 0, ARRAY_BYTES);
+
+    cudaEventRecord(start);
+    max<<<numBlocks, BLOCK_WIDTH>>>(d_array);
+    cudaEventRecord(stop);
+
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed_ms, start, stop);
+    cudaMemcpy(h_array, d_array, ARRAY_BYTES, cudaMemcpyDeviceToHost);
+
+    printf("%-46s (%g ms): ", "non-atomic", elapsed_ms);
+    print_array(h_array, ARRAY_SIZE);
+
+    cudaMemset((void *)d_array, 0, ARRAY_BYTES);
+
+    cudaEventRecord(start);
+    max_atomic<<<numBlocks, BLOCK_WIDTH>>>(d_array);
+    cudaEventRecord(stop);
+
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed_ms, start, stop);
+    cudaMemcpy(h_array, d_array, ARRAY_BYTES, cudaMemcpyDeviceToHost);
+
+    printf("%-46s (%g ms): ", "atomicMax()", elapsed_ms);
+    print_array(h_array, ARRAY_SIZE);
+
+    cudaMemset((void *)d_array, 0, ARRAY_BYTES);
+
+    cudaEventRecord(start);
+    max_atomic_std<<<numBlocks, BLOCK_WIDTH>>>(d_array);
+    cudaEventRecord(stop);
+
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed_ms, start, stop);
+    cudaMemcpy(h_array, d_array, ARRAY_BYTES, cudaMemcpyDeviceToHost);
+
+    printf("%-46s (%g ms): ", "cuda::std::atomic_ref::compare_exchange_weak()", elapsed_ms);
+    print_array(h_array, ARRAY_SIZE);
+
+    cudaMemset((void *)d_array, 0, ARRAY_BYTES);
+
+    cudaEventRecord(start);
+    max_atomic_cuda<<<numBlocks, BLOCK_WIDTH>>>(d_array);
+    cudaEventRecord(stop);
+
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed_ms, start, stop);
+    cudaMemcpy(h_array, d_array, ARRAY_BYTES, cudaMemcpyDeviceToHost);
+
+    printf("%-46s (%g ms): ", "cuda::atomic_ref::compare_exchange_weak()", elapsed_ms);
+    print_array(h_array, ARRAY_SIZE);
+
+    // ----- CAS: increment built from compare-and-swap, same expected
+    // result as add -----
+    printf("\n[CAS] expected: every element = %d\n", NUM_THREADS / ARRAY_SIZE);
+
+    cudaMemset((void *)d_array, 0, ARRAY_BYTES);
+
+    cudaEventRecord(start);
+    cas<<<numBlocks, BLOCK_WIDTH>>>(d_array);
+    cudaEventRecord(stop);
+
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed_ms, start, stop);
+    cudaMemcpy(h_array, d_array, ARRAY_BYTES, cudaMemcpyDeviceToHost);
+
+    printf("%-46s (%g ms): ", "non-atomic", elapsed_ms);
+    print_array(h_array, ARRAY_SIZE);
+
+    cudaMemset((void *)d_array, 0, ARRAY_BYTES);
+
+    cudaEventRecord(start);
+    cas_atomic<<<numBlocks, BLOCK_WIDTH>>>(d_array);
+    cudaEventRecord(stop);
+
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed_ms, start, stop);
+    cudaMemcpy(h_array, d_array, ARRAY_BYTES, cudaMemcpyDeviceToHost);
+
+    printf("%-46s (%g ms): ", "atomicCAS()", elapsed_ms);
+    print_array(h_array, ARRAY_SIZE);
+
+    cudaMemset((void *)d_array, 0, ARRAY_BYTES);
+
+    cudaEventRecord(start);
+    cas_atomic_std<<<numBlocks, BLOCK_WIDTH>>>(d_array);
+    cudaEventRecord(stop);
+
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed_ms, start, stop);
+    cudaMemcpy(h_array, d_array, ARRAY_BYTES, cudaMemcpyDeviceToHost);
+
+    printf("%-46s (%g ms): ", "cuda::std::atomic_ref::compare_exchange_weak()", elapsed_ms);
+    print_array(h_array, ARRAY_SIZE);
+
+    cudaMemset((void *)d_array, 0, ARRAY_BYTES);
+
+    cudaEventRecord(start);
+    cas_atomic_cuda<<<numBlocks, BLOCK_WIDTH>>>(d_array);
+    cudaEventRecord(stop);
+
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed_ms, start, stop);
+    cudaMemcpy(h_array, d_array, ARRAY_BYTES, cudaMemcpyDeviceToHost);
+
+    printf("%-46s (%g ms): ", "cuda::atomic_ref::compare_exchange_weak()", elapsed_ms);
+    print_array(h_array, ARRAY_SIZE);
+
+    printf("\nThe non-atomic kernels lose updates when threads race on the same\n");
+    printf("element; the atomic kernels match the expected values exactly.\n");
+
+    // free GPU memory allocation and timing events, then exit
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
+    cudaFree(d_array);
+    return 0;
 }

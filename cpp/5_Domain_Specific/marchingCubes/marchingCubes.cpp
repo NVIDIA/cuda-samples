@@ -431,6 +431,9 @@ int main(int argc, char **argv)
 ////////////////////////////////////////////////////////////////////////////////
 void initMC(int argc, char **argv)
 {
+    // Enlarge the per-thread device stack: under -G the CUB warpspeed exclusive_scan is not inlined and its deep call chain overflows the default 1KB stack.
+    checkCudaErrors(cudaDeviceSetLimit(cudaLimitStackSize, 8192));
+
     // parse command line arguments
     int n;
 

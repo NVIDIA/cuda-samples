@@ -53,6 +53,12 @@ CUDA sample demonstrating a integer GEMM computation using the Warp Matrix Multi
 ### [jacobiCudaGraphs](./jacobiCudaGraphs)
 Demonstrates Instantiated CUDA Graph Update with Jacobi Iterative Method using cudaGraphExecKernelNodeSetParams() and cudaGraphExecUpdate() approach.
 
+### [localityDomains](./localityDomains)
+This CUDA Runtime API sample demonstrates APIs for creating localized green contexts and localized memory pool allocations.
+
+### [localityDomainsDrv](./localityDomainsDrv)
+This CUDA Driver API sample demonstrates APIs for creating localized green contexts and creating localized memory allocations.
+
 ### [memMapIPCDrv](./memMapIPCDrv)
 This CUDA Driver API sample is a very basic sample that demonstrates Inter Process Communication using cuMemMap APIs with one process per GPU for computation. Requires Compute Capability 3.0 or higher and a Linux Operating System, or a Windows Operating System
 
