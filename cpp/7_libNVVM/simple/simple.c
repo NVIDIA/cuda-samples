@@ -69,7 +69,7 @@ static CUdevice cudaDeviceInit(int *devMajor, int *devMinor)
     CUdevice cuDevice = 0;
     checkCudaErrors(cuDeviceGet(&cuDevice, 0));
     char name[128];
-    cuDeviceGetName(name, sizeof(name), cuDevice);
+    checkCudaErrors(cuDeviceGetName(name, sizeof(name), cuDevice));
     printf("Using CUDA Device [0]: %s\n", name);
 
     // Obtain the device's compute capability.
