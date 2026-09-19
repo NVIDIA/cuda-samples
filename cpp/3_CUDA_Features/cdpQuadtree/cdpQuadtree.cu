@@ -28,6 +28,7 @@
 #include <iostream>
 
 #include <cooperative_groups.h>
+#include <iostream>
 #include <thrust/device_vector.h>
 #include <thrust/host_vector.h>
 #include <thrust/random.h>
