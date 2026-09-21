@@ -43,7 +43,7 @@ endif()
 
 add_custom_command(
     OUTPUT ${CUDA_PTX_FILE}
-    COMMAND ${CMAKE_CUDA_COMPILER} ${INCLUDES} -Wno-deprecated-gpu-targets -o ${CUDA_PTX_FILE} -ptx ${CUDA_KERNEL_SOURCE}
+    COMMAND ${CMAKE_CUDA_COMPILER} ${INCLUDES} -Wno-deprecated-gpu-targets -ccbin=${CMAKE_CUDA_HOST_COMPILER} -o ${CUDA_PTX_FILE} -ptx ${CUDA_KERNEL_SOURCE}
     DEPENDS ${CUDA_KERNEL_SOURCE}
     COMMENT "Building CUDA PTX: ${CUDA_PTX_FILE}"
 )

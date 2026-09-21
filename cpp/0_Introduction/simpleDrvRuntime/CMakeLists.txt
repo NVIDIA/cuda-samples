@@ -50,7 +50,7 @@ endif()
 
 add_custom_command(
     OUTPUT ${CUDA_FATBIN_FILE}
-    COMMAND ${CMAKE_CUDA_COMPILER} ${INCLUDES} -Wno-deprecated-gpu-targets ${GENCODE_FLAGS} -o ${CUDA_FATBIN_FILE} -fatbin ${CUDA_KERNEL_SOURCE}
+    COMMAND ${CMAKE_CUDA_COMPILER} ${INCLUDES} -Wno-deprecated-gpu-targets -ccbin=${CMAKE_CUDA_HOST_COMPILER} ${GENCODE_FLAGS} -o ${CUDA_FATBIN_FILE} -fatbin ${CUDA_KERNEL_SOURCE}
     DEPENDS ${CUDA_KERNEL_SOURCE}
     COMMENT "Building CUDA fatbin: ${CUDA_FATBIN_FILE}"
 )
