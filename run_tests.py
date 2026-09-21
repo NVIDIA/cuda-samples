@@ -90,18 +90,30 @@ def find_executables(root_dir):
 
     return executables
 
+
+def build_command(executable, args, global_args):
+    """Build the command used to launch an executable.
+
+    Use an absolute path for the executable. A relative ``./name`` path can
+    be resolved incorrectly by Windows when the executable is launched with a
+    separate working directory.
+    """
+    cmd = [str(Path(executable).resolve())]
+    cmd.extend(args)
+    if global_args:
+        cmd.extend(global_args)
+    return cmd
+
+
 def run_single_test_instance(executable, args, output_file, global_args, run_description):
     """Run a single instance of a test executable with specific arguments."""
-    exe_path = str(executable)
-    exe_name = executable.name
+    exe_path = Path(executable).resolve()
+    exe_name = exe_path.name
 
     safe_print(f"Starting {exe_name} {run_description}")
 
     try:
-        cmd = [f"./{exe_name}"]
-        cmd.extend(args)
-        if global_args:
-            cmd.extend(global_args)
+        cmd = build_command(exe_path, args, global_args)
 
         safe_print(f"    Command ({exe_name} {run_description}): {' '.join(cmd)}")
 
@@ -112,7 +124,7 @@ def run_single_test_instance(executable, args, output_file, global_args, run_des
                 stdout=f,
                 stderr=subprocess.STDOUT,
                 timeout=300,  # 5 minute timeout
-                cwd=os.path.dirname(exe_path) # Execute in the executable's directory
+                cwd=exe_path.parent # Execute in the executable's directory
             )
 
         if result.returncode == 0:
