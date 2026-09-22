@@ -31,6 +31,6 @@ cudaDeviceSynchronize, cudaMallocManaged, cudaGetDeviceProperties, cudaFree
 ## Prerequisites
 
 Download and install the [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
-Make sure the dependencies mentioned in [Dependencies]() section above are installed.
+Make sure the dependencies mentioned in [Dependencies](../../../README.md#dependencies) section above are installed.
 
 ## References (for more details)
