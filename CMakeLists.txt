@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
+option(ENABLE_CUDA_DEBUG "Enable symbolic debugging in the CUDA debugger; may significantly affect performance on some targets" OFF)
+
 include(cmake/CudaSampleArchs.cmake)
 
 # Default to all supported architectures if the user does not specify.
