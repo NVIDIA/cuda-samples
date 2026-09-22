@@ -81,12 +81,17 @@ def find_executables(root_dir):
         if not path.is_file():
             continue
 
+        # Skip if it's a library or build artifact
+        if path.suffix.lower() in ('.dll', '.so', '.dylib', '.lib', '.a', '.pdb', '.exp', '.obj', '.o', '.json', '.txt', '.cpp', '.h', '.c', '.cu', '.cuh'):
+            continue
+
         # Check if file is executable
-        if os.access(path, os.X_OK):
-            # Skip if it's a library file
-            if path.suffix.lower() in ('.dll', '.so', '.dylib'):
-                continue
-            executables.append(path)
+        if sys.platform == "win32":
+            if path.suffix.lower() == '.exe':
+                executables.append(path)
+        else:
+            if os.access(path, os.X_OK):
+                executables.append(path)
 
     return executables
 
@@ -98,7 +103,7 @@ def run_single_test_instance(executable, args, output_file, global_args, run_des
     safe_print(f"Starting {exe_name} {run_description}")
 
     try:
-        cmd = [f"./{exe_name}"]
+        cmd = [f".{os.sep}{exe_name}"]
         cmd.extend(args)
         if global_args:
             cmd.extend(global_args)
