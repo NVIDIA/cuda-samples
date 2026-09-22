@@ -34,7 +34,7 @@ cudaExternalMemoryGetMappedBuffer, cudaImportExternalSemaphore, cudaDeviceGetAtt
 ## Prerequisites
 
 Download and install the [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads) for your corresponding platform.
-Make sure the dependencies mentioned in [Dependencies]() section above are installed.
+Make sure the dependencies mentioned in [Dependencies](../../../README.md#dependencies) section above are installed.
 
 On a QNX cross-build the NvSci headers and libraries come from the target filesystem, so pass `-DTARGET_FS=/path/to/qnx/targetfs` to cmake. Without it the build reports `NvSCI not found` and skips this sample. See the [QNX build instructions](../../../README.md#qnx).
 
