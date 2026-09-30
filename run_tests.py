@@ -103,7 +103,7 @@ def run_single_test_instance(executable, args, output_file, global_args, run_des
     safe_print(f"Starting {exe_name} {run_description}")
 
     try:
-        cmd = [f".{os.sep}{exe_name}"]
+        cmd = [str(executable.resolve())]
         cmd.extend(args)
         if global_args:
             cmd.extend(global_args)
@@ -177,7 +177,7 @@ def get_gpu_count():
 
 def main():
     parser = argparse.ArgumentParser(description='Run all executables and capture output')
-    parser.add_argument('--dir', default='.', help='Root directory to search for executables')
+    parser.add_argument('--dir', default=os.path.dirname(os.path.abspath(__file__)), help='Root directory to search for executables')
     parser.add_argument('--config', help='JSON configuration file for executable arguments')
     parser.add_argument('--output', default='.',  # Default to current directory
                        help='Output directory for test results')
