@@ -28,4 +28,9 @@ project(cuda-samples LANGUAGES C CXX CUDA)
 
 include(cmake/CudaSampleCommon.cmake)
 
+set(CUDA_HOST_COMPILER_ARGS)
+if(CMAKE_CUDA_HOST_COMPILER)
+    list(APPEND CUDA_HOST_COMPILER_ARGS "-ccbin=${CMAKE_CUDA_HOST_COMPILER}")
+endif()
+
 add_subdirectory(cpp)
