@@ -50,6 +50,16 @@ def normalize_exe_name(name):
     """Normalize executable name across platforms by removing .exe if present"""
     return Path(name).stem
 
+def build_test_command(executable):
+    """Build the command used to launch a test executable.
+
+    The executable must be invoked via its absolute path using the
+    OS-native separators.  A bare POSIX-style relative path such as
+    "./clock.exe" does not resolve on Windows (issue #453), while the
+    absolute path works on every platform.
+    """
+    return [str(Path(executable).resolve())]
+
 def load_args_config(config_file):
     """Load arguments configuration from JSON file"""
     if not config_file or not os.path.exists(config_file):
@@ -92,13 +102,13 @@ def find_executables(root_dir):
 
 def run_single_test_instance(executable, args, output_file, global_args, run_description):
     """Run a single instance of a test executable with specific arguments."""
-    exe_path = str(executable)
+    exe_path = str(Path(executable).resolve())
     exe_name = executable.name
 
     safe_print(f"Starting {exe_name} {run_description}")
 
     try:
-        cmd = [f"./{exe_name}"]
+        cmd = build_test_command(executable)
         cmd.extend(args)
         if global_args:
             cmd.extend(global_args)
