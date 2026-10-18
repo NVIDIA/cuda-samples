@@ -292,21 +292,11 @@ int main(int argc, char **argv)
         InputToThreads[i].streams = streams;
         InputToThreads[i].handles = handles;
 
-        if ((TaskList.size() / nthreads) == 0) {
-            InputToThreads[i].taskSize    = (TaskList.size() / nthreads);
-            InputToThreads[i].TaskListPtr = &TaskList[i * (TaskList.size() / nthreads)];
-        }
-        else {
-            if (i == nthreads - 1) {
-                InputToThreads[i].taskSize = (TaskList.size() / nthreads) + (TaskList.size() % nthreads);
-                InputToThreads[i].TaskListPtr =
-                    &TaskList[i * (TaskList.size() / nthreads) + (TaskList.size() % nthreads)];
-            }
-            else {
-                InputToThreads[i].taskSize    = (TaskList.size() / nthreads);
-                InputToThreads[i].TaskListPtr = &TaskList[i * (TaskList.size() / nthreads)];
-            }
-        }
+        // Split tasks evenly; the last thread also takes the remainder
+        const size_t chunk            = TaskList.size() / nthreads;
+        const size_t remainder        = TaskList.size() % nthreads;
+        InputToThreads[i].taskSize    = (int)(chunk + (i == nthreads - 1 ? remainder : 0));
+        InputToThreads[i].TaskListPtr = TaskList.data() + i * chunk;
 
         pthread_create(&threads[i], NULL, &execute, &InputToThreads[i]);
     }
