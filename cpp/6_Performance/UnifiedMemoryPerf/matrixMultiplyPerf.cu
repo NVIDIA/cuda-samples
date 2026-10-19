@@ -377,8 +377,8 @@ void runMatrixMultiplyKernel(unsigned int matrixDim,
 
         sdkStartTimer(&cpuAccessTimer);
         {
-            copyMatrix(hptrA, (i & 0x1 == 0) ? randValuesX : randValuesY, matrixDim);
-            copyMatrix(hptrB, (i & 0x1 == 0) ? randValuesY : randValuesX, matrixDim);
+            copyMatrix(hptrA, ((i & 0x1) == 0) ? randValuesX : randValuesY, matrixDim);
+            copyMatrix(hptrB, ((i & 0x1) == 0) ? randValuesY : randValuesX, matrixDim);
         }
         sdkStopTimer(&cpuAccessTimer);
         cpuAccessTimes[i] += sdkGetAverageTimerValue(&cpuAccessTimer);
@@ -487,7 +487,7 @@ void runMatrixMultiplyKernel(unsigned int matrixDim,
 
         sdkStartTimer(&cpuAccessTimer);
         {
-            verifyMatrixData((i & 0x1 == 0) ? randValuesVerifyXmulY : randValuesVerifyYmulX, hptrC, matrixDim);
+            verifyMatrixData(((i & 0x1) == 0) ? randValuesVerifyXmulY : randValuesVerifyYmulX, hptrC, matrixDim);
         }
         sdkStopTimer(&cpuAccessTimer);
         cpuAccessTimes[i] += sdkGetAverageTimerValue(&cpuAccessTimer);
