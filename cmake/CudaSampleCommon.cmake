@@ -1,5 +1,11 @@
 include_guard(GLOBAL)
 
+# Also needed when a sample is configured without the repository root.
+set(CUDA_HOST_COMPILER_ARGS)
+if(CMAKE_CUDA_HOST_COMPILER)
+    list(APPEND CUDA_HOST_COMPILER_ARGS "-ccbin=${CMAKE_CUDA_HOST_COMPILER}")
+endif()
+
 get_filename_component(_cuda_sample_cmake_dir "${CMAKE_CURRENT_LIST_FILE}" DIRECTORY)
 
 list(APPEND CMAKE_MODULE_PATH "${_cuda_sample_cmake_dir}")
