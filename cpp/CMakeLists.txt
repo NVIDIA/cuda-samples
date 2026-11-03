@@ -2,6 +2,8 @@
 cmake_minimum_required(VERSION 3.20)
 project(cuda-samples-cpp LANGUAGES C CXX CUDA)
 
+include("${CMAKE_CURRENT_LIST_DIR}/../cmake/CudaSampleCommon.cmake")
+
 # This layer of CMakeLists.txt adds folders, for better organization in Visual Studio
 # and other IDEs that support this feature.
 
