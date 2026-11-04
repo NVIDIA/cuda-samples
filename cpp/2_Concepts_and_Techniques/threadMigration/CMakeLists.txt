@@ -42,12 +42,14 @@ foreach(arch ${CMAKE_CUDA_ARCHITECTURES})
     list(APPEND GENCODE_FLAGS "-gencode=arch=compute_${arch},code=sm_${arch}")
 endforeach()
 
-if(CMAKE_SYSTEM_NAME STREQUAL "QNX")
-    set(INCLUDES_LIST)
+# This custom command does not inherit CMAKE_CUDA_FLAGS (e.g. --target-directory), so pass the
+# toolkit include dirs explicitly. On aarch64 (Tegra/QNX/SBSA) the toolkit may keep its headers
+# in a chip-suffixed targets/ dir that nvcc does not search by default.
+set(INCLUDES)
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
     foreach(dir ${CUDAToolkit_INCLUDE_DIRS})
-        list(APPEND INCLUDES_LIST "-I${dir}")
+        list(APPEND INCLUDES "-I${dir}")
     endforeach()
-    string(JOIN " " INCLUDES "${INCLUDES_LIST}")
 endif()
 
 add_custom_command(

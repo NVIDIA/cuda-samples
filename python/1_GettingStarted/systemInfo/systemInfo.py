@@ -87,7 +87,12 @@ def print_driver_info() -> None:
             "NVML bindings are not compatible with this driver; "
             "device info will be limited."
         )
-    print(f"Current process: {system.get_process_name(os.getpid())}")
+    try:
+        # On WSL, NVML can only name a PID that already holds a CUDA
+        # context, which this process doesn't have yet.
+        print(f"Current process: {system.get_process_name(os.getpid())}")
+    except system.NotFoundError as e:
+        print(f"Current process: unavailable ({e})")
 
 
 def print_device_info(device: "system.Device") -> None:

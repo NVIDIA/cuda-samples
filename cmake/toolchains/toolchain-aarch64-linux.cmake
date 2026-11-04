@@ -10,8 +10,7 @@ set(CMAKE_RANLIB aarch64-linux-gnu-ranlib)
 # Indicate cross-compiling.
 set(CMAKE_CROSSCOMPILING TRUE)
 
-# Set CUDA compiler flags
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -ccbin ${CMAKE_CXX_COMPILER}" CACHE STRING "" FORCE)
+string(APPEND CMAKE_CUDA_FLAGS " -ccbin ${CMAKE_CXX_COMPILER}")
 
 # Use a local sysroot copy
 if(DEFINED TARGET_FS)
@@ -30,7 +29,7 @@ if(DEFINED TARGET_FS)
     set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
     set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
     
-    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler --sysroot=${TARGET_FS}")
+    string(APPEND CMAKE_CUDA_FLAGS " -Xcompiler --sysroot=${TARGET_FS}")
 
     set(LIB_PATHS
         "${TARGET_FS}/usr/lib/"

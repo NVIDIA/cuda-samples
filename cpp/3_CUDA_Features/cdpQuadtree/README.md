@@ -10,6 +10,11 @@ Cooperative Groups, CUDA Dynamic Parallelism
 
 ## Supported SM Architectures
 
+SM 8.7 builds are disabled with the SBSA CUDA Toolkit. Linking its SM 8.6
+device runtime into SM 8.7 code changes the reported PTX architecture,
+which prevents Thrust from selecting the matching compiled policy.
+DriveOS toolkits retain native SM 8.7 support.
+
 ## Supported OSes
 
 Linux, Windows

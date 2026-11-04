@@ -93,10 +93,23 @@ int parseCmdLine(int argc, char *argv[], TestArgs *args)
         else if (strcmp(argv[i], "-v") == 0) {
             verbose = 1;
         }
+        else if (strcmp(argv[i], "-socket") == 0) {
+            if (++i >= argc || argv[i][0] == '\0'
+                || strlen(argv[i]) >= sizeof(sockaddr_un::sun_path)) {
+                printf("Invalid producer socket path\n");
+                return -1;
+            }
+            args->socketPath = argv[i];
+        }
         else {
             printf("Unknown option: %s\n", argv[i]);
             return -1;
         }
+    }
+
+    if (args->isProducer && args->socketPath == NULL) {
+        printf("Producer socket path is required\n");
+        return -1;
     }
 
     if (isCrossDevice) {
@@ -192,7 +205,8 @@ void launchProducer(TestArgs *args)
     char argsProducer[1024];
     char str[256];
 
-    strcpy(argsProducer, "./EGLStream_CUDA_CrossGPU -proctype prod ");
+    snprintf(argsProducer, sizeof(argsProducer),
+             "./EGLStream_CUDA_CrossGPU -proctype prod -socket %s ", args->socketPath);
 
     if (isCrossDevice) {
         sprintf(str, "-crossdev ");
@@ -225,4 +239,5 @@ void printUsage(void)
     printf("  -crossdev    Run with producer on idgpu and consumer on dgpu\n");
     printf("  -dgpu        (same as -crossdev, deprecated)\n");
     printf("  -v           verbose output\n");
+    printf("  -socket path Producer socket path, set by the consumer\n");
 }

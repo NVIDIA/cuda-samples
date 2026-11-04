@@ -147,14 +147,27 @@ def run_lifecycle(proc: checkpoint.Process, lock_timeout_ms: int) -> List[StepTi
         raise CheckpointUnsupportedError from exc
     timings.append(StepTiming("lock", ms, proc.state))
 
-    ms = _time_call(proc.checkpoint)
-    timings.append(StepTiming("checkpoint", ms, proc.state))
+    # Always unlock, even on failure, or the process stays permanently
+    # "locked" and later cleanup calls deadlock against it. Keep the
+    # original error primary if unlock() also fails.
+    op_error: BaseException | None = None
+    try:
+        ms = _time_call(proc.checkpoint)
+        timings.append(StepTiming("checkpoint", ms, proc.state))
 
-    ms = _time_call(proc.restore)
-    timings.append(StepTiming("restore", ms, proc.state))
+        ms = _time_call(proc.restore)
+        timings.append(StepTiming("restore", ms, proc.state))
+    except BaseException as exc:
+        op_error = exc
 
-    ms = _time_call(proc.unlock)
-    timings.append(StepTiming("unlock", ms, proc.state))
+    try:
+        ms = _time_call(proc.unlock)
+        timings.append(StepTiming("unlock", ms, proc.state))
+    except Exception:
+        if op_error is None:
+            raise
+    if op_error is not None:
+        raise op_error
 
     return timings
 

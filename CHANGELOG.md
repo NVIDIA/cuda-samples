@@ -1,5 +1,10 @@
 ## Changelog
 
+### CUDA 13.5
+* Added `sm_121` to the default set of GPU architectures the C++ samples build for.
+* Added `cpp/3_CUDA_Features/cftUnicastPut` - an MPI sample demonstrating unicast point-to-point data movement between GPUs with Compute Fabric Transport (CFT) logical endpoints, showing both plain fabric puts with an inter-GPU flag handshake and counted fabric puts with a byte-arrival counter for receive completion.
+* Added `cpp/10_Safety/sharedCtx`, a QNX Safety sample. Two processes each keep their own CUDA primary context and share one set of GPU scheduling resources through the CUDA Safe runtime. The sample takes no arguments and launches the second process itself.
+
 ### CUDA 13.4
 * Removed obsolete samples `simpleHyperQ`, `simpleOccupancy`, `mergeSort`, `simpleTemplates`, `template`, `p2pBandwidthLatencyTest`.
 * Removed redundant `_nvrtc` sample variants (`clock_nvrtc`, `matrixMul_nvrtc`, `simpleAssert_nvrtc`, `simpleAtomicIntrinsics_nvrtc`, `inlinePTX_nvrtc`, `binomialOptions_nvrtc`, `BlackScholes_nvrtc`, `quasirandomGenerator_nvrtc`); `vectorAdd_nvrtc` remains as the canonical NVRTC example.

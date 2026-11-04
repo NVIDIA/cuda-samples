@@ -72,7 +72,7 @@ allocation 0x<address> is localized to locality domain 0
 ...
 ```
 
-If device 0 does not support memory pools, the sample reports that it is waiving execution and exits with status EXIT_WAIVED.
+If device 0 does not support memory pools or reports no locality domains, the sample reports that it is waiving execution and exits with status 2 (waived). A successful run exits with status 0.
 
 ## Files
 

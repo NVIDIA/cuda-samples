@@ -116,6 +116,9 @@ template <typename T> void BodySystemCUDA<T>::_initialize(int numBodies)
     unsigned int remaining = m_numBodies;
 
     for (unsigned int i = 0; i < m_numDevices; i++) {
+        m_deviceData[i].dReadScratch = 0;
+        m_deviceData[i].stream       = 0;
+
         unsigned int count = (int)((weights[i] / total) * m_numBodies);
         // Rounding up to numSms[i]*256 leads to better GPU utilization _per_ GPU
         // but when using multiple devices, it will lead to the last GPUs not having
@@ -172,6 +175,13 @@ template <typename T> void BodySystemCUDA<T>::_initialize(int numBodies)
         checkCudaErrors(cudaSetDevice(m_devID));
         checkCudaErrors(cudaEventCreate(&m_deviceData[0].event));
 
+        // A non-blocking stream is only needed to let multiple devices' work
+        // overlap. Single-GPU keeps m_deviceData[0].stream == 0 (set above)
+        // and launches on the legacy default stream.
+        if (m_numDevices > 1) {
+            checkCudaErrors(cudaStreamCreateWithFlags(&m_deviceData[0].stream, cudaStreamNonBlocking));
+        }
+
         if (m_bUsePBO) {
             // create the position pixel buffer objects for rendering
             // we will actually compute directly from this memory in CUDA too
@@ -217,12 +227,22 @@ template <typename T> void BodySystemCUDA<T>::_initialize(int numBodies)
                 }
 
                 checkCudaErrors(cudaEventCreate(&m_deviceData[i].event));
+                checkCudaErrors(cudaStreamCreateWithFlags(&m_deviceData[i].stream, cudaStreamNonBlocking));
+
+                // Local scratch for this device's copy of the read-only position
+                // array: integrateNbodySystem() refreshes it once per step so the
+                // all-pairs kernel reads every tile from local memory instead of
+                // re-fetching over the P2P link on every tile access.
+                checkCudaErrors(cudaMalloc((void **)&m_deviceData[i].dReadScratch, memSize));
 
                 // Point all GPUs to the memory allocated on gpu0
                 m_deviceData[i].dPos[0] = m_deviceData[0].dPos[0];
                 m_deviceData[i].dPos[1] = m_deviceData[0].dPos[1];
                 m_deviceData[i].dVel    = m_deviceData[0].dVel;
             }
+
+            // Restore m_devID: callers create CUDA handles on whatever device is current right after this returns.
+            checkCudaErrors(cudaSetDevice(m_devID));
         }
     }
 
@@ -247,6 +267,13 @@ template <typename T> void BodySystemCUDA<T>::_finalize()
         delete[] m_hPos[1];
         delete[] m_hVel;
 
+        // integrateNbodySystem() can leave a non-zero device current when
+        // m_numDevices > 1 and m_bUsePBO is false. The handles below were
+        // created on m_devID, so restore it before touching them.
+        if (m_numDevices > 1) {
+            checkCudaErrors(cudaSetDevice(m_devID));
+        }
+
         checkCudaErrors(cudaFree((void **)m_deviceData[0].dVel));
 
         if (m_bUsePBO) {
@@ -257,14 +284,21 @@ template <typename T> void BodySystemCUDA<T>::_finalize()
         else {
             checkCudaErrors(cudaFree((void **)m_deviceData[0].dPos[0]));
             checkCudaErrors(cudaFree((void **)m_deviceData[0].dPos[1]));
+        }
 
-            checkCudaErrors(cudaEventDestroy(m_deviceData[0].event));
+        checkCudaErrors(cudaEventDestroy(m_deviceData[0].event));
+        if (m_numDevices > 1) {
+            checkCudaErrors(cudaStreamDestroy(m_deviceData[0].stream));
+        }
 
-            if (m_bUseP2P) {
-                for (unsigned int i = 1; i < m_numDevices; i++) {
-                    checkCudaErrors(cudaEventDestroy(m_deviceData[i].event));
-                }
+        if (m_bUseP2P) {
+            for (unsigned int i = 1; i < m_numDevices; i++) {
+                checkCudaErrors(cudaSetDevice(i));
+                checkCudaErrors(cudaFree(m_deviceData[i].dReadScratch));
+                checkCudaErrors(cudaEventDestroy(m_deviceData[i].event));
+                checkCudaErrors(cudaStreamDestroy(m_deviceData[i].stream));
             }
+            checkCudaErrors(cudaSetDevice(m_devID));
         }
     }
 
@@ -304,6 +338,11 @@ template <typename T> void BodySystemCUDA<T>::setSoftening(T softening)
 
         checkCudaErrors(setSofteningSquared(softeningSq));
     }
+
+    // Restore m_devID; the constructor calls this right after _initialize()'s own restore.
+    if (m_numDevices > 1) {
+        checkCudaErrors(cudaSetDevice(m_devID));
+    }
 }
 
 template <typename T> void BodySystemCUDA<T>::setDamping(T damping) { m_damping = damping; }
@@ -321,6 +360,14 @@ template <typename T> void BodySystemCUDA<T>::update(T deltaTime)
                             m_numDevices,
                             m_blockSize,
                             m_bUsePBO);
+
+    // The launch loop leaves the last device current. Host-memory multi-GPU
+    // has no explicit stream, so a later cudaEventRecord(timingEvent, 0) uses
+    // the current device's default stream. Timing events are created on
+    // m_devID, and each device has its own default stream.
+    if (m_numDevices > 1) {
+        checkCudaErrors(cudaSetDevice(m_devID));
+    }
 
     std::swap(m_currentRead, m_currentWrite);
 }
@@ -357,15 +404,18 @@ template <typename T> T *BodySystemCUDA<T>::getArray(BodyArray array)
     if (!m_bUseSysMem) {
         if (pgres) {
             checkCudaErrors(cudaGraphicsResourceSetMapFlags(pgres, cudaGraphicsMapFlagsReadOnly));
-            checkCudaErrors(cudaGraphicsMapResources(1, &pgres, 0));
+            checkCudaErrors(cudaGraphicsMapResources(1, &pgres, m_deviceData[0].stream));
             size_t bytes;
             checkCudaErrors(cudaGraphicsResourceGetMappedPointer((void **)&ddata, &bytes, pgres));
         }
 
-        checkCudaErrors(cudaMemcpy(hdata, ddata, m_numBodies * 4 * sizeof(T), cudaMemcpyDeviceToHost));
+        checkCudaErrors(cudaMemcpyAsync(
+            hdata, ddata, m_numBodies * 4 * sizeof(T), cudaMemcpyDeviceToHost, m_deviceData[0].stream));
+        checkCudaErrors(cudaStreamSynchronize(m_deviceData[0].stream));
 
         if (pgres) {
-            checkCudaErrors(cudaGraphicsUnmapResources(1, &pgres, 0));
+            checkCudaErrors(cudaGraphicsUnmapResources(1, &pgres, m_deviceData[0].stream));
+            checkCudaErrors(cudaStreamSynchronize(m_deviceData[0].stream));
         }
     }
 

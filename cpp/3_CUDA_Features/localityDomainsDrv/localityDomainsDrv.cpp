@@ -62,6 +62,12 @@ int main()
         std::cout << "SMs per locality domain: " << localityDomainSmCount << std::endl;
     }
 
+    if (localityDomainCount == 0) {
+        std::cout << "Waiving execution as the device does not support locality domains." << std::endl;
+        cuCtxDestroy(context);
+        return 2;
+    }
+
     // Construct localized green contexts and streams
     std::vector<CUgreenCtx> greenContexts(localityDomainCount);
     std::vector<CUstream>   streams(localityDomainCount);

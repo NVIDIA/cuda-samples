@@ -89,8 +89,10 @@ template <> __device__ double      getSofteningSquared<double>() { return soften
 template <typename T> struct DeviceData
 {
     T           *dPos[2]; // mapped host pointers
+    T           *dReadScratch;
     T           *dVel;
     cudaEvent_t  event;
+    cudaStream_t stream;
     unsigned int offset;
     unsigned int numBodies;
 };
@@ -210,14 +212,22 @@ void integrateNbodySystem(DeviceData<T>         *deviceData,
                           bool                   bUsePBO)
 {
     if (bUsePBO) {
+        if (numDevices > 1) {
+            checkCudaErrors(cudaSetDevice(0));
+        }
+
         checkCudaErrors(cudaGraphicsResourceSetMapFlags(pgres[currentRead], cudaGraphicsMapFlagsReadOnly));
         checkCudaErrors(cudaGraphicsResourceSetMapFlags(pgres[1 - currentRead], cudaGraphicsMapFlagsWriteDiscard));
-        checkCudaErrors(cudaGraphicsMapResources(2, pgres, 0));
+        checkCudaErrors(cudaGraphicsMapResources(2, pgres, deviceData[0].stream));
         size_t bytes;
         checkCudaErrors(cudaGraphicsResourceGetMappedPointer(
             (void **)&(deviceData[0].dPos[currentRead]), &bytes, pgres[currentRead]));
         checkCudaErrors(cudaGraphicsResourceGetMappedPointer(
             (void **)&(deviceData[0].dPos[1 - currentRead]), &bytes, pgres[1 - currentRead]));
+        // Peer copies and non-owner writes use deviceData[0].dPos directly.
+        // Those pointers are only valid after this map; other devices' streams
+        // do not wait for it.
+        checkCudaErrors(cudaStreamSynchronize(deviceData[0].stream));
     }
 
     for (unsigned int dev = 0; dev != numDevices; dev++) {
@@ -228,21 +238,33 @@ void integrateNbodySystem(DeviceData<T>         *deviceData,
         int numBlocks     = (deviceData[dev].numBodies + blockSize - 1) / blockSize;
         int numTiles      = (numBodies + blockSize - 1) / blockSize;
         int sharedMemSize = blockSize * 4 * sizeof(T); // 4 floats for pos
+        // GPU0 owns both ping-pong position buffers and velocity. Always pass
+        // this map's GPU0 pointers into the kernel so a non-owner never writes
+        // through a pre-map alias. Local scratch is the only per-device buffer.
+        T *readPos = deviceData[0].dPos[currentRead];
 
-        integrateBodies<T>
-            <<<numBlocks, blockSize, sharedMemSize>>>((typename vec4<T>::Type *)deviceData[dev].dPos[1 - currentRead],
-                                                      (typename vec4<T>::Type *)deviceData[dev].dPos[currentRead],
-                                                      (typename vec4<T>::Type *)deviceData[dev].dVel,
-                                                      deviceData[dev].offset,
-                                                      deviceData[dev].numBodies,
-                                                      deltaTime,
-                                                      damping,
-                                                      numTiles);
+        if (deviceData[dev].dReadScratch != nullptr) {
+            checkCudaErrors(cudaMemcpyPeerAsync(deviceData[dev].dReadScratch,
+                                                dev,
+                                                deviceData[0].dPos[currentRead],
+                                                0,
+                                                numBodies * 4 * sizeof(T),
+                                                deviceData[dev].stream));
+            readPos = deviceData[dev].dReadScratch;
+        }
+
+        integrateBodies<T><<<numBlocks, blockSize, sharedMemSize, deviceData[dev].stream>>>(
+            (typename vec4<T>::Type *)deviceData[0].dPos[1 - currentRead],
+            (typename vec4<T>::Type *)readPos,
+            (typename vec4<T>::Type *)deviceData[0].dVel,
+            deviceData[dev].offset,
+            deviceData[dev].numBodies,
+            deltaTime,
+            damping,
+            numTiles);
 
         if (numDevices > 1) {
-            checkCudaErrors(cudaEventRecord(deviceData[dev].event));
-            // MJH: Hack on older driver versions to force kernel launches to flush!
-            cudaStreamQuery(0);
+            checkCudaErrors(cudaEventRecord(deviceData[dev].event, deviceData[dev].stream));
         }
 
         // check if kernel invocation generated an error
@@ -250,13 +272,23 @@ void integrateNbodySystem(DeviceData<T>         *deviceData,
     }
 
     if (numDevices > 1) {
+        // Single-GPU stays on the legacy default stream (see _initialize())
+        // and keeps queuing kernels without a host wait here. Multi-GPU
+        // kernels run on per-device non-blocking streams; wait so the next
+        // step's peer copy and any PBO unmap see completed writes.
         for (unsigned int dev = 0; dev < numDevices; dev++) {
             checkCudaErrors(cudaEventSynchronize(deviceData[dev].event));
         }
     }
 
     if (bUsePBO) {
-        checkCudaErrors(cudaGraphicsUnmapResources(2, pgres, 0));
+        if (numDevices > 1) {
+            checkCudaErrors(cudaSetDevice(0));
+        }
+
+        checkCudaErrors(cudaGraphicsUnmapResources(2, pgres, deviceData[0].stream));
+        // GL (windowed display) may use the PBO as soon as update() returns.
+        checkCudaErrors(cudaStreamSynchronize(deviceData[0].stream));
     }
 }
 

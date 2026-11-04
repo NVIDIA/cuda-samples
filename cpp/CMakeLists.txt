@@ -34,3 +34,6 @@ endif()
 
 set(CMAKE_FOLDER "9_CUDA_Tile")
 add_subdirectory(9_CUDA_Tile)
+
+set(CMAKE_FOLDER "10_Safety")
+add_subdirectory(10_Safety)

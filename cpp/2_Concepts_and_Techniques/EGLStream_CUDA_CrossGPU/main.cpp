@@ -81,7 +81,7 @@ void DoneProd(int producerStatus, int connect_fd)
 int WIDTH = 8192, HEIGHT = 8192;
 int main(int argc, char **argv)
 {
-    TestArgs                   args           = {0, false};
+    TestArgs                   args           = {0, false, NULL};
     CUresult                   curesult       = CUDA_SUCCESS;
     unsigned int               j              = 0;
     cudaError_t                err            = cudaSuccess;
@@ -90,11 +90,21 @@ int main(int argc, char **argv)
     CUeglFrame                 cudaEgl1, cudaEgl2;
     int                        consumerStatus = 0;
     int                        send_fd        = -1;
+    char                       socketPath[sizeof(sockaddr_un::sun_path)];
 
     if (parseCmdLine(argc, argv, &args) < 0) {
         printUsage();
-        curesult = CUDA_ERROR_UNKNOWN;
-        DoneCons(consumerStatus, send_fd);
+        return EXIT_FAILURE;
+    }
+
+    if (!args.isProducer) {
+        // Use the consumer PID to keep concurrent process pairs separate.
+        int written = snprintf(socketPath, sizeof(socketPath), "%s_%ld", SOCK_PATH, (long)getpid());
+        if (written < 0 || (size_t)written >= sizeof(socketPath)) {
+            printf("Socket path is too long\n");
+            return EXIT_FAILURE;
+        }
+        args.socketPath = socketPath;
     }
 
     printf("Width : %u, height: %u and iterations: %u\n", WIDTH, HEIGHT, NUMTRIALS);
@@ -137,9 +147,9 @@ int main(int argc, char **argv)
 
         cuCtxPopCurrent(&cudaConsumer.context);
 
-        send_fd = UnixSocketConnect(SOCK_PATH);
+        send_fd = UnixSocketConnect(args.socketPath);
         if (-1 == send_fd) {
-            printf("%s: Cuda Consumer cannot create socket %s\n", __func__, SOCK_PATH);
+            printf("%s: Cuda Consumer cannot create socket %s\n", __func__, args.socketPath);
             consumerStatus = -1;
             DoneCons(consumerStatus, send_fd);
         }
@@ -242,9 +252,9 @@ int main(int argc, char **argv)
         signal(SIGINT, sig_handler);
 
         // Create connection to Consumer
-        connect_fd = UnixSocketCreate(SOCK_PATH);
+        connect_fd = UnixSocketCreate(args.socketPath);
         if (-1 == connect_fd) {
-            printf("%s: Cuda Producer could not create socket: %s.\n", __func__, SOCK_PATH);
+            printf("%s: Cuda Producer could not create socket: %s.\n", __func__, args.socketPath);
             producerStatus = -1;
             DoneProd(producerStatus, connect_fd);
         }

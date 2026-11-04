@@ -162,6 +162,8 @@ static int  fpsLimit = 5;
 cudaEvent_t startEvent, stopEvent;
 cudaEvent_t hostMemSyncEvent;
 
+cudaStream_t nbodyTimingStream();
+
 template <typename T> class NBodyDemo
 {
 public:
@@ -187,6 +189,11 @@ public:
     static bool compareResults(int numBodies) { return m_singleton->_compareResults(numBodies); }
 
     static void runBenchmark(int iterations) { m_singleton->_runBenchmark(iterations); }
+
+    static cudaStream_t timingStream()
+    {
+        return (m_singleton && m_singleton->m_nbodyCuda) ? m_singleton->m_nbodyCuda->getComputeStream() : 0;
+    }
 
     static void updateParams()
     {
@@ -440,7 +447,7 @@ private:
             sdkStartTimer(&timer);
         }
         else {
-            checkCudaErrors(cudaEventRecord(startEvent, 0));
+            checkCudaErrors(cudaEventRecord(startEvent, nbodyTimingStream()));
         }
 
         for (int i = 0; i < iterations; ++i) {
@@ -455,7 +462,7 @@ private:
             sdkStartTimer(&timer);
         }
         else {
-            checkCudaErrors(cudaEventRecord(stopEvent, 0));
+            checkCudaErrors(cudaEventRecord(stopEvent, nbodyTimingStream()));
             checkCudaErrors(cudaEventSynchronize(stopEvent));
             checkCudaErrors(cudaEventElapsedTime(&milliseconds, startEvent, stopEvent));
         }
@@ -472,6 +479,19 @@ private:
                flopsPerInteraction);
     }
 };
+
+cudaStream_t nbodyTimingStream()
+{
+    if (useCpu) {
+        return 0;
+    }
+
+    if (fp64) {
+        return NBodyDemo<double>::timingStream();
+    }
+
+    return NBodyDemo<float>::timingStream();
+}
 
 void finalize()
 {
@@ -642,7 +662,7 @@ void display()
 
         if (!useCpu) {
             cudaEventRecord(hostMemSyncEvent,
-                            0); // insert an event to wait on before rendering
+                            nbodyTimingStream()); // insert an event to wait on before rendering
         }
     }
 
@@ -720,7 +740,7 @@ void display()
             sdkResetTimer(&timer);
         }
         else {
-            checkCudaErrors(cudaEventRecord(stopEvent, 0));
+            checkCudaErrors(cudaEventRecord(stopEvent, nbodyTimingStream()));
             checkCudaErrors(cudaEventSynchronize(stopEvent));
             checkCudaErrors(cudaEventElapsedTime(&milliseconds, startEvent, stopEvent));
         }
@@ -748,7 +768,7 @@ void display()
 
         // restart timer
         if (!useCpu) {
-            checkCudaErrors(cudaEventRecord(startEvent, 0));
+            checkCudaErrors(cudaEventRecord(startEvent, nbodyTimingStream()));
         }
     }
 
@@ -1086,26 +1106,13 @@ int main(int argc, char **argv)
     }
 
     if (!useCpu) {
-        // Now choose the CUDA Device
-        // Either without GL interop:
-        if (benchmark || compareToCPU || useHostMem) {
-            // Note if we are using host memory for the body system, we
-            // don't use CUDA-GL interop.
-
-            if (checkCmdLineFlag(argc, (const char **)argv, "device")) {
-                customGPU = true;
-            }
-
-            devID = findCudaDevice(argc, (const char **)argv);
+        // Device selection does not depend on GL interop. Benchmark, compare,
+        // and host memory skip interop by leaving the PBO argument false below.
+        if (checkCmdLineFlag(argc, (const char **)argv, "device")) {
+            customGPU = true;
         }
-        else // or with GL interop:
-        {
-            if (checkCmdLineFlag(argc, (const char **)argv, "device")) {
-                customGPU = true;
-            }
 
-            devID = findCudaDevice(argc, (const char **)argv);
-        }
+        devID = findCudaDevice(argc, (const char **)argv);
 
         checkCudaErrors(cudaGetDevice(&devID));
         checkCudaErrors(cudaGetDeviceProperties(&props, devID));
@@ -1147,10 +1154,7 @@ int main(int argc, char **argv)
                         exit(EXIT_SUCCESS);
                     }
 
-                    if (numDevsRequested > 1) {
-                        checkCudaErrors(cudaSetDevice(i));
-                    }
-
+                    checkCudaErrors(cudaSetDevice(i));
                     checkCudaErrors(cudaSetDeviceFlags(cudaDeviceMapHost));
 #else
                     fprintf(stderr,
@@ -1322,7 +1326,7 @@ int main(int argc, char **argv)
             glutIdleFunc(idle);
 
             if (!useCpu) {
-                checkCudaErrors(cudaEventRecord(startEvent, 0));
+                checkCudaErrors(cudaEventRecord(startEvent, nbodyTimingStream()));
             }
 
             glutMainLoop();
@@ -1349,7 +1353,7 @@ int main(int argc, char **argv)
             glutIdleFunc(idle);
 
             if (!useCpu) {
-                checkCudaErrors(cudaEventRecord(startEvent, 0));
+                checkCudaErrors(cudaEventRecord(startEvent, nbodyTimingStream()));
             }
 
             glutMainLoop();
