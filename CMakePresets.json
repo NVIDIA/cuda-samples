@@ -1,0 +1,49 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": { "major": 3, "minor": 19 },
+  "configurePresets": [
+    {
+      "name": "windows-msvc",
+      "displayName": "Windows - Visual Studio (MSVC)",
+      "description": "Repository-level preset for Windows using Visual Studio generator.",
+      "generator": "Visual Studio 18 2026",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/build/${presetName}"
+    },
+    {
+      "name": "wsl-ninja",
+      "displayName": "WSL/Ubuntu - Ninja",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+    },
+    {
+      "name": "linux-ninja",
+      "displayName": "Linux - Ninja",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+    },
+    {
+      "name": "ci-linux",
+      "displayName": "CI Linux (Ubuntu LTS)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/ci-linux",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+    },
+    {
+      "name": "ci-windows",
+      "displayName": "CI Windows (MSVC)",
+      "generator": "Visual Studio 18 2026",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/build/ci-windows"
+    }
+  ],
+  "buildPresets": [
+    { "name": "build-windows-release", "configurePreset": "windows-msvc", "configuration": "Release" },
+    { "name": "build-windows-debug", "configurePreset": "windows-msvc", "configuration": "Debug" },
+    { "name": "build-linux-release", "configurePreset": "linux-ninja", "configuration": "Release" },
+    { "name": "build-linux-debug", "configurePreset": "linux-ninja", "configuration": "Debug" },
+    { "name": "build-ci-linux", "configurePreset": "ci-linux", "configuration": "Release" }
+  ]
+}
