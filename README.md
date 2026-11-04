@@ -1,6 +1,6 @@
 # CUDA Samples
 
-Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This version supports [CUDA Toolkit 13.4](https://developer.nvidia.com/cuda-downloads).
+Samples for CUDA Developers which demonstrates features in CUDA Toolkit. This version supports [CUDA Toolkit 13.5](https://developer.nvidia.com/cuda-downloads).
 
 ## Release Notes
 
@@ -28,7 +28,7 @@ Without using git the easiest way to use these samples is to download the zip fi
 
 ## Building CUDA Samples
 
-The CUDA Samples are built using CMake. Follow the instructions below for building on Linux, Windows, and for cross-compilation to Tegra devices.
+The CUDA Samples are built using CMake. Follow the instructions below for building on Linux, Windows, natively on Tegra, and for cross-compilation to Automotive Linux and QNX.
 
 ### Linux
 
@@ -113,26 +113,30 @@ To build these samples, set the variables either on the command line or through 
 cmake -DBUILD_TEGRA=True ..
 ```
 
-### Cross-Compilation for Tegra Platforms
+### Native Building on Tegra Platforms
 
-Install the NVIDIA toolchain and cross-compilation environment for Tegra devices as described in the Tegra Development Guide.
+Build on the Tegra device itself (Jetson L4T or Drive OS Linux). Do not pass a CMake toolchain file; the compilers on the board already target aarch64 Linux. Cross compilation from x86 is covered in the Automotive Linux and QNX sections below.
 
-Ensure that CMake (version 3.20 or later) is installed.
+Ensure that CMake (version 3.20 or later) and the CUDA toolkit are installed on the device. Then, from the repository root:
 
-Navigate to the root of the cloned repository and create a build directory:
 ```
 mkdir build && cd build
-```
-Configure the project with CMake, specifying the Tegra toolchain file. And you can use -DTARGET_FS to point to the target file system root path for necessary include and library files:
-```
-cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/toolchain-aarch64-linux.cmake -DTARGET_FS=/path/to/target/system/file/system
-```
-Build the samples:
-```
+cmake .. -DBUILD_TEGRA=True \
+  -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc \
+  -DCMAKE_CUDA_ARCHITECTURES=<arch>
 make -j$(nproc)
 ```
-Transfer the built binaries to the Tegra device and execute them there.
 
+Replace `<arch>` with the GPU SM version (`87` for Orin, `110` for Thor). 
+
+On some Drive OS installs the toolkit keeps headers and libraries only under a chip-suffixed directory such as `targets/aarch64-linux-thor`, and nvcc's default target directory does not find them. In that case add the matching flag (use the directory name that exists under `/usr/local/cuda/targets/`):
+
+```
+cmake .. -DBUILD_TEGRA=True \
+  -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc \
+  -DCMAKE_CUDA_ARCHITECTURES=110 \
+  -DCMAKE_CUDA_FLAGS="--target-directory aarch64-linux-thor"
+```
 
 ### Cross Building for Automotive Linux Platforms from the DriveOS Docker containers
 
@@ -152,7 +156,7 @@ Mount the filesystem by running the following command:
 $ mount /drive/drive-linux/filesystem/targetfs-images/dev_nsr_desktop_ubuntu-24.04_thor_rfs.img /drive/temp
 ```
 
-Configure the project by running the following cmake command:
+Configure the project by running the following cmake command. Replace `cuda-XX.X` with the CUDA version on the target filesystem, and `aarch64-linux-thor` with the directory name that exists under `targets/` (on both the host toolkit and the mounted RFS):
 
 ```
 $ mkdir build && cd build
@@ -160,8 +164,9 @@ $ cmake .. -DBUILD_TEGRA=True \
   -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc \
   -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/toolchain-aarch64-linux.cmake \
   -DTARGET_FS=/drive/temp \
-  -DCMAKE_LIBRARY_PATH=/drive/temp/usr/local/cuda-13.1/thor/lib64/ \
-  -DCMAKE_INCLUDE_PATH=/drive/temp/usr/local/cuda-13.1/thor/include/
+  -DCMAKE_CUDA_FLAGS="--target-directory aarch64-linux-thor" \
+  -DCMAKE_LIBRARY_PATH=/drive/temp/usr/local/cuda-XX.X/targets/aarch64-linux-thor/lib/ \
+  -DCMAKE_INCLUDE_PATH=/drive/temp/usr/local/cuda-XX.X/targets/aarch64-linux-thor/include/
 ```
 
 Please note that the following libraries are not pre-installed in the DriveOS dev-nsr target filesystem:
@@ -177,12 +182,12 @@ $ make -j$(nproc) --ignore-errors # or --keep-going
 ```
 
 ```
-# In cpp/5_Domain_Specific/CMakeList.txt
+# In cpp/5_Domain_Specific/CMakeLists.txt
 # add_subdirectory(simpleGL)
 # add_subdirectory(simpleVulkan)
 # add_subdirectory(simpleVulkanMMAP)
 
-# In cpp/8_Platform_Specific/Tegra/CMakeList.txt
+# In cpp/8_Platform_Specific/Tegra/CMakeLists.txt
 # add_subdirectory(simpleGLES_EGLOutput)
 ```
 
@@ -197,17 +202,18 @@ export QNX_HOST=/path/to/qnx/host
 export QNX_TARGET=/path/to/qnx/target
 ```
 
-Build the samples for the Tegra Thor QNX platform:
+Build the samples for the Tegra Thor QNX platform. Replace `aarch64-qnx-thor` with the directory name that exists under `/usr/local/cuda/targets/`:
 
 ```bash
 mkdir -p build && cd build
 cmake .. \
   -DBUILD_TEGRA=True \
-  -DCMAKE_CUDA_COMPILER=/usr/local/cuda-13.3/bin/nvcc \
+  -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc \
   -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/toolchain-aarch64-qnx.cmake \
   -DTARGET_FS=/path/to/qnx/targetfs \
-  -DCMAKE_LIBRARY_PATH=/usr/local/cuda-13.3/thor/targets/aarch64-qnx/lib/stubs/ \
-  -DCMAKE_INCLUDE_PATH=/usr/local/cuda-13.3/thor/targets/aarch64-qnx/include/
+  -DCMAKE_CUDA_FLAGS="--target-directory aarch64-qnx-thor" \
+  -DCMAKE_LIBRARY_PATH=/usr/local/cuda/targets/aarch64-qnx-thor/lib/stubs/ \
+  -DCMAKE_INCLUDE_PATH=/usr/local/cuda/targets/aarch64-qnx-thor/include/
 cmake --build .
 ```
 
@@ -219,14 +225,14 @@ For both QNX toolchains the build looks for `nvscibuf.h` in `<TARGET_FS>/include
 
 ### QNX Safety (CUDA Safe toolkit)
 
-Cross-compilation for **QNX Safety** uses the CUDA Safe toolkit (for example `/usr/local/cuda-13.3-safe`).
+Cross-compilation for **QNX Safety** uses the CUDA Safe toolkit (for example `/usr/local/cuda-XX.X-safe`).
 
 Set up the QNX SDP and Safe toolkit paths:
 
 ```bash
 export QNX_HOST=/path/to/qnx/host
 export QNX_TARGET=/path/to/qnx/target
-export CUDA_PATH=/usr/local/cuda-13.3-safe
+export CUDA_PATH=/usr/local/cuda-XX.X-safe
 export PATH=$CUDA_PATH/nvvm/bin:$PATH
 ```
 
@@ -244,9 +250,9 @@ cmake --build .
 
 The safe toolchain sets `-safety-compat`, links shared `libcudart` and `libcuda`, and uses QNX `q++` as the CUDA host compiler (`CMAKE_CUDA_HOST_COMPILER`). Set `CMAKE_CUDA_ARCHITECTURES` to match your GPU (`87` for Orin, `110` for Thor).
 
-Supported QNX Safety samples: `matrixMul`, `cudaNvSci`.
+Supported QNX Safety samples: `matrixMul`, `cudaNvSci` and all samples in `cpp/10_Safety` directory.
 
-`TARGET_FS` is only needed for `cudaNvSci`, which links the NvSci libraries from the safety target filesystem (`<NV_WORKSPACE>/drive-qnx-safety`, part of the DRIVE OS QNX Safety SDK). `matrixMul` builds without it. The NvSci search paths are the same as for the standard QNX build above.
+`TARGET_FS` is only needed for `cudaNvSci`, which links the NvSci libraries from the safety target filesystem (`<NV_WORKSPACE>/drive-qnx-safety`, part of the DRIVE OS QNX Safety SDK). `matrixMul` and `sharedCtx` build without it. The NvSci search paths are the same as for the standard QNX build above.
 
 ### Forward Compatibility
 
@@ -584,7 +590,7 @@ OpenGL ES is an embedded systems graphics library used for 2D and 3D rendering. 
 
 #### Freeglut
 
-Freeglut is an open-source software library that serves as a replacement for the original OpenGL Utility Toolkit (GLUT). Its primary purpose is to make it easier for developers to create and manage windows containing OpenGL contexts, as well as handle input from devices like the mouse, keyboard, and joystick, across a wide range of platforms. To set up Freeglut on a Windowson on ARM system, you need to download the source from [Freeglut website](https://freeglut.sourceforge.net/), build freeglut on your system, and copy the freeglut.lib into the folder `./Common/lib/x64` and copy the freeglut.dll file into the `./bin/win64/${BUILD_TYPE}` execution folder.
+Freeglut is an open-source software library that serves as a replacement for the original OpenGL Utility Toolkit (GLUT). Its primary purpose is to make it easier for developers to create and manage windows containing OpenGL contexts, as well as handle input from devices like the mouse, keyboard, and joystick, across a wide range of platforms. To set up Freeglut on a Windows on ARM system, you need to download the source from [Freeglut website](https://freeglut.sourceforge.net/), build freeglut on your system, and copy the freeglut.lib into the folder `./Common/lib/x64` and copy the freeglut.dll file into the `./bin/win64/${BUILD_TYPE}` execution folder.
 
 #### Vulkan
 

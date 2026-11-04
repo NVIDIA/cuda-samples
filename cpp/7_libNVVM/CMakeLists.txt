@@ -71,8 +71,17 @@ find_file(LIBNVVM_HOME nvvm PATHS "$ENV{LIBNVVM_HOME}" "${CUDA_HOME}")
 message(STATUS "Using LIBNVVM_HOME: ${LIBNVVM_HOME}")
 
 # Find libNVVM and nvvm.h.
-# (Linux: nvvm/lib64, windows: nvvm/lib/x64, windows on arm:nvvm/lib/arm64)
-find_library(NVVM_LIB nvvm PATHS "${LIBNVVM_HOME}/lib64" "${LIBNVVM_HOME}/lib/x64" "${LIBNVVM_HOME}/lib/arm64")
+if (WIN32)
+  # Select the target architecture, which can differ from the host architecture.
+  if (CMAKE_C_COMPILER_ARCHITECTURE_ID STREQUAL "ARM64")
+    set(NVVM_ARCH arm64)
+  else ()
+    set(NVVM_ARCH x64)
+  endif ()
+  find_library(NVVM_LIB nvvm PATHS "${LIBNVVM_HOME}/lib/${NVVM_ARCH}" NO_DEFAULT_PATH)
+else ()
+  find_library(NVVM_LIB nvvm PATHS "${LIBNVVM_HOME}/lib64")
+endif ()
 find_file(NVVM_H nvvm.h PATH "${LIBNVVM_HOME}/include")
 get_filename_component(NVVM_INCLUDE_DIR ${NVVM_H} DIRECTORY)
 include_directories(${NVVM_INCLUDE_DIR})
@@ -93,7 +102,9 @@ message(STATUS "Using rpath: ${CMAKE_INSTALL_RPATH}")
 
 # On Windows, locate the nvvm.dll so we can install it later.
 if (WIN32)
-  find_file(NVVM_DLL nvvm64_40_0.dll PATHS "${LIBNVVM_HOME}/bin" "${LIBNVVM_HOME}/bin/x64/")
+  find_file(NVVM_DLL nvvm64_40_0.dll
+    PATHS "${LIBNVVM_HOME}/bin/${NVVM_ARCH}" "${LIBNVVM_HOME}/bin"
+    NO_DEFAULT_PATH)
   if (NOT NVVM_DLL)
     message(FATAL_ERROR "Found nvvm .h/.lib, but not .dll")
   endif()

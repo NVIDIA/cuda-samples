@@ -33,8 +33,10 @@
 template <typename T> struct DeviceData
 {
     T           *dPos[2]; // mapped host pointers
+    T           *dReadScratch;
     T           *dVel;
     cudaEvent_t  event;
+    cudaStream_t stream;
     unsigned int offset;
     unsigned int numBodies;
 };
@@ -65,6 +67,12 @@ public:
     virtual unsigned int getCurrentReadBuffer() const { return m_pbo[m_currentRead]; }
 
     virtual unsigned int getNumBodies() const { return m_numBodies; }
+
+    // Stream that GPU0 kernels (and PBO map/unmap) are issued on. Single-GPU
+    // leaves this as the legacy default stream (0); multi-GPU uses a
+    // non-blocking stream. Benchmark / FPS timing must record on this stream
+    // rather than hard-coding 0.
+    cudaStream_t getComputeStream() const { return m_deviceData[0].stream; }
 
 protected: // methods
     BodySystemCUDA() {}

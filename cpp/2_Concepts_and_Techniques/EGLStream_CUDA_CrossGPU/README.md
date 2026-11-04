@@ -2,7 +2,9 @@
 
 ## Description
 
-Demonstrates CUDA and EGL Streams interop, where consumer's EGL Stream is on one GPU and producer's on other and both consumer-producer are different processes.
+Demonstrates CUDA and EGL Streams interop between separate consumer and producer processes. By default, both processes use the same GPU. Use `-crossdev` to place the consumer on a discrete GPU and the producer on an integrated GPU.
+
+The consumer adds its process ID to the Unix socket name and passes the path to the producer. Each process pair uses a separate socket, so multiple sample instances can run at the same time.
 
 ## Key Concepts
 

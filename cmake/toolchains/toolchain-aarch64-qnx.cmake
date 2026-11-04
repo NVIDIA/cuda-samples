@@ -22,19 +22,18 @@ set(CMAKE_CXX_COMPILER ${QNX_QPLUS})
 set(CMAKE_C_COMPILER_TARGET aarch64)
 set(CMAKE_CXX_COMPILER_TARGET aarch64)
 
-# Set compiler flags
-set(CMAKE_CUDA_HOST_COMPILER ${CMAKE_CXX_COMPILER} CACHE STRING "" FORCE)
+# Set compiler flags. Host compiler is a normal (non-cache) toolchain variable so it
+# is not FORCE-stamped into the cache.
+set(CMAKE_CUDA_HOST_COMPILER ${CMAKE_CXX_COMPILER})
 set(CMAKE_CUDA_COMPILER_ID_TEST_FLAGS_FIRST "-nodlink -L${CUDA_ROOT}/lib64 -L${CUDA_ROOT}/lib -I${CUDA_ROOT}/include")
 
-set(CMAKE_C_FLAGS " \"-V${__qnx_gcc_ver},gcc_ntoaarch64le\"")
-set(CMAKE_CXX_FLAGS " \"-V${__qnx_gcc_ver},gcc_ntoaarch64le\"")
-set(CMAKE_CUDA_FLAGS " --qpp-config=${__qnx_gcc_ver},gcc_ntoaarch64le")
+string(APPEND CMAKE_C_FLAGS " \"-V${__qnx_gcc_ver},gcc_ntoaarch64le\"")
+string(APPEND CMAKE_CXX_FLAGS " \"-V${__qnx_gcc_ver},gcc_ntoaarch64le\" -D_QNX_SOURCE")
+string(APPEND CMAKE_CUDA_FLAGS " --qpp-config=${__qnx_gcc_ver},gcc_ntoaarch64le -D_QNX_SOURCE")
 set(AUTOMAGIC_NVCC_FLAGS --qpp-config=${__qnx_gcc_ver},gcc_ntoaarch64le CACHE STRING "automagic feature detection flags for cross build")
 add_link_options("-V${__qnx_gcc_ver},gcc_ntoaarch64le")
 
 set(CROSS_COMPILE_FOR_QNX ON CACHE BOOL "Cross compiling for QNX platforms")
-string(APPEND CMAKE_CXX_FLAGS " -D_QNX_SOURCE")
-string(APPEND CMAKE_CUDA_FLAGS " -D_QNX_SOURCE")
 
 # cudaNvSci needs NvSci headers/libs from the QNX rootfs; point TARGET_FS at it. This pre-seeds
 # FindNVSCI's cache vars and auto-detects the header/lib dirs across rootfs layouts.

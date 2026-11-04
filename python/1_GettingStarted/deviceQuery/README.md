@@ -23,7 +23,7 @@ Query and display detailed properties of all CUDA-capable devices in your system
 
 - `Device.get_all_devices()` - Get tuple of all available Device instances
 - `Device(device_id)` - Get Device object for specific device ID
-- `system.get_driver_version()` - Query CUDA driver version
+- `system.get_user_mode_driver_version()` - Query CUDA driver version
 - `Device.set_current()` - Set the current device for API calls
 - `Device.properties` - Access comprehensive device properties
 - `Device.name` - Get device name string
@@ -90,7 +90,7 @@ Query and display detailed properties of all CUDA-capable devices in your system
 - CUDA Toolkit 13.0 or newer (recommended; matches `cuda-python` 13.x)
 - Python 3.10 or newer
 - `cuda-python` package (>=13.0.0)
-- `cuda-core` package (>=1.0.0)
+- `cuda-core` package (>=1.2.0)
 
 ## Installation
 
@@ -103,7 +103,7 @@ pip install -r requirements.txt
 
 The requirements.txt installs:
 - `cuda-python` (>=13.0.0)
-- `cuda-core` (>=1.0.0)
+- `cuda-core` (>=1.2.0)
 
 ## How to Run
 

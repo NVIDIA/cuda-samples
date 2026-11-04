@@ -95,9 +95,9 @@ def check_ipc_support(device) -> bool:
     return True
 
 
-def child_worker(q_in, q_out, n_elements, parent_seed, child_seed):
+def child_worker(q_in, q_out, n_elements, parent_seed, child_seed, device_id):
     """Runs in a separate process. Verifies and modifies the shared buffer."""
-    device = Device(0)
+    device = Device(device_id)
     device.set_current()
     pid = mp.current_process().pid
 
@@ -188,7 +188,7 @@ def main() -> int:
         q_from_child = mp.Queue()
         child = mp.Process(
             target=child_worker,
-            args=(q_to_child, q_from_child, N, parent_seed, child_seed),
+            args=(q_to_child, q_from_child, N, parent_seed, child_seed, args.device),
         )
         child.start()
         q_to_child.put(buffer)

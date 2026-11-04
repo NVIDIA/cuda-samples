@@ -13,6 +13,8 @@ This sample demonstrates how to add a custom GPU operation to PyTorch using the 
 - cuda-python >= 13.0.0
 - cuda-core >=1.0.0
 
+**PyTorch GPU compatibility:** Install a CUDA-enabled PyTorch build that supports your target GPU. GPU architecture support varies by platform and CUDA build. Check the [PyTorch CUDA Support Matrix](https://github.com/pytorch/pytorch/blob/main/RELEASE.md#pytorch-cuda-support-matrix) before installing PyTorch.
+
 ## Installation
 
 ```bash

@@ -334,6 +334,21 @@
     "EGLStream_CUDA_CrossGPU": {
         "min_gpus": 2
     },
+    "cftUnicastPut": {
+        "min_gpus": 2,
+        "requires": ["mpi"],
+        "launcher": ["mpirun", "--allow-run-as-root", "-np", "2"],
+        "runs": [
+            {
+                "name": "put",
+                "args": ["100"]
+            },
+            {
+                "name": "counted",
+                "args": ["100", "--counted"]
+            }
+        ]
+    },
     "reductionMultiBlockCG": {
         "python": {
             "args": ["--cuda-include-dir=$CUDA_HOME/include:$CUDA_HOME/include/cccl"]

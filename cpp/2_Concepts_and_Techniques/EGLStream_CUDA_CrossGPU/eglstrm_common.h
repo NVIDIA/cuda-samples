@@ -89,6 +89,7 @@ typedef struct _TestArgs
 {
     unsigned int charCnt;
     bool         isProducer;
+    const char  *socketPath;
 } TestArgs;
 
 extern int WIDTH, HEIGHT;

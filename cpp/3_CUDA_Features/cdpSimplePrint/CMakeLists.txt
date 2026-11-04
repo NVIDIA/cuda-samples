@@ -4,10 +4,12 @@ cmake_minimum_required(VERSION 3.20)
 # toolkit ships only for the native Tegra archs; drop the desktop archs there.
 get_filename_component(_ctk_root "${CMAKE_CUDA_COMPILER}" DIRECTORY)
 get_filename_component(_ctk_root "${_ctk_root}" DIRECTORY)
-if(EXISTS "${_ctk_root}/targets/aarch64-linux" OR EXISTS "${_ctk_root}/targets/aarch64-qnx")
+file(GLOB _tegra_targets "${_ctk_root}/targets/aarch64-linux*" "${_ctk_root}/targets/aarch64-qnx*")
+if(_tegra_targets)
     set(SAMPLE_DISALLOW_ARCHS 75 80 86 89 90 100 103 107 120)
 endif()
 unset(_ctk_root)
+unset(_tegra_targets)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake/DetectCudaArch.cmake")
 

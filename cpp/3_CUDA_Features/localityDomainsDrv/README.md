@@ -38,7 +38,7 @@ How to:
 
 ### Software
 
-- CUDA Toolkit and NVIDIA driver with locality domain support
+- CUDA Toolkit and NVIDIA driver with locality domain support (CUDA Driver API 13.1 or newer)
 - Linux or QNX on x86_64 or aarch64
 - CMake 3.20 or newer
 - A C++17-capable host compiler
@@ -73,6 +73,8 @@ Reserved VA range size: <bytes> bytes
 allocation 0x<address> is localized to locality domain 0
 ...
 ```
+
+If device 0 reports no locality domains, the sample reports that it is waiving execution and exits with status 2 (waived). A successful run exits with status 0.
 
 ## Files
 

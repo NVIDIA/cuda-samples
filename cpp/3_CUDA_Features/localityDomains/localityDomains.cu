@@ -51,7 +51,7 @@ int main()
 
     if (!memoryPoolsSupported) {
         std::cout << "Waiving execution as the device does not support memory pools." << std::endl;
-        return 0;
+        return 2;
     }
 
     // Device information
@@ -63,6 +63,11 @@ int main()
 
         std::cout << "Locality domain count: " << localityDomainCount << std::endl;
         std::cout << "SMs per locality domain: " << localityDomainSmCount << std::endl;
+    }
+
+    if (localityDomainCount == 0) {
+        std::cout << "Waiving execution as the device does not support locality domains." << std::endl;
+        return 2;
     }
 
     // Construct localized green contexts and streams

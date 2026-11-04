@@ -25,6 +25,9 @@ This sample demonstrates simple printf implemented using CUDA Dynamic Parallelis
 ### [cdpSimpleQuicksort](./cdpSimpleQuicksort)
 This sample demonstrates simple quicksort implemented using CUDA Dynamic Parallelism.  This sample requires devices with compute capability 3.5 or higher.
 
+### [cftUnicastPut](./cftUnicastPut)
+This MPI sample demonstrates unicast point-to-point data movement between GPUs with Compute Fabric Transport (CFT) logical endpoints, using either plain fabric puts with an inter-GPU completion signal  or counted fabric puts with a byte-arrival counter for receive completion.
+
 ### [cudaCompressibleMemory](./cudaCompressibleMemory)
 This sample demonstrates the compressible memory allocation using cuMemMap API.
 
