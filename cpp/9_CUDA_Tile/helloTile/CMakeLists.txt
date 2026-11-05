@@ -23,6 +23,14 @@ endif()
 
 find_package(CUDAToolkit REQUIRED)
 
+# GCC auto-enables _FORTIFY_SOURCE at -O1 and above, which routes printf through
+# a __host__ __device__ wrapper that tile kernels cannot call. The category-level
+# workaround is not inherited when this sample is configured on its own.
+add_compile_options(
+    $<$<COMPILE_LANGUAGE:CUDA>:-Xcompiler=-U_FORTIFY_SOURCE>
+    $<$<COMPILE_LANGUAGE:CUDA>:-Xcompiler=-D_FORTIFY_SOURCE=0>
+)
+
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --enable-tile")
 
 if(ENABLE_CUDA_DEBUG)
