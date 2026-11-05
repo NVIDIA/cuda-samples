@@ -315,13 +315,14 @@ bool shuffle_integral_image_test()
     int           w          = 1920;
     int           h          = 1080;
     int           n_elements = w * h;
-    int           sz         = sizeof(unsigned int) * n_elements;
+    const size_t image_bytes = static_cast<size_t>(n_elements) * sizeof(*d_data);
+    const size_t integral_image_bytes = static_cast<size_t>(n_elements) * sizeof(*d_integral_image);
 
     printf("\nComputing Integral Image Test on size %d x %d synthetic data\n", w, h);
     printf("---------------------------------------------------\n");
-    checkCudaErrors(cudaMallocHost(reinterpret_cast<void **>(&h_image), sz));
+    checkCudaErrors(cudaMallocHost(reinterpret_cast<void **>(&h_image), integral_image_bytes));
     // fill test "image" with synthetic 1's data
-    memset(h_image, 0, sz);
+    memset(h_image, 0, integral_image_bytes);
 
     // each thread handles 16 values, use 1 block/row
     int blockSize = iDivUp(w, 16);
@@ -329,10 +330,10 @@ bool shuffle_integral_image_test()
     int gridSize = h;
 
     // Create a synthetic image for testing
-    checkCudaErrors(cudaMalloc(reinterpret_cast<void **>(&d_data), sz));
-    checkCudaErrors(cudaMalloc(reinterpret_cast<void **>(&d_integral_image), n_elements * sizeof(int) * 4));
-    checkCudaErrors(cudaMemset(d_data, 1, sz));
-    checkCudaErrors(cudaMemset(d_integral_image, 0, sz));
+    checkCudaErrors(cudaMalloc(reinterpret_cast<void **>(&d_data), image_bytes));
+    checkCudaErrors(cudaMalloc(reinterpret_cast<void **>(&d_integral_image), integral_image_bytes));
+    checkCudaErrors(cudaMemset(d_data, 1, image_bytes));
+    checkCudaErrors(cudaMemset(d_integral_image, 0, integral_image_bytes));
 
     cudaEvent_t start, stop;
     cudaEventCreate(&start);
@@ -350,7 +351,8 @@ bool shuffle_integral_image_test()
     printf("Method: Fast  Time (GPU Timer): %f ms ", et);
 
     // verify the scan line results
-    checkCudaErrors(cudaMemcpy(h_image, d_integral_image, sz, cudaMemcpyDeviceToHost));
+    checkCudaErrors(
+        cudaMemcpy(h_image, d_integral_image, integral_image_bytes, cudaMemcpyDeviceToHost));
     err = verifyDataRowSums(h_image, w, h);
     printf("Diff = %d\n", err);
 
@@ -366,7 +368,8 @@ bool shuffle_integral_image_test()
     printf("Method: Vertical Scan  Time (GPU Timer): %f ms ", et);
 
     // Verify the column results
-    checkCudaErrors(cudaMemcpy(h_image, d_integral_image, sz, cudaMemcpyDeviceToHost));
+    checkCudaErrors(
+        cudaMemcpy(h_image, d_integral_image, integral_image_bytes, cudaMemcpyDeviceToHost));
     printf("\n");
 
     int finalSum = h_image[w * h - 1];
