@@ -444,9 +444,9 @@ void runMatrixMultiplyKernel(unsigned int matrixDim,
                 if (deviceProp.concurrentManagedAccess) {
                     cudaMemLocation hostLoc;
                     hostLoc.type = cudaMemLocationTypeHost;
-                    checkCudaErrors(cudaMemPrefetchAsync(dptrA, size, hostLoc, 0));
-                    checkCudaErrors(cudaMemPrefetchAsync(dptrB, size, hostLoc, 0));
-                    checkCudaErrors(cudaMemPrefetchAsync(dptrC, size, hostLoc, 0));
+                    checkCudaErrors(cudaMemPrefetchAsync(dptrA, size, hostLoc, 0, streamToRunOn));
+                    checkCudaErrors(cudaMemPrefetchAsync(dptrB, size, hostLoc, 0, streamToRunOn));
+                    checkCudaErrors(cudaMemPrefetchAsync(dptrC, size, hostLoc, 0, streamToRunOn));
                 }
                 else {
                     checkCudaErrors(cudaStreamAttachMemAsync(streamToRunOn, dptrA, 0, cudaMemAttachHost));
