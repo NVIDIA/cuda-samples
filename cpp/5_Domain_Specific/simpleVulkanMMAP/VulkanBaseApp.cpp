@@ -52,6 +52,8 @@
 #include <VersionHelpers.h>
 #include <aclapi.h>
 #include <dxgi1_2.h>
+#else
+#include <unistd.h>
 #endif /* _WIN64 */
 
 #ifndef countof
@@ -1613,7 +1615,17 @@ void VulkanBaseApp::importExternalBuffer(void                              *hand
     memAllocation.allocationSize       = memRequirements.size;
     memAllocation.memoryTypeIndex      = findMemoryType(m_physicalDevice, memRequirements.memoryTypeBits, properties);
 
+#ifndef _WIN64
+    // Vulkan takes ownership on import; keep the caller's FD for its own cleanup.
+    handleInfo.fd = dup(handleInfo.fd);
+    if (handleInfo.fd < 0) {
+        throw std::runtime_error("Failed to duplicate external memory file descriptor!");
+    }
+#endif
     if (vkAllocateMemory(m_device, &memAllocation, nullptr, &memory) != VK_SUCCESS) {
+#ifndef _WIN64
+        close(handleInfo.fd);
+#endif
         throw std::runtime_error("Failed to import allocation!");
     }
 
