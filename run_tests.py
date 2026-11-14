@@ -241,6 +241,10 @@ def main():
                     else:
                         safe_print(f"Warning: Arguments for {base_name} run {i+1} must be a list")
 
+                # An explicit runs list must not fall back to an unconfigured run.
+                if not arg_sets_configs:
+                    continue
+
         # If no specific args defined, create one run with no args
         if not arg_sets_configs:
             arg_sets_configs.append({"args": []})
