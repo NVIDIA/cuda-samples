@@ -512,14 +512,14 @@ namespace nv
 
             friend bool operator != (const matrix4 &lhs, const matrix4 &rhs)
             {
-                bool r = true;
 
                 for (int i = 0; i < 16; i++)
                 {
-                    r &= lhs._array[i] != rhs._array[i];
+                    if (lhs._array[i] != rhs._array[i])
+                        return true;
                 }
 
-                return r;
+                return false;
             }
 
             union
