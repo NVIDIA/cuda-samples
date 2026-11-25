@@ -75,12 +75,9 @@ void read_tipsy_file(vector<real4>     &bodyPositions,
        location where previously the potential was stored.
     */
 
-    char fullFileName[256];
-    sprintf(fullFileName, "%s", fileName.c_str());
+    cout << "Trying to read file: " << fileName << endl;
 
-    cout << "Trying to read file: " << fullFileName << endl;
-
-    ifstream inputFile(fullFileName, ios::in | ios::binary);
+    ifstream inputFile(fileName, ios::in | ios::binary);
 
     if (!inputFile.is_open()) {
         cout << "Can't open input file \n";
